@@ -1,0 +1,126 @@
+// LéxAmen — Schema de base de datos
+// Plataforma de aprendizaje de Derecho Civil y Procesal Civil (Chile)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  PREMIUM_MONTHLY
+  PREMIUM_ANNUAL
+}
+
+enum Submateria {
+  ACTO_JURIDICO
+  OBLIGACIONES
+  CONTRATOS
+  BIENES
+  JURISDICCION
+  COMPETENCIA
+  JUICIO_ORDINARIO
+  RECURSOS
+  JUICIO_EJECUTIVO
+}
+
+enum Tipo {
+  CIVIL
+  PROCESAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PENDING
+}
+
+// ─── Modelos ─────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  name            String?
+  plan            Plan      @default(FREE)
+  planExpiresAt   DateTime?
+  termsAcceptedAt DateTime?
+  termsVersion    String?
+  createdAt       DateTime  @default(now())
+
+  flashcardProgress UserFlashcardProgress[]
+  mcqAttempts       UserMCQAttempt[]
+  subscriptions     Subscription[]
+}
+
+model Flashcard {
+  id         String     @id @default(cuid())
+  front      String
+  back       String
+  submateria Submateria
+  tipo       Tipo
+
+  progress UserFlashcardProgress[]
+}
+
+model UserFlashcardProgress {
+  id             String    @id @default(cuid())
+  userId         String
+  flashcardId    String
+  easeFactor     Float     @default(2.5)
+  interval       Int       @default(0)
+  repetitions    Int       @default(0)
+  nextReviewAt   DateTime  @default(now())
+  lastReviewedAt DateTime?
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, flashcardId])
+}
+
+model MCQ {
+  id            String     @id @default(cuid())
+  question      String
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctOption String
+  explanation   String?
+  submateria    Submateria
+  tipo          Tipo
+
+  attempts UserMCQAttempt[]
+}
+
+model UserMCQAttempt {
+  id             String   @id @default(cuid())
+  userId         String
+  mcqId          String
+  selectedOption String
+  isCorrect      Boolean
+  attemptedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mcq  MCQ  @relation(fields: [mcqId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id             String             @id @default(cuid())
+  userId         String
+  plan           Plan
+  amount         Int
+  currency       String             @default("CLP")
+  status         SubscriptionStatus @default(PENDING)
+  transbankToken String?
+  createdAt      DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
