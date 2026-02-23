@@ -13,16 +13,27 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Upsert: crea el usuario en Prisma si no existe (fallback de seguridad)
-  const user = await prisma.user.upsert({
-    where: { id: authUser.id },
-    update: {},
-    create: {
-      id: authUser.id,
-      email: authUser.email!,
-      name: authUser.user_metadata?.full_name ?? null,
-    },
-  });
+  // Buscar usuario por id. Si no existe, intentar crearlo.
+  // Si el email ya existe (registro previo a medias), actualizar ese registro con el id correcto.
+  let user = await prisma.user.findUnique({ where: { id: authUser.id } });
+
+  if (!user) {
+    try {
+      user = await prisma.user.create({
+        data: {
+          id: authUser.id,
+          email: authUser.email!,
+          name: authUser.user_metadata?.full_name ?? null,
+        },
+      });
+    } catch {
+      // Si falla por email duplicado, actualizar el registro existente con el id de auth
+      user = await prisma.user.update({
+        where: { email: authUser.email! },
+        data: { id: authUser.id },
+      });
+    }
+  }
 
   const displayName = user.name ?? user.email;
 
