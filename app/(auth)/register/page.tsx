@@ -81,12 +81,20 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <Input
-          label="Nombre completo"
-          name="name"
-          placeholder="Ej: María González"
-          required
-        />
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <Input
+            label="Nombre"
+            name="firstName"
+            placeholder="Ej: María"
+            required
+          />
+          <Input
+            label="Apellido"
+            name="lastName"
+            placeholder="Ej: González"
+            required
+          />
+        </div>
 
         <Input
           label="Correo electrónico"

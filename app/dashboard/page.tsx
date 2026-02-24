@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { LogoutButton } from "./logout-button";
@@ -19,11 +20,14 @@ export default async function DashboardPage() {
 
   if (!user) {
     try {
+      const fullName = authUser.user_metadata?.full_name ?? "";
+      const parts = fullName.split(" ");
       user = await prisma.user.create({
         data: {
           id: authUser.id,
           email: authUser.email!,
-          name: authUser.user_metadata?.full_name ?? null,
+          firstName: parts[0] || "Usuario",
+          lastName: parts.slice(1).join(" ") || "Nuevo",
         },
       });
     } catch {
@@ -35,7 +39,26 @@ export default async function DashboardPage() {
     }
   }
 
-  const displayName = user.name ?? user.email;
+  const displayName = user.firstName ?? user.email;
+
+  // Contar flashcards pendientes de revisión hoy
+  const pendingFlashcards = await prisma.flashcard.count({
+    where: {
+      OR: [
+        // Nunca vistas por este usuario
+        { progress: { none: { userId: authUser.id } } },
+        // Con revisión pendiente (nextReviewAt ya pasó)
+        {
+          progress: {
+            some: {
+              userId: authUser.id,
+              nextReviewAt: { lte: new Date() },
+            },
+          },
+        },
+      ],
+    },
+  });
 
   return (
     <main className="min-h-screen bg-paper">
@@ -53,7 +76,7 @@ export default async function DashboardPage() {
       {/* Contenido */}
       <div className="mx-auto max-w-5xl px-6 py-10">
         <h2 className="text-2xl font-bold text-navy">
-          Hola, {user.name ?? "estudiante"}
+          Hola, {user.firstName ?? "estudiante"}
         </h2>
         <p className="mt-1 text-navy/60">¿Qué quieres estudiar hoy?</p>
 
@@ -62,6 +85,12 @@ export default async function DashboardPage() {
             title="Flashcards"
             description="Repasa conceptos clave con tarjetas inteligentes"
             emoji="📇"
+            href="/dashboard/flashcards"
+            badge={
+              pendingFlashcards > 0
+                ? `${pendingFlashcards} pendiente${pendingFlashcards !== 1 ? "s" : ""}`
+                : undefined
+            }
           />
           <DashboardCard
             title="Preguntas MCQ"
@@ -88,16 +117,31 @@ function DashboardCard({
   title,
   description,
   emoji,
+  href,
+  badge,
 }: {
   title: string;
   description: string;
   emoji: string;
+  href?: string;
+  badge?: string;
 }) {
-  return (
+  const content = (
     <div className="cursor-pointer rounded-xl border border-border bg-white p-6 transition-shadow hover:shadow-md">
       <div className="mb-3 text-3xl">{emoji}</div>
       <h3 className="text-lg font-semibold text-navy">{title}</h3>
       <p className="mt-1 text-sm text-navy/60">{description}</p>
+      {badge && (
+        <span className="mt-3 inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
+          {badge}
+        </span>
+      )}
     </div>
   );
+
+  if (href) {
+    return <Link href={href}>{content}</Link>;
+  }
+
+  return content;
 }

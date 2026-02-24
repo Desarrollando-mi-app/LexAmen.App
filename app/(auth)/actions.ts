@@ -16,14 +16,15 @@ export async function register(
   _prevState: ActionState,
   formData: FormData
 ): Promise<ActionState> {
-  const name = formData.get("name") as string;
+  const firstName = formData.get("firstName") as string;
+  const lastName = formData.get("lastName") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
   const acceptTerms = formData.get("acceptTerms") as string;
 
   // Validaciones
-  if (!name || !email || !password || !confirmPassword) {
+  if (!firstName || !lastName || !email || !password || !confirmPassword) {
     return { error: "Todos los campos son obligatorios." };
   }
 
@@ -48,7 +49,7 @@ export async function register(
     email,
     password,
     options: {
-      data: { full_name: name },
+      data: { full_name: `${firstName} ${lastName}` },
       emailRedirectTo: `${origin}/auth/callback`,
     },
   });
@@ -64,7 +65,8 @@ export async function register(
         data: {
           id: data.user.id,
           email: data.user.email!,
-          name,
+          firstName,
+          lastName,
           termsAcceptedAt: new Date(),
           termsVersion: "1.0",
         },

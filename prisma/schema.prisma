@@ -47,7 +47,12 @@ enum SubscriptionStatus {
 model User {
   id              String    @id @default(cuid())
   email           String    @unique
-  name            String?
+  firstName       String
+  lastName        String
+  age             Int?
+  gender          String?
+  institution     String?
+  universityYear  Int?
   plan            Plan      @default(FREE)
   planExpiresAt   DateTime?
   termsAcceptedAt DateTime?
