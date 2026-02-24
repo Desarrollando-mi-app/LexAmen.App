@@ -18,12 +18,14 @@ type FlashcardData = {
   back: string;
   submateria: string;
   tipo: string;
+  nivel: string;
   progress: FlashcardProgress | null;
 };
 
 type FlashcardViewerProps = {
   flashcards: FlashcardData[];
   submaterias: string[];
+  niveles: string[];
   reviewsToday: number;
   dailyLimit: number;
   isPremium: boolean;
@@ -43,15 +45,23 @@ const SUBMATERIA_LABELS: Record<string, string> = {
   JUICIO_EJECUTIVO: "Juicio Ejecutivo",
 };
 
+const NIVEL_LABELS: Record<string, string> = {
+  BASICO: "Básico",
+  INTERMEDIO: "Intermedio",
+  AVANZADO: "Avanzado",
+};
+
 // ─── Component ───────────────────────────────────────────
 
 export function FlashcardViewer({
   flashcards,
   submaterias,
+  niveles,
   reviewsToday,
   dailyLimit,
   isPremium,
 }: FlashcardViewerProps) {
+  const [selectedNivel, setSelectedNivel] = useState<string>("BASICO");
   const [selectedSubmateria, setSelectedSubmateria] = useState<string>("ALL");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -64,7 +74,8 @@ export function FlashcardViewer({
   const filteredCards = useMemo(() => {
     const now = new Date().toISOString();
 
-    let cards = flashcards;
+    // Filtrar por nivel
+    let cards = flashcards.filter((c) => c.nivel === selectedNivel);
 
     // Filtrar por submateria
     if (selectedSubmateria !== "ALL") {
@@ -77,7 +88,7 @@ export function FlashcardViewer({
       const bScore = !b.progress ? 0 : b.progress.nextReviewAt <= now ? 1 : 2;
       return aScore - bScore;
     });
-  }, [flashcards, selectedSubmateria]);
+  }, [flashcards, selectedNivel, selectedSubmateria]);
 
   const currentCard = filteredCards[currentIndex];
   const totalCards = filteredCards.length;
@@ -125,6 +136,14 @@ export function FlashcardViewer({
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function handleNivelChange(value: string) {
+    setSelectedNivel(value);
+    setSelectedSubmateria("ALL");
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setCompleted(false);
   }
 
   function handleFilterChange(value: string) {
@@ -255,8 +274,19 @@ export function FlashcardViewer({
         </span>
       </div>
 
-      {/* Filtro submateria */}
-      <div>
+      {/* Filtros: nivel + submateria */}
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <select
+          value={selectedNivel}
+          onChange={(e) => handleNivelChange(e.target.value)}
+          className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20 sm:w-auto"
+        >
+          {niveles.map((n) => (
+            <option key={n} value={n}>
+              {NIVEL_LABELS[n] ?? n}
+            </option>
+          ))}
+        </select>
         <select
           value={selectedSubmateria}
           onChange={(e) => handleFilterChange(e.target.value)}

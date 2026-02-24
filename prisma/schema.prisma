@@ -70,6 +70,7 @@ model Flashcard {
   back       String
   submateria Submateria
   tipo       Tipo
+  nivel      String     @default("BASICO")
 
   progress UserFlashcardProgress[]
 }

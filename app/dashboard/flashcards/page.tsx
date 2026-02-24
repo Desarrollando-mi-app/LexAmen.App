@@ -62,6 +62,7 @@ export default async function FlashcardsPage() {
     back: fc.back,
     submateria: fc.submateria,
     tipo: fc.tipo,
+    nivel: fc.nivel,
     progress: fc.progress[0]
       ? {
           nextReviewAt: fc.progress[0].nextReviewAt.toISOString(),
@@ -72,8 +73,9 @@ export default async function FlashcardsPage() {
       : null,
   }));
 
-  // 6. Extraer submaterias únicas
+  // 6. Extraer submaterias y niveles únicos
   const submaterias = Array.from(new Set(rawFlashcards.map((fc) => fc.submateria)));
+  const niveles = Array.from(new Set(rawFlashcards.map((fc) => fc.nivel)));
 
   return (
     <main className="min-h-screen bg-paper">
@@ -95,6 +97,7 @@ export default async function FlashcardsPage() {
         <FlashcardViewer
           flashcards={flashcards}
           submaterias={submaterias}
+          niveles={niveles}
           reviewsToday={reviewsToday}
           dailyLimit={DAILY_FREE_LIMIT}
           isPremium={dbUser.plan !== "FREE"}
