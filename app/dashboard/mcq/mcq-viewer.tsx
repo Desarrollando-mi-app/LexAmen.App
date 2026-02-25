@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { ReportButton } from "@/app/components/report-button";
 
 // ─── Tipos ─────────────────────────────────────────────────
 
@@ -503,6 +504,7 @@ export function MCQViewer({
                 {feedback.explanation}
               </p>
             )}
+            <ReportButton contentType="MCQ" contentId={currentMCQ.id} />
           </div>
         )}
 

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { ReportButton } from "@/app/components/report-button";
 
 // ─── Tipos ─────────────────────────────────────────────────
 
@@ -474,6 +475,7 @@ export function TrueFalseViewer({
                 {feedback.explanation}
               </p>
             )}
+            <ReportButton contentType="TRUEFALSE" contentId={currentItem.id} />
           </div>
         )}
 

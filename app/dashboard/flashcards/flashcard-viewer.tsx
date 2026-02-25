@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { ReportButton } from "@/app/components/report-button";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -369,6 +370,7 @@ export function FlashcardViewer({
             <p className="text-center text-base leading-relaxed text-paper/90 sm:text-lg">
               {currentCard.back}
             </p>
+            <ReportButton contentType="FLASHCARD" contentId={currentCard.id} />
           </div>
         </div>
       </div>

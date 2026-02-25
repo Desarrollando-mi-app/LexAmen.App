@@ -51,6 +51,7 @@ model User {
   flashcardProgress   UserFlashcardProgress[]
   mcqAttempts         UserMCQAttempt[]
   trueFalseAttempts   UserTrueFalseAttempt[]
+  contentReports      ContentReport[]
   subscriptions       Subscription[]
 }
 
@@ -137,6 +138,19 @@ model UserTrueFalseAttempt {
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   trueFalse TrueFalse @relation(fields: [trueFalseId], references: [id], onDelete: Cascade)
+}
+
+model ContentReport {
+  id          String   @id @default(cuid())
+  userId      String
+  contentType String
+  contentId   String
+  reason      String
+  description String?
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
