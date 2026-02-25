@@ -312,6 +312,121 @@ async function main() {
   });
 
   console.log(`✅ ${mcqs.count} MCQs insertadas exitosamente.`);
+
+  // ─── Verdadero/Falso de ejemplo ──────────────────────────
+
+  console.log("🌱 Insertando afirmaciones V/F de ejemplo...");
+
+  const trueFalse = await prisma.trueFalse.createMany({
+    data: [
+      // ─── Civil / ACTO_JURIDICO (5: 3V, 2F) ──────────────
+      {
+        statement: "Los requisitos de existencia del acto jurídico son: voluntad, objeto, causa y solemnidades cuando la ley las exige.",
+        isTrue: true,
+        explanation: "Estos son efectivamente los cuatro requisitos de existencia del acto jurídico según la doctrina chilena. Sin ellos, el acto es inexistente.",
+        unidad: "DERECHO_CIVIL_1",
+        materia: "TEORIA_DE_LA_LEY",
+        submateria: "ACTO_JURIDICO",
+        tipo: "CIVIL",
+        nivel: "BASICO",
+      },
+      {
+        statement: "La capacidad es un requisito de existencia del acto jurídico.",
+        isTrue: false,
+        explanation: "La capacidad es un requisito de validez, no de existencia. Los requisitos de existencia son: voluntad, objeto, causa y solemnidades. La falta de capacidad genera nulidad relativa, no inexistencia.",
+        unidad: "DERECHO_CIVIL_1",
+        materia: "TEORIA_DE_LA_LEY",
+        submateria: "ACTO_JURIDICO",
+        tipo: "CIVIL",
+        nivel: "BASICO",
+      },
+      {
+        statement: "El objeto ilícito es causal de nulidad absoluta según el Art. 1682 del Código Civil.",
+        isTrue: true,
+        explanation: "Efectivamente, el Art. 1682 CC establece que el objeto ilícito produce nulidad absoluta, la cual puede ser declarada de oficio por el juez.",
+        unidad: "DERECHO_CIVIL_1",
+        materia: "TEORIA_DE_LA_LEY",
+        submateria: "ACTO_JURIDICO",
+        tipo: "CIVIL",
+        nivel: "BASICO",
+      },
+      {
+        statement: "La lesión enorme es un vicio del consentimiento en el derecho civil chileno.",
+        isTrue: false,
+        explanation: "En Chile, los vicios del consentimiento son solo tres: error, fuerza y dolo (Arts. 1451-1459 CC). La lesión enorme no es un vicio del consentimiento, sino una causal objetiva de rescisión en ciertos contratos como la compraventa de inmuebles.",
+        unidad: "DERECHO_CIVIL_1",
+        materia: "TEORIA_DE_LA_LEY",
+        submateria: "ACTO_JURIDICO",
+        tipo: "CIVIL",
+        nivel: "BASICO",
+      },
+      {
+        statement: "La nulidad absoluta puede ser declarada de oficio por el juez cuando aparece de manifiesto en el acto o contrato.",
+        isTrue: true,
+        explanation: "El Art. 1683 CC establece que la nulidad absoluta puede y debe ser declarada de oficio por el juez cuando aparece de manifiesto en el acto o contrato, sin petición de parte.",
+        unidad: "DERECHO_CIVIL_1",
+        materia: "TEORIA_DE_LA_LEY",
+        submateria: "ACTO_JURIDICO",
+        tipo: "CIVIL",
+        nivel: "BASICO",
+      },
+
+      // ─── Procesal / JURISDICCION (5: 3V, 2F) ────────────
+      {
+        statement: "Los momentos jurisdiccionales son: conocimiento, juzgamiento y ejecución.",
+        isTrue: true,
+        explanation: "Estos son los tres momentos de la jurisdicción: conocimiento (fase de discusión y prueba), juzgamiento (dictación de sentencia) y ejecución (cumplimiento forzado de lo resuelto).",
+        unidad: "DERECHO_PROCESAL_CIVIL_1",
+        materia: "JURISDICCION_Y_COMPETENCIA",
+        submateria: "JURISDICCION",
+        tipo: "PROCESAL",
+        nivel: "BASICO",
+      },
+      {
+        statement: "La jurisdicción puede ser delegada a particulares en casos excepcionales.",
+        isTrue: false,
+        explanation: "La jurisdicción es indelegable. Es un poder-deber exclusivo del Estado que no puede transferirse a particulares. Esta es una de sus características esenciales junto con la improrrogabilidad.",
+        unidad: "DERECHO_PROCESAL_CIVIL_1",
+        materia: "JURISDICCION_Y_COMPETENCIA",
+        submateria: "JURISDICCION",
+        tipo: "PROCESAL",
+        nivel: "BASICO",
+      },
+      {
+        statement: "El Art. 76 de la Constitución consagra el principio de inexcusabilidad de los tribunales.",
+        isTrue: true,
+        explanation: "El Art. 76 inc. 2° CPR establece que los tribunales no pueden excusarse de ejercer su autoridad, ni aun por falta de ley que resuelva la contienda sometida a su decisión.",
+        unidad: "DERECHO_PROCESAL_CIVIL_1",
+        materia: "JURISDICCION_Y_COMPETENCIA",
+        submateria: "JURISDICCION",
+        tipo: "PROCESAL",
+        nivel: "BASICO",
+      },
+      {
+        statement: "La competencia es el poder genérico de administrar justicia que tienen todos los tribunales.",
+        isTrue: false,
+        explanation: "Esa definición corresponde a la jurisdicción, no a la competencia. La competencia es la medida o porción de jurisdicción asignada a cada tribunal para conocer de determinados asuntos.",
+        unidad: "DERECHO_PROCESAL_CIVIL_1",
+        materia: "JURISDICCION_Y_COMPETENCIA",
+        submateria: "JURISDICCION",
+        tipo: "PROCESAL",
+        nivel: "BASICO",
+      },
+      {
+        statement: "La jurisdicción genera el efecto de cosa juzgada.",
+        isTrue: true,
+        explanation: "La cosa juzgada es uno de los efectos fundamentales de la jurisdicción. Las sentencias firmes producen la acción y excepción de cosa juzgada, impidiendo que el mismo asunto sea juzgado nuevamente.",
+        unidad: "DERECHO_PROCESAL_CIVIL_1",
+        materia: "JURISDICCION_Y_COMPETENCIA",
+        submateria: "JURISDICCION",
+        tipo: "PROCESAL",
+        nivel: "BASICO",
+      },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log(`✅ ${trueFalse.count} afirmaciones V/F insertadas exitosamente.`);
 }
 
 main()

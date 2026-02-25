@@ -48,9 +48,10 @@ model User {
   xp              Int       @default(0)
   createdAt       DateTime  @default(now())
 
-  flashcardProgress UserFlashcardProgress[]
-  mcqAttempts       UserMCQAttempt[]
-  subscriptions     Subscription[]
+  flashcardProgress   UserFlashcardProgress[]
+  mcqAttempts         UserMCQAttempt[]
+  trueFalseAttempts   UserTrueFalseAttempt[]
+  subscriptions       Subscription[]
 }
 
 model Flashcard {
@@ -110,6 +111,32 @@ model UserMCQAttempt {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   mcq  MCQ  @relation(fields: [mcqId], references: [id], onDelete: Cascade)
+}
+
+model TrueFalse {
+  id          String  @id @default(cuid())
+  statement   String
+  isTrue      Boolean
+  explanation String?
+  unidad      String  @default("DERECHO_CIVIL_1")
+  materia     String
+  submateria  String
+  tipo        String
+  nivel       String  @default("BASICO")
+
+  attempts UserTrueFalseAttempt[]
+}
+
+model UserTrueFalseAttempt {
+  id             String   @id @default(cuid())
+  userId         String
+  trueFalseId    String
+  selectedAnswer Boolean
+  isCorrect      Boolean
+  attemptedAt    DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trueFalse TrueFalse @relation(fields: [trueFalseId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {

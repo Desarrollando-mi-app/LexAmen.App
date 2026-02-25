@@ -102,6 +102,7 @@ export default async function DashboardPage() {
     flashcardsBySubmateria,
     userProgressRecords,
     mcqCount,
+    tfCount,
   ] = await Promise.all([
     // 1. Flashcards dominadas (repetitions >= 3)
     prisma.userFlashcardProgress.count({
@@ -145,6 +146,9 @@ export default async function DashboardPage() {
 
     // 6. Total de MCQs disponibles
     prisma.mCQ.count(),
+
+    // 7. Total de V/F disponibles
+    prisma.trueFalse.count(),
   ]);
 
   // Calcular racha
@@ -279,9 +283,15 @@ export default async function DashboardPage() {
               }
             />
             <DashboardCard
-              title="Simulacro"
-              description="Simula un examen real con tiempo"
-              emoji="⏱️"
+              title="Verdadero/Falso"
+              description="Evalúa afirmaciones de derecho"
+              emoji="⚖️"
+              href="/dashboard/truefalse"
+              badge={
+                tfCount > 0
+                  ? `${tfCount} disponible${tfCount !== 1 ? "s" : ""}`
+                  : undefined
+              }
             />
             <DashboardCard
               title="Mi Progreso"
