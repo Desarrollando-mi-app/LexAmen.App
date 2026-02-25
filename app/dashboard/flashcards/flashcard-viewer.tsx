@@ -16,6 +16,8 @@ type FlashcardData = {
   id: string;
   front: string;
   back: string;
+  unidad: string;
+  materia: string;
   submateria: string;
   tipo: string;
   nivel: string;
@@ -24,6 +26,7 @@ type FlashcardData = {
 
 type FlashcardViewerProps = {
   flashcards: FlashcardData[];
+  materias: string[];
   submaterias: string[];
   niveles: string[];
   reviewsToday: number;
@@ -45,6 +48,11 @@ const SUBMATERIA_LABELS: Record<string, string> = {
   JUICIO_EJECUTIVO: "Juicio Ejecutivo",
 };
 
+const MATERIA_LABELS: Record<string, string> = {
+  TEORIA_DE_LA_LEY: "Teoría de la Ley",
+  JURISDICCION_Y_COMPETENCIA: "Jurisdicción y Competencia",
+};
+
 const NIVEL_LABELS: Record<string, string> = {
   BASICO: "Básico",
   INTERMEDIO: "Intermedio",
@@ -55,6 +63,7 @@ const NIVEL_LABELS: Record<string, string> = {
 
 export function FlashcardViewer({
   flashcards,
+  materias,
   submaterias,
   niveles,
   reviewsToday,
@@ -62,6 +71,7 @@ export function FlashcardViewer({
   isPremium,
 }: FlashcardViewerProps) {
   const [selectedNivel, setSelectedNivel] = useState<string>("BASICO");
+  const [selectedMateria, setSelectedMateria] = useState<string>("ALL");
   const [selectedSubmateria, setSelectedSubmateria] = useState<string>("ALL");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -77,6 +87,11 @@ export function FlashcardViewer({
     // Filtrar por nivel
     let cards = flashcards.filter((c) => c.nivel === selectedNivel);
 
+    // Filtrar por materia
+    if (selectedMateria !== "ALL") {
+      cards = cards.filter((c) => c.materia === selectedMateria);
+    }
+
     // Filtrar por submateria
     if (selectedSubmateria !== "ALL") {
       cards = cards.filter((c) => c.submateria === selectedSubmateria);
@@ -88,7 +103,7 @@ export function FlashcardViewer({
       const bScore = !b.progress ? 0 : b.progress.nextReviewAt <= now ? 1 : 2;
       return aScore - bScore;
     });
-  }, [flashcards, selectedNivel, selectedSubmateria]);
+  }, [flashcards, selectedNivel, selectedMateria, selectedSubmateria]);
 
   const currentCard = filteredCards[currentIndex];
   const totalCards = filteredCards.length;
@@ -140,6 +155,15 @@ export function FlashcardViewer({
 
   function handleNivelChange(value: string) {
     setSelectedNivel(value);
+    setSelectedMateria("ALL");
+    setSelectedSubmateria("ALL");
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setCompleted(false);
+  }
+
+  function handleMateriaChange(value: string) {
+    setSelectedMateria(value);
     setSelectedSubmateria("ALL");
     setCurrentIndex(0);
     setIsFlipped(false);
@@ -274,7 +298,7 @@ export function FlashcardViewer({
         </span>
       </div>
 
-      {/* Filtros: nivel + submateria */}
+      {/* Filtros: nivel + materia + submateria */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <select
           value={selectedNivel}
@@ -288,11 +312,23 @@ export function FlashcardViewer({
           ))}
         </select>
         <select
+          value={selectedMateria}
+          onChange={(e) => handleMateriaChange(e.target.value)}
+          className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20 sm:w-auto"
+        >
+          <option value="ALL">Todas las materias</option>
+          {materias.map((m) => (
+            <option key={m} value={m}>
+              {MATERIA_LABELS[m] ?? m}
+            </option>
+          ))}
+        </select>
+        <select
           value={selectedSubmateria}
           onChange={(e) => handleFilterChange(e.target.value)}
           className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20 sm:w-auto"
         >
-          <option value="ALL">Todas las materias</option>
+          <option value="ALL">Todas las submaterias</option>
           {submaterias.map((sub) => (
             <option key={sub} value={sub}>
               {SUBMATERIA_LABELS[sub] ?? sub}

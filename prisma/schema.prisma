@@ -65,12 +65,14 @@ model User {
 }
 
 model Flashcard {
-  id         String     @id @default(cuid())
+  id         String  @id @default(cuid())
   front      String
   back       String
-  submateria Submateria
+  unidad     String  @default("DERECHO_CIVIL_1")
+  materia    String
+  submateria String
   tipo       Tipo
-  nivel      String     @default("BASICO")
+  nivel      String  @default("BASICO")
 
   progress UserFlashcardProgress[]
 }

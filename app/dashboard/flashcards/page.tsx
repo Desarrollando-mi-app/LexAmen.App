@@ -60,6 +60,8 @@ export default async function FlashcardsPage() {
     id: fc.id,
     front: fc.front,
     back: fc.back,
+    unidad: fc.unidad,
+    materia: fc.materia,
     submateria: fc.submateria,
     tipo: fc.tipo,
     nivel: fc.nivel,
@@ -73,7 +75,8 @@ export default async function FlashcardsPage() {
       : null,
   }));
 
-  // 6. Extraer submaterias y niveles únicos
+  // 6. Extraer materias, submaterias y niveles únicos
+  const materias = Array.from(new Set(rawFlashcards.map((fc) => fc.materia)));
   const submaterias = Array.from(new Set(rawFlashcards.map((fc) => fc.submateria)));
   const niveles = Array.from(new Set(rawFlashcards.map((fc) => fc.nivel)));
 
@@ -96,6 +99,7 @@ export default async function FlashcardsPage() {
       <div className="mx-auto max-w-3xl px-6 py-8">
         <FlashcardViewer
           flashcards={flashcards}
+          materias={materias}
           submaterias={submaterias}
           niveles={niveles}
           reviewsToday={reviewsToday}
