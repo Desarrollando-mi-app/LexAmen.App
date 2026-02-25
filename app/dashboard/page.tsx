@@ -18,12 +18,6 @@ const SUBMATERIA_LABELS: Record<string, string> = {
   JUICIO_EJECUTIVO: "Juicio Ejecutivo",
 };
 
-const PLAN_LABELS: Record<string, string> = {
-  FREE: "Gratuito",
-  PREMIUM_MONTHLY: "Premium",
-  PREMIUM_ANNUAL: "Premium",
-};
-
 // ─── Cálculo de racha ────────────────────────────────────
 
 function calculateStreak(dates: (Date | null)[]): number {
@@ -107,6 +101,7 @@ export default async function DashboardPage() {
     pendingFlashcards,
     flashcardsBySubmateria,
     userProgressRecords,
+    mcqCount,
   ] = await Promise.all([
     // 1. Flashcards dominadas (repetitions >= 3)
     prisma.userFlashcardProgress.count({
@@ -147,6 +142,9 @@ export default async function DashboardPage() {
       where: { userId: authUser.id },
       select: { flashcard: { select: { submateria: true } } },
     }),
+
+    // 6. Total de MCQs disponibles
+    prisma.mCQ.count(),
   ]);
 
   // Calcular racha
@@ -167,10 +165,6 @@ export default async function DashboardPage() {
     total: group._count.id,
     reviewed: reviewedBySubmateria[group.submateria] ?? 0,
   }));
-
-  // Plan label
-  const planLabel = PLAN_LABELS[user.plan] ?? user.plan;
-  const isPremium = user.plan !== "FREE";
 
   return (
     <main className="min-h-screen bg-paper">
@@ -228,12 +222,12 @@ export default async function DashboardPage() {
           <StatCard
             icon={
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
               </svg>
             }
-            value={planLabel}
-            label="Plan"
-            accent={isPremium ? "text-green-500" : "text-gold"}
+            value={user.xp}
+            label="XP Total"
+            accent="text-gold"
           />
         </div>
 
@@ -277,6 +271,12 @@ export default async function DashboardPage() {
               title="Preguntas MCQ"
               description="Practica con preguntas de selección múltiple"
               emoji="✅"
+              href="/dashboard/mcq"
+              badge={
+                mcqCount > 0
+                  ? `${mcqCount} disponible${mcqCount !== 1 ? "s" : ""}`
+                  : undefined
+              }
             />
             <DashboardCard
               title="Simulacro"

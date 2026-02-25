@@ -18,18 +18,6 @@ enum Plan {
   PREMIUM_ANNUAL
 }
 
-enum Submateria {
-  ACTO_JURIDICO
-  OBLIGACIONES
-  CONTRATOS
-  BIENES
-  JURISDICCION
-  COMPETENCIA
-  JUICIO_ORDINARIO
-  RECURSOS
-  JUICIO_EJECUTIVO
-}
-
 enum Tipo {
   CIVIL
   PROCESAL
@@ -57,6 +45,7 @@ model User {
   planExpiresAt   DateTime?
   termsAcceptedAt DateTime?
   termsVersion    String?
+  xp              Int       @default(0)
   createdAt       DateTime  @default(now())
 
   flashcardProgress UserFlashcardProgress[]
@@ -94,7 +83,7 @@ model UserFlashcardProgress {
 }
 
 model MCQ {
-  id            String     @id @default(cuid())
+  id            String  @id @default(cuid())
   question      String
   optionA       String
   optionB       String
@@ -102,8 +91,11 @@ model MCQ {
   optionD       String
   correctOption String
   explanation   String?
-  submateria    Submateria
+  unidad        String  @default("DERECHO_CIVIL_1")
+  materia       String
+  submateria    String
   tipo          Tipo
+  nivel         String  @default("BASICO")
 
   attempts UserMCQAttempt[]
 }
