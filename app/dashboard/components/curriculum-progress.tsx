@@ -44,11 +44,6 @@ const CURRICULUM: Unidad[] = [
               "REGULACION_CONDUCTA",
               "CONCEPTO_DERECHO",
               "ORDENAMIENTO_JURIDICO",
-            ],
-          },
-          {
-            label: "Teoría de la Ley",
-            submaterias: [
               "NORMA_JURIDICA",
               "COMPONENTES_NORMA",
               "TAXONOMIA_NORMAS",
