@@ -3,20 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { LogoutButton } from "./logout-button";
-
-// ─── Mapeo de submaterias a español ──────────────────────
-
-const SUBMATERIA_LABELS: Record<string, string> = {
-  ACTO_JURIDICO: "Acto Jurídico",
-  OBLIGACIONES: "Obligaciones",
-  CONTRATOS: "Contratos",
-  BIENES: "Bienes",
-  JURISDICCION: "Jurisdicción",
-  COMPETENCIA: "Competencia",
-  JUICIO_ORDINARIO: "Juicio Ordinario",
-  RECURSOS: "Recursos",
-  JUICIO_EJECUTIVO: "Juicio Ejecutivo",
-};
+import { CurriculumProgress } from "./components/curriculum-progress";
+import type { ProgressData } from "./components/curriculum-progress";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -100,7 +88,8 @@ export default async function DashboardPage() {
     reviewDatesRaw,
     pendingFlashcards,
     flashcardsBySubmateria,
-    userProgressRecords,
+    dominatedRecords,
+    curriculumProgressRecords,
     mcqCount,
     tfCount,
   ] = await Promise.all([
@@ -138,16 +127,25 @@ export default async function DashboardPage() {
       _count: { id: true },
     }),
 
-    // 5. Progreso del usuario con submateria de la flashcard
+    // 5. Flashcards dominadas por submateria (repetitions >= 3)
     prisma.userFlashcardProgress.findMany({
-      where: { userId: authUser.id },
+      where: {
+        userId: authUser.id,
+        repetitions: { gte: 3 },
+      },
       select: { flashcard: { select: { submateria: true } } },
     }),
 
-    // 6. Total de MCQs disponibles
+    // 6. CurriculumProgress del usuario (vueltas completadas)
+    prisma.curriculumProgress.findMany({
+      where: { userId: authUser.id },
+      select: { submateria: true, completions: true },
+    }),
+
+    // 7. Total de MCQs disponibles
     prisma.mCQ.count(),
 
-    // 7. Total de V/F disponibles
+    // 8. Total de V/F disponibles
     prisma.trueFalse.count(),
   ]);
 
@@ -156,19 +154,38 @@ export default async function DashboardPage() {
     reviewDatesRaw.map((r) => r.lastReviewedAt)
   );
 
-  // Calcular progreso por submateria
-  const reviewedBySubmateria: Record<string, number> = {};
-  for (const record of userProgressRecords) {
+  // Calcular progressData para CurriculumProgress
+  const dominatedBySubmateria: Record<string, number> = {};
+  for (const record of dominatedRecords) {
     const sub = record.flashcard.submateria;
-    reviewedBySubmateria[sub] = (reviewedBySubmateria[sub] ?? 0) + 1;
+    dominatedBySubmateria[sub] = (dominatedBySubmateria[sub] ?? 0) + 1;
   }
 
-  const submateriaProgress = flashcardsBySubmateria.map((group) => ({
-    submateria: group.submateria,
-    label: SUBMATERIA_LABELS[group.submateria] ?? group.submateria,
-    total: group._count.id,
-    reviewed: reviewedBySubmateria[group.submateria] ?? 0,
-  }));
+  const totalBySubmateria: Record<string, number> = {};
+  for (const group of flashcardsBySubmateria) {
+    totalBySubmateria[group.submateria] = group._count.id;
+  }
+
+  const completionsBySubmateria: Record<string, number> = {};
+  for (const cp of curriculumProgressRecords) {
+    completionsBySubmateria[cp.submateria] = cp.completions;
+  }
+
+  // Construir progressData con todas las submaterias que existen en la BD
+  const allSubmaterias = Array.from(new Set([
+    ...Object.keys(totalBySubmateria),
+    ...Object.keys(dominatedBySubmateria),
+    ...Object.keys(completionsBySubmateria),
+  ]));
+
+  const progressData: ProgressData = {};
+  for (const sub of allSubmaterias) {
+    progressData[sub] = {
+      total: totalBySubmateria[sub] ?? 0,
+      dominated: dominatedBySubmateria[sub] ?? 0,
+      completions: completionsBySubmateria[sub] ?? 0,
+    };
+  }
 
   return (
     <main className="min-h-screen bg-paper">
@@ -235,24 +252,15 @@ export default async function DashboardPage() {
           />
         </div>
 
-        {/* ─── Progreso por materia ─────────────────────── */}
-        {submateriaProgress.length > 0 && (
-          <div className="mt-10">
-            <h3 className="text-lg font-semibold text-navy">
-              Tu progreso por materia
-            </h3>
-            <div className="mt-4 space-y-4">
-              {submateriaProgress.map((sp) => (
-                <ProgressBar
-                  key={sp.submateria}
-                  label={sp.label}
-                  reviewed={sp.reviewed}
-                  total={sp.total}
-                />
-              ))}
-            </div>
+        {/* ─── Progreso curricular ─────────────────────── */}
+        <div className="mt-10">
+          <h3 className="text-lg font-semibold text-navy">
+            Tu progreso curricular
+          </h3>
+          <div className="mt-4">
+            <CurriculumProgress progressData={progressData} />
           </div>
-        )}
+        </div>
 
         {/* ─── Módulos de estudio ──────────────────────── */}
         <div className="mt-10">
@@ -323,38 +331,6 @@ function StatCard({
       <div className={`mb-3 ${accent}`}>{icon}</div>
       <p className="text-2xl font-bold text-navy">{value}</p>
       <p className="mt-0.5 text-sm text-navy/50">{label}</p>
-    </div>
-  );
-}
-
-function ProgressBar({
-  label,
-  reviewed,
-  total,
-}: {
-  label: string;
-  reviewed: number;
-  total: number;
-}) {
-  const percent = total > 0 ? Math.round((reviewed / total) * 100) : 0;
-  const isComplete = percent === 100;
-
-  return (
-    <div>
-      <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-sm font-medium text-navy">{label}</span>
-        <span className="text-xs text-navy/50">
-          {reviewed}/{total} · {percent}%
-        </span>
-      </div>
-      <div className="h-2.5 w-full overflow-hidden rounded-full bg-border/30">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${
-            isComplete ? "bg-green-500" : "bg-gold"
-          }`}
-          style={{ width: `${percent}%` }}
-        />
-      </div>
     </div>
   );
 }

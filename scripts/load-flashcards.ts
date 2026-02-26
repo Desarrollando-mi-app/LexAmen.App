@@ -11,63 +11,98 @@ dotenv.config({ path: ".env" });
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-// ─── Parser CSV manual (respeta comillas y comas internas) ──
+// ─── Parser CSV manual (respeta comillas, comas internas y campos multilínea) ──
 
-function parseCSVLine(line: string): string[] {
+function parseCSVRecords(content: string): string[][] {
+  const records: string[][] = [];
   const fields: string[] = [];
   let current = "";
   let inQuotes = false;
+  let i = 0;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
+  while (i < content.length) {
+    const char = content[i];
 
     if (inQuotes) {
       if (char === '"') {
         // Comilla doble escapada ""
-        if (i + 1 < line.length && line[i + 1] === '"') {
+        if (i + 1 < content.length && content[i + 1] === '"') {
           current += '"';
-          i++;
+          i += 2;
+          continue;
         } else {
           inQuotes = false;
+          i++;
+          continue;
         }
       } else {
+        // Dentro de comillas: aceptar cualquier carácter incluyendo \n
         current += char;
+        i++;
+        continue;
       }
+    }
+
+    // Fuera de comillas
+    if (char === '"') {
+      inQuotes = true;
+      i++;
+    } else if (char === ",") {
+      fields.push(current.trim());
+      current = "";
+      i++;
+    } else if (char === "\n" || char === "\r") {
+      // Fin de registro
+      fields.push(current.trim());
+      current = "";
+      // Saltar \r\n
+      if (char === "\r" && i + 1 < content.length && content[i + 1] === "\n") {
+        i++;
+      }
+      i++;
+      if (fields.some((f) => f !== "")) {
+        records.push([...fields]);
+      }
+      fields.length = 0;
     } else {
-      if (char === '"') {
-        inQuotes = true;
-      } else if (char === ",") {
-        fields.push(current.trim());
-        current = "";
-      } else {
-        current += char;
-      }
+      current += char;
+      i++;
     }
   }
 
-  fields.push(current.trim());
-  return fields;
+  // Última fila si no termina en newline
+  if (current || fields.length > 0) {
+    fields.push(current.trim());
+    if (fields.some((f) => f !== "")) {
+      records.push([...fields]);
+    }
+  }
+
+  return records;
 }
 
 async function main() {
-  const csvPath = path.resolve(__dirname, "../universo_unificado_civil1.csv");
+  const csvFile = process.argv[2] || "universo_unificado_civil1.csv";
+  const csvPath = path.resolve(__dirname, "..", csvFile);
+  console.log(`📂 Archivo: ${csvFile}`);
   const content = fs.readFileSync(csvPath, "utf-8");
-  const lines = content.split("\n").filter((l) => l.trim() !== "");
 
-  // Primera línea es el header
-  const header = parseCSVLine(lines[0]);
+  const records = parseCSVRecords(content);
+
+  // Primera fila es el header
+  const header = records[0];
   console.log("📋 Columnas:", header.join(", "));
 
   // Parsear filas
   const rows = [];
   let skipped = 0;
 
-  for (let i = 1; i < lines.length; i++) {
-    const fields = parseCSVLine(lines[i]);
+  for (let i = 1; i < records.length; i++) {
+    const fields = records[i];
 
     if (fields.length < 7) {
       skipped++;
-      console.warn(`⚠️  Línea ${i + 1} tiene ${fields.length} campos, se omite.`);
+      console.warn(`⚠️  Registro ${i} tiene ${fields.length} campos, se omite.`);
       continue;
     }
 
@@ -75,13 +110,14 @@ async function main() {
 
     if (!front || !back) {
       skipped++;
-      console.warn(`⚠️  Línea ${i + 1} tiene front o back vacío, se omite.`);
+      console.warn(`⚠️  Registro ${i} tiene front o back vacío, se omite.`);
       continue;
     }
 
+    // Limpiar saltos de línea internos: reemplazar con espacio
     rows.push({
-      front,
-      back,
+      front: front.replace(/\n/g, " ").replace(/\s+/g, " "),
+      back: back.replace(/\n/g, " ").replace(/\s+/g, " "),
       unidad: unidad || "DERECHO_CIVIL_1",
       materia: materia || "TEORIA_DE_LA_LEY",
       submateria: submateria || "LA_LEY",

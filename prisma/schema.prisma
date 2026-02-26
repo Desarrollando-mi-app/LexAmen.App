@@ -52,6 +52,7 @@ model User {
   mcqAttempts         UserMCQAttempt[]
   trueFalseAttempts   UserTrueFalseAttempt[]
   contentReports      ContentReport[]
+  curriculumProgress  CurriculumProgress[]
   subscriptions       Subscription[]
 }
 
@@ -151,6 +152,18 @@ model ContentReport {
   createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CurriculumProgress {
+  id              String    @id @default(cuid())
+  userId          String
+  submateria      String
+  completions     Int       @default(0)
+  lastCompletedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, submateria])
 }
 
 model Subscription {

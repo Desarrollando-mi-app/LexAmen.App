@@ -114,11 +114,71 @@ export async function POST(request: Request) {
     },
   });
 
-  // 9. Retornar resultado
+  // 9. Detectar completación de submateria
+  let completedSubmateria: string | null = null;
+
+  const flashcard = await prisma.flashcard.findUnique({
+    where: { id: flashcardId },
+    select: { submateria: true },
+  });
+
+  if (flashcard && sm2Result.repetitions >= 3) {
+    const totalInSubmateria = await prisma.flashcard.count({
+      where: { submateria: flashcard.submateria },
+    });
+
+    const dominatedInSubmateria = await prisma.userFlashcardProgress.count({
+      where: {
+        userId: authUser.id,
+        repetitions: { gte: 3 },
+        flashcard: { submateria: flashcard.submateria },
+      },
+    });
+
+    if (dominatedInSubmateria >= totalInSubmateria && totalInSubmateria > 0) {
+      // Submateria completada — incrementar vuelta y resetear
+      await prisma.curriculumProgress.upsert({
+        where: {
+          userId_submateria: {
+            userId: authUser.id,
+            submateria: flashcard.submateria,
+          },
+        },
+        update: {
+          completions: { increment: 1 },
+          lastCompletedAt: new Date(),
+        },
+        create: {
+          userId: authUser.id,
+          submateria: flashcard.submateria,
+          completions: 1,
+          lastCompletedAt: new Date(),
+        },
+      });
+
+      // Resetear progreso de flashcards de esa submateria
+      await prisma.userFlashcardProgress.updateMany({
+        where: {
+          userId: authUser.id,
+          flashcard: { submateria: flashcard.submateria },
+        },
+        data: {
+          repetitions: 0,
+          interval: 0,
+          nextReviewAt: new Date(),
+        },
+      });
+
+      completedSubmateria = flashcard.submateria;
+    }
+  }
+
+  // 10. Retornar resultado
   return NextResponse.json({
     nextReviewAt: sm2Result.nextReviewAt.toISOString(),
     newInterval: sm2Result.interval,
     newEaseFactor: sm2Result.easeFactor,
     reviewsToday: reviewsToday + 1,
+    ...(completedSubmateria && { completedSubmateria }),
   });
 }
