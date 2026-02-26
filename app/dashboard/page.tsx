@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { LogoutButton } from "./logout-button";
 import { CurriculumProgress } from "./components/curriculum-progress";
 import type { ProgressData } from "./components/curriculum-progress";
+import { ensureLeagueMembership } from "@/lib/league-assign";
+import { TIER_LABELS, TIER_EMOJIS, getDaysRemaining } from "@/lib/league";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -83,6 +85,12 @@ export default async function DashboardPage() {
 
   // ─── Consultas de estadísticas (en paralelo) ──────────
 
+  // Liga (lazy assignment)
+  const leagueMembership = await ensureLeagueMembership(authUser.id);
+  const tierLabel = TIER_LABELS[leagueMembership.league.tier] ?? leagueMembership.league.tier;
+  const tierEmoji = TIER_EMOJIS[leagueMembership.league.tier] ?? "";
+  const daysRemaining = getDaysRemaining();
+
   const [
     masteredCount,
     reviewDatesRaw,
@@ -92,6 +100,8 @@ export default async function DashboardPage() {
     curriculumProgressRecords,
     mcqCount,
     tfCount,
+    pendingCausas,
+    activeCausas,
   ] = await Promise.all([
     // 1. Flashcards dominadas (repetitions >= 3)
     prisma.userFlashcardProgress.count({
@@ -147,6 +157,25 @@ export default async function DashboardPage() {
 
     // 8. Total de V/F disponibles
     prisma.trueFalse.count(),
+
+    // 9. Causas pendientes (retado = yo)
+    prisma.causa.count({
+      where: {
+        challengedId: authUser.id,
+        status: "PENDING",
+      },
+    }),
+
+    // 10. Causas activas
+    prisma.causa.count({
+      where: {
+        OR: [
+          { challengerId: authUser.id },
+          { challengedId: authUser.id },
+        ],
+        status: "ACTIVE",
+      },
+    }),
   ]);
 
   // Calcular racha
@@ -194,6 +223,12 @@ export default async function DashboardPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <h1 className="text-xl font-bold text-navy">LéxAmen</h1>
           <div className="flex items-center gap-4">
+            <Link
+              href="/dashboard/liga"
+              className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold hover:bg-gold/25 transition-colors"
+            >
+              {tierEmoji} {tierLabel}
+            </Link>
             <span className="text-sm text-navy/70">{displayName}</span>
             <LogoutButton />
           </div>
@@ -252,6 +287,25 @@ export default async function DashboardPage() {
           />
         </div>
 
+        {/* ─── Notificación de retos pendientes ──────── */}
+        {pendingCausas > 0 && (
+          <Link
+            href="/dashboard/causas"
+            className="mt-8 flex items-center gap-3 rounded-xl border border-gold/30 bg-gold/5 px-5 py-4 transition-shadow hover:shadow-md"
+          >
+            <span className="text-2xl">⚔️</span>
+            <div className="flex-1">
+              <p className="font-semibold text-navy">
+                {pendingCausas} reto{pendingCausas !== 1 ? "s" : ""} pendiente{pendingCausas !== 1 ? "s" : ""}
+              </p>
+              <p className="text-sm text-navy/60">
+                Alguien te ha desafiado a una causa
+              </p>
+            </div>
+            <span className="text-sm font-semibold text-gold">Ver &rarr;</span>
+          </Link>
+        )}
+
         {/* ─── Progreso curricular ─────────────────────── */}
         <div className="mt-10">
           <h3 className="text-lg font-semibold text-navy">
@@ -302,9 +356,21 @@ export default async function DashboardPage() {
               }
             />
             <DashboardCard
-              title="Mi Progreso"
-              description="Revisa tu avance y estadísticas"
-              emoji="📊"
+              title="Liga Semanal"
+              description={`${tierEmoji} ${tierLabel} — ${daysRemaining} día${daysRemaining !== 1 ? "s" : ""} restante${daysRemaining !== 1 ? "s" : ""}`}
+              emoji="🏆"
+              href="/dashboard/liga"
+            />
+            <DashboardCard
+              title="Causas"
+              description="Desafía a otros estudiantes en duelos 1v1"
+              emoji="⚔️"
+              href="/dashboard/causas"
+              badge={
+                activeCausas > 0
+                  ? `${activeCausas} activa${activeCausas !== 1 ? "s" : ""}`
+                  : undefined
+              }
             />
           </div>
         </div>

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { calculateXP, calculateStreakBonus } from "@/lib/xp";
+import { getCurrentWeekBounds } from "@/lib/league";
 
 const DAILY_FREE_LIMIT = 20;
 
@@ -16,14 +18,14 @@ export async function POST(request: Request) {
   }
 
   // 2. Parsear body
-  let body: { trueFalseId: string; selectedAnswer: boolean };
+  let body: { trueFalseId: string; selectedAnswer: boolean; streak?: number };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
 
-  const { trueFalseId, selectedAnswer } = body;
+  const { trueFalseId, selectedAnswer, streak } = body;
 
   // 3. Validar campos
   if (!trueFalseId) {
@@ -75,10 +77,10 @@ export async function POST(request: Request) {
     );
   }
 
-  // 6. Buscar TrueFalse
+  // 6. Buscar TrueFalse (incluyendo nivel para cálculo de XP)
   const tf = await prisma.trueFalse.findUnique({
     where: { id: trueFalseId },
-    select: { isTrue: true, explanation: true },
+    select: { isTrue: true, explanation: true, nivel: true },
   });
 
   if (!tf) {
@@ -88,9 +90,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // 7. Evaluar respuesta y calcular XP
+  // 7. Evaluar respuesta y calcular XP por nivel
   const isCorrect = selectedAnswer === tf.isTrue;
-  const xpGained = isCorrect ? 10 : 2;
+  const baseXP = calculateXP("TRUEFALSE", tf.nivel, isCorrect);
+  const streakBonus = isCorrect ? calculateStreakBonus(streak ?? 0) : 0;
+  const xpGained = baseXP + streakBonus;
 
   // 8. Guardar intento y actualizar XP del usuario
   await prisma.userTrueFalseAttempt.create({
@@ -107,12 +111,23 @@ export async function POST(request: Request) {
     data: { xp: { increment: xpGained } },
   });
 
-  // 9. Retornar resultado
+  // 9. Incrementar weeklyXp en la liga semanal (si tiene membresía)
+  const { weekStart } = getCurrentWeekBounds();
+  await prisma.leagueMember.updateMany({
+    where: {
+      userId: authUser.id,
+      league: { weekStart },
+    },
+    data: { weeklyXp: { increment: xpGained } },
+  });
+
+  // 10. Retornar resultado
   return NextResponse.json({
     isCorrect,
     correctAnswer: tf.isTrue,
     explanation: tf.explanation,
     xpGained,
+    streakBonus,
     attemptsToday: attemptsToday + 1,
   });
 }

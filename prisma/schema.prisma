@@ -30,6 +30,26 @@ enum SubscriptionStatus {
   PENDING
 }
 
+enum LeagueTier {
+  CARTON
+  HIERRO
+  BRONCE
+  COBRE
+  PLATA
+  ORO
+  DIAMANTE
+  PLATINO
+  JURISCONSULTO
+}
+
+enum CausaStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  REJECTED
+  EXPIRED
+}
+
 // ─── Modelos ─────────────────────────────────────────────
 
 model User {
@@ -46,6 +66,8 @@ model User {
   termsAcceptedAt DateTime?
   termsVersion    String?
   xp              Int       @default(0)
+  causasGanadas   Int       @default(0)
+  causasPerdidas  Int       @default(0)
   createdAt       DateTime  @default(now())
 
   flashcardProgress   UserFlashcardProgress[]
@@ -53,6 +75,11 @@ model User {
   trueFalseAttempts   UserTrueFalseAttempt[]
   contentReports      ContentReport[]
   curriculumProgress  CurriculumProgress[]
+  leagueMembers       LeagueMember[]
+  causasRetadas       Causa[]        @relation("CausasRetadas")
+  causasRecibidas     Causa[]        @relation("CausasRecibidas")
+  causasGanadasRel    Causa[]        @relation("CausasGanadas")
+  causaAnswers        CausaAnswer[]
   subscriptions       Subscription[]
 }
 
@@ -100,7 +127,8 @@ model MCQ {
   tipo          Tipo
   nivel         String  @default("BASICO")
 
-  attempts UserMCQAttempt[]
+  attempts     UserMCQAttempt[]
+  causaAnswers CausaAnswer[]
 }
 
 model UserMCQAttempt {
@@ -165,6 +193,77 @@ model CurriculumProgress {
 
   @@unique([userId, submateria])
 }
+
+// ─── Ligas Semanales ─────────────────────────────────────
+
+model League {
+  id        String     @id @default(cuid())
+  tier      LeagueTier
+  weekStart DateTime
+  weekEnd   DateTime
+  createdAt DateTime   @default(now())
+
+  members LeagueMember[]
+
+  @@index([tier, weekStart])
+}
+
+model LeagueMember {
+  id       String @id @default(cuid())
+  userId   String
+  leagueId String
+  weeklyXp Int    @default(0)
+  rank     Int?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  league League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, leagueId])
+  @@index([leagueId, weeklyXp])
+}
+
+// ─── Causas (Duelos 1v1) ────────────────────────────────
+
+model Causa {
+  id           String      @id @default(cuid())
+  challengerId String
+  challengedId String
+  status       CausaStatus @default(PENDING)
+  winnerId     String?
+  createdAt    DateTime    @default(now())
+  startedAt    DateTime?
+  completedAt  DateTime?
+
+  challenger User  @relation("CausasRetadas", fields: [challengerId], references: [id], onDelete: Cascade)
+  challenged User  @relation("CausasRecibidas", fields: [challengedId], references: [id], onDelete: Cascade)
+  winner     User? @relation("CausasGanadas", fields: [winnerId], references: [id], onDelete: SetNull)
+
+  answers CausaAnswer[]
+
+  @@index([challengerId, status])
+  @@index([challengedId, status])
+}
+
+model CausaAnswer {
+  id             String   @id @default(cuid())
+  causaId        String
+  userId         String
+  mcqId          String
+  questionIdx    Int
+  selectedOption String?
+  isCorrect      Boolean?
+  timeMs         Int?
+  score          Int      @default(0)
+  answeredAt     DateTime @default(now())
+
+  causa Causa @relation(fields: [causaId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mcq   MCQ   @relation(fields: [mcqId], references: [id], onDelete: Cascade)
+
+  @@unique([causaId, userId, questionIdx])
+}
+
+// ─── Suscripciones ──────────────────────────────────────
 
 model Subscription {
   id             String             @id @default(cuid())

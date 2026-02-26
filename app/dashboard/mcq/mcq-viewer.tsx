@@ -84,6 +84,7 @@ export function MCQViewer({
     correctOption: string;
     explanation: string | null;
     xpGained: number;
+    streakBonus: number;
   } | null>(null);
 
   // Estado de sesión
@@ -156,6 +157,7 @@ export function MCQViewer({
         body: JSON.stringify({
           mcqId: currentMCQ.id,
           selectedOption,
+          streak,
         }),
       });
       const data = await res.json();
@@ -186,6 +188,7 @@ export function MCQViewer({
         correctOption: data.correctOption,
         explanation: data.explanation,
         xpGained: data.xpGained,
+        streakBonus: data.streakBonus ?? 0,
       });
     } catch {
       // Error de red
@@ -492,6 +495,11 @@ export function MCQViewer({
               >
                 +{feedback.xpGained} XP
               </span>
+              {feedback.streakBonus > 0 && (
+                <span className="ml-1 rounded-full bg-gold/15 px-2.5 py-0.5 text-xs font-bold text-gold">
+                  +{feedback.streakBonus} Bonus Racha
+                </span>
+              )}
             </div>
             {!feedback.isCorrect && (
               <p className="mt-2 text-sm text-red-600">

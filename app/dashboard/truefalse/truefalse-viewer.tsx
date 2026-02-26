@@ -77,6 +77,7 @@ export function TrueFalseViewer({
     correctAnswer: boolean;
     explanation: string | null;
     xpGained: number;
+    streakBonus: number;
     selectedAnswer: boolean;
   } | null>(null);
 
@@ -144,6 +145,7 @@ export function TrueFalseViewer({
         body: JSON.stringify({
           trueFalseId: currentItem.id,
           selectedAnswer,
+          streak,
         }),
       });
       const data = await res.json();
@@ -173,6 +175,7 @@ export function TrueFalseViewer({
         correctAnswer: data.correctAnswer,
         explanation: data.explanation,
         xpGained: data.xpGained,
+        streakBonus: data.streakBonus ?? 0,
         selectedAnswer,
       });
     } catch {
@@ -461,6 +464,11 @@ export function TrueFalseViewer({
               >
                 +{feedback.xpGained} XP
               </span>
+              {feedback.streakBonus > 0 && (
+                <span className="ml-1 rounded-full bg-gold/15 px-2.5 py-0.5 text-xs font-bold text-gold">
+                  +{feedback.streakBonus} Bonus Racha
+                </span>
+              )}
             </div>
             {!feedback.isCorrect && (
               <p className="mt-2 text-sm text-red-600">

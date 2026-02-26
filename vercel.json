@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/liga/process-week",
+      "schedule": "0 4 * * 1"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { calculateXP, calculateStreakBonus } from "@/lib/xp";
+import { getCurrentWeekBounds } from "@/lib/league";
 
 const DAILY_FREE_LIMIT = 10;
 
@@ -16,14 +18,14 @@ export async function POST(request: Request) {
   }
 
   // 2. Parsear body
-  let body: { mcqId: string; selectedOption: string };
+  let body: { mcqId: string; selectedOption: string; streak?: number };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
 
-  const { mcqId, selectedOption } = body;
+  const { mcqId, selectedOption, streak } = body;
 
   // 3. Validar campos
   if (!mcqId) {
@@ -75,10 +77,10 @@ export async function POST(request: Request) {
     );
   }
 
-  // 6. Buscar MCQ
+  // 6. Buscar MCQ (incluyendo nivel para cálculo de XP)
   const mcq = await prisma.mCQ.findUnique({
     where: { id: mcqId },
-    select: { correctOption: true, explanation: true },
+    select: { correctOption: true, explanation: true, nivel: true },
   });
 
   if (!mcq) {
@@ -88,9 +90,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // 7. Evaluar respuesta y calcular XP
+  // 7. Evaluar respuesta y calcular XP por nivel
   const isCorrect = selectedOption === mcq.correctOption;
-  const xpGained = isCorrect ? 10 : 2;
+  const baseXP = calculateXP("MCQ", mcq.nivel, isCorrect);
+  const streakBonus = isCorrect ? calculateStreakBonus(streak ?? 0) : 0;
+  const xpGained = baseXP + streakBonus;
 
   // 8. Guardar intento y actualizar XP del usuario
   await prisma.userMCQAttempt.create({
@@ -107,12 +111,23 @@ export async function POST(request: Request) {
     data: { xp: { increment: xpGained } },
   });
 
-  // 9. Retornar resultado
+  // 9. Incrementar weeklyXp en la liga semanal (si tiene membresía)
+  const { weekStart } = getCurrentWeekBounds();
+  await prisma.leagueMember.updateMany({
+    where: {
+      userId: authUser.id,
+      league: { weekStart },
+    },
+    data: { weeklyXp: { increment: xpGained } },
+  });
+
+  // 10. Retornar resultado
   return NextResponse.json({
     isCorrect,
     correctOption: mcq.correctOption,
     explanation: mcq.explanation,
     xpGained,
+    streakBonus,
     attemptsToday: attemptsToday + 1,
   });
 }
