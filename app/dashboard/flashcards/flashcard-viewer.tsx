@@ -370,10 +370,14 @@ export function FlashcardViewer({
             <p className="text-center text-base leading-relaxed text-paper/90 sm:text-lg">
               {currentCard.back}
             </p>
-            <ReportButton contentType="FLASHCARD" contentId={currentCard.id} />
           </div>
         </div>
       </div>
+      {isFlipped && (
+        <div className="flex justify-end mt-2">
+          <ReportButton contentType="FLASHCARD" contentId={currentCard.id} />
+        </div>
+      )}
 
       {/* Botones de rating (solo visibles tras flip) */}
       <div
