@@ -39,21 +39,30 @@ export default async function FlashcardsPage() {
     },
   });
 
-  // 4. Obtener todas las flashcards con progreso del usuario
-  const rawFlashcards = await prisma.flashcard.findMany({
-    include: {
-      progress: {
-        where: { userId: authUser.id },
-        select: {
-          nextReviewAt: true,
-          easeFactor: true,
-          interval: true,
-          repetitions: true,
+  // 4. Obtener todas las flashcards con progreso del usuario + favoritos
+  const [rawFlashcards, favorites] = await Promise.all([
+    prisma.flashcard.findMany({
+      include: {
+        progress: {
+          where: { userId: authUser.id },
+          select: {
+            nextReviewAt: true,
+            easeFactor: true,
+            interval: true,
+            repetitions: true,
+          },
         },
       },
-    },
-    orderBy: { id: "asc" },
-  });
+      orderBy: { id: "asc" },
+    }),
+    prisma.flashcardFavorite.findMany({
+      where: { userId: authUser.id },
+      select: { flashcardId: true },
+    }),
+  ]);
+
+  const favoriteIds = favorites.map((f) => f.flashcardId);
+  const favSet = new Set(favoriteIds);
 
   // 5. Serializar para el client component (Dates → ISO strings)
   const flashcards = rawFlashcards.map((fc) => ({
@@ -65,6 +74,7 @@ export default async function FlashcardsPage() {
     submateria: fc.submateria,
     tipo: fc.tipo,
     nivel: fc.nivel,
+    isFavorite: favSet.has(fc.id),
     progress: fc.progress[0]
       ? {
           nextReviewAt: fc.progress[0].nextReviewAt.toISOString(),
@@ -99,6 +109,7 @@ export default async function FlashcardsPage() {
       <div className="mx-auto max-w-3xl px-6 py-8">
         <FlashcardViewer
           flashcards={flashcards}
+          favoriteIds={favoriteIds}
           materias={materias}
           submaterias={submaterias}
           niveles={niveles}

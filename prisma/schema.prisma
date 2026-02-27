@@ -71,6 +71,7 @@ model User {
   createdAt       DateTime  @default(now())
 
   flashcardProgress   UserFlashcardProgress[]
+  flashcardFavorites  FlashcardFavorite[]
   mcqAttempts         UserMCQAttempt[]
   trueFalseAttempts   UserTrueFalseAttempt[]
   contentReports      ContentReport[]
@@ -93,7 +94,8 @@ model Flashcard {
   tipo       Tipo
   nivel      String  @default("BASICO")
 
-  progress UserFlashcardProgress[]
+  progress  UserFlashcardProgress[]
+  favorites FlashcardFavorite[]
 }
 
 model UserFlashcardProgress {
@@ -261,6 +263,20 @@ model CausaAnswer {
   mcq   MCQ   @relation(fields: [mcqId], references: [id], onDelete: Cascade)
 
   @@unique([causaId, userId, questionIdx])
+}
+
+// ─── Flashcard Favoritos ─────────────────────────────────
+
+model FlashcardFavorite {
+  id          String   @id @default(cuid())
+  userId      String
+  flashcardId String
+  createdAt   DateTime @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, flashcardId])
 }
 
 // ─── Suscripciones ──────────────────────────────────────
