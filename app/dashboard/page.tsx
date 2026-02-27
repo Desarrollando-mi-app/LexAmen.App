@@ -9,7 +9,7 @@ import { ensureLeagueMembership } from "@/lib/league-assign";
 import { TIER_LABELS, TIER_EMOJIS, getDaysRemaining } from "@/lib/league";
 import { SidebarCausas } from "./components/sidebar-causas";
 import { SidebarLiga } from "./components/sidebar-liga";
-import { CollapsibleSection } from "./components/collapsible-section";
+import { ActivityGrid } from "./components/activity-grid";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -106,6 +106,10 @@ export default async function DashboardPage() {
     historyCausas,
     // Sidebar liga
     leagueMembers,
+    // Actividad 30 días
+    flashcardReviews30d,
+    mcqAttempts30d,
+    tfAttempts30d,
   ] = await Promise.all([
     // 1. Flashcards dominadas
     prisma.userFlashcardProgress.count({
@@ -218,6 +222,39 @@ export default async function DashboardPage() {
         user: { select: { id: true, firstName: true, lastName: true } },
       },
     }),
+
+    // 13. Flashcard reviews últimos 30 días
+    prisma.userFlashcardProgress.findMany({
+      where: {
+        userId: authUser.id,
+        lastReviewedAt: {
+          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+      select: { lastReviewedAt: true },
+    }),
+
+    // 14. MCQ attempts últimos 30 días
+    prisma.userMCQAttempt.findMany({
+      where: {
+        userId: authUser.id,
+        attemptedAt: {
+          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+      select: { attemptedAt: true },
+    }),
+
+    // 15. TF attempts últimos 30 días
+    prisma.userTrueFalseAttempt.findMany({
+      where: {
+        userId: authUser.id,
+        attemptedAt: {
+          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        },
+      },
+      select: { attemptedAt: true },
+    }),
   ]);
 
   // ─── Derivar counts para badges ───────────────────────────
@@ -301,6 +338,32 @@ export default async function DashboardPage() {
     };
   }
 
+  // ─── Construir actividad de 30 días ──────────────────────
+  const activityMap: Record<string, number> = {};
+
+  for (const r of flashcardReviews30d) {
+    if (r.lastReviewedAt) {
+      const key = r.lastReviewedAt.toISOString().slice(0, 10);
+      activityMap[key] = (activityMap[key] ?? 0) + 1;
+    }
+  }
+  for (const a of mcqAttempts30d) {
+    const key = a.attemptedAt.toISOString().slice(0, 10);
+    activityMap[key] = (activityMap[key] ?? 0) + 1;
+  }
+  for (const a of tfAttempts30d) {
+    const key = a.attemptedAt.toISOString().slice(0, 10);
+    activityMap[key] = (activityMap[key] ?? 0) + 1;
+  }
+
+  const activityDays: Array<{ date: string; count: number }> = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    activityDays.push({ date: key, count: activityMap[key] ?? 0 });
+  }
+
   // ─── Render ───────────────────────────────────────────────
 
   return (
@@ -328,6 +391,9 @@ export default async function DashboardPage() {
         <aside className="hidden lg:block w-[280px] shrink-0">
           <div className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
             <SidebarCausas
+              pendingFlashcards={pendingFlashcards}
+              mcqCount={mcqCount}
+              tfCount={tfCount}
               pending={serializedPending}
               active={serializedActive}
               history={serializedHistory}
@@ -409,65 +475,52 @@ export default async function DashboardPage() {
             </div>
           )}
 
-          {/* ─── Entrenamiento (colapsable) ───────────────── */}
-          <div className="mt-10">
-            <CollapsibleSection title="Entrenamiento" defaultOpen={true}>
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                <DashboardCard
-                  title="Flashcards"
-                  description="Repasa conceptos clave con tarjetas inteligentes"
-                  emoji="📇"
-                  href="/dashboard/flashcards"
-                  badge={
-                    pendingFlashcards > 0
-                      ? `${pendingFlashcards} pendiente${pendingFlashcards !== 1 ? "s" : ""}`
-                      : undefined
-                  }
-                />
-                <DashboardCard
-                  title="Preguntas MCQ"
-                  description="Practica con preguntas de selección múltiple"
-                  emoji="✅"
-                  href="/dashboard/mcq"
-                  badge={
-                    mcqCount > 0
-                      ? `${mcqCount} disponible${mcqCount !== 1 ? "s" : ""}`
-                      : undefined
-                  }
-                />
-                <DashboardCard
-                  title="Verdadero/Falso"
-                  description="Evalúa afirmaciones de derecho"
-                  emoji="⚖️"
-                  href="/dashboard/truefalse"
-                  badge={
-                    tfCount > 0
-                      ? `${tfCount} disponible${tfCount !== 1 ? "s" : ""}`
-                      : undefined
-                  }
-                />
-              </div>
-            </CollapsibleSection>
+          {/* ─── Actividad reciente ─────────────────────── */}
+          <div className="mt-8">
+            <ActivityGrid days={activityDays} />
           </div>
 
-          {/* ─── Mobile: Liga + Causas links ─────────────── */}
-          <div className="mt-6 grid grid-cols-2 gap-4 lg:hidden">
+          {/* ─── Mobile: Entrenamiento + Liga + Causas ──── */}
+          <div className="mt-6 grid grid-cols-3 gap-3 lg:hidden">
+            <Link
+              href="/dashboard/flashcards"
+              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
+            >
+              <span className="text-xl">📇</span>
+              <p className="mt-1 text-xs font-semibold text-navy">Flashcards</p>
+            </Link>
+            <Link
+              href="/dashboard/mcq"
+              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
+            >
+              <span className="text-xl">✅</span>
+              <p className="mt-1 text-xs font-semibold text-navy">MCQ</p>
+            </Link>
+            <Link
+              href="/dashboard/truefalse"
+              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
+            >
+              <span className="text-xl">⚖️</span>
+              <p className="mt-1 text-xs font-semibold text-navy">V/F</p>
+            </Link>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3 lg:hidden">
             <Link
               href="/dashboard/liga"
-              className="rounded-xl border border-border bg-white p-4 text-center transition-shadow hover:shadow-md"
+              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
             >
-              <span className="text-2xl">🏆</span>
-              <p className="mt-1 text-sm font-semibold text-navy">Liga</p>
-              <p className="text-xs text-navy/50">{tierEmoji} {tierLabel}</p>
+              <span className="text-xl">🏆</span>
+              <p className="mt-1 text-xs font-semibold text-navy">Liga</p>
+              <p className="text-[10px] text-navy/50">{tierEmoji} {tierLabel}</p>
             </Link>
             <Link
               href="/dashboard/causas"
-              className="rounded-xl border border-border bg-white p-4 text-center transition-shadow hover:shadow-md"
+              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
             >
-              <span className="text-2xl">⚔️</span>
-              <p className="mt-1 text-sm font-semibold text-navy">Causas</p>
+              <span className="text-xl">⚔️</span>
+              <p className="mt-1 text-xs font-semibold text-navy">Causas</p>
               {activeCausas > 0 && (
-                <p className="text-xs text-gold">{activeCausas} activa{activeCausas !== 1 ? "s" : ""}</p>
+                <p className="text-[10px] text-gold">{activeCausas} activa{activeCausas !== 1 ? "s" : ""}</p>
               )}
             </Link>
           </div>
@@ -522,35 +575,3 @@ function StatCard({
   );
 }
 
-function DashboardCard({
-  title,
-  description,
-  emoji,
-  href,
-  badge,
-}: {
-  title: string;
-  description: string;
-  emoji: string;
-  href?: string;
-  badge?: string;
-}) {
-  const content = (
-    <div className="cursor-pointer rounded-xl border border-border bg-white p-6 transition-shadow hover:shadow-md">
-      <div className="mb-3 text-3xl">{emoji}</div>
-      <h3 className="text-lg font-semibold text-navy">{title}</h3>
-      <p className="mt-1 text-sm text-navy/60">{description}</p>
-      {badge && (
-        <span className="mt-3 inline-block rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
-          {badge}
-        </span>
-      )}
-    </div>
-  );
-
-  if (href) {
-    return <Link href={href}>{content}</Link>;
-  }
-
-  return content;
-}

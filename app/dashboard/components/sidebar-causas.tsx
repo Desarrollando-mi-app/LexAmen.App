@@ -26,12 +26,20 @@ interface HistoryCausa {
 }
 
 interface SidebarCausasProps {
+  // Entrenamiento
+  pendingFlashcards: number;
+  mcqCount: number;
+  tfCount: number;
+  // Causas
   pending: PendingCausa[];
   active: ActiveCausa[];
   history: HistoryCausa[];
 }
 
 export function SidebarCausas({
+  pendingFlashcards,
+  mcqCount,
+  tfCount,
   pending: initialPending,
   active,
   history,
@@ -40,7 +48,8 @@ export function SidebarCausas({
   const [pending, setPending] = useState(initialPending);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const isEmpty = pending.length === 0 && active.length === 0 && history.length === 0;
+  const causasEmpty =
+    pending.length === 0 && active.length === 0 && history.length === 0;
 
   async function handleAccept(causaId: string) {
     setActionLoading(causaId);
@@ -77,7 +86,54 @@ export function SidebarCausas({
 
   return (
     <div className="rounded-xl border border-border bg-white p-4">
-      {/* Header */}
+      {/* ── Entrenamiento ────────────────────────────── */}
+      <h3 className="text-sm font-bold text-navy">📚 Entrenamiento</h3>
+      <div className="mt-2.5 space-y-1.5">
+        <Link
+          href="/dashboard/flashcards"
+          className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
+        >
+          <span className="flex items-center gap-2 text-xs font-medium text-navy">
+            <span>📇</span> Flashcards
+          </span>
+          {pendingFlashcards > 0 && (
+            <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold">
+              {pendingFlashcards}
+            </span>
+          )}
+        </Link>
+        <Link
+          href="/dashboard/mcq"
+          className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
+        >
+          <span className="flex items-center gap-2 text-xs font-medium text-navy">
+            <span>✅</span> Preguntas MCQ
+          </span>
+          {mcqCount > 0 && (
+            <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold">
+              {mcqCount}
+            </span>
+          )}
+        </Link>
+        <Link
+          href="/dashboard/truefalse"
+          className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
+        >
+          <span className="flex items-center gap-2 text-xs font-medium text-navy">
+            <span>⚖️</span> Verdadero/Falso
+          </span>
+          {tfCount > 0 && (
+            <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold">
+              {tfCount}
+            </span>
+          )}
+        </Link>
+      </div>
+
+      {/* ── Separador ────────────────────────────────── */}
+      <div className="my-4 border-t border-border" />
+
+      {/* ── Causas ───────────────────────────────────── */}
       <div className="flex items-center gap-2">
         <h3 className="text-sm font-bold text-navy">⚔️ Causas</h3>
         {pending.length > 0 && (
@@ -88,8 +144,8 @@ export function SidebarCausas({
       </div>
 
       {/* Estado vacío */}
-      {isEmpty && (
-        <div className="mt-4 text-center">
+      {causasEmpty && (
+        <div className="mt-3 text-center">
           <p className="text-xs text-navy/50">No tienes causas activas</p>
           <Link
             href="/dashboard/causas"
@@ -139,7 +195,13 @@ export function SidebarCausas({
 
       {/* Activas */}
       {active.length > 0 && (
-        <div className={`${pending.length > 0 ? "mt-3 border-t border-border pt-3" : "mt-3"}`}>
+        <div
+          className={`${
+            pending.length > 0
+              ? "mt-3 border-t border-border pt-3"
+              : "mt-3"
+          }`}
+        >
           <p className="text-[10px] font-semibold uppercase tracking-wider text-navy/40">
             Activas
           </p>
@@ -164,7 +226,13 @@ export function SidebarCausas({
 
       {/* Historial */}
       {history.length > 0 && (
-        <div className={`${(pending.length > 0 || active.length > 0) ? "mt-3 border-t border-border pt-3" : "mt-3"}`}>
+        <div
+          className={`${
+            pending.length > 0 || active.length > 0
+              ? "mt-3 border-t border-border pt-3"
+              : "mt-3"
+          }`}
+        >
           <p className="text-[10px] font-semibold uppercase tracking-wider text-navy/40">
             Historial
           </p>
@@ -201,8 +269,8 @@ export function SidebarCausas({
         </div>
       )}
 
-      {/* Footer */}
-      {!isEmpty && (
+      {/* Footer causas */}
+      {!causasEmpty && (
         <div className="mt-3 border-t border-border pt-3">
           <Link
             href="/dashboard/causas"
