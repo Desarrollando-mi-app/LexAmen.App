@@ -68,7 +68,13 @@ const CURRICULUM: Unidad[] = [
           },
           {
             label: "El Derecho Civil y su Codificación",
-            submaterias: [],
+            submaterias: [
+              "CONCEPTO_ORIGEN_DERECHO_CIVIL",
+              "CODIFICACION_CODIGO_CIVIL",
+              "ESTRUCTURA_PROYECCION",
+              "PRINCIPIOS_FUNDAMENTALES",
+              "DERECHO_CIVIL_ACTUALIDAD",
+            ],
           },
           {
             label: "La relación jurídica, el deber y los derechos subjetivos",
@@ -133,6 +139,11 @@ const SUBMATERIA_LABELS: Record<string, string> = {
   INTERPRETACION_LEY: "Interpretación de la Ley",
   INTEGRACION_LEY: "Integración de la Ley",
   EFECTOS_LEY: "Efectos de la Ley",
+  CONCEPTO_ORIGEN_DERECHO_CIVIL: "Concepto y Origen del Derecho Civil",
+  CODIFICACION_CODIGO_CIVIL: "Codificación y Código Civil",
+  ESTRUCTURA_PROYECCION: "Estructura y Proyección",
+  PRINCIPIOS_FUNDAMENTALES: "Principios Fundamentales",
+  DERECHO_CIVIL_ACTUALIDAD: "Derecho Civil en la Actualidad",
   PERSONA_NATURAL: "Persona Natural",
   MUERTE_PRESUNTA: "Muerte Presunta",
   NATURALEZA_CLASIFICACION: "Naturaleza y Clasificación",
