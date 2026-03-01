@@ -306,6 +306,25 @@ export function SidebarCausas({
           </Link>
         </div>
       )}
+
+      {/* ── Separador ────────────────────────────────── */}
+      <div className="my-4 border-t border-border" />
+
+      {/* ── La Sala ────────────────────────────────────── */}
+      <h3 className="text-sm font-bold text-navy">🏛️ La Sala</h3>
+      <div className="mt-2.5">
+        <Link
+          href="/dashboard/sala"
+          className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
+        >
+          <span className="flex items-center gap-2 text-xs font-medium text-navy">
+            <span>📋</span> Ayudantias
+          </span>
+          <span className="text-[10px] font-semibold text-gold">
+            Ver &rarr;
+          </span>
+        </Link>
+      </div>
     </div>
   );
 }

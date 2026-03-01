@@ -515,7 +515,7 @@ export default async function DashboardPage() {
               <p className="mt-1 text-xs font-semibold text-navy">V/F</p>
             </Link>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-3 lg:hidden">
+          <div className="mt-3 grid grid-cols-3 gap-3 lg:hidden">
             <Link
               href="/dashboard/liga"
               className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
@@ -533,6 +533,14 @@ export default async function DashboardPage() {
               {activeCausas > 0 && (
                 <p className="text-[10px] text-gold">{activeCausas} activa{activeCausas !== 1 ? "s" : ""}</p>
               )}
+            </Link>
+            <Link
+              href="/dashboard/sala"
+              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
+            >
+              <span className="text-xl">🏛️</span>
+              <p className="mt-1 text-xs font-semibold text-navy">La Sala</p>
+              <p className="text-[10px] text-navy/50">Ayudantias</p>
             </Link>
           </div>
 
