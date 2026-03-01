@@ -34,6 +34,8 @@ interface SidebarCausasProps {
   pending: PendingCausa[];
   active: ActiveCausa[];
   history: HistoryCausa[];
+  // Salas grupales
+  activeRooms: number;
 }
 
 export function SidebarCausas({
@@ -43,13 +45,14 @@ export function SidebarCausas({
   pending: initialPending,
   active,
   history,
+  activeRooms,
 }: SidebarCausasProps) {
   const router = useRouter();
   const [pending, setPending] = useState(initialPending);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const causasEmpty =
-    pending.length === 0 && active.length === 0 && history.length === 0;
+    pending.length === 0 && active.length === 0 && history.length === 0 && activeRooms === 0;
 
   async function handleAccept(causaId: string) {
     setActionLoading(causaId);
@@ -266,6 +269,29 @@ export function SidebarCausas({
               </Link>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Salas grupales */}
+      {activeRooms > 0 && (
+        <div
+          className={`${
+            pending.length > 0 || active.length > 0 || history.length > 0
+              ? "mt-3 border-t border-border pt-3"
+              : "mt-3"
+          }`}
+        >
+          <Link
+            href="/dashboard/causas"
+            className="flex items-center justify-between rounded-lg border border-gold/30 bg-gold/5 px-2.5 py-2 transition-colors hover:bg-gold/10"
+          >
+            <span className="flex items-center gap-2 text-xs font-medium text-navy">
+              <span>🏟️</span> Salas Grupales
+            </span>
+            <span className="rounded-full bg-gold px-1.5 py-0.5 text-[10px] font-bold text-white">
+              {activeRooms}
+            </span>
+          </Link>
         </div>
       )}
 

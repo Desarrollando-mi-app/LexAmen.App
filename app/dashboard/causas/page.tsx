@@ -14,72 +14,95 @@ export default async function CausasPage() {
   }
 
   // Consultas en paralelo
-  const [dbUser, pending, history] = await Promise.all([
-    // Stats del usuario
-    prisma.user.findUnique({
-      where: { id: authUser.id },
-      select: { causasGanadas: true, causasPerdidas: true },
-    }),
+  const [dbUser, pending, activeCausas, history, activeRooms, roomHistory, badges] =
+    await Promise.all([
+      // Stats del usuario
+      prisma.user.findUnique({
+        where: { id: authUser.id },
+        select: { causasGanadas: true, causasPerdidas: true },
+      }),
 
-    // Causas pendientes (donde soy el retado)
-    prisma.causa.findMany({
-      where: {
-        challengedId: authUser.id,
-        status: "PENDING",
-      },
-      orderBy: { createdAt: "desc" },
-      include: {
-        challenger: {
-          select: { firstName: true, lastName: true },
+      // Causas pendientes (donde soy el retado)
+      prisma.causa.findMany({
+        where: { challengedId: authUser.id, status: "PENDING" },
+        orderBy: { createdAt: "desc" },
+        include: {
+          challenger: { select: { firstName: true, lastName: true } },
         },
-      },
-    }),
+      }),
 
-    // Historial (últimas 20)
-    prisma.causa.findMany({
-      where: {
-        OR: [
-          { challengerId: authUser.id },
-          { challengedId: authUser.id },
-        ],
-        status: { in: ["COMPLETED", "REJECTED"] },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-      include: {
-        challenger: {
-          select: { id: true, firstName: true, lastName: true },
+      // Causas activas 1v1
+      prisma.causa.findMany({
+        where: {
+          OR: [
+            { challengerId: authUser.id },
+            { challengedId: authUser.id },
+          ],
+          status: "ACTIVE",
         },
-        challenged: {
-          select: { id: true, firstName: true, lastName: true },
+        orderBy: { startedAt: "desc" },
+        include: {
+          challenger: { select: { id: true, firstName: true, lastName: true } },
+          challenged: { select: { id: true, firstName: true, lastName: true } },
         },
-        winner: {
-          select: { id: true },
-        },
-      },
-    }),
-  ]);
+      }),
 
-  // Causas activas donde participo
-  const activeCausas = await prisma.causa.findMany({
-    where: {
-      OR: [
-        { challengerId: authUser.id },
-        { challengedId: authUser.id },
-      ],
-      status: "ACTIVE",
-    },
-    orderBy: { startedAt: "desc" },
-    include: {
-      challenger: {
-        select: { id: true, firstName: true, lastName: true },
-      },
-      challenged: {
-        select: { id: true, firstName: true, lastName: true },
-      },
-    },
-  });
+      // Historial 1v1 (últimas 20)
+      prisma.causa.findMany({
+        where: {
+          OR: [
+            { challengerId: authUser.id },
+            { challengedId: authUser.id },
+          ],
+          status: { in: ["COMPLETED", "REJECTED"] },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        include: {
+          challenger: { select: { id: true, firstName: true, lastName: true } },
+          challenged: { select: { id: true, firstName: true, lastName: true } },
+          winner: { select: { id: true } },
+        },
+      }),
 
+      // Salas activas/lobby
+      prisma.causaRoom.findMany({
+        where: {
+          participants: { some: { userId: authUser.id } },
+          status: { in: ["lobby", "active"] },
+        },
+        orderBy: { createdAt: "desc" },
+        include: {
+          createdBy: { select: { firstName: true } },
+          _count: { select: { participants: true } },
+        },
+      }),
+
+      // Historial salas (últimas 10)
+      prisma.causaRoom.findMany({
+        where: {
+          participants: { some: { userId: authUser.id } },
+          status: "finished",
+        },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        include: {
+          _count: { select: { participants: true } },
+          participants: {
+            where: { userId: authUser.id },
+            select: { position: true, score: true },
+          },
+        },
+      }),
+
+      // Badges del usuario
+      prisma.userBadge.findMany({
+        where: { userId: authUser.id },
+        select: { badge: true },
+      }),
+    ]);
+
+  // Serializar 1v1
   const serializedPending = pending.map((c) => ({
     id: c.id,
     challengerName: `${c.challenger.firstName} ${c.challenger.lastName}`,
@@ -109,6 +132,26 @@ export default async function CausasPage() {
     };
   });
 
+  // Serializar rooms
+  const serializedActiveRooms = activeRooms.map((r) => ({
+    id: r.id,
+    code: r.id.slice(-6).toUpperCase(),
+    mode: r.mode,
+    status: r.status,
+    maxPlayers: r.maxPlayers,
+    participantCount: r._count.participants,
+    creatorName: r.createdBy.firstName,
+    createdAt: r.createdAt.toISOString(),
+  }));
+
+  const serializedRoomHistory = roomHistory.map((r) => ({
+    id: r.id,
+    participantCount: r._count.participants,
+    position: r.participants[0]?.position ?? null,
+    score: r.participants[0]?.score ?? 0,
+    createdAt: r.createdAt.toISOString(),
+  }));
+
   return (
     <CausasHub
       causasGanadas={dbUser?.causasGanadas ?? 0}
@@ -116,6 +159,9 @@ export default async function CausasPage() {
       pending={serializedPending}
       active={serializedActive}
       history={serializedHistory}
+      activeRooms={serializedActiveRooms}
+      roomHistory={serializedRoomHistory}
+      earnedBadges={badges.map((b) => b.badge)}
     />
   );
 }

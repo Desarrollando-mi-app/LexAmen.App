@@ -110,6 +110,8 @@ export default async function DashboardPage() {
     flashcardReviews30d,
     mcqAttempts30d,
     tfAttempts30d,
+    // Salas grupales
+    activeRoomsCount,
   ] = await Promise.all([
     // 1. Flashcards dominadas
     prisma.userFlashcardProgress.count({
@@ -255,6 +257,14 @@ export default async function DashboardPage() {
       },
       select: { attemptedAt: true },
     }),
+
+    // 16. Salas grupales activas (sidebar)
+    prisma.causaRoom.count({
+      where: {
+        participants: { some: { userId: authUser.id } },
+        status: { in: ["lobby", "active"] },
+      },
+    }),
   ]);
 
   // ─── Derivar counts para badges ───────────────────────────
@@ -397,6 +407,7 @@ export default async function DashboardPage() {
               pending={serializedPending}
               active={serializedActive}
               history={serializedHistory}
+              activeRooms={activeRoomsCount}
             />
           </div>
         </aside>

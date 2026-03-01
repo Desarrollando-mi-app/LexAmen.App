@@ -50,6 +50,15 @@ enum CausaStatus {
   EXPIRED
 }
 
+enum BadgeSlug {
+  PASANTE
+  PROCURADOR
+  ABOGADO_LITIGANTE
+  PENALISTA_EN_SERIE
+  JURISCONSULTO_SEMANA
+  SOCIEDAD_DE_HECHO
+}
+
 // ─── Modelos ─────────────────────────────────────────────
 
 model User {
@@ -81,6 +90,10 @@ model User {
   causasRecibidas     Causa[]        @relation("CausasRecibidas")
   causasGanadasRel    Causa[]        @relation("CausasGanadas")
   causaAnswers        CausaAnswer[]
+  badges              UserBadge[]
+  causaRoomsCreated   CausaRoom[]          @relation("CausaRoomsCreated")
+  causaParticipations CausaParticipant[]
+  causaRoomAnswers    CausaRoomAnswer[]
   subscriptions       Subscription[]
 }
 
@@ -129,8 +142,10 @@ model MCQ {
   tipo          Tipo
   nivel         String  @default("BASICO")
 
-  attempts     UserMCQAttempt[]
-  causaAnswers CausaAnswer[]
+  attempts           UserMCQAttempt[]
+  causaAnswers       CausaAnswer[]
+  causaRoomQuestions CausaRoomQuestion[]
+  causaRoomAnswers   CausaRoomAnswer[]
 }
 
 model UserMCQAttempt {
@@ -263,6 +278,84 @@ model CausaAnswer {
   mcq   MCQ   @relation(fields: [mcqId], references: [id], onDelete: Cascade)
 
   @@unique([causaId, userId, questionIdx])
+}
+
+// ─── Insignias ───────────────────────────────────────────
+
+model UserBadge {
+  id       String    @id @default(cuid())
+  userId   String
+  badge    BadgeSlug
+  earnedAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badge])
+}
+
+// ─── CausaRoom (Causa Grupal / Multiplayer) ──────────────
+
+model CausaRoom {
+  id               String   @id @default(cuid())
+  mode             String   @default("individual")
+  status           String   @default("lobby")
+  maxPlayers       Int      @default(10)
+  createdById      String
+  materia          String?
+  difficulty       String?
+  timeLimitSeconds Int      @default(30)
+  createdAt        DateTime @default(now())
+
+  createdBy    User                @relation("CausaRoomsCreated", fields: [createdById], references: [id], onDelete: Cascade)
+  participants CausaParticipant[]
+  questions    CausaRoomQuestion[]
+  answers      CausaRoomAnswer[]
+
+  @@index([status])
+}
+
+model CausaParticipant {
+  roomId   String
+  userId   String
+  score    Int      @default(0)
+  position Int?
+  joinedAt DateTime @default(now())
+
+  room CausaRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([roomId, userId])
+}
+
+model CausaRoomQuestion {
+  id            String @id @default(cuid())
+  roomId        String
+  mcqId         String
+  questionIndex Int
+
+  room CausaRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  mcq  MCQ       @relation(fields: [mcqId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, questionIndex])
+}
+
+model CausaRoomAnswer {
+  id             String   @id @default(cuid())
+  roomId         String
+  userId         String
+  mcqId          String
+  questionIndex  Int
+  selectedOption String?
+  isCorrect      Boolean?
+  timeMs         Int?
+  score          Int      @default(0)
+  answeredAt     DateTime @default(now())
+
+  room CausaRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mcq  MCQ       @relation(fields: [mcqId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId, questionIndex])
 }
 
 // ─── Flashcard Favoritos ─────────────────────────────────
