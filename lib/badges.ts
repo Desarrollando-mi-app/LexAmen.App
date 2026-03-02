@@ -1,6 +1,8 @@
 // ─── Evaluación de Insignias (server-only) ────────────────────
 import { prisma } from "@/lib/prisma";
 import type { BadgeSlug } from "@/lib/badge-constants";
+import { BADGE_MAP } from "@/lib/badge-constants";
+import { sendNotification } from "@/lib/notifications";
 
 /**
  * Evalúa qué badges merece un usuario y los otorga.
@@ -54,6 +56,19 @@ export async function evaluateBadges(userId: string): Promise<BadgeSlug[]> {
 
   // JURISCONSULTO_SEMANA: se evalúa en el cron de liga, no aquí
   // SOCIEDAD_DE_HECHO: futuro — se omite
+
+  // Enviar notificación por cada badge nuevo
+  for (const slug of newBadges) {
+    const badge = BADGE_MAP[slug];
+    sendNotification({
+      type: "BADGE_EARNED",
+      title: "¡Nueva insignia!",
+      body: `Has ganado la insignia ${badge.label} ${badge.emoji}`,
+      targetUserId: userId,
+      metadata: { badgeSlug: slug },
+      sendEmail: false,
+    }).catch(() => {});
+  }
 
   return newBadges;
 }

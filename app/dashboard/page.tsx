@@ -10,6 +10,7 @@ import { TIER_LABELS, TIER_EMOJIS, getDaysRemaining } from "@/lib/league";
 import { SidebarCausas } from "./components/sidebar-causas";
 import { SidebarLiga } from "./components/sidebar-liga";
 import { ActivityGrid } from "./components/activity-grid";
+import { NotificationBell } from "./components/notification-bell";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -389,6 +390,7 @@ export default async function DashboardPage() {
             >
               {tierEmoji} {tierLabel}
             </Link>
+            <NotificationBell />
             <span className="text-sm text-navy/70">{displayName}</span>
             <LogoutButton />
           </div>

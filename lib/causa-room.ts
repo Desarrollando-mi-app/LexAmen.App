@@ -4,6 +4,7 @@ import { calculateCausaScore, CAUSA_QUESTIONS } from "@/lib/causa";
 import { getCurrentWeekBounds } from "@/lib/league";
 import { evaluateBadges } from "@/lib/badges";
 import type { BadgeSlug } from "@/lib/badge-constants";
+import { sendNotification } from "@/lib/notifications";
 
 export const ROOM_QUESTIONS = CAUSA_QUESTIONS; // 10
 export const ROOM_MIN_PLAYERS = 2;
@@ -147,6 +148,18 @@ export async function finishRoom(roomId: string): Promise<{
     where: { id: roomId },
     data: { status: "finished" },
   });
+
+  // Notificar a cada participante
+  for (const p of playerStats) {
+    sendNotification({
+      type: "CAUSA_FINISHED",
+      title: "Causa finalizada",
+      body: `Terminaste en posición ${p.position} con ${p.totalScore} puntos`,
+      targetUserId: p.userId,
+      metadata: { roomId, position: p.position, score: p.totalScore },
+      sendEmail: false,
+    }).catch(() => {});
+  }
 
   // Evaluar badges para todos los participantes
   const badgeResults: Record<string, BadgeSlug[]> = {};

@@ -6,6 +6,7 @@ import {
   tierUp,
   tierDown,
 } from "@/lib/league";
+import { sendNotification } from "@/lib/notifications";
 
 export async function POST(request: Request) {
   // 1. Seguridad: verificar CRON_SECRET
@@ -59,6 +60,14 @@ export async function POST(request: Request) {
         if (up) {
           newTier = up as typeof league.tier;
           promoted++;
+          sendNotification({
+            type: "LEAGUE_RESULT",
+            title: "¡Ascendiste de liga!",
+            body: `Pasaste de ${league.tier} a ${up}. ¡Sigue así!`,
+            targetUserId: member.userId,
+            metadata: { from: league.tier, to: up, rank },
+            sendEmail: true,
+          }).catch(() => {});
         } else {
           maintained++;
         }
@@ -68,6 +77,14 @@ export async function POST(request: Request) {
         if (down) {
           newTier = down as typeof league.tier;
           demoted++;
+          sendNotification({
+            type: "LEAGUE_RESULT",
+            title: "Descendiste de liga",
+            body: `Bajaste de ${league.tier} a ${down}. ¡La próxima será mejor!`,
+            targetUserId: member.userId,
+            metadata: { from: league.tier, to: down, rank },
+            sendEmail: false,
+          }).catch(() => {});
         } else {
           maintained++;
         }

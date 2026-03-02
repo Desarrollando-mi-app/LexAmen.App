@@ -59,6 +59,16 @@ enum BadgeSlug {
   SOCIEDAD_DE_HECHO
 }
 
+enum NotificationType {
+  SYSTEM_BROADCAST
+  SYSTEM_SEGMENTED
+  SYSTEM_INDIVIDUAL
+  LEAGUE_RESULT
+  CAUSA_FINISHED
+  NEW_CONTENT
+  BADGE_EARNED
+}
+
 enum AyudantiaType {
   OFREZCO
   BUSCO
@@ -99,6 +109,7 @@ model User {
   xp              Int       @default(0)
   causasGanadas   Int       @default(0)
   causasPerdidas  Int       @default(0)
+  isAdmin         Boolean   @default(false)
   createdAt       DateTime  @default(now())
 
   flashcardProgress   UserFlashcardProgress[]
@@ -120,6 +131,7 @@ model User {
   ayudantias          Ayudantia[]
   ayudantiaReports    AyudantiaReport[]
   ayudantiaStreak     AyudantiaStreak?
+  notifications       UserNotification[]
 }
 
 model Flashcard {
@@ -444,6 +456,37 @@ model AyudantiaStreak {
   longestStreak   Int    @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Notificaciones ─────────────────────────────────────
+
+model Notification {
+  id            String           @id @default(cuid())
+  type          NotificationType
+  title         String
+  body          String
+  senderId      String?
+  targetUserId  String?
+  targetSegment String?
+  metadata      Json?
+  sentViaEmail  Boolean          @default(false)
+  createdAt     DateTime         @default(now())
+
+  userNotifications UserNotification[]
+}
+
+model UserNotification {
+  id             String    @id @default(cuid())
+  userId         String
+  notificationId String
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
 }
 
 // ─── Suscripciones ──────────────────────────────────────
