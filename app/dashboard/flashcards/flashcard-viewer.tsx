@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ReportButton } from "@/app/components/report-button";
 
@@ -37,6 +38,12 @@ type FlashcardViewerProps = {
   reviewsToday: number;
   dailyLimit: number;
   isPremium: boolean;
+  initialFilters?: {
+    nivel?: string;
+    materia?: string;
+    submateria?: string;
+    mode?: string;
+  };
 };
 
 // ─── Mapeo de enums a español ────────────────────────────
@@ -85,11 +92,24 @@ export function FlashcardViewer({
   reviewsToday,
   dailyLimit,
   isPremium,
+  initialFilters,
 }: FlashcardViewerProps) {
-  const [selectedNivel, setSelectedNivel] = useState<string>("BASICO");
-  const [selectedMateria, setSelectedMateria] = useState<string>("ALL");
-  const [selectedSubmateria, setSelectedSubmateria] = useState<string>("ALL");
-  const [viewMode, setViewMode] = useState<ViewMode>("ALL");
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [selectedNivel, setSelectedNivel] = useState<string>(initialFilters?.nivel || "BASICO");
+  const [selectedMateria, setSelectedMateria] = useState<string>(initialFilters?.materia || "ALL");
+  const [selectedSubmateria, setSelectedSubmateria] = useState<string>(initialFilters?.submateria || "ALL");
+  const [viewMode, setViewMode] = useState<ViewMode>((initialFilters?.mode as ViewMode) || "ALL");
+
+  function updateUrl(params: Record<string, string>) {
+    const sp = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (v && v !== "ALL" && v !== "BASICO") sp.set(k, v);
+    }
+    const qs = sp.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [reviewsCount, setReviewsCount] = useState(reviewsToday);
@@ -264,6 +284,7 @@ export function FlashcardViewer({
     setCurrentIndex(0);
     setIsFlipped(false);
     setCompleted(false);
+    updateUrl({ nivel: value, materia: "ALL", submateria: "ALL", mode: viewMode });
   }
 
   function handleMateriaChange(value: string) {
@@ -272,6 +293,7 @@ export function FlashcardViewer({
     setCurrentIndex(0);
     setIsFlipped(false);
     setCompleted(false);
+    updateUrl({ nivel: selectedNivel, materia: value, submateria: "ALL", mode: viewMode });
   }
 
   function handleFilterChange(value: string) {
@@ -279,6 +301,7 @@ export function FlashcardViewer({
     setCurrentIndex(0);
     setIsFlipped(false);
     setCompleted(false);
+    updateUrl({ nivel: selectedNivel, materia: selectedMateria, submateria: value, mode: viewMode });
   }
 
   function handleViewModeChange(mode: ViewMode) {
@@ -286,6 +309,7 @@ export function FlashcardViewer({
     setCurrentIndex(0);
     setIsFlipped(false);
     setCompleted(false);
+    updateUrl({ nivel: selectedNivel, materia: selectedMateria, submateria: selectedSubmateria, mode: mode });
   }
 
   // ─── Pantalla: Límite alcanzado ────────────────────────

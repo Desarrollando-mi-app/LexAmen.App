@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 
 // ─── Types ───────────────────────────────────────────────
@@ -118,6 +119,7 @@ export function CausasHub({
         setError(data.error);
         return;
       }
+      toast.success(`Reto enviado a ${data.opponentName}`);
       setSuccess(`Reto enviado a ${data.opponentName}`);
       setEmail("");
     } catch {
@@ -133,10 +135,11 @@ export function CausasHub({
       const res = await fetch(`/api/causas/${causaId}/accept`, { method: "POST" });
       if (res.ok) {
         setPending((prev) => prev.filter((c) => c.id !== causaId));
+        toast.success("Causa aceptada ⚔️");
         router.push(`/dashboard/causas/${causaId}`);
       }
     } catch {
-      // silently fail
+      toast.error("Ocurrió un error, intenta de nuevo");
     } finally {
       setActionLoading(null);
     }
@@ -148,9 +151,10 @@ export function CausasHub({
       const res = await fetch(`/api/causas/${causaId}/reject`, { method: "POST" });
       if (res.ok) {
         setPending((prev) => prev.filter((c) => c.id !== causaId));
+        toast.success("Causa rechazada");
       }
     } catch {
-      // silently fail
+      toast.error("Ocurrió un error, intenta de nuevo");
     } finally {
       setActionLoading(null);
     }
@@ -173,13 +177,14 @@ export function CausasHub({
       });
       const data = await res.json();
       if (res.ok) {
+        toast.success("Sala creada");
         router.push(`/dashboard/causas/sala/${data.roomId}`);
       } else {
-        setError(data.error);
+        toast.error(data.error ?? "No se pudo crear la sala");
         setShowCreateModal(false);
       }
     } catch {
-      setError("Error de conexión");
+      toast.error("Error de conexión");
       setShowCreateModal(false);
     } finally {
       setCreatingRoom(false);
@@ -202,9 +207,11 @@ export function CausasHub({
       if (res.ok) {
         router.push(`/dashboard/causas/sala/${data.roomId}`);
       } else {
+        toast.error(data.error ?? "Código inválido");
         setJoinError(data.error);
       }
     } catch {
+      toast.error("Error de conexión");
       setJoinError("Error de conexión");
     } finally {
       setJoiningRoom(false);

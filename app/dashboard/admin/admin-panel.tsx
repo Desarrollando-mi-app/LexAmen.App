@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
 type NotificationType = "SYSTEM_BROADCAST" | "SYSTEM_SEGMENTED" | "SYSTEM_INDIVIDUAL";
 
@@ -84,11 +85,13 @@ export function AdminPanel() {
 
       if (!res.ok) {
         const err = await res.json();
+        toast.error(`Error: ${err.error}`);
         setResult(`Error: ${err.error}`);
         return;
       }
 
       const data = await res.json();
+      toast.success(`Notificación enviada a ${data.recipientCount} usuario(s)`);
       setResult(`✅ Enviada a ${data.recipientCount} usuario(s)`);
       setTitle("");
       setBody("");
@@ -97,6 +100,7 @@ export function AdminPanel() {
       setSendEmail(false);
       fetchHistory();
     } catch {
+      toast.error("Error al enviar");
       setResult("Error de red");
     } finally {
       setSending(false);

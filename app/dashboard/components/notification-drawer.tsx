@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 
 interface NotificationItem {
   id: string;
@@ -69,8 +70,9 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
       setItems((prev) =>
         prev.map((i) => ({ ...i, readAt: i.readAt ?? new Date().toISOString() }))
       );
+      toast.success("Notificaciones marcadas como leídas");
     } catch {
-      // silently fail
+      toast.error("No se pudo actualizar");
     }
   };
 
@@ -89,7 +91,7 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
         )
       );
     } catch {
-      // silently fail
+      toast.error("No se pudo actualizar");
     }
   };
 

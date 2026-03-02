@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ReportButton } from "@/app/components/report-button";
 
@@ -26,6 +27,11 @@ type TrueFalseViewerProps = {
   attemptsToday: number;
   dailyLimit: number;
   isPremium: boolean;
+  initialFilters?: {
+    nivel?: string;
+    materia?: string;
+    submateria?: string;
+  };
 };
 
 // ─── Mapeos de etiquetas ───────────────────────────────────
@@ -63,11 +69,24 @@ export function TrueFalseViewer({
   attemptsToday,
   dailyLimit,
   isPremium,
+  initialFilters,
 }: TrueFalseViewerProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   // Filtros
-  const [selectedNivel, setSelectedNivel] = useState<string>("BASICO");
-  const [selectedMateria, setSelectedMateria] = useState<string>("ALL");
-  const [selectedSubmateria, setSelectedSubmateria] = useState<string>("ALL");
+  const [selectedNivel, setSelectedNivel] = useState<string>(initialFilters?.nivel || "BASICO");
+  const [selectedMateria, setSelectedMateria] = useState<string>(initialFilters?.materia || "ALL");
+  const [selectedSubmateria, setSelectedSubmateria] = useState<string>(initialFilters?.submateria || "ALL");
+
+  function updateUrl(params: Record<string, string>) {
+    const sp = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) {
+      if (v && v !== "ALL" && v !== "BASICO") sp.set(k, v);
+    }
+    const qs = sp.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
 
   // Estado de pregunta
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -119,17 +138,20 @@ export function TrueFalseViewer({
     setSelectedMateria("ALL");
     setSelectedSubmateria("ALL");
     resetQuestionState();
+    updateUrl({ nivel: value, materia: "ALL", submateria: "ALL" });
   }
 
   function handleMateriaChange(value: string) {
     setSelectedMateria(value);
     setSelectedSubmateria("ALL");
     resetQuestionState();
+    updateUrl({ nivel: selectedNivel, materia: value, submateria: "ALL" });
   }
 
   function handleSubmateriaChange(value: string) {
     setSelectedSubmateria(value);
     resetQuestionState();
+    updateUrl({ nivel: selectedNivel, materia: selectedMateria, submateria: value });
   }
 
   // ─── Handler de respuesta ────────────────────────────────

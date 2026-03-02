@@ -9,6 +9,7 @@ import { TIER_LABELS, TIER_EMOJIS, getDaysRemaining } from "@/lib/league";
 import { SidebarCausas } from "./components/sidebar-causas";
 import { SidebarLiga } from "./components/sidebar-liga";
 import { ActivityGrid } from "./components/activity-grid";
+import { OnboardingCard } from "./components/onboarding-card";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -399,6 +400,9 @@ export default async function DashboardPage() {
             Hola, {user.firstName ?? "estudiante"}
           </h2>
           <p className="mt-1 text-navy/60">¿Qué quieres estudiar hoy?</p>
+
+          {/* ─── Onboarding (usuarios nuevos) ──────────────── */}
+          {user.xp === 0 && masteredCount === 0 && <OnboardingCard />}
 
           {/* ─── Estadísticas ─────────────────────────────── */}
           <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">

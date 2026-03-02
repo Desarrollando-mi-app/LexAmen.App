@@ -5,7 +5,11 @@ import { FlashcardViewer } from "./flashcard-viewer";
 
 const DAILY_FREE_LIMIT = 30;
 
-export default async function FlashcardsPage() {
+export default async function FlashcardsPage({
+  searchParams,
+}: {
+  searchParams: { nivel?: string; materia?: string; submateria?: string; mode?: string };
+}) {
   // 1. Autenticar
   const supabase = await createClient();
   const {
@@ -100,6 +104,12 @@ export default async function FlashcardsPage() {
           reviewsToday={reviewsToday}
           dailyLimit={DAILY_FREE_LIMIT}
           isPremium={dbUser.plan !== "FREE"}
+          initialFilters={{
+            nivel: searchParams.nivel,
+            materia: searchParams.materia,
+            submateria: searchParams.submateria,
+            mode: searchParams.mode,
+          }}
         />
       </div>
     </main>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   MATERIAS_SALA,
   UNIVERSIDADES_CHILE,
@@ -230,13 +231,16 @@ export function SalaClient({
       });
 
       if (res.ok) {
+        toast.success("Publicación creada ✓");
         setShowPublish(false);
         router.refresh();
       } else {
         const data = await res.json();
+        toast.error(data.error ?? "No se pudo publicar");
         setPubError(data.error);
       }
     } catch {
+      toast.error("Error de conexión");
       setPubError("Error de conexion");
     } finally {
       setPublishing(false);
@@ -261,8 +265,9 @@ export function SalaClient({
           a.id === id ? { ...a, isActive: !currentActive } : a
         )
       );
+      toast.success(currentActive ? "Publicación desactivada" : "Publicación reactivada");
     } catch {
-      // silently fail
+      toast.error("Ocurrió un error, intenta de nuevo");
     }
   }
 
@@ -287,6 +292,7 @@ export function SalaClient({
 
       if (res.ok) {
         const data = await res.json();
+        toast.success("Reporte enviado");
         if (data.deactivated) {
           setAyudantias((prev) =>
             prev.filter((a) => a.id !== reportingId)
@@ -294,7 +300,7 @@ export function SalaClient({
         }
       }
     } catch {
-      // silently fail
+      toast.error("Ocurrió un error, intenta de nuevo");
     } finally {
       setReportLoading(false);
       setReportingId(null);

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ensureLeagueMembership } from "@/lib/league-assign";
 import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
+import { Toaster } from "sonner";
 import { DashboardHeader } from "./components/dashboard-header";
 import { MobileNav } from "./components/mobile-nav";
 
@@ -39,6 +40,7 @@ export default async function DashboardLayout({
 
   return (
     <>
+      <Toaster position="bottom-right" richColors />
       <DashboardHeader
         userName={dbUser.firstName}
         userTier={tierLabel}

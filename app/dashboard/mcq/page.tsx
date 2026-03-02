@@ -5,7 +5,11 @@ import { MCQViewer } from "./mcq-viewer";
 
 const DAILY_FREE_LIMIT = 10;
 
-export default async function MCQPage() {
+export default async function MCQPage({
+  searchParams,
+}: {
+  searchParams: { nivel?: string; materia?: string; submateria?: string };
+}) {
   // 1. Autenticar
   const supabase = await createClient();
   const {
@@ -75,6 +79,11 @@ export default async function MCQPage() {
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_FREE_LIMIT}
           isPremium={dbUser.plan !== "FREE"}
+          initialFilters={{
+            nivel: searchParams.nivel,
+            materia: searchParams.materia,
+            submateria: searchParams.submateria,
+          }}
         />
       </div>
     </main>
