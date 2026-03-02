@@ -110,7 +110,7 @@ export function SidebarCausas({
           className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
         >
           <span className="flex items-center gap-2 text-xs font-medium text-navy">
-            <span>✅</span> Preguntas MCQ
+            <span>✅</span> Selección Múltiple
           </span>
           {mcqCount > 0 && (
             <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold">
@@ -123,7 +123,7 @@ export function SidebarCausas({
           className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
         >
           <span className="flex items-center gap-2 text-xs font-medium text-navy">
-            <span>⚖️</span> Verdadero/Falso
+            <span>⚖️</span> Verdadero / Falso
           </span>
           {tfCount > 0 && (
             <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold">

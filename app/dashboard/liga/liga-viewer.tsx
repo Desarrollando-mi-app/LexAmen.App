@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
 interface Member {
   position: number;
   userId: string;
@@ -37,27 +35,17 @@ export function LigaViewer({
 
   return (
     <main className="min-h-screen bg-paper">
-      {/* Header */}
-      <header className="border-b border-border bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link
-            href="/dashboard"
-            className="text-sm text-navy/60 hover:text-navy"
-          >
-            &larr; Dashboard
-          </Link>
-          <h1 className="text-xl font-bold text-navy">
+      {/* Subheader de liga */}
+      <div className="mx-auto max-w-3xl px-6 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-navy">
             {tierEmoji} Liga {tierLabel}
-          </h1>
+          </h2>
           <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
             {daysRemaining} día{daysRemaining !== 1 ? "s" : ""} restante
             {daysRemaining !== 1 ? "s" : ""}
           </span>
         </div>
-      </header>
-
-      {/* Tabla de ranking */}
-      <div className="mx-auto max-w-3xl px-6 py-8">
         <div className="overflow-hidden rounded-xl border border-border bg-white">
           <table className="w-full">
             <thead>

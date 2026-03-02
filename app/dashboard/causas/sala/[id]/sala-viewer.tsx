@@ -361,19 +361,6 @@ export function SalaViewer({
   if (status === "lobby") {
     return (
       <main className="min-h-screen bg-paper">
-        <header className="border-b border-border bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-3xl items-center justify-between">
-            <Link
-              href="/dashboard/causas"
-              className="text-sm text-navy/60 hover:text-navy"
-            >
-              &larr; Causas
-            </Link>
-            <h1 className="text-xl font-bold text-navy">Sala de Espera</h1>
-            <div className="w-16" />
-          </div>
-        </header>
-
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Code */}
           <div className="rounded-2xl border-2 border-dashed border-gold/40 bg-gold/5 p-8 text-center">
@@ -485,23 +472,6 @@ export function SalaViewer({
 
     return (
       <main className="min-h-screen bg-paper">
-        <header className="border-b border-border bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-4xl items-center justify-between">
-            <Link
-              href="/dashboard/causas"
-              className="text-sm text-navy/60 hover:text-navy"
-            >
-              &larr; Causas
-            </Link>
-            <h1 className="text-lg font-bold text-navy">
-              Causa Grupal
-            </h1>
-            <span className="rounded-full bg-border/30 px-2 py-0.5 text-xs font-mono text-navy/50">
-              {code}
-            </span>
-          </div>
-        </header>
-
         <div className="mx-auto flex max-w-4xl gap-6 px-6 py-8">
           {/* Main game area */}
           <div className="min-w-0 flex-1">
@@ -703,21 +673,6 @@ export function SalaViewer({
   if (status === "active" && currentIdx === null) {
     return (
       <main className="min-h-screen bg-paper">
-        <header className="border-b border-border bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-3xl items-center justify-between">
-            <Link
-              href="/dashboard/causas"
-              className="text-sm text-navy/60 hover:text-navy"
-            >
-              &larr; Causas
-            </Link>
-            <h1 className="text-xl font-bold text-navy">Causa Grupal</h1>
-            <span className="rounded-full bg-border/30 px-2 py-0.5 text-xs font-mono text-navy/50">
-              {code}
-            </span>
-          </div>
-        </header>
-
         <div className="mx-auto max-w-3xl px-6 py-16 text-center">
           <p className="text-5xl">&#x231B;</p>
           <h2 className="mt-4 text-xl font-bold text-navy">
@@ -783,19 +738,6 @@ export function SalaViewer({
 
     return (
       <main className="min-h-screen bg-paper">
-        <header className="border-b border-border bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-3xl items-center justify-between">
-            <Link
-              href="/dashboard/causas"
-              className="text-sm text-navy/60 hover:text-navy"
-            >
-              &larr; Causas
-            </Link>
-            <h1 className="text-xl font-bold text-navy">Resultado</h1>
-            <div className="w-16" />
-          </div>
-        </header>
-
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Podium */}
           <div
@@ -992,19 +934,6 @@ export function SalaViewer({
 
   return (
     <main className="min-h-screen bg-paper">
-      <header className="border-b border-border bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link
-            href="/dashboard/causas"
-            className="text-sm text-navy/60 hover:text-navy"
-          >
-            &larr; Causas
-          </Link>
-          <h1 className="text-xl font-bold text-navy">Sala</h1>
-          <div className="w-16" />
-        </div>
-      </header>
-
       <div className="mx-auto max-w-3xl px-6 py-16 text-center">
         <p className="text-5xl">📋</p>
         <h2 className="mt-4 text-xl font-bold text-navy">

@@ -215,16 +215,6 @@ export function CausasHub({
 
   return (
     <main className="min-h-screen bg-paper">
-      <header className="border-b border-border bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link href="/dashboard" className="text-sm text-navy/60 hover:text-navy">
-            &larr; Dashboard
-          </Link>
-          <h1 className="text-xl font-bold text-navy">Causas</h1>
-          <div className="w-16" />
-        </div>
-      </header>
-
       <div className="mx-auto max-w-3xl px-6 py-8 space-y-8">
         {/* ─── Insignias ──────────────────────────────────── */}
         <div className="rounded-xl border border-border bg-white p-6">

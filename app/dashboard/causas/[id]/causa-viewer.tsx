@@ -204,19 +204,6 @@ export function CausaViewer({
 
     return (
       <main className="min-h-screen bg-paper">
-        <header className="border-b border-border bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-3xl items-center justify-between">
-            <Link
-              href="/dashboard/causas"
-              className="text-sm text-navy/60 hover:text-navy"
-            >
-              &larr; Causas
-            </Link>
-            <h1 className="text-xl font-bold text-navy">Resultado</h1>
-            <div className="w-16" />
-          </div>
-        </header>
-
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Resultado */}
           <div
@@ -327,24 +314,12 @@ export function CausaViewer({
 
     return (
       <main className="min-h-screen bg-paper">
-        <header className="border-b border-border bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-3xl items-center justify-between">
-            <Link
-              href="/dashboard/causas"
-              className="text-sm text-navy/60 hover:text-navy"
-            >
-              &larr; Causas
-            </Link>
-            <h1 className="text-lg font-bold text-navy">
-              vs {opponentName}
-            </h1>
-            <span className="text-sm text-navy/50">
-              {answeredCount}/{totalQuestions}
-            </span>
-          </div>
-        </header>
-
         <div className="mx-auto max-w-3xl px-6 py-8">
+          {/* Sub-header inline */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-navy">vs {opponentName}</h2>
+            <span className="text-sm text-navy/50">{answeredCount}/{totalQuestions}</span>
+          </div>
           {/* Barra de progreso */}
           <div className="mb-4 flex gap-1">
             {Array.from({ length: totalQuestions }).map((_, i) => {
@@ -498,19 +473,6 @@ export function CausaViewer({
   if (status === "ACTIVE" && currentIdx === null) {
     return (
       <main className="min-h-screen bg-paper">
-        <header className="border-b border-border bg-white px-6 py-4">
-          <div className="mx-auto flex max-w-3xl items-center justify-between">
-            <Link
-              href="/dashboard/causas"
-              className="text-sm text-navy/60 hover:text-navy"
-            >
-              &larr; Causas
-            </Link>
-            <h1 className="text-xl font-bold text-navy">Causa</h1>
-            <div className="w-16" />
-          </div>
-        </header>
-
         <div className="mx-auto max-w-3xl px-6 py-16 text-center">
           <p className="text-5xl">⏳</p>
           <h2 className="mt-4 text-xl font-bold text-navy">
@@ -537,19 +499,6 @@ export function CausaViewer({
   // ─── Fallback (PENDING, REJECTED, EXPIRED) ──────────
   return (
     <main className="min-h-screen bg-paper">
-      <header className="border-b border-border bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
-          <Link
-            href="/dashboard/causas"
-            className="text-sm text-navy/60 hover:text-navy"
-          >
-            &larr; Causas
-          </Link>
-          <h1 className="text-xl font-bold text-navy">Causa</h1>
-          <div className="w-16" />
-        </div>
-      </header>
-
       <div className="mx-auto max-w-3xl px-6 py-16 text-center">
         <p className="text-5xl">📋</p>
         <h2 className="mt-4 text-xl font-bold text-navy">

@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { LogoutButton } from "../logout-button";
 import { FlashcardViewer } from "./flashcard-viewer";
 
 const DAILY_FREE_LIMIT = 30;
@@ -92,20 +90,6 @@ export default async function FlashcardsPage() {
 
   return (
     <main className="min-h-screen bg-paper">
-      {/* Header */}
-      <header className="border-b border-border bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link href="/dashboard" className="text-xl font-bold text-navy hover:text-navy/80">
-            LéxAmen
-          </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-navy/70">{dbUser.firstName}</span>
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
-
-      {/* Contenido */}
       <div className="mx-auto max-w-3xl px-6 py-8">
         <FlashcardViewer
           flashcards={flashcards}

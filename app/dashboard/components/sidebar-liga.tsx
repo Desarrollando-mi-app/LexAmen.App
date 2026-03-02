@@ -68,7 +68,7 @@ export function SidebarLiga({
                 )}
               </span>
               <span className="font-mono text-[11px] font-semibold text-navy/60">
-                {m.weeklyXp}
+                {new Intl.NumberFormat("es-CL").format(m.weeklyXp)}
               </span>
             </div>
           );
@@ -87,7 +87,7 @@ export function SidebarLiga({
                 <span className="ml-1 text-[10px] text-navy/40">(tú)</span>
               </span>
               <span className="font-mono text-[11px] font-semibold text-navy/60">
-                {userMember.weeklyXp}
+                {new Intl.NumberFormat("es-CL").format(userMember.weeklyXp)}
               </span>
             </div>
           </>

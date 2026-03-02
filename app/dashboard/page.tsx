@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { LogoutButton } from "./logout-button";
 import { CurriculumProgress } from "./components/curriculum-progress";
 import type { ProgressData } from "./components/curriculum-progress";
 import { ensureLeagueMembership } from "@/lib/league-assign";
@@ -10,7 +9,6 @@ import { TIER_LABELS, TIER_EMOJIS, getDaysRemaining } from "@/lib/league";
 import { SidebarCausas } from "./components/sidebar-causas";
 import { SidebarLiga } from "./components/sidebar-liga";
 import { ActivityGrid } from "./components/activity-grid";
-import { NotificationBell } from "./components/notification-bell";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -81,8 +79,6 @@ export default async function DashboardPage() {
       });
     }
   }
-
-  const displayName = user.firstName ?? user.email;
 
   // ─── Liga (lazy assignment) ──────────────────────────────
   const leagueMembership = await ensureLeagueMembership(authUser.id);
@@ -379,29 +375,11 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-paper">
-      {/* Header */}
-      <header className="border-b border-border bg-white px-4 py-4">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-2">
-          <h1 className="text-xl font-bold text-navy">LéxAmen</h1>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/dashboard/liga"
-              className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold hover:bg-gold/25 transition-colors"
-            >
-              {tierEmoji} {tierLabel}
-            </Link>
-            <NotificationBell />
-            <span className="text-sm text-navy/70">{displayName}</span>
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
-
       {/* ─── 3-column body ─────────────────────────────────── */}
       <div className="mx-auto flex max-w-[1440px] gap-6 px-4 py-6">
         {/* LEFT: Causas sidebar — hidden below lg */}
         <aside className="hidden lg:block w-[280px] shrink-0">
-          <div className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+          <div className="sticky top-[72px] max-h-[calc(100vh-5rem)] overflow-y-auto">
             <SidebarCausas
               pendingFlashcards={pendingFlashcards}
               mcqCount={mcqCount}
@@ -507,14 +485,14 @@ export default async function DashboardPage() {
               className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
             >
               <span className="text-xl">✅</span>
-              <p className="mt-1 text-xs font-semibold text-navy">MCQ</p>
+              <p className="mt-1 text-xs font-semibold text-navy">Sel. Múltiple</p>
             </Link>
             <Link
               href="/dashboard/truefalse"
               className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
             >
               <span className="text-xl">⚖️</span>
-              <p className="mt-1 text-xs font-semibold text-navy">V/F</p>
+              <p className="mt-1 text-xs font-semibold text-navy">V / F</p>
             </Link>
           </div>
           <div className="mt-3 grid grid-cols-3 gap-3 lg:hidden">
@@ -559,7 +537,7 @@ export default async function DashboardPage() {
 
         {/* RIGHT: Liga sidebar — hidden below lg */}
         <aside className="hidden lg:block w-[260px] shrink-0">
-          <div className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+          <div className="sticky top-[72px] max-h-[calc(100vh-5rem)] overflow-y-auto">
             <SidebarLiga
               tierLabel={tierLabel}
               tierEmoji={tierEmoji}
@@ -590,7 +568,11 @@ function StatCard({
   return (
     <div className="rounded-xl border border-border bg-white p-5">
       <div className={`mb-3 ${accent}`}>{icon}</div>
-      <p className="text-2xl font-bold text-navy">{value}</p>
+      <p className="text-2xl font-bold text-navy">
+        {typeof value === "number"
+          ? new Intl.NumberFormat("es-CL").format(value)
+          : value}
+      </p>
       <p className="mt-0.5 text-sm text-navy/50">{label}</p>
     </div>
   );

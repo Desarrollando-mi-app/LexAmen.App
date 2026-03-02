@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   MATERIAS_SALA,
@@ -339,16 +338,11 @@ export function SalaClient({
 
   return (
     <main className="min-h-screen bg-paper">
-      <header className="border-b border-border bg-white px-6 py-4">
+      {/* Sub-header de La Sala */}
+      <div className="border-b border-border bg-white px-6 py-3">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Link
-            href="/dashboard"
-            className="text-sm text-navy/60 hover:text-navy"
-          >
-            &larr; Dashboard
-          </Link>
-          <div className="text-center">
-            <h1 className="text-xl font-bold text-navy">La Sala</h1>
+          <div>
+            <h2 className="text-lg font-bold text-navy">La Sala</h2>
             <p className="text-xs text-navy/50">
               Conecta con tutores y estudiantes de Derecho
             </p>
@@ -360,7 +354,7 @@ export function SalaClient({
             + Publicar
           </button>
         </div>
-      </header>
+      </div>
 
       <div className="mx-auto max-w-5xl px-6 py-6">
         {/* Streak banner */}
