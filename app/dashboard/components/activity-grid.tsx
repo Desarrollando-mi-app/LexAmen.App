@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
+
 const DAY_LABELS = ["L", "M", "X", "J", "V", "S", "D"];
 
 function getIntensityClass(count: number): string {
@@ -20,6 +22,100 @@ function getDayOfWeek(dateStr: string): number {
   return day === 0 ? 6 : day - 1; // 0=Lun, 6=Dom
 }
 
+// ─── Popover cell ─────────────────────────────────────────
+
+interface DayData {
+  flashcards: number;
+  mcq: number;
+  truefalse: number;
+  total: number;
+}
+
+function DayCell({ day }: { day: { date: string; count: number } | null }) {
+  const [open, setOpen] = useState(false);
+  const [data, setData] = useState<DayData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  async function handleClick() {
+    if (!day || day.count === 0) return;
+    setOpen((prev) => !prev);
+    if (!data) {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/activity/day?date=${day.date}`);
+        if (res.ok) {
+          setData(await res.json());
+        }
+      } catch {
+        /* ignore */
+      } finally {
+        setLoading(false);
+      }
+    }
+  }
+
+  if (!day) {
+    return <div className="h-[14px] w-[14px] rounded-sm bg-transparent" />;
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <div
+        onClick={handleClick}
+        className={`h-[14px] w-[14px] rounded-sm ${
+          day.count > 0 ? "cursor-pointer" : ""
+        } ${getIntensityClass(day.count)}`}
+        title={
+          day.count === 0
+            ? `Sin actividad · ${formatDate(day.date)}`
+            : undefined
+        }
+      />
+      {open && (
+        <div className="absolute bottom-full left-1/2 z-40 mb-2 w-44 -translate-x-1/2 rounded-lg border border-border bg-white p-3 text-xs shadow-lg">
+          <p className="font-semibold text-navy">{formatDate(day.date)}</p>
+          {loading ? (
+            <p className="mt-1.5 text-navy/50">Cargando...</p>
+          ) : data ? (
+            <div className="mt-2 space-y-1">
+              <div className="flex justify-between">
+                <span className="text-navy/60">Flashcards</span>
+                <span className="font-medium text-navy">{data.flashcards}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-navy/60">Sel. Múltiple</span>
+                <span className="font-medium text-navy">{data.mcq}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-navy/60">V / F</span>
+                <span className="font-medium text-navy">{data.truefalse}</span>
+              </div>
+              <div className="flex justify-between border-t border-border pt-1">
+                <span className="font-medium text-navy/60">Total</span>
+                <span className="font-bold text-navy">{data.total}</span>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Grid principal ───────────────────────────────────────
+
 interface ActivityGridProps {
   days: Array<{ date: string; count: number }>;
 }
@@ -28,11 +124,9 @@ export function ActivityGrid({ days }: ActivityGridProps) {
   const totalActivity = days.reduce((sum, d) => sum + d.count, 0);
 
   // Organizar en semanas (columnas) para grilla estilo GitHub
-  // Primera columna puede ser parcial si el día 0 no es lunes
   const weeks: Array<Array<{ date: string; count: number } | null>> = [];
   let currentWeek: Array<{ date: string; count: number } | null> = [];
 
-  // Llenar días vacíos al inicio de la primera semana
   if (days.length > 0) {
     const firstDayOfWeek = getDayOfWeek(days[0].date);
     for (let i = 0; i < firstDayOfWeek; i++) {
@@ -48,7 +142,6 @@ export function ActivityGrid({ days }: ActivityGridProps) {
     }
   }
 
-  // Llenar días vacíos al final de la última semana
   if (currentWeek.length > 0) {
     while (currentWeek.length < 7) {
       currentWeek.push(null);
@@ -87,17 +180,7 @@ export function ActivityGrid({ days }: ActivityGridProps) {
           {weeks.map((week, wi) => (
             <div key={wi} className="flex flex-col gap-[3px]">
               {week.map((day, di) => (
-                <div
-                  key={di}
-                  title={
-                    day
-                      ? `${day.count} actividad${day.count !== 1 ? "es" : ""} · ${formatDate(day.date)}`
-                      : undefined
-                  }
-                  className={`h-[14px] w-[14px] rounded-sm ${
-                    day ? getIntensityClass(day.count) : "bg-transparent"
-                  }`}
-                />
+                <DayCell key={di} day={day} />
               ))}
             </div>
           ))}

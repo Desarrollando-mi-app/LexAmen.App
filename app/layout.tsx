@@ -14,9 +14,39 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "LéxAmen — Aprende Derecho Civil y Procesal Civil",
+  title: {
+    default: "LéxAmen — Aprende Derecho Civil y Procesal Civil",
+    template: "%s | LéxAmen",
+  },
   description:
-    "Plataforma de aprendizaje de Derecho Civil y Procesal Civil para público general en Chile. Flashcards, preguntas de selección múltiple y repaso inteligente.",
+    "Plataforma de estudio de Derecho Civil y Procesal Civil para estudiantes en Chile. Flashcards, preguntas, duelos y liga semanal.",
+  keywords: [
+    "derecho civil",
+    "procesal civil",
+    "examen de grado",
+    "flashcards derecho",
+    "chile",
+    "lexamen",
+  ],
+  metadataBase: new URL("https://lexamen.cl"),
+  openGraph: {
+    title: "LéxAmen — Domina el Derecho Civil y Procesal Civil",
+    description:
+      "Flashcards, preguntas, duelos y más. La plataforma de estudio para estudiantes de Derecho en Chile.",
+    url: "https://lexamen.cl",
+    siteName: "LéxAmen",
+    locale: "es_CL",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LéxAmen — Domina el Derecho Civil y Procesal Civil",
+    description:
+      "Flashcards, preguntas, duelos y más. La plataforma de estudio para estudiantes de Derecho en Chile.",
+  },
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -25,7 +55,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches)){document.documentElement.setAttribute("data-theme","dark")}}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ThemeToggle } from "./dashboard/components/theme-toggle";
 
 // ─── Data ────────────────────────────────────────────────
 
@@ -88,6 +89,7 @@ export default async function HomePage() {
             </span>
           </Link>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               href="/login"
               className="rounded-lg px-4 py-2 text-sm font-medium text-paper/80 transition-colors hover:text-paper"

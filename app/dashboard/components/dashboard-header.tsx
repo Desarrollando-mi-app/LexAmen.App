@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogoutButton } from "../logout-button";
 import { NotificationBell } from "./notification-bell";
 import { PageTitle } from "./page-title";
+import { ThemeToggle } from "./theme-toggle";
 
 interface DashboardHeaderProps {
   userName: string;
@@ -35,9 +36,9 @@ export function DashboardHeader({
           {isAdmin && (
             <Link
               href="/dashboard/admin"
-              className="hidden sm:inline-flex rounded-full bg-navy/10 px-2.5 py-1 text-[10px] font-semibold text-navy hover:bg-navy/20 transition-colors"
+              className="inline-flex rounded-full bg-gold/20 px-2.5 py-1 text-[10px] font-semibold text-gold hover:bg-gold/30 transition-colors"
             >
-              Admin
+              Panel Admin
             </Link>
           )}
           <Link
@@ -47,6 +48,7 @@ export function DashboardHeader({
             {tierEmoji} {userTier}
           </Link>
           <NotificationBell />
+          <ThemeToggle />
           <span className="hidden sm:inline text-sm text-navy/70 truncate max-w-[120px]">
             {userName}
           </span>

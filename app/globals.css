@@ -38,3 +38,124 @@ body {
 .flip-card-back {
   transform: rotateY(180deg);
 }
+
+/* ─── Dark mode ────────────────────────────────────── */
+
+[data-theme="dark"] {
+  --background: #0F1729;
+  --foreground: #E8E2D6;
+  color-scheme: dark;
+}
+
+/* Page / section backgrounds */
+[data-theme="dark"] .bg-paper {
+  background-color: #0F1729;
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: #1A2744;
+}
+
+[data-theme="dark"] .bg-navy {
+  background-color: #0A1020;
+}
+
+[data-theme="dark"] .bg-navy\/95 {
+  background-color: rgba(10, 16, 32, 0.95);
+}
+
+[data-theme="dark"] .bg-navy\/10 {
+  background-color: rgba(232, 226, 214, 0.1);
+}
+
+[data-theme="dark"] .bg-navy\/5 {
+  background-color: rgba(232, 226, 214, 0.05);
+}
+
+/* Activity grid empty cells */
+[data-theme="dark"] .bg-border {
+  background-color: #2D3B55;
+}
+
+/* Text */
+[data-theme="dark"] .text-navy {
+  color: #E8E2D6;
+}
+
+[data-theme="dark"] .text-navy\/40 {
+  color: rgba(232, 226, 214, 0.4);
+}
+
+[data-theme="dark"] .text-navy\/50 {
+  color: rgba(232, 226, 214, 0.5);
+}
+
+[data-theme="dark"] .text-navy\/60 {
+  color: rgba(232, 226, 214, 0.6);
+}
+
+[data-theme="dark"] .text-navy\/70 {
+  color: rgba(232, 226, 214, 0.7);
+}
+
+[data-theme="dark"] .text-navy\/80 {
+  color: rgba(232, 226, 214, 0.8);
+}
+
+/* Borders */
+[data-theme="dark"] .border-border {
+  border-color: #2D3B55;
+}
+
+[data-theme="dark"] .border-navy {
+  border-color: rgba(232, 226, 214, 0.3);
+}
+
+[data-theme="dark"] .border-navy\/10 {
+  border-color: rgba(232, 226, 214, 0.1);
+}
+
+[data-theme="dark"] .border-navy\/20 {
+  border-color: rgba(232, 226, 214, 0.2);
+}
+
+/* Hover states */
+[data-theme="dark"] .hover\:bg-navy:hover {
+  background-color: #0A1020;
+}
+
+[data-theme="dark"] .hover\:bg-navy\/5:hover {
+  background-color: rgba(232, 226, 214, 0.05);
+}
+
+[data-theme="dark"] .hover\:bg-navy\/10:hover {
+  background-color: rgba(232, 226, 214, 0.1);
+}
+
+[data-theme="dark"] .hover\:bg-navy\/20:hover {
+  background-color: rgba(232, 226, 214, 0.2);
+}
+
+[data-theme="dark"] .hover\:border-gold\/30:hover {
+  border-color: rgba(154, 114, 48, 0.3);
+}
+
+/* Inputs & selects */
+[data-theme="dark"] select,
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] textarea {
+  background-color: #1A2744;
+  color: #E8E2D6;
+  border-color: #2D3B55;
+}
+
+/* Shadows */
+[data-theme="dark"] .shadow-lg {
+  --tw-shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .shadow-xl {
+  --tw-shadow-color: rgba(0, 0, 0, 0.5);
+}

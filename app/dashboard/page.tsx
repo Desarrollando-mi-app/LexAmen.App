@@ -415,6 +415,7 @@ export default async function DashboardPage() {
               value={masteredCount}
               label="Dominadas"
               accent="text-gold"
+              subtitle={getMotivation("Dominadas", masteredCount)}
             />
             <StatCard
               icon={
@@ -426,6 +427,7 @@ export default async function DashboardPage() {
               value={streak > 0 ? `${streak} día${streak !== 1 ? "s" : ""}` : "0"}
               label="Racha"
               accent="text-orange-500"
+              subtitle={getMotivation("Racha", streak)}
             />
             <StatCard
               icon={
@@ -436,6 +438,7 @@ export default async function DashboardPage() {
               value={pendingFlashcards}
               label="Pendientes"
               accent="text-navy"
+              subtitle={getMotivation("Pendientes", pendingFlashcards)}
             />
             <StatCard
               icon={
@@ -446,6 +449,7 @@ export default async function DashboardPage() {
               value={user.xp}
               label="XP Total"
               accent="text-gold"
+              subtitle={getMotivation("XP Total", user.xp)}
             />
           </div>
 
@@ -556,6 +560,37 @@ export default async function DashboardPage() {
   );
 }
 
+// ─── Helpers ─────────────────────────────────────────────
+
+function getMotivation(label: string, rawValue: number): string | undefined {
+  switch (label) {
+    case "Dominadas":
+      if (rawValue === 0) return "Comienza tu primera flashcard";
+      if (rawValue <= 10) return "Buen comienzo";
+      if (rawValue <= 50) return "Vas por buen camino";
+      if (rawValue <= 100) return "Excelente progreso";
+      return "Eres una máquina";
+    case "Racha":
+      if (rawValue === 0) return "Estudia hoy para empezar";
+      if (rawValue <= 2) return "Mantén el ritmo";
+      if (rawValue <= 6) return "En racha!";
+      return "Constancia impresionante";
+    case "Pendientes":
+      if (rawValue === 0) return "Todo al día";
+      if (rawValue <= 10) return "Pocas pendientes";
+      if (rawValue <= 50) return "Hay trabajo por hacer";
+      return "Muchas por repasar";
+    case "XP Total":
+      if (rawValue === 0) return "Tu aventura comienza aquí";
+      if (rawValue <= 100) return "Primeros pasos";
+      if (rawValue <= 500) return "En ascenso";
+      if (rawValue <= 1000) return "Casi experto";
+      return "Nivel jurisconsulto";
+    default:
+      return undefined;
+  }
+}
+
 // ─── Componentes internos ────────────────────────────────
 
 function StatCard({
@@ -563,11 +598,13 @@ function StatCard({
   value,
   label,
   accent = "text-gold",
+  subtitle,
 }: {
   icon: React.ReactNode;
   value: string | number;
   label: string;
   accent?: string;
+  subtitle?: string;
 }) {
   return (
     <div className="rounded-xl border border-border bg-white p-5">
@@ -578,6 +615,9 @@ function StatCard({
           : value}
       </p>
       <p className="mt-0.5 text-sm text-navy/50">{label}</p>
+      {subtitle && (
+        <p className="mt-1 text-xs text-gold/80">{subtitle}</p>
+      )}
     </div>
   );
 }
