@@ -21,7 +21,9 @@ type NotificationType =
   | "LEAGUE_RESULT"
   | "CAUSA_FINISHED"
   | "NEW_CONTENT"
-  | "BADGE_EARNED";
+  | "BADGE_EARNED"
+  | "COLEGA_REQUEST"
+  | "COLEGA_ACCEPTED";
 
 interface SendNotificationOptions {
   type: NotificationType;

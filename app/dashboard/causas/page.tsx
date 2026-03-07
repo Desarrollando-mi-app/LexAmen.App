@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { getColegas } from "@/lib/colegas";
 import { CausasHub } from "./causas-hub";
 
 export default async function CausasPage() {
@@ -14,7 +15,7 @@ export default async function CausasPage() {
   }
 
   // Consultas en paralelo
-  const [dbUser, pending, activeCausas, history, activeRooms, roomHistory, badges] =
+  const [dbUser, pending, activeCausas, history, activeRooms, roomHistory, badges, colegas] =
     await Promise.all([
       // Stats del usuario
       prisma.user.findUnique({
@@ -100,6 +101,9 @@ export default async function CausasPage() {
         where: { userId: authUser.id },
         select: { badge: true },
       }),
+
+      // Colegas para desafiar
+      getColegas(authUser.id),
     ]);
 
   // Serializar 1v1
@@ -162,6 +166,12 @@ export default async function CausasPage() {
       activeRooms={serializedActiveRooms}
       roomHistory={serializedRoomHistory}
       earnedBadges={badges.map((b) => b.badge)}
+      colegas={colegas.map((c) => ({
+        id: c.id,
+        firstName: c.firstName,
+        lastName: c.lastName,
+        tier: c.tier,
+      }))}
     />
   );
 }

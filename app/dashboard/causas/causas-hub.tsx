@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
+import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -48,6 +49,13 @@ interface RoomHistory {
   createdAt: string;
 }
 
+interface ColegaForChallenge {
+  id: string;
+  firstName: string;
+  lastName: string;
+  tier: string | null;
+}
+
 interface CausasHubProps {
   causasGanadas: number;
   causasPerdidas: number;
@@ -57,6 +65,7 @@ interface CausasHubProps {
   activeRooms: ActiveRoom[];
   roomHistory: RoomHistory[];
   earnedBadges: string[];
+  colegas?: ColegaForChallenge[];
 }
 
 // ─── Component ───────────────────────────────────────────
@@ -70,6 +79,7 @@ export function CausasHub({
   activeRooms,
   roomHistory,
   earnedBadges,
+  colegas = [],
 }: CausasHubProps) {
   const router = useRouter();
   const [tab, setTab] = useState<"individual" | "grupal">("individual");
@@ -157,6 +167,32 @@ export function CausasHub({
       toast.error("Ocurrió un error, intenta de nuevo");
     } finally {
       setActionLoading(null);
+    }
+  }
+
+  // ─── Handler desafiar colega ─────────────────────────
+
+  const [challengingColega, setChallengingColega] = useState<string | null>(null);
+
+  async function handleChallengeColega(colegaId: string, colegaName: string) {
+    setChallengingColega(colegaId);
+    try {
+      const res = await fetch("/api/causas/challenge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ opponentId: colegaId }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Error al desafiar");
+        return;
+      }
+      toast.success(`Reto enviado a ${colegaName}`);
+      router.refresh();
+    } catch {
+      toast.error("Error de conexion");
+    } finally {
+      setChallengingColega(null);
     }
   }
 
@@ -322,6 +358,56 @@ export function CausasHub({
               {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
               {success && <p className="mt-3 text-sm text-green-600">{success}</p>}
             </div>
+
+            {/* Desafiar Colegas */}
+            {colegas.length > 0 && (
+              <div className="rounded-xl border border-border bg-white p-6">
+                <h2 className="text-lg font-semibold text-navy">
+                  Desafiar a un Colega
+                </h2>
+                <div className="mt-3 space-y-2">
+                  {colegas.map((c) => (
+                    <div
+                      key={c.id}
+                      className="flex items-center justify-between rounded-lg border border-border/50 px-4 py-3"
+                    >
+                      <Link
+                        href={`/dashboard/perfil/${c.id}`}
+                        className="flex items-center gap-3 min-w-0"
+                      >
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy/10 text-xs font-bold text-navy">
+                          {c.firstName[0]}
+                          {c.lastName[0]}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-navy truncate">
+                            {c.firstName} {c.lastName}
+                          </p>
+                          {c.tier && (
+                            <p className="text-[10px] text-navy/40">
+                              {TIER_EMOJIS[c.tier] ?? ""}{" "}
+                              {TIER_LABELS[c.tier] ?? c.tier}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
+                      <button
+                        onClick={() =>
+                          handleChallengeColega(
+                            c.id,
+                            `${c.firstName} ${c.lastName}`
+                          )
+                        }
+                        disabled={challengingColega === c.id}
+                        className="shrink-0 ml-3 rounded-lg bg-gold px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gold/90 disabled:opacity-50"
+                      >
+                        {challengingColega === c.id ? "..." : "Desafiar"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Activas */}
             {active.length > 0 && (

@@ -9,6 +9,8 @@ const TITLES: Record<string, string> = {
   "/dashboard/truefalse": "Verdadero / Falso",
   "/dashboard/liga": "Liga",
   "/dashboard/causas": "Causas",
+  "/dashboard/colegas": "Colegas",
+  "/dashboard/perfil": "Perfil",
   "/dashboard/sala": "La Sala",
   "/dashboard/admin": "Panel Admin",
 };

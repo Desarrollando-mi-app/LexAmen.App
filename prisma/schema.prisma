@@ -67,6 +67,14 @@ enum NotificationType {
   CAUSA_FINISHED
   NEW_CONTENT
   BADGE_EARNED
+  COLEGA_REQUEST
+  COLEGA_ACCEPTED
+}
+
+enum ColegaStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 enum AyudantiaType {
@@ -132,6 +140,8 @@ model User {
   ayudantiaReports    AyudantiaReport[]
   ayudantiaStreak     AyudantiaStreak?
   notifications       UserNotification[]
+  colegasSent         ColegaRequest[] @relation("ColegasSent")
+  colegasReceived     ColegaRequest[] @relation("ColegasReceived")
 }
 
 model Flashcard {
@@ -487,6 +497,24 @@ model UserNotification {
 
   @@index([userId, readAt])
   @@index([userId, createdAt])
+}
+
+// ─── Colegas (Amigos) ────────────────────────────────────
+
+model ColegaRequest {
+  id         String       @id @default(cuid())
+  senderId   String
+  receiverId String
+  status     ColegaStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  sender   User @relation("ColegasSent", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ColegasReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId, status])
+  @@index([senderId, status])
 }
 
 // ─── Suscripciones ──────────────────────────────────────

@@ -15,31 +15,36 @@ export async function POST(request: Request) {
   }
 
   // 2. Body
-  let body: { opponentEmail: string };
+  let body: { opponentEmail?: string; opponentId?: string };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
 
-  const { opponentEmail } = body;
+  const { opponentEmail, opponentId } = body;
 
-  if (!opponentEmail) {
+  if (!opponentEmail && !opponentId) {
     return NextResponse.json(
-      { error: "opponentEmail es requerido" },
+      { error: "opponentEmail o opponentId es requerido" },
       { status: 400 }
     );
   }
 
   // 3. Buscar oponente
-  const opponent = await prisma.user.findUnique({
-    where: { email: opponentEmail },
-    select: { id: true, firstName: true, lastName: true },
-  });
+  const opponent = opponentId
+    ? await prisma.user.findUnique({
+        where: { id: opponentId },
+        select: { id: true, firstName: true, lastName: true },
+      })
+    : await prisma.user.findUnique({
+        where: { email: opponentEmail! },
+        select: { id: true, firstName: true, lastName: true },
+      });
 
   if (!opponent) {
     return NextResponse.json(
-      { error: "Usuario no encontrado con ese email" },
+      { error: "Usuario no encontrado" },
       { status: 404 }
     );
   }
