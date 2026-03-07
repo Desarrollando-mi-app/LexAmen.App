@@ -1,5 +1,7 @@
 "use client";
 
+import { PROMOTION_SPOTS, RELEGATION_SPOTS } from "@/lib/league";
+
 interface Member {
   position: number;
   userId: string;
@@ -28,9 +30,10 @@ export function LigaViewer({
 }: LigaViewerProps) {
   const total = members.length;
 
-  // Zonas: top 5 ascienden (verde), bottom 5 descienden (rojo)
-  const isPromoZone = (pos: number) => pos <= 5;
-  const isRelegationZone = (pos: number) => pos > total - 5 && total > 5;
+  // Zonas: top N ascienden (verde), bottom N descienden (rojo)
+  const isPromoZone = (pos: number) => pos <= PROMOTION_SPOTS;
+  const isRelegationZone = (pos: number) =>
+    pos > total - RELEGATION_SPOTS && total > RELEGATION_SPOTS;
   const isCurrentUser = (id: string) => id === userId;
 
   return (
@@ -135,11 +138,11 @@ export function LigaViewer({
         <div className="mt-4 flex items-center justify-center gap-6 text-xs text-navy/50">
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-3 w-3 rounded-sm bg-green-100 border border-green-300"></span>
-            Top 5 — Ascienden
+            Top {PROMOTION_SPOTS} — Ascienden
           </span>
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-3 w-3 rounded-sm bg-red-100 border border-red-300"></span>
-            Bottom 5 — Descienden
+            Bottom {RELEGATION_SPOTS} — Descienden
           </span>
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-3 w-3 rounded-sm bg-gold/20 border border-gold/40"></span>

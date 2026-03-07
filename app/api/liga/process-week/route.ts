@@ -5,6 +5,8 @@ import {
   getCurrentWeekBounds,
   tierUp,
   tierDown,
+  PROMOTION_SPOTS,
+  RELEGATION_SPOTS,
 } from "@/lib/league";
 import { sendNotification } from "@/lib/notifications";
 
@@ -54,8 +56,8 @@ export async function POST(request: Request) {
       // Determinar nuevo tier
       let newTier = league.tier;
 
-      if (rank <= 5) {
-        // Top 5 ascienden (si es posible)
+      if (rank <= PROMOTION_SPOTS) {
+        // Top ascienden (si es posible)
         const up = tierUp(league.tier);
         if (up) {
           newTier = up as typeof league.tier;
@@ -71,8 +73,8 @@ export async function POST(request: Request) {
         } else {
           maintained++;
         }
-      } else if (rank > total - 5) {
-        // Bottom 5 descienden (si es posible)
+      } else if (rank > total - RELEGATION_SPOTS) {
+        // Bottom descienden (si es posible)
         const down = tierDown(league.tier);
         if (down) {
           newTier = down as typeof league.tier;

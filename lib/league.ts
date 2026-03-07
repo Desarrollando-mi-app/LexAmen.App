@@ -38,6 +38,11 @@ export const TIER_EMOJIS: Record<string, string> = {
   JURISCONSULTO: "⚖️",
 };
 
+// ─── Ascenso / Descenso ─────────────────────────────────────
+
+export const PROMOTION_SPOTS = 3;
+export const RELEGATION_SPOTS = 3;
+
 // ─── Helpers de tier ────────────────────────────────────────
 
 export function tierUp(tier: string): string | null {
