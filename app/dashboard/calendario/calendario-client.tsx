@@ -427,121 +427,206 @@ export function CalendarioClient({
             ))}
           </div>
 
-          {/* Day cells */}
-          <div className="grid grid-cols-7">
-            {cells.map((cell, idx) => {
-              const dayEvents = cell.currentMonth
-                ? getEventsForDay(cell.day)
-                : [];
-              const isSelected =
-                cell.currentMonth && selectedDay === cell.day;
-              const isTodayCell =
-                cell.currentMonth && isToday(year, month, cell.day);
-              const maxVisible = isSelected ? 999 : 3;
-              const hiddenCount = Math.max(
-                0,
-                dayEvents.length - maxVisible
-              );
+          {/* Day cells — rendered row by row with detail panel */}
+          <div>
+            {Array.from(
+              { length: Math.ceil(cells.length / 7) },
+              (_, rowIdx) => {
+                const rowCells = cells.slice(rowIdx * 7, rowIdx * 7 + 7);
+                const selectedInRow = rowCells.some(
+                  (c) => c.currentMonth && selectedDay === c.day
+                );
+                const selectedDayEvents = selectedDay
+                  ? getEventsForDay(selectedDay)
+                  : [];
 
-              return (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    if (cell.currentMonth) {
-                      setSelectedDay(
-                        selectedDay === cell.day ? null : cell.day
-                      );
-                      setQuickInput("");
-                    }
-                  }}
-                  className={`
-                    relative border-b border-r border-border cursor-pointer
-                    transition-all duration-300 ease-in-out
-                    ${cell.currentMonth ? "hover:bg-navy/[0.02]" : "opacity-40"}
-                    ${isSelected ? "min-h-[180px] bg-navy/[0.02] z-10" : "min-h-[90px]"}
-                  `}
-                >
-                  {/* Day number */}
-                  <div className="flex items-start justify-between p-1.5">
-                    <span
-                      className={`
-                        inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium
-                        ${isTodayCell ? "bg-gold text-white font-bold" : "text-navy/70"}
-                        ${!cell.currentMonth ? "text-navy/30" : ""}
-                      `}
-                    >
-                      {cell.day}
-                    </span>
-                  </div>
+                return (
+                  <div key={rowIdx}>
+                    {/* 7-column row */}
+                    <div className="grid grid-cols-7">
+                      {rowCells.map((cell, colIdx) => {
+                        const dayEvents = cell.currentMonth
+                          ? getEventsForDay(cell.day)
+                          : [];
+                        const isSelected =
+                          cell.currentMonth && selectedDay === cell.day;
+                        const isTodayCell =
+                          cell.currentMonth && isToday(year, month, cell.day);
+                        const maxVisible = 3;
+                        const hiddenCount = Math.max(
+                          0,
+                          dayEvents.length - maxVisible
+                        );
 
-                  {/* Event pills */}
-                  {cell.currentMonth && (
-                    <div className="px-1.5 pb-1 space-y-0.5">
-                      {dayEvents.slice(0, maxVisible).map((ev) => (
-                        <div
-                          key={ev.id}
-                          className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium truncate"
-                          style={{
-                            backgroundColor: `${EVENT_COLORS[ev.eventType] ?? EVENT_COLORS.personal}20`,
-                            color: EVENT_COLORS[ev.eventType] ?? EVENT_COLORS.personal,
-                          }}
-                          onClick={(e) => {
-                            if (isSelected) {
-                              e.stopPropagation();
-                              openEditModal(ev);
-                            }
-                          }}
-                          title={ev.title}
-                        >
-                          <span className="shrink-0">
-                            {EVENT_ICONS[ev.eventType] ?? "📌"}
-                          </span>
-                          <span className="truncate">{ev.title}</span>
-                          {!ev.allDay && (
-                            <span className="shrink-0 opacity-60 ml-auto">
-                              {formatTime(ev.startDate)}
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                      {!isSelected && hiddenCount > 0 && (
-                        <div className="text-[10px] text-navy/40 pl-1.5">
-                          +{hiddenCount} más
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Expanded day: quick input */}
-                  {isSelected && cell.currentMonth && (
-                    <div className="px-1.5 pb-2 mt-1">
-                      <form onSubmit={handleQuickAdd} className="flex gap-1">
-                        <input
-                          type="text"
-                          value={quickInput}
-                          onChange={(e) => setQuickInput(e.target.value)}
-                          placeholder="＋ Agregar evento..."
-                          className="flex-1 rounded border border-border bg-white px-2 py-1 text-[11px] text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none"
-                          disabled={quickLoading}
-                          autoFocus
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        {quickInput.trim() && (
-                          <button
-                            type="submit"
-                            disabled={quickLoading}
-                            className="rounded bg-gold px-2 py-1 text-[10px] font-semibold text-white hover:bg-gold/90 disabled:opacity-50"
-                            onClick={(e) => e.stopPropagation()}
+                        return (
+                          <div
+                            key={colIdx}
+                            onClick={() => {
+                              if (cell.currentMonth) {
+                                setSelectedDay(
+                                  selectedDay === cell.day ? null : cell.day
+                                );
+                                setQuickInput("");
+                              }
+                            }}
+                            className={`
+                              relative min-h-[90px] border-b border-r border-border cursor-pointer
+                              transition-colors duration-200
+                              ${cell.currentMonth ? "hover:bg-navy/[0.02]" : "opacity-40"}
+                              ${isSelected ? "bg-gold/5 ring-1 ring-inset ring-gold/30" : ""}
+                            `}
                           >
-                            {quickLoading ? "..." : "↵"}
-                          </button>
-                        )}
-                      </form>
+                            {/* Day number */}
+                            <div className="flex items-start justify-between p-1.5">
+                              <span
+                                className={`
+                                  inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium
+                                  ${isTodayCell ? "bg-gold text-white font-bold" : "text-navy/70"}
+                                  ${!cell.currentMonth ? "text-navy/30" : ""}
+                                `}
+                              >
+                                {cell.day}
+                              </span>
+                            </div>
+
+                            {/* Event pills (max 3) */}
+                            {cell.currentMonth && (
+                              <div className="px-1.5 pb-1 space-y-0.5">
+                                {dayEvents.slice(0, maxVisible).map((ev) => (
+                                  <div
+                                    key={ev.id}
+                                    className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium truncate"
+                                    style={{
+                                      backgroundColor: `${EVENT_COLORS[ev.eventType] ?? EVENT_COLORS.personal}20`,
+                                      color:
+                                        EVENT_COLORS[ev.eventType] ??
+                                        EVENT_COLORS.personal,
+                                    }}
+                                    title={ev.title}
+                                  >
+                                    <span className="shrink-0">
+                                      {EVENT_ICONS[ev.eventType] ?? "📌"}
+                                    </span>
+                                    <span className="truncate">{ev.title}</span>
+                                  </div>
+                                ))}
+                                {hiddenCount > 0 && (
+                                  <div className="text-[10px] text-navy/40 pl-1.5">
+                                    +{hiddenCount} más
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                  )}
-                </div>
-              );
-            })}
+
+                    {/* Detail panel — spans full width below the row */}
+                    {selectedInRow && selectedDay && (
+                      <div className="border-b border-border bg-navy/[0.02] px-4 py-3 transition-all duration-300">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-semibold text-navy font-display">
+                            {selectedDay} de {MONTHS_ES[month - 1]}
+                          </h4>
+                          <button
+                            onClick={() => setSelectedDay(null)}
+                            className="text-navy/40 hover:text-navy/60 transition-colors"
+                          >
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={2}
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+
+                        {/* Full event list */}
+                        {selectedDayEvents.length > 0 ? (
+                          <div className="space-y-1.5 mb-3">
+                            {selectedDayEvents.map((ev) => (
+                              <div
+                                key={ev.id}
+                                className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-border cursor-pointer hover:border-gold/30 transition-colors"
+                                onClick={() => openEditModal(ev)}
+                              >
+                                <span
+                                  className="h-2.5 w-2.5 rounded-full shrink-0"
+                                  style={{
+                                    backgroundColor:
+                                      EVENT_COLORS[ev.eventType] ??
+                                      EVENT_COLORS.personal,
+                                  }}
+                                />
+                                <span className="text-xs font-medium text-navy flex-1 truncate">
+                                  {EVENT_ICONS[ev.eventType] ?? "📌"}{" "}
+                                  {ev.title}
+                                </span>
+                                {!ev.allDay && (
+                                  <span className="text-[10px] text-navy/40 shrink-0">
+                                    {formatTime(ev.startDate)}
+                                  </span>
+                                )}
+                                <svg
+                                  className="h-3 w-3 text-navy/30 shrink-0"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={2}
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"
+                                  />
+                                </svg>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-navy/40 mb-3">
+                            Sin eventos este día
+                          </p>
+                        )}
+
+                        {/* Quick add input */}
+                        <form
+                          onSubmit={handleQuickAdd}
+                          className="flex gap-2"
+                        >
+                          <input
+                            type="text"
+                            value={quickInput}
+                            onChange={(e) => setQuickInput(e.target.value)}
+                            placeholder="＋ Agregar evento rápido..."
+                            className="flex-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none"
+                            disabled={quickLoading}
+                            autoFocus
+                          />
+                          {quickInput.trim() && (
+                            <button
+                              type="submit"
+                              disabled={quickLoading}
+                              className="rounded-lg bg-gold px-3 py-1.5 text-xs font-semibold text-white hover:bg-gold/90 disabled:opacity-50"
+                            >
+                              {quickLoading ? "..." : "Agregar"}
+                            </button>
+                          )}
+                        </form>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+            )}
           </div>
         </div>
 

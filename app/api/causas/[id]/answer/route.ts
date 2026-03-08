@@ -204,8 +204,9 @@ export async function POST(
     }
 
     // Auto-registrar en calendario para ambos participantes
+    // Usar Promise.allSettled para que un fallo no revierta el otro
     const now = new Date();
-    prisma.$transaction([
+    Promise.allSettled([
       prisma.calendarEvent.create({
         data: {
           userId: causa.challengerId,
