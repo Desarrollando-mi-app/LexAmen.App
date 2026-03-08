@@ -69,6 +69,8 @@ enum NotificationType {
   BADGE_EARNED
   COLEGA_REQUEST
   COLEGA_ACCEPTED
+  CV_REQUEST
+  CV_REQUEST_ACCEPTED
 }
 
 enum ColegaStatus {
@@ -115,6 +117,10 @@ model User {
   termsAcceptedAt DateTime?
   termsVersion    String?
   examDate        DateTime?
+  bio             String?
+  avatarUrl       String?
+  cvAvailable     Boolean   @default(false)
+  deletedAt       DateTime?
   xp              Int       @default(0)
   causasGanadas   Int       @default(0)
   causasPerdidas  Int       @default(0)
@@ -144,6 +150,8 @@ model User {
   colegasSent         ColegaRequest[] @relation("ColegasSent")
   colegasReceived     ColegaRequest[] @relation("ColegasReceived")
   calendarEvents      CalendarEvent[]
+  cvRequestsSent      CvRequest[]     @relation("CvRequestsSent")
+  cvRequestsReceived  CvRequest[]     @relation("CvRequestsReceived")
 }
 
 model Flashcard {
@@ -537,6 +545,22 @@ model CalendarEvent {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, startDate])
+}
+
+// ─── Solicitudes de CV ─────────────────────────────────
+
+model CvRequest {
+  id         String   @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  message    String?
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+
+  fromUser User @relation("CvRequestsSent", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser   User @relation("CvRequestsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, toUserId])
 }
 
 // ─── Suscripciones ──────────────────────────────────────

@@ -26,7 +26,7 @@ export default async function DashboardLayout({
   const [dbUser, membership, pendingColegaCount] = await Promise.all([
     prisma.user.findUnique({
       where: { id: authUser.id },
-      select: { firstName: true, isAdmin: true },
+      select: { firstName: true, isAdmin: true, avatarUrl: true },
     }),
     ensureLeagueMembership(authUser.id),
     getPendingColegaCount(authUser.id),
@@ -45,6 +45,8 @@ export default async function DashboardLayout({
       <Toaster position="bottom-right" richColors />
       <DashboardHeader
         userName={dbUser.firstName}
+        userId={authUser.id}
+        avatarUrl={dbUser.avatarUrl ?? null}
         userTier={tierLabel}
         tierEmoji={tierEmoji}
         isAdmin={dbUser.isAdmin}

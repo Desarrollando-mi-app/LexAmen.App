@@ -14,26 +14,36 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim();
+  const university = searchParams.get("university")?.trim();
 
   if (!q || q.length < 2) {
     return NextResponse.json({ users: [] });
   }
 
+  // Build where clause
+  const whereClause: Record<string, unknown> = {
+    NOT: { id: authUser.id },
+    deletedAt: null,
+    OR: [
+      { firstName: { contains: q, mode: "insensitive" } },
+      { lastName: { contains: q, mode: "insensitive" } },
+    ],
+  };
+
+  if (university) {
+    whereClause.institution = university;
+  }
+
   // Buscar usuarios por nombre
   const users = await prisma.user.findMany({
-    where: {
-      NOT: { id: authUser.id },
-      OR: [
-        { firstName: { contains: q, mode: "insensitive" } },
-        { lastName: { contains: q, mode: "insensitive" } },
-      ],
-    },
+    where: whereClause as never,
     take: 10,
     select: {
       id: true,
       firstName: true,
       lastName: true,
       institution: true,
+      avatarUrl: true,
       xp: true,
       leagueMembers: {
         orderBy: { league: { weekStart: "desc" } },
@@ -76,6 +86,7 @@ export async function GET(request: Request) {
     firstName: u.firstName,
     lastName: u.lastName,
     institution: u.institution,
+    avatarUrl: (u as Record<string, unknown>).avatarUrl as string | null,
     xp: u.xp,
     tier: u.leagueMembers[0]?.league.tier ?? null,
     colegaStatus: statusMap.get(u.id)?.status ?? "none",

@@ -23,7 +23,9 @@ type NotificationType =
   | "NEW_CONTENT"
   | "BADGE_EARNED"
   | "COLEGA_REQUEST"
-  | "COLEGA_ACCEPTED";
+  | "COLEGA_ACCEPTED"
+  | "CV_REQUEST"
+  | "CV_REQUEST_ACCEPTED";
 
 interface SendNotificationOptions {
   type: NotificationType;

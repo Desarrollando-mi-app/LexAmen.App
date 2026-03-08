@@ -24,7 +24,7 @@ export default async function PerfilPage({ params }: Props) {
   }
 
   // Buscar usuario
-  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas] =
+  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: params.userId },
@@ -34,6 +34,9 @@ export default async function PerfilPage({ params }: Props) {
           lastName: true,
           institution: true,
           universityYear: true,
+          avatarUrl: true,
+          bio: true,
+          cvAvailable: true,
           xp: true,
           causasGanadas: true,
           causasPerdidas: true,
@@ -59,6 +62,16 @@ export default async function PerfilPage({ params }: Props) {
         select: { badge: true },
       }),
       getColegas(params.userId),
+      // Check existing CV request from current user to target
+      prisma.cvRequest.findUnique({
+        where: {
+          fromUserId_toUserId: {
+            fromUserId: authUser.id,
+            toUserId: params.userId,
+          },
+        },
+        select: { id: true, status: true },
+      }),
     ]);
 
   if (!targetUser) {
@@ -80,6 +93,9 @@ export default async function PerfilPage({ params }: Props) {
         lastName: targetUser.lastName,
         institution: targetUser.institution,
         universityYear: targetUser.universityYear,
+        avatarUrl: targetUser.avatarUrl,
+        bio: targetUser.bio,
+        cvAvailable: targetUser.cvAvailable,
         xp: targetUser.xp,
         causasGanadas: targetUser.causasGanadas,
         causasPerdidas: targetUser.causasPerdidas,
@@ -95,6 +111,7 @@ export default async function PerfilPage({ params }: Props) {
       colegaCount={colegaCount}
       earnedBadges={targetBadges.map((b) => b.badge)}
       colegasPreview={targetColegas.slice(0, 6)}
+      cvRequestStatus={cvRequest?.status ?? null}
     />
   );
 }

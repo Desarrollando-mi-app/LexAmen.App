@@ -22,6 +22,10 @@ const TYPE_ICONS: Record<string, string> = {
   SYSTEM_BROADCAST: "📢",
   SYSTEM_SEGMENTED: "📢",
   SYSTEM_INDIVIDUAL: "💬",
+  CV_REQUEST: "📄",
+  CV_REQUEST_ACCEPTED: "✅",
+  COLEGA_REQUEST: "🤝",
+  COLEGA_ACCEPTED: "🤝",
 };
 
 function timeAgo(dateStr: string): string {
@@ -198,6 +202,31 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
                     <p className="mt-0.5 text-sm text-navy/70 leading-snug">
                       {item.body}
                     </p>
+
+                    {/* CV Request inline actions */}
+                    {item.type === "CV_REQUEST" &&
+                      !!item.metadata?.cvRequestId &&
+                      !item.metadata?.responded && (
+                        <CvRequestActions
+                          cvRequestId={item.metadata.cvRequestId as string}
+                          onResponded={(action) => {
+                            setItems((prev) =>
+                              prev.map((i) =>
+                                i.id === item.id
+                                  ? {
+                                      ...i,
+                                      metadata: {
+                                        ...i.metadata,
+                                        responded: action,
+                                      },
+                                    }
+                                  : i
+                              )
+                            );
+                          }}
+                        />
+                      )}
+
                     <p className="mt-1 text-xs text-navy/40">
                       {timeAgo(item.createdAt)}
                     </p>
@@ -209,5 +238,66 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
         </div>
       </div>
     </>
+  );
+}
+
+// ─── CV Request Actions ─────────────────────────────────
+
+function CvRequestActions({
+  cvRequestId,
+  onResponded,
+}: {
+  cvRequestId: string;
+  onResponded: (action: string) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  async function handleAction(action: "accept" | "decline") {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/cv-requests/${cvRequestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (res.ok) {
+        onResponded(action);
+        toast.success(
+          action === "accept" ? "Solicitud aceptada" : "Solicitud rechazada"
+        );
+      } else {
+        const data = await res.json();
+        toast.error(data.error ?? "Error al responder");
+      }
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="mt-2 flex gap-2">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleAction("accept");
+        }}
+        disabled={loading}
+        className="rounded-md bg-green-600 px-3 py-1 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+      >
+        Aceptar
+      </button>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          handleAction("decline");
+        }}
+        disabled={loading}
+        className="rounded-md border border-border px-3 py-1 text-xs font-semibold text-navy/60 hover:bg-paper disabled:opacity-50"
+      >
+        Rechazar
+      </button>
+    </div>
   );
 }

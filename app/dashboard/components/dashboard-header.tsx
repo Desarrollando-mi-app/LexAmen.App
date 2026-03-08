@@ -3,9 +3,13 @@ import { LogoutButton } from "../logout-button";
 import { NotificationBell } from "./notification-bell";
 import { PageTitle } from "./page-title";
 import { ThemeToggle } from "./theme-toggle";
+import { GlobalSearch } from "./global-search";
+import { HeaderAvatar } from "./header-avatar";
 
 interface DashboardHeaderProps {
   userName: string;
+  userId: string;
+  avatarUrl: string | null;
   userTier: string;
   tierEmoji: string;
   isAdmin: boolean;
@@ -13,6 +17,8 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({
   userName,
+  userId,
+  avatarUrl,
   userTier,
   tierEmoji,
   isAdmin,
@@ -32,7 +38,7 @@ export function DashboardHeader({
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
           {isAdmin && (
             <Link
               href="/dashboard/admin"
@@ -47,11 +53,13 @@ export function DashboardHeader({
           >
             {tierEmoji} {userTier}
           </Link>
+          <GlobalSearch />
           <NotificationBell />
           <ThemeToggle />
           <span className="hidden sm:inline text-sm text-navy/70 truncate max-w-[120px]">
             {userName}
           </span>
+          <HeaderAvatar userId={userId} firstName={userName} avatarUrl={avatarUrl} />
           <LogoutButton />
         </div>
       </div>

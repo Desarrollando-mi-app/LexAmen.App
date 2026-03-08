@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
@@ -14,6 +14,9 @@ interface ProfileUser {
   lastName: string;
   institution: string | null;
   universityYear: number | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  cvAvailable: boolean;
   xp: number;
   causasGanadas: number;
   causasPerdidas: number;
@@ -41,6 +44,7 @@ interface PerfilPublicoProps {
   colegaCount: number;
   earnedBadges: string[];
   colegasPreview: ColegaPreview[];
+  cvRequestStatus: string | null;
 }
 
 // ─── Component ───────────────────────────────────────────
@@ -52,16 +56,23 @@ export function PerfilPublico({
   colegaCount,
   earnedBadges,
   colegasPreview,
+  cvRequestStatus: initialCvStatus,
 }: PerfilPublicoProps) {
   const [colegaStatus, setColegaStatus] = useState(initialStatus);
   const [requestId, setRequestId] = useState(initialRequestId);
   const [loading, setLoading] = useState(false);
 
+  // CV request state
+  const [cvStatus, setCvStatus] = useState(initialCvStatus);
+  const [showCvModal, setShowCvModal] = useState(false);
+  const [cvMessage, setCvMessage] = useState("");
+  const [cvLoading, setCvLoading] = useState(false);
+
   const tierLabel = user.tier ? TIER_LABELS[user.tier] ?? user.tier : null;
   const tierEmoji = user.tier ? TIER_EMOJIS[user.tier] ?? "" : "";
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
-  // ─── Handlers ───────────────────────────────────────────
+  // ─── Colega Handlers ──────────────────────────────────
 
   async function handleSendRequest() {
     setLoading(true);
@@ -95,9 +106,7 @@ export function PerfilPublico({
     if (!requestId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/colegas/${requestId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/colegas/${requestId}`, { method: "DELETE" });
       if (res.ok) {
         setColegaStatus("none");
         setRequestId(null);
@@ -134,9 +143,7 @@ export function PerfilPublico({
     if (!requestId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/colegas/${requestId}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/colegas/${requestId}`, { method: "DELETE" });
       if (res.ok) {
         setColegaStatus("none");
         setRequestId(null);
@@ -149,6 +156,35 @@ export function PerfilPublico({
     }
   }
 
+  // ─── CV Request Handler ───────────────────────────────
+
+  async function handleCvRequest() {
+    setCvLoading(true);
+    try {
+      const res = await fetch("/api/cv-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          toUserId: user.id,
+          message: cvMessage || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Error al enviar solicitud");
+        return;
+      }
+      setCvStatus("pending");
+      setShowCvModal(false);
+      setCvMessage("");
+      toast.success("Solicitud de CV enviada");
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setCvLoading(false);
+    }
+  }
+
   // ─── Render ─────────────────────────────────────────────
 
   return (
@@ -158,9 +194,17 @@ export function PerfilPublico({
         <div className="rounded-xl border border-border bg-white p-6">
           <div className="flex items-start gap-5">
             {/* Avatar */}
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-navy text-xl font-bold text-white">
-              {initials}
-            </div>
+            {user.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={`${user.firstName} ${user.lastName}`}
+                className="h-16 w-16 shrink-0 rounded-full object-cover border-2 border-border"
+              />
+            ) : (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-navy text-xl font-bold text-white">
+                {initials}
+              </div>
+            )}
 
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold text-navy font-display truncate">
@@ -170,7 +214,7 @@ export function PerfilPublico({
                 {user.institution && <span>{user.institution}</span>}
                 {user.universityYear && (
                   <span>
-                    {user.institution ? "·" : ""} {user.universityYear}o ano
+                    {user.institution ? "·" : ""} {user.universityYear}° año
                   </span>
                 )}
               </div>
@@ -181,6 +225,13 @@ export function PerfilPublico({
               )}
             </div>
           </div>
+
+          {/* Bio */}
+          {user.bio && (
+            <p className="mt-4 text-sm text-navy/70 leading-relaxed">
+              {user.bio}
+            </p>
+          )}
 
           {/* Action buttons */}
           <div className="mt-5 flex flex-wrap gap-3">
@@ -236,6 +287,28 @@ export function PerfilPublico({
               >
                 Desafiar
               </Link>
+            )}
+
+            {/* CV Request button */}
+            {user.cvAvailable && !cvStatus && (
+              <button
+                onClick={() => setShowCvModal(true)}
+                className="rounded-lg border border-gold/30 bg-gold/5 px-5 py-2.5 text-sm font-semibold text-gold transition-colors hover:bg-gold/10"
+              >
+                📄 Solicitar CV
+              </button>
+            )}
+
+            {cvStatus === "pending" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-gold/10 px-4 py-2.5 text-sm font-medium text-gold/70">
+                ✓ Solicitud enviada
+              </span>
+            )}
+
+            {cvStatus === "accepted" && (
+              <span className="inline-flex items-center gap-1 rounded-lg bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700">
+                ✓ CV disponible — contacta directamente
+              </span>
             )}
           </div>
         </div>
@@ -341,6 +414,84 @@ export function PerfilPublico({
           })}
         </div>
       </div>
+
+      {/* ─── CV Request Modal ────────────────────────── */}
+      {showCvModal && (
+        <CvRequestModal
+          userName={`${user.firstName} ${user.lastName}`}
+          message={cvMessage}
+          onMessageChange={setCvMessage}
+          loading={cvLoading}
+          onSubmit={handleCvRequest}
+          onClose={() => {
+            setShowCvModal(false);
+            setCvMessage("");
+          }}
+        />
+      )}
     </main>
+  );
+}
+
+// ─── CV Request Modal ───────────────────────────────────
+
+function CvRequestModal({
+  userName,
+  message,
+  onMessageChange,
+  loading,
+  onSubmit,
+  onClose,
+}: {
+  userName: string;
+  message: string;
+  onMessageChange: (v: string) => void;
+  loading: boolean;
+  onSubmit: () => void;
+  onClose: () => void;
+}) {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <>
+      <div
+        ref={overlayRef}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+        onClick={(e) => e.target === overlayRef.current && onClose()}
+      >
+        <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-2xl">
+          <h3 className="text-lg font-bold text-navy font-display">
+            Solicitar CV
+          </h3>
+          <p className="mt-1 text-sm text-navy/60">
+            Enviar solicitud a <strong>{userName}</strong>
+          </p>
+
+          <textarea
+            value={message}
+            onChange={(e) => onMessageChange(e.target.value.slice(0, 500))}
+            rows={3}
+            placeholder="Mensaje opcional (ej: para qué es la solicitud)"
+            className="mt-4 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy resize-none focus:border-gold/50 focus:outline-none"
+          />
+
+          <div className="mt-4 flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-navy/60 transition-colors hover:bg-paper"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={onSubmit}
+              disabled={loading}
+              className="flex-1 rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90 disabled:opacity-50"
+            >
+              {loading ? "Enviando..." : "Enviar solicitud"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
