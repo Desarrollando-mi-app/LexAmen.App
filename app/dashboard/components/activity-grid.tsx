@@ -153,7 +153,7 @@ export function ActivityGrid({ days }: ActivityGridProps) {
     <div className="rounded-xl border border-border bg-white p-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-navy">
+        <h3 className="text-sm font-semibold text-navy font-display">
           Actividad reciente
         </h3>
         <span className="text-xs text-navy/50">

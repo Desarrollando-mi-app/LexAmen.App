@@ -396,7 +396,7 @@ export default async function DashboardPage() {
         {/* CENTER */}
         <div className="min-w-0 flex-1">
           {/* Saludo */}
-          <h2 className="text-2xl font-bold text-navy">
+          <h2 className="text-2xl font-bold text-navy font-display">
             Hola, {user.firstName ?? "estudiante"}
           </h2>
           <p className="mt-1 text-navy/60">¿Qué quieres estudiar hoy?</p>
@@ -534,7 +534,7 @@ export default async function DashboardPage() {
 
           {/* ─── Progreso curricular ─────────────────────── */}
           <div className="mt-10">
-            <h3 className="text-lg font-semibold text-navy">
+            <h3 className="text-lg font-semibold text-navy font-display">
               Tu progreso curricular
             </h3>
             <div className="mt-4">

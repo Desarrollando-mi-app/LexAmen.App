@@ -252,7 +252,7 @@ export function ColegasClient({
       <div className="mx-auto max-w-3xl px-6 py-8 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-navy">Colegas</h1>
+          <h1 className="text-2xl font-bold text-navy font-display">Colegas</h1>
           <p className="mt-1 text-sm text-navy/60">
             Agrega colegas para desafiarlos en causas
           </p>

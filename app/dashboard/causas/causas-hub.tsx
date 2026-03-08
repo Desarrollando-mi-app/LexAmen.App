@@ -261,7 +261,7 @@ export function CausasHub({
       <div className="mx-auto max-w-3xl px-6 py-8 space-y-8">
         {/* ─── Insignias ──────────────────────────────────── */}
         <div className="rounded-xl border border-border bg-white p-6">
-          <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider">
+          <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider font-display">
             Insignias
           </h2>
           <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-6">
@@ -335,7 +335,7 @@ export function CausasHub({
           <>
             {/* Retar */}
             <div className="rounded-xl border border-border bg-white p-6">
-              <h2 className="text-lg font-semibold text-navy">Desafiar</h2>
+              <h2 className="text-lg font-semibold text-navy font-display">Desafiar</h2>
               <p className="mt-1 text-sm text-navy/60">
                 Ingresa el email de tu oponente para iniciar una causa
               </p>
@@ -362,7 +362,7 @@ export function CausasHub({
             {/* Desafiar Colegas */}
             {colegas.length > 0 && (
               <div className="rounded-xl border border-border bg-white p-6">
-                <h2 className="text-lg font-semibold text-navy">
+                <h2 className="text-lg font-semibold text-navy font-display">
                   Desafiar a un Colega
                 </h2>
                 <div className="mt-3 space-y-2">
@@ -412,7 +412,7 @@ export function CausasHub({
             {/* Activas */}
             {active.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-navy">Causas Activas</h2>
+                <h2 className="text-lg font-semibold text-navy font-display">Causas Activas</h2>
                 <div className="mt-3 space-y-3">
                   {active.map((c) => (
                     <Link
@@ -436,7 +436,7 @@ export function CausasHub({
             {/* Pendientes */}
             {pending.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-navy">Retos Pendientes</h2>
+                <h2 className="text-lg font-semibold text-navy font-display">Retos Pendientes</h2>
                 <div className="mt-3 space-y-3">
                   {pending.map((c) => (
                     <div

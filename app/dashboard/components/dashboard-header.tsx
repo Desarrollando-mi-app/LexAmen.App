@@ -24,7 +24,7 @@ export function DashboardHeader({
         <div className="flex items-center gap-3 min-w-0">
           <Link
             href="/dashboard"
-            className="text-xl font-bold text-navy hover:text-navy/80 transition-colors shrink-0"
+            className="text-xl font-bold text-navy font-display hover:text-navy/80 transition-colors shrink-0"
           >
             ⚖️ LéxAmen
           </Link>

@@ -332,7 +332,7 @@ export function FlashcardViewer({
             />
           </svg>
         </div>
-        <h2 className="mt-6 text-2xl font-bold text-navy">
+        <h2 className="mt-6 text-2xl font-bold text-navy font-display">
           Límite diario alcanzado
         </h2>
         <p className="mt-2 max-w-sm text-navy/60">
@@ -369,7 +369,7 @@ export function FlashcardViewer({
             />
           </svg>
         </div>
-        <h2 className="mt-6 text-2xl font-bold text-navy">
+        <h2 className="mt-6 text-2xl font-bold text-navy font-display">
           ¡Sesión completada!
         </h2>
         <p className="mt-2 text-navy/60">

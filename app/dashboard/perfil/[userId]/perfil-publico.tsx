@@ -163,7 +163,7 @@ export function PerfilPublico({
             </div>
 
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-navy truncate">
+              <h1 className="text-xl font-bold text-navy font-display truncate">
                 {user.firstName} {user.lastName}
               </h1>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-navy/60">
@@ -243,7 +243,7 @@ export function PerfilPublico({
         {/* ─── Stats ───────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-xl border border-border bg-white p-4 text-center">
-            <p className="text-2xl font-bold text-navy">
+            <p className="text-2xl font-bold text-navy font-display">
               {user.xp.toLocaleString()}
             </p>
             <p className="text-xs text-navy/50">XP Total</p>
@@ -259,7 +259,7 @@ export function PerfilPublico({
             <p className="text-xs text-navy/50">Win Rate</p>
           </div>
           <div className="rounded-xl border border-border bg-white p-4 text-center">
-            <p className="text-2xl font-bold text-navy">
+            <p className="text-2xl font-bold text-navy font-display">
               {user.flashcardsStudied}
             </p>
             <p className="text-xs text-navy/50">Flashcards</p>

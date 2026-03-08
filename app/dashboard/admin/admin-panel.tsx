@@ -111,7 +111,7 @@ export function AdminPanel() {
     <div className="space-y-8">
       {/* ─── Formulario de envío ──────────────────────────── */}
       <section className="rounded-xl border border-border bg-white p-6">
-        <h2 className="text-lg font-bold text-navy mb-4">
+        <h2 className="text-lg font-bold text-navy mb-4 font-display">
           Enviar notificación
         </h2>
 
@@ -209,7 +209,7 @@ export function AdminPanel() {
 
       {/* ─── Historial ───────────────────────────────────── */}
       <section className="rounded-xl border border-border bg-white p-6">
-        <h2 className="text-lg font-bold text-navy mb-4">
+        <h2 className="text-lg font-bold text-navy mb-4 font-display">
           Historial de envíos
         </h2>
 

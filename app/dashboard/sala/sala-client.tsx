@@ -348,7 +348,7 @@ export function SalaClient({
       <div className="border-b border-border bg-white px-6 py-3">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-navy">La Sala</h2>
+            <h2 className="text-lg font-bold text-navy font-display">La Sala</h2>
             <p className="text-xs text-navy/50">
               Conecta con tutores y estudiantes de Derecho
             </p>
@@ -703,7 +703,7 @@ export function SalaClient({
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
             {publishStep === 1 && (
               <>
-                <h2 className="text-lg font-bold text-navy">
+                <h2 className="text-lg font-bold text-navy font-display">
                   Que tipo de publicacion?
                 </h2>
                 <div className="mt-6 grid grid-cols-2 gap-4">
@@ -756,7 +756,7 @@ export function SalaClient({
                   >
                     &larr;
                   </button>
-                  <h2 className="text-lg font-bold text-navy">
+                  <h2 className="text-lg font-bold text-navy font-display">
                     {pubType === "OFREZCO"
                       ? "Ofrezco Ayudantia"
                       : "Busco Ayudantia"}
@@ -1048,7 +1048,7 @@ export function SalaClient({
       {reportingId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-navy">
+            <h2 className="text-lg font-bold text-navy font-display">
               Reportar publicacion
             </h2>
 

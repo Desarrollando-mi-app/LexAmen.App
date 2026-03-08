@@ -41,7 +41,7 @@ export function LigaViewer({
       {/* Subheader de liga */}
       <div className="mx-auto max-w-3xl px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-navy">
+          <h2 className="text-xl font-bold text-navy font-display">
             {tierEmoji} Liga {tierLabel}
           </h2>
           <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
