@@ -348,7 +348,7 @@ export function SalaClient({
       <div className="border-b border-border bg-white px-6 py-3">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-navy font-display">La Sala</h2>
+            <h2 className="text-lg font-bold text-navy font-display">La <em>Sala</em></h2>
             <p className="text-xs text-navy/50">
               Conecta con tutores y estudiantes de Derecho
             </p>

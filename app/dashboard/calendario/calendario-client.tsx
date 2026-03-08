@@ -391,7 +391,7 @@ export function CalendarioClient({
               </svg>
             </button>
             <h2 className="text-xl font-bold text-navy font-display min-w-[180px] text-center">
-              {MONTHS_ES[month - 1]} {year}
+              <em>{MONTHS_ES[month - 1]}</em> {year}
             </h2>
             <button
               onClick={nextMonth}

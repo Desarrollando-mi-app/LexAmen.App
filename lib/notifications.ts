@@ -187,7 +187,7 @@ async function sendNotificationEmail(
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;">
     <tr>
       <td style="background-color:#12203A;padding:24px 32px;text-align:center;">
-        <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">LexAmen</h1>
+        <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Iuris Studio</h1>
       </td>
     </tr>
     <tr>
@@ -196,14 +196,14 @@ async function sendNotificationEmail(
         <h2 style="color:#12203A;font-size:20px;margin:16px 0 8px;">${title}</h2>
         <p style="color:#12203A;font-size:15px;line-height:1.6;margin:0 0 24px;">${body}</p>
         <a href="${APP_URL}/dashboard" style="display:inline-block;background-color:#9A7230;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;">
-          Abrir LexAmen
+          Abrir Iuris Studio
         </a>
       </td>
     </tr>
     <tr>
       <td style="padding:20px 32px;border-top:1px solid #D4C9B4;text-align:center;">
         <p style="color:#12203A;opacity:0.5;font-size:12px;margin:0;">
-          LexAmen · Derecho Civil & Procesal Civil
+          Iuris Studio · Derecho Civil & Procesal Civil
         </p>
       </td>
     </tr>
@@ -212,9 +212,9 @@ async function sendNotificationEmail(
 </html>`;
 
   await getResend().emails.send({
-    from: "LéxAmen <noreply@lexamen.cl>",
+    from: "Iuris Studio <noreply@lexamen.cl>",
     to: email,
-    subject: `[LéxAmen] ${title}`,
+    subject: `[Iuris Studio] ${title}`,
     html,
   });
 }

@@ -399,7 +399,7 @@ export default async function DashboardPage() {
         <div className="min-w-0 flex-1">
           {/* Saludo */}
           <h2 className="text-2xl font-bold text-navy font-display">
-            Hola, {user.firstName ?? "estudiante"}
+            Hola, <em>{user.firstName ?? "estudiante"}</em>
           </h2>
           <p className="mt-1 text-navy/60">¿Qué quieres estudiar hoy?</p>
 

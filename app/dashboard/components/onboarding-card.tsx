@@ -55,7 +55,7 @@ export function OnboardingCard() {
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-lg font-bold text-navy">
-            ¡Bienvenido a LéxAmen! 👋
+            ¡Bienvenido a Iuris Studio! 👋
           </h3>
           <p className="mt-1 text-sm text-navy/60">
             Sigue estos 3 pasos para comenzar tu preparación

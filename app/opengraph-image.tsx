@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "LéxAmen — Aprende Derecho Civil y Procesal Civil";
+export const alt = "Iuris Studio — Aprende Derecho Civil y Procesal Civil";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -29,7 +29,7 @@ export default async function Image() {
               fontFamily: "serif",
             }}
           >
-            LéxAmen
+            Iuris Studio
           </span>
         </div>
         <p

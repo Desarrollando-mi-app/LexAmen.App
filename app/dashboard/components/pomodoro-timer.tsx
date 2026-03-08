@@ -203,9 +203,9 @@ export function PomodoroTimer({ variant = "card" }: PomodoroTimerProps) {
         .toString()
         .padStart(2, "0");
       const secs = (timeLeft % 60).toString().padStart(2, "0");
-      document.title = `[${mins}:${secs}] ${MODE_LABELS[mode]} — LéxAmen`;
+      document.title = `[${mins}:${secs}] ${MODE_LABELS[mode]} — Iuris Studio`;
     } else {
-      document.title = originalTitleRef.current || "LéxAmen";
+      document.title = originalTitleRef.current || "Iuris Studio";
     }
 
     return () => {

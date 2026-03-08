@@ -11,7 +11,7 @@ export default function GlobalError({
     <main className="flex min-h-screen flex-col items-center justify-center bg-paper px-4">
       <div className="text-center max-w-md">
         <p className="text-4xl mb-4">⚖️</p>
-        <h1 className="text-2xl font-bold text-navy">LéxAmen</h1>
+        <h1 className="text-2xl font-bold text-navy">Iuris Studio</h1>
 
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-navy">Algo salió mal</h2>
@@ -43,7 +43,7 @@ export default function GlobalError({
       </div>
 
       <footer className="absolute bottom-6 text-xs text-navy/30">
-        LéxAmen — Si el problema persiste, contacta soporte.
+        Iuris Studio — Si el problema persiste, contacta soporte.
       </footer>
     </main>
   );

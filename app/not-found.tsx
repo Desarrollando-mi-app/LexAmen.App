@@ -5,7 +5,7 @@ export default function NotFound() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-paper px-4">
       <div className="text-center max-w-md">
         <p className="text-4xl mb-4">⚖️</p>
-        <h1 className="text-2xl font-bold text-navy">LéxAmen</h1>
+        <h1 className="text-2xl font-bold text-navy">Iuris Studio</h1>
 
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-navy">
@@ -27,7 +27,7 @@ export default function NotFound() {
       </div>
 
       <footer className="absolute bottom-6 text-xs text-navy/30">
-        LéxAmen — Derecho Civil &amp; Procesal Civil
+        Iuris Studio — Derecho Civil &amp; Procesal Civil
       </footer>
     </main>
   );

@@ -26,7 +26,7 @@ export function DashboardHeader({
             href="/dashboard"
             className="text-xl font-bold text-navy font-display hover:text-navy/80 transition-colors shrink-0"
           >
-            ⚖️ LéxAmen
+            ⚖️ Iuris Studio
           </Link>
           <PageTitle />
         </div>

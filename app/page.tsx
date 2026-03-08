@@ -85,7 +85,7 @@ export default async function HomePage() {
           <Link href="/" className="flex items-center gap-2">
             <span className="text-xl">⚖️</span>
             <span className="font-serif text-xl font-bold text-paper">
-              LéxAmen
+              Iuris Studio
             </span>
           </Link>
           <div className="flex items-center gap-3">
@@ -116,8 +116,8 @@ export default async function HomePage() {
           <span className="inline-block rounded-full bg-gold/15 px-4 py-1.5 text-xs font-semibold text-gold">
             Preparación de examen de grado
           </span>
-          <h1 className="mt-6 font-serif text-4xl font-bold leading-tight text-paper sm:text-5xl lg:text-6xl">
-            Domina el Derecho Civil y Procesal Civil
+          <h1 className="mt-6 text-4xl font-bold leading-tight text-paper sm:text-5xl lg:text-6xl">
+            Domina el <em>Derecho</em> Civil y Procesal Civil
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-paper/70">
             La plataforma de estudio diseñada por y para estudiantes de Derecho
@@ -354,11 +354,11 @@ export default async function HomePage() {
       {/* ─── CTA Final ──────────────────────────────────────── */}
       <section className="bg-navy px-6 py-20 text-center lg:py-28">
         <div className="mx-auto max-w-2xl">
-          <h2 className="font-serif text-3xl font-bold text-paper sm:text-4xl">
-            Empieza a preparar tu examen hoy
+          <h2 className="text-3xl font-bold text-paper sm:text-4xl">
+            Empieza a preparar tu <em>examen</em> hoy
           </h2>
           <p className="mt-4 text-paper/60">
-            Únete a otros estudiantes de Derecho que ya están usando LéxAmen para
+            Únete a otros estudiantes de Derecho que ya están usando Iuris Studio para
             dominar la materia.
           </p>
           <Link
@@ -388,10 +388,10 @@ export default async function HomePage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
             <span className="text-lg">⚖️</span>
-            <span className="font-serif font-bold text-navy">LéxAmen</span>
+            <span className="font-serif font-bold text-navy">Iuris Studio</span>
           </div>
           <p className="text-sm text-navy/40">
-            &copy; {new Date().getFullYear()} LéxAmen — Chile. Todos los
+            &copy; {new Date().getFullYear()} Iuris Studio — Chile. Todos los
             derechos reservados.
           </p>
         </div>

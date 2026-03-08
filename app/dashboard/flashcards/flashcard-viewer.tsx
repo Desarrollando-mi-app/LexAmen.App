@@ -599,11 +599,14 @@ export function FlashcardViewer({
             </div>
 
             {/* Back — Respuesta */}
-            <div className="flip-card-back flex flex-col items-center justify-center rounded-2xl border-2 border-gold/30 bg-navy p-8 shadow-sm">
+            <div
+              className="flip-card-back flex flex-col items-center justify-center rounded-2xl border-2 border-gold/30 p-8 shadow-sm"
+              style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)" }}
+            >
               <div className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold/70">
                 Respuesta
               </div>
-              <p className="text-center text-base leading-relaxed text-paper/90 sm:text-lg">
+              <p className="text-center text-base leading-relaxed sm:text-lg" style={{ color: "var(--text-primary)" }}>
                 {currentCard.back}
               </p>
             </div>

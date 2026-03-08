@@ -35,6 +35,8 @@
   /* Fonts — references next/font CSS variables */
   --font-display: var(--font-playfair), serif;
   --font-body: var(--font-outfit), sans-serif;
+  --font-display-family: 'Playfair Display', serif;
+  --font-body-family: 'Outfit', sans-serif;
 
   /* Legacy compat */
   --background: #F7F3ED;
@@ -75,6 +77,8 @@
   /* Fonts — references next/font CSS variables */
   --font-display: var(--font-cormorant), serif;
   --font-body: var(--font-dm-sans), sans-serif;
+  --font-display-family: 'Cormorant Garamond', serif;
+  --font-body-family: 'DM Sans', sans-serif;
 
   /* Legacy compat */
   --background: #0D0B08;
@@ -90,8 +94,18 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-body);
+  font-family: var(--font-body-family);
   transition: background-color 0.3s ease;
+}
+
+/* ─── Theme-driven typography ─────────────────────── */
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-display-family) !important;
+}
+
+p, span, button, input, select, textarea, .font-body {
+  font-family: var(--font-body-family);
 }
 
 /* ─── bg-white override → card background ─────────────── */

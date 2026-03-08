@@ -39,8 +39,8 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "LéxAmen — Aprende Derecho Civil y Procesal Civil",
-    template: "%s | LéxAmen",
+    default: "Iuris Studio — Aprende Derecho Civil y Procesal Civil",
+    template: "%s | Iuris Studio",
   },
   description:
     "Plataforma de estudio de Derecho Civil y Procesal Civil para estudiantes en Chile. Flashcards, preguntas, duelos y liga semanal.",
@@ -50,21 +50,21 @@ export const metadata: Metadata = {
     "examen de grado",
     "flashcards derecho",
     "chile",
-    "lexamen",
+    "iuris studio",
   ],
   metadataBase: new URL("https://lexamen.cl"),
   openGraph: {
-    title: "LéxAmen — Domina el Derecho Civil y Procesal Civil",
+    title: "Iuris Studio — Domina el Derecho Civil y Procesal Civil",
     description:
       "Flashcards, preguntas, duelos y más. La plataforma de estudio para estudiantes de Derecho en Chile.",
     url: "https://lexamen.cl",
-    siteName: "LéxAmen",
+    siteName: "Iuris Studio",
     locale: "es_CL",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "LéxAmen — Domina el Derecho Civil y Procesal Civil",
+    title: "Iuris Studio — Domina el Derecho Civil y Procesal Civil",
     description:
       "Flashcards, preguntas, duelos y más. La plataforma de estudio para estudiantes de Derecho en Chile.",
   },
