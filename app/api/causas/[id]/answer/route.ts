@@ -203,6 +203,37 @@ export async function POST(
       });
     }
 
+    // Auto-registrar en calendario para ambos participantes
+    const now = new Date();
+    prisma.$transaction([
+      prisma.calendarEvent.create({
+        data: {
+          userId: causa.challengerId,
+          title: winnerId === causa.challengerId
+            ? "Causa ganada ⚔️"
+            : winnerId
+              ? "Causa perdida ⚔️"
+              : "Causa empatada ⚔️",
+          eventType: "causa",
+          startDate: now,
+          allDay: false,
+        },
+      }),
+      prisma.calendarEvent.create({
+        data: {
+          userId: causa.challengedId,
+          title: winnerId === causa.challengedId
+            ? "Causa ganada ⚔️"
+            : winnerId
+              ? "Causa perdida ⚔️"
+              : "Causa empatada ⚔️",
+          eventType: "causa",
+          startDate: now,
+          allDay: false,
+        },
+      }),
+    ]).catch(() => {});
+
     result.causaComplete = true;
     result.winnerId = winnerId;
   }

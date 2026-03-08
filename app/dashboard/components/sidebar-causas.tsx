@@ -325,6 +325,17 @@ export function SidebarCausas({
           </span>
         </Link>
       </div>
+
+      {/* ── Separador ────────────────────────────────── */}
+      <div className="my-4 border-t border-border" />
+
+      {/* ── Calendario ─────────────────────────────────── */}
+      <Link
+        href="/dashboard/calendario"
+        className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-navy transition-colors hover:bg-paper"
+      >
+        <span>📅</span> Calendario
+      </Link>
     </div>
   );
 }

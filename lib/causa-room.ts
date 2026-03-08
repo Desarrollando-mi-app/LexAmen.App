@@ -144,10 +144,24 @@ export async function finishRoom(roomId: string): Promise<{
   }
 
   // Marcar room como finished
-  await prisma.causaRoom.update({
+  const finishedRoom = await prisma.causaRoom.update({
     where: { id: roomId },
     data: { status: "finished" },
+    select: { materia: true },
   });
+
+  // Auto-registrar en calendario para cada participante
+  for (const p of playerStats) {
+    prisma.calendarEvent.create({
+      data: {
+        userId: p.userId,
+        title: `Causa grupal completada${finishedRoom.materia ? ` — ${finishedRoom.materia}` : ""}`,
+        eventType: "causa",
+        startDate: new Date(),
+        allDay: false,
+      },
+    }).catch(() => {});
+  }
 
   // Notificar a cada participante
   for (const p of playerStats) {

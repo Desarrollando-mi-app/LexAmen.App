@@ -7,7 +7,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", icon: "🏠", label: "Inicio" },
   { href: "/dashboard/flashcards", icon: "📚", label: "Estudiar" },
   { href: "/dashboard/causas", icon: "⚔️", label: "Causas" },
-  { href: "/dashboard/liga", icon: "🏆", label: "Liga" },
+  { href: "/dashboard/calendario", icon: "📅", label: "Calendario" },
   { href: "/dashboard/colegas", icon: "👥", label: "Colegas" },
 ];
 
