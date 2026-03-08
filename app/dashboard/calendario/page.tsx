@@ -15,13 +15,19 @@ export default async function CalendarioPage() {
   const start = new Date(now.getFullYear(), now.getMonth(), 1);
   const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-  const events = await prisma.calendarEvent.findMany({
-    where: {
-      userId: authUser.id,
-      startDate: { gte: start, lte: end },
-    },
-    orderBy: { startDate: "asc" },
-  });
+  const [events, user] = await Promise.all([
+    prisma.calendarEvent.findMany({
+      where: {
+        userId: authUser.id,
+        startDate: { gte: start, lte: end },
+      },
+      orderBy: { startDate: "asc" },
+    }),
+    prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { examDate: true },
+    }),
+  ]);
 
   const serialized = events.map((e) => ({
     ...e,
@@ -36,6 +42,7 @@ export default async function CalendarioPage() {
       initialEvents={serialized}
       initialMonth={now.getMonth() + 1}
       initialYear={now.getFullYear()}
+      examDate={user?.examDate?.toISOString() ?? null}
     />
   );
 }

@@ -114,6 +114,7 @@ model User {
   planExpiresAt   DateTime?
   termsAcceptedAt DateTime?
   termsVersion    String?
+  examDate        DateTime?
   xp              Int       @default(0)
   causasGanadas   Int       @default(0)
   causasPerdidas  Int       @default(0)

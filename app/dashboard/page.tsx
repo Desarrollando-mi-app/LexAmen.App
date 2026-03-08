@@ -10,6 +10,8 @@ import { SidebarCausas } from "./components/sidebar-causas";
 import { SidebarLiga } from "./components/sidebar-liga";
 import { ActivityGrid } from "./components/activity-grid";
 import { OnboardingCard } from "./components/onboarding-card";
+import { ExamCountdown } from "./components/exam-countdown";
+import { PomodoroTimer } from "./components/pomodoro-timer";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -404,6 +406,11 @@ export default async function DashboardPage() {
           {/* ─── Onboarding (usuarios nuevos) ──────────────── */}
           {user.xp === 0 && masteredCount === 0 && <OnboardingCard />}
 
+          {/* ─── Cuenta regresiva examen ────────────────── */}
+          <div className="mt-6">
+            <ExamCountdown initialExamDate={user.examDate?.toISOString() ?? null} />
+          </div>
+
           {/* ─── Estadísticas ─────────────────────────────── */}
           <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
             <StatCard
@@ -477,6 +484,11 @@ export default async function DashboardPage() {
           {/* ─── Actividad reciente ─────────────────────── */}
           <div className="mt-8">
             <ActivityGrid days={activityDays} />
+          </div>
+
+          {/* ─── Pomodoro — desktop only ──────────────────── */}
+          <div className="mt-8 hidden lg:block">
+            <PomodoroTimer variant="card" />
           </div>
 
           {/* ─── Mobile: Entrenamiento + Liga + Causas ──── */}

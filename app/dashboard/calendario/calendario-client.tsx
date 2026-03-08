@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { ExamCountdown } from "../components/exam-countdown";
+import { PomodoroTimer } from "../components/pomodoro-timer";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -22,6 +24,7 @@ interface CalendarioClientProps {
   initialEvents: CalendarEvent[];
   initialMonth: number;
   initialYear: number;
+  examDate?: string | null;
 }
 
 // ─── Constants ─────────────────────────────────────────────
@@ -88,6 +91,7 @@ export function CalendarioClient({
   initialEvents,
   initialMonth,
   initialYear,
+  examDate = null,
 }: CalendarioClientProps) {
   const [month, setMonth] = useState(initialMonth);
   const [year, setYear] = useState(initialYear);
@@ -371,7 +375,10 @@ export function CalendarioClient({
 
   return (
     <main className="min-h-screen bg-paper">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="flex gap-6">
+        {/* ─── Calendar content — flex-1 ─────────────── */}
+        <div className="min-w-0 flex-1">
         {/* ─── Header ──────────────────────────────────── */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -645,6 +652,21 @@ export function CalendarioClient({
               </span>
             </div>
           ))}
+        </div>
+        </div>{/* end calendar flex-1 */}
+
+        {/* ─── Sidebar derecho — solo desktop ──────────── */}
+        <aside className="hidden lg:block w-[280px] shrink-0">
+          <div className="sticky top-[72px] space-y-6">
+            <ExamCountdown initialExamDate={examDate ?? null} />
+            <PomodoroTimer variant="sidebar" />
+          </div>
+        </aside>
+        </div>{/* end flex row */}
+
+        {/* ─── Mobile: Pomodoro debajo del calendario ──── */}
+        <div className="mt-8 lg:hidden">
+          <PomodoroTimer variant="card" />
         </div>
       </div>
 
