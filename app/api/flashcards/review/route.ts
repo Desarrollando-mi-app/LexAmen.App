@@ -114,34 +114,44 @@ export async function POST(request: Request) {
     },
   });
 
-  // 9. Detectar completación de submateria
-  let completedSubmateria: string | null = null;
+  // 9. Detectar completación de título
+  let completedTitulo: string | null = null;
 
   const flashcard = await prisma.flashcard.findUnique({
     where: { id: flashcardId },
-    select: { submateria: true },
+    select: { rama: true, libro: true, titulo: true },
   });
 
   if (flashcard && sm2Result.repetitions >= 3) {
-    const totalInSubmateria = await prisma.flashcard.count({
-      where: { submateria: flashcard.submateria },
-    });
-
-    const dominatedInSubmateria = await prisma.userFlashcardProgress.count({
+    const totalInTitulo = await prisma.flashcard.count({
       where: {
-        userId: authUser.id,
-        repetitions: { gte: 3 },
-        flashcard: { submateria: flashcard.submateria },
+        rama: flashcard.rama,
+        libro: flashcard.libro,
+        titulo: flashcard.titulo,
       },
     });
 
-    if (dominatedInSubmateria >= totalInSubmateria && totalInSubmateria > 0) {
-      // Submateria completada — incrementar vuelta y resetear
+    const dominatedInTitulo = await prisma.userFlashcardProgress.count({
+      where: {
+        userId: authUser.id,
+        repetitions: { gte: 3 },
+        flashcard: {
+          rama: flashcard.rama,
+          libro: flashcard.libro,
+          titulo: flashcard.titulo,
+        },
+      },
+    });
+
+    if (dominatedInTitulo >= totalInTitulo && totalInTitulo > 0) {
+      // Título completado — incrementar vuelta y resetear
       await prisma.curriculumProgress.upsert({
         where: {
-          userId_submateria: {
+          userId_rama_libro_titulo: {
             userId: authUser.id,
-            submateria: flashcard.submateria,
+            rama: flashcard.rama,
+            libro: flashcard.libro,
+            titulo: flashcard.titulo,
           },
         },
         update: {
@@ -150,17 +160,23 @@ export async function POST(request: Request) {
         },
         create: {
           userId: authUser.id,
-          submateria: flashcard.submateria,
+          rama: flashcard.rama,
+          libro: flashcard.libro,
+          titulo: flashcard.titulo,
           completions: 1,
           lastCompletedAt: new Date(),
         },
       });
 
-      // Resetear progreso de flashcards de esa submateria
+      // Resetear progreso de flashcards de ese título
       await prisma.userFlashcardProgress.updateMany({
         where: {
           userId: authUser.id,
-          flashcard: { submateria: flashcard.submateria },
+          flashcard: {
+            rama: flashcard.rama,
+            libro: flashcard.libro,
+            titulo: flashcard.titulo,
+          },
         },
         data: {
           repetitions: 0,
@@ -169,7 +185,7 @@ export async function POST(request: Request) {
         },
       });
 
-      completedSubmateria = flashcard.submateria;
+      completedTitulo = flashcard.titulo;
     }
   }
 
@@ -179,6 +195,6 @@ export async function POST(request: Request) {
     newInterval: sm2Result.interval,
     newEaseFactor: sm2Result.easeFactor,
     reviewsToday: reviewsToday + 1,
-    ...(completedSubmateria && { completedSubmateria }),
+    ...(completedTitulo && { completedTitulo }),
   });
 }

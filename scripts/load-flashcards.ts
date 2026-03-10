@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { PrismaClient } from "../app/generated/prisma/client";
+import type { Rama, Codigo, Libro } from "../app/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import dotenv from "dotenv";
 
@@ -82,7 +83,12 @@ function parseCSVRecords(content: string): string[][] {
 }
 
 async function main() {
-  const csvFile = process.argv[2] || "universo_unificado_civil1.csv";
+  const csvFile = process.argv[2];
+  if (!csvFile) {
+    console.error("❌ Uso: npx tsx scripts/load-flashcards.ts <archivo.csv>");
+    console.error("   CSV debe tener columnas: front, back, rama, codigo, libro, titulo, parrafo, leyAnexa, articuloRef, dificultad");
+    process.exit(1);
+  }
   const csvPath = path.resolve(__dirname, "..", csvFile);
   console.log(`📂 Archivo: ${csvFile}`);
   const content = fs.readFileSync(csvPath, "utf-8");
@@ -94,19 +100,20 @@ async function main() {
   console.log("📋 Columnas:", header.join(", "));
 
   // Parsear filas
+  // Esperamos columnas: front, back, rama, codigo, libro, titulo, parrafo, leyAnexa, articuloRef, dificultad
   const rows = [];
   let skipped = 0;
 
   for (let i = 1; i < records.length; i++) {
     const fields = records[i];
 
-    if (fields.length < 7) {
+    if (fields.length < 6) {
       skipped++;
       console.warn(`⚠️  Registro ${i} tiene ${fields.length} campos, se omite.`);
       continue;
     }
 
-    const [front, back, unidad, materia, submateria, tipo, nivel] = fields;
+    const [front, back, rama, codigo, libro, titulo, parrafo, leyAnexa, articuloRef, dificultad] = fields;
 
     if (!front || !back) {
       skipped++;
@@ -118,11 +125,14 @@ async function main() {
     rows.push({
       front: front.replace(/\n/g, " ").replace(/\s+/g, " "),
       back: back.replace(/\n/g, " ").replace(/\s+/g, " "),
-      unidad: unidad || "DERECHO_CIVIL_1",
-      materia: materia || "TEORIA_DE_LA_LEY",
-      submateria: submateria || "LA_LEY",
-      tipo: tipo === "PROCESAL" ? "PROCESAL" as const : "CIVIL" as const,
-      nivel: nivel || "BASICO",
+      rama: (rama || "DERECHO_CIVIL") as Rama,
+      codigo: (codigo || "CODIGO_CIVIL") as Codigo,
+      libro: (libro || "TITULO_PRELIMINAR") as Libro,
+      titulo: titulo || "DE_LA_LEY",
+      parrafo: parrafo || null,
+      leyAnexa: leyAnexa || null,
+      articuloRef: articuloRef || null,
+      dificultad: dificultad || "BASICO",
     });
   }
 

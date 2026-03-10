@@ -77,10 +77,10 @@ export async function POST(request: Request) {
     );
   }
 
-  // 6. Buscar TrueFalse (incluyendo nivel para cálculo de XP)
+  // 6. Buscar TrueFalse (incluyendo dificultad para cálculo de XP)
   const tf = await prisma.trueFalse.findUnique({
     where: { id: trueFalseId },
-    select: { isTrue: true, explanation: true, nivel: true },
+    select: { isTrue: true, explanation: true, dificultad: true },
   });
 
   if (!tf) {
@@ -90,9 +90,9 @@ export async function POST(request: Request) {
     );
   }
 
-  // 7. Evaluar respuesta y calcular XP por nivel
+  // 7. Evaluar respuesta y calcular XP por dificultad
   const isCorrect = selectedAnswer === tf.isTrue;
-  const baseXP = calculateXP("TRUEFALSE", tf.nivel, isCorrect);
+  const baseXP = calculateXP("TRUEFALSE", tf.dificultad, isCorrect);
   const streakBonus = isCorrect ? calculateStreakBonus(streak ?? 0) : 0;
   const xpGained = baseXP + streakBonus;
 

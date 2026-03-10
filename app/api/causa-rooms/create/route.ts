@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
   let body: {
     mode?: string;
-    materia?: string;
+    rama?: string;
     difficulty?: string;
     maxPlayers?: number;
   };
@@ -31,14 +31,14 @@ export async function POST(request: Request) {
   }
 
   const mode = body.mode || "individual";
-  const materia = body.materia || null;
+  const rama = body.rama || null;
   const difficulty = body.difficulty || null;
   const maxPlayers = Math.min(Math.max(body.maxPlayers ?? ROOM_MAX_PLAYERS_DEFAULT, 2), 10);
 
   // Seleccionar MCQs al azar
   let mcqIds: string[];
   try {
-    mcqIds = await selectRandomMCQs(ROOM_QUESTIONS, materia, difficulty);
+    mcqIds = await selectRandomMCQs(ROOM_QUESTIONS, rama, difficulty);
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Error seleccionando MCQs" },
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     data: {
       mode,
       maxPlayers,
-      materia,
+      rama,
       difficulty,
       createdById: authUser.id,
       questions: {

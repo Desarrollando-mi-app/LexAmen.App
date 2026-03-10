@@ -17,17 +17,17 @@ export const ROOM_XP_3RD = 10;
 export const ROOM_XP_PARTICIPANT = 5;
 
 /**
- * Selecciona N MCQ IDs al azar, con filtro opcional de materia/dificultad.
+ * Selecciona N MCQ IDs al azar, con filtro opcional de rama/dificultad.
  * Reutiliza el patrón random-skip de app/api/causas/challenge/route.ts
  */
 export async function selectRandomMCQs(
   count: number,
-  materia?: string | null,
+  rama?: string | null,
   difficulty?: string | null
 ): Promise<string[]> {
   const where: Record<string, unknown> = {};
-  if (materia) where.materia = materia;
-  if (difficulty) where.nivel = difficulty;
+  if (rama) where.rama = rama;
+  if (difficulty) where.dificultad = difficulty;
 
   const totalMcqs = await prisma.mCQ.count({ where });
   if (totalMcqs < count) {
@@ -147,7 +147,7 @@ export async function finishRoom(roomId: string): Promise<{
   const finishedRoom = await prisma.causaRoom.update({
     where: { id: roomId },
     data: { status: "finished" },
-    select: { materia: true },
+    select: { rama: true },
   });
 
   // Auto-registrar en calendario para cada participante
@@ -155,7 +155,7 @@ export async function finishRoom(roomId: string): Promise<{
     prisma.calendarEvent.create({
       data: {
         userId: p.userId,
-        title: `Causa grupal completada${finishedRoom.materia ? ` — ${finishedRoom.materia}` : ""}`,
+        title: `Causa grupal completada${finishedRoom.rama ? ` — ${finishedRoom.rama}` : ""}`,
         eventType: "causa",
         startDate: new Date(),
         allDay: false,

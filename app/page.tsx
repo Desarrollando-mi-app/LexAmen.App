@@ -54,7 +54,7 @@ const STEPS = [
     num: "02",
     title: "Elige qué estudiar",
     description:
-      "Selecciona materia, submateria y nivel de dificultad. Los filtros se guardan automáticamente.",
+      "Selecciona rama, libro, título y dificultad. Los filtros se guardan automáticamente.",
   },
   {
     num: "03",

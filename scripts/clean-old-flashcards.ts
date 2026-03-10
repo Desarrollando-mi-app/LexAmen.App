@@ -9,15 +9,11 @@ dotenv.config({ path: ".env" });
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-const DELETE_SUBMATERIAS = [
-  "PERSONA_NATURAL",
-  "MUERTE_PRESUNTA",
-  "ATRIBUTOS_PERSONALIDAD",
-  "NOMBRE_ESTADO_CIVIL",
-  "CAPACIDAD_PATRIMONIO",
-  "DOMICILIO",
-  "NATURALEZA_CLASIFICACION",
-  "RESPONSABILIDAD",
+// Ejemplo: eliminar flashcards de títulos específicos
+const DELETE_TITULOS: string[] = [
+  // Agregar títulos a eliminar aquí
+  // "PERSONA_NATURAL",
+  // "MUERTE_PRESUNTA",
 ];
 
 function ask(question: string): Promise<string> {
@@ -34,15 +30,20 @@ function ask(question: string): Promise<string> {
 }
 
 async function main() {
+  if (DELETE_TITULOS.length === 0) {
+    console.log("⚠️  No hay títulos configurados para eliminar. Edita DELETE_TITULOS en el script.");
+    return;
+  }
+
   // Contar flashcards a eliminar
   const toDelete = await prisma.flashcard.count({
-    where: { submateria: { in: DELETE_SUBMATERIAS } },
+    where: { titulo: { in: DELETE_TITULOS } },
   });
 
   const total = await prisma.flashcard.count();
 
   console.log(`\n📊 Total flashcards en BD: ${total}`);
-  console.log(`🗑️  Flashcards en submaterias a eliminar: ${toDelete}`);
+  console.log(`🗑️  Flashcards en títulos a eliminar: ${toDelete}`);
   console.log(`✅ Flashcards que se conservan: ${total - toDelete}`);
 
   if (toDelete === 0) {
@@ -50,16 +51,16 @@ async function main() {
     return;
   }
 
-  // Mostrar desglose por submateria
+  // Mostrar desglose por título
   const groups = await prisma.flashcard.groupBy({
-    by: ["submateria"],
-    where: { submateria: { in: DELETE_SUBMATERIAS } },
+    by: ["titulo"],
+    where: { titulo: { in: DELETE_TITULOS } },
     _count: { id: true },
   });
 
   console.log("\n📋 Desglose de flashcards a eliminar:");
   for (const g of groups) {
-    console.log(`   - ${g.submateria}: ${g._count.id}`);
+    console.log(`   - ${g.titulo}: ${g._count.id}`);
   }
 
   // Pedir confirmación
@@ -74,7 +75,7 @@ async function main() {
 
   // 1. Eliminar UserFlashcardProgress huérfanos
   const deletedProgress = await prisma.userFlashcardProgress.deleteMany({
-    where: { flashcard: { submateria: { in: DELETE_SUBMATERIAS } } },
+    where: { flashcard: { titulo: { in: DELETE_TITULOS } } },
   });
   console.log(
     `\n🧹 UserFlashcardProgress eliminados: ${deletedProgress.count}`
@@ -82,7 +83,7 @@ async function main() {
 
   // 2. Eliminar flashcards
   const deletedFlashcards = await prisma.flashcard.deleteMany({
-    where: { submateria: { in: DELETE_SUBMATERIAS } },
+    where: { titulo: { in: DELETE_TITULOS } },
   });
   console.log(`🗑️  Flashcards eliminadas: ${deletedFlashcards.count}`);
 

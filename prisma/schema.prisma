@@ -18,9 +18,29 @@ enum Plan {
   PREMIUM_ANNUAL
 }
 
-enum Tipo {
-  CIVIL
-  PROCESAL
+enum Rama {
+  DERECHO_CIVIL
+  DERECHO_PROCESAL_CIVIL
+}
+
+enum Codigo {
+  CODIGO_CIVIL
+  CODIGO_PROCEDIMIENTO_CIVIL
+  LEY_ANEXA
+}
+
+enum Libro {
+  TITULO_PRELIMINAR
+  MENSAJE
+  LIBRO_I
+  LIBRO_II
+  LIBRO_III
+  LIBRO_IV
+  TITULO_FINAL
+  LIBRO_I_CPC
+  LIBRO_II_CPC
+  LIBRO_III_CPC
+  LIBRO_IV_CPC
 }
 
 enum SubscriptionStatus {
@@ -157,17 +177,22 @@ model User {
 }
 
 model Flashcard {
-  id         String  @id @default(cuid())
-  front      String
-  back       String
-  unidad     String  @default("DERECHO_CIVIL_1")
-  materia    String
-  submateria String
-  tipo       Tipo
-  nivel      String  @default("BASICO")
+  id          String  @id @default(cuid())
+  front       String
+  back        String
+  rama        Rama
+  codigo      Codigo
+  libro       Libro
+  titulo      String
+  parrafo     String?
+  leyAnexa    String?
+  articuloRef String?
+  dificultad  String  @default("BASICO")
 
   progress  UserFlashcardProgress[]
   favorites FlashcardFavorite[]
+
+  @@index([rama, libro])
 }
 
 model UserFlashcardProgress {
@@ -195,16 +220,21 @@ model MCQ {
   optionD       String
   correctOption String
   explanation   String?
-  unidad        String  @default("DERECHO_CIVIL_1")
-  materia       String
-  submateria    String
-  tipo          Tipo
-  nivel         String  @default("BASICO")
+  rama          Rama
+  codigo        Codigo
+  libro         Libro
+  titulo        String
+  parrafo       String?
+  leyAnexa      String?
+  articuloRef   String?
+  dificultad    String  @default("BASICO")
 
   attempts           UserMCQAttempt[]
   causaAnswers       CausaAnswer[]
   causaRoomQuestions CausaRoomQuestion[]
   causaRoomAnswers   CausaRoomAnswer[]
+
+  @@index([rama, libro])
 }
 
 model UserMCQAttempt {
@@ -224,13 +254,18 @@ model TrueFalse {
   statement   String
   isTrue      Boolean
   explanation String?
-  unidad      String  @default("DERECHO_CIVIL_1")
-  materia     String
-  submateria  String
-  tipo        String
-  nivel       String  @default("BASICO")
+  rama        Rama
+  codigo      Codigo
+  libro       Libro
+  titulo      String
+  parrafo     String?
+  leyAnexa    String?
+  articuloRef String?
+  dificultad  String  @default("BASICO")
 
   attempts UserTrueFalseAttempt[]
+
+  @@index([rama, libro])
 }
 
 model UserTrueFalseAttempt {
@@ -261,13 +296,15 @@ model ContentReport {
 model CurriculumProgress {
   id              String    @id @default(cuid())
   userId          String
-  submateria      String
+  rama            Rama
+  libro           Libro
+  titulo          String
   completions     Int       @default(0)
   lastCompletedAt DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, submateria])
+  @@unique([userId, rama, libro, titulo])
 }
 
 // ─── Ligas Semanales ─────────────────────────────────────
@@ -360,7 +397,7 @@ model CausaRoom {
   status           String   @default("lobby")
   maxPlayers       Int      @default(10)
   createdById      String
-  materia          String?
+  rama             String?
   difficulty       String?
   timeLimitSeconds Int      @default(30)
   createdAt        DateTime @default(now())

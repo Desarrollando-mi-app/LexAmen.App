@@ -2,7 +2,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { CurriculumProgress } from "./components/curriculum-progress";
+import {
+  CurriculumProgress,
+  progressKey,
+} from "./components/curriculum-progress";
 import type { ProgressData } from "./components/curriculum-progress";
 import { ensureLeagueMembership } from "@/lib/league-assign";
 import { TIER_LABELS, TIER_EMOJIS, getDaysRemaining } from "@/lib/league";
@@ -95,7 +98,7 @@ export default async function DashboardPage() {
     masteredCount,
     reviewDatesRaw,
     pendingFlashcards,
-    flashcardsBySubmateria,
+    flashcardsByTitulo,
     dominatedRecords,
     curriculumProgressRecords,
     mcqCount,
@@ -141,22 +144,24 @@ export default async function DashboardPage() {
       },
     }),
 
-    // 4. Total flashcards por submateria
+    // 4. Total flashcards por rama/libro/titulo
     prisma.flashcard.groupBy({
-      by: ["submateria"],
+      by: ["rama", "libro", "titulo"],
       _count: { id: true },
     }),
 
-    // 5. Flashcards dominadas por submateria
+    // 5. Flashcards dominadas por rama/libro/titulo
     prisma.userFlashcardProgress.findMany({
       where: { userId: authUser.id, repetitions: { gte: 3 } },
-      select: { flashcard: { select: { submateria: true } } },
+      select: {
+        flashcard: { select: { rama: true, libro: true, titulo: true } },
+      },
     }),
 
     // 6. CurriculumProgress (vueltas)
     prisma.curriculumProgress.findMany({
       where: { userId: authUser.id },
-      select: { submateria: true, completions: true },
+      select: { rama: true, libro: true, titulo: true, completions: true },
     }),
 
     // 7. MCQs disponibles
@@ -315,36 +320,43 @@ export default async function DashboardPage() {
   );
 
   // ─── Calcular progressData ────────────────────────────────
-  const dominatedBySubmateria: Record<string, number> = {};
+  const flashcardTotalByKey: Record<string, number> = {};
+  for (const group of flashcardsByTitulo) {
+    const key = progressKey(group.rama, group.libro, group.titulo);
+    flashcardTotalByKey[key] = group._count.id;
+  }
+
+  const flashcardDominatedByKey: Record<string, number> = {};
   for (const record of dominatedRecords) {
-    const sub = record.flashcard.submateria;
-    dominatedBySubmateria[sub] = (dominatedBySubmateria[sub] ?? 0) + 1;
+    const { rama, libro, titulo } = record.flashcard;
+    const key = progressKey(rama, libro, titulo);
+    flashcardDominatedByKey[key] = (flashcardDominatedByKey[key] ?? 0) + 1;
   }
 
-  const totalBySubmateria: Record<string, number> = {};
-  for (const group of flashcardsBySubmateria) {
-    totalBySubmateria[group.submateria] = group._count.id;
-  }
-
-  const completionsBySubmateria: Record<string, number> = {};
+  const completionsByKey: Record<string, number> = {};
   for (const cp of curriculumProgressRecords) {
-    completionsBySubmateria[cp.submateria] = cp.completions;
+    const key = progressKey(cp.rama, cp.libro, cp.titulo);
+    completionsByKey[key] = cp.completions;
   }
 
-  const allSubmaterias = Array.from(
+  const allKeys = Array.from(
     new Set([
-      ...Object.keys(totalBySubmateria),
-      ...Object.keys(dominatedBySubmateria),
-      ...Object.keys(completionsBySubmateria),
+      ...Object.keys(flashcardTotalByKey),
+      ...Object.keys(flashcardDominatedByKey),
+      ...Object.keys(completionsByKey),
     ])
   );
 
   const progressData: ProgressData = {};
-  for (const sub of allSubmaterias) {
-    progressData[sub] = {
-      total: totalBySubmateria[sub] ?? 0,
-      dominated: dominatedBySubmateria[sub] ?? 0,
-      completions: completionsBySubmateria[sub] ?? 0,
+  for (const key of allKeys) {
+    progressData[key] = {
+      completions: completionsByKey[key] ?? 0,
+      flashcardTotal: flashcardTotalByKey[key] ?? 0,
+      flashcardDominated: flashcardDominatedByKey[key] ?? 0,
+      mcqTotal: 0,
+      mcqCorrect: 0,
+      tfTotal: 0,
+      tfCorrect: 0,
     };
   }
 

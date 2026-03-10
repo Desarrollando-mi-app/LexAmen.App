@@ -68,7 +68,7 @@ export async function GET(
     mode: room.mode,
     status: room.status,
     maxPlayers: room.maxPlayers,
-    materia: room.materia,
+    rama: room.rama,
     difficulty: room.difficulty,
     timeLimitSeconds: room.timeLimitSeconds,
     createdAt: room.createdAt.toISOString(),

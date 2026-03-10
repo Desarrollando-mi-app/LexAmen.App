@@ -92,7 +92,7 @@ export function CausasHub({
 
   // Modal crear sala
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [roomMateria, setRoomMateria] = useState("");
+  const [roomRama, setRoomRama] = useState("");
   const [roomDifficulty, setRoomDifficulty] = useState("");
   const [roomMaxPlayers, setRoomMaxPlayers] = useState(10);
   const [creatingRoom, setCreatingRoom] = useState(false);
@@ -206,7 +206,7 @@ export function CausasHub({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "individual",
-          materia: roomMateria || undefined,
+          rama: roomRama || undefined,
           difficulty: roomDifficulty || undefined,
           maxPlayers: roomMaxPlayers,
         }),
@@ -658,16 +658,16 @@ export function CausasHub({
 
             <div className="mt-5 space-y-4">
               <div>
-                <label className="text-sm font-medium text-navy/70">Materia</label>
+                <label className="text-sm font-medium text-navy/70">Rama</label>
                 <select
-                  value={roomMateria}
-                  onChange={(e) => setRoomMateria(e.target.value)}
+                  value={roomRama}
+                  onChange={(e) => setRoomRama(e.target.value)}
                   className="mt-1 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none"
                 >
                   <option value="">Todas</option>
-                  <option value="TEORIA_DE_LA_LEY">Teoría de la Ley</option>
-                  <option value="JURISDICCION_Y_COMPETENCIA">
-                    Jurisdicción y Competencia
+                  <option value="DERECHO_CIVIL">Derecho Civil</option>
+                  <option value="DERECHO_PROCESAL_CIVIL">
+                    Derecho Procesal Civil
                   </option>
                 </select>
               </div>

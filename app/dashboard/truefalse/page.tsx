@@ -8,77 +8,62 @@ const DAILY_FREE_LIMIT = 20;
 export default async function TrueFalsePage({
   searchParams,
 }: {
-  searchParams: { nivel?: string; materia?: string; submateria?: string };
+  searchParams: {
+    rama?: string;
+    libro?: string;
+    titulo?: string;
+    dificultad?: string;
+  };
 }) {
-  // 1. Autenticar
   const supabase = await createClient();
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
-  if (!authUser) {
-    redirect("/login");
-  }
+  if (!authUser) redirect("/login");
 
-  // 2. Obtener usuario con plan
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
     select: { firstName: true, plan: true },
   });
 
-  if (!dbUser) {
-    redirect("/login");
-  }
+  if (!dbUser) redirect("/login");
 
-  // 3. Contar intentos de hoy
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 
   const attemptsToday = await prisma.userTrueFalseAttempt.count({
-    where: {
-      userId: authUser.id,
-      attemptedAt: { gte: startOfToday },
-    },
+    where: { userId: authUser.id, attemptedAt: { gte: startOfToday } },
   });
 
-  // 4. Obtener todas las afirmaciones
-  const rawItems = await prisma.trueFalse.findMany({
-    orderBy: { id: "asc" },
-  });
+  const rawItems = await prisma.trueFalse.findMany({ orderBy: { id: "asc" } });
 
-  // 5. Serializar para el client component
   const items = rawItems.map((tf) => ({
     id: tf.id,
     statement: tf.statement,
     isTrue: tf.isTrue,
     explanation: tf.explanation,
-    unidad: tf.unidad,
-    materia: tf.materia,
-    submateria: tf.submateria,
-    tipo: tf.tipo,
-    nivel: tf.nivel,
+    rama: tf.rama,
+    codigo: tf.codigo,
+    libro: tf.libro,
+    titulo: tf.titulo,
+    parrafo: tf.parrafo,
+    dificultad: tf.dificultad,
   }));
-
-  // 6. Extraer materias, submaterias y niveles únicos
-  const materias = Array.from(new Set(rawItems.map((tf) => tf.materia)));
-  const submaterias = Array.from(new Set(rawItems.map((tf) => tf.submateria)));
-  const niveles = Array.from(new Set(rawItems.map((tf) => tf.nivel)));
 
   return (
     <main className="min-h-screen bg-paper">
       <div className="mx-auto max-w-3xl px-6 py-8">
         <TrueFalseViewer
           items={items}
-          materias={materias}
-          submaterias={submaterias}
-          niveles={niveles}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_FREE_LIMIT}
           isPremium={dbUser.plan !== "FREE"}
           initialFilters={{
-            nivel: searchParams.nivel,
-            materia: searchParams.materia,
-            submateria: searchParams.submateria,
+            rama: searchParams.rama,
+            libro: searchParams.libro,
+            titulo: searchParams.titulo,
+            dificultad: searchParams.dificultad,
           }}
         />
       </div>

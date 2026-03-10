@@ -1,214 +1,98 @@
 "use client";
 
 import { useState } from "react";
+import {
+  CURRICULUM,
+  RAMA_LABELS,
+  type SeccionNode,
+} from "@/lib/curriculum-data";
 
 // ─── Tipos ──────────────────────────────────────────────────
 
-type SubmatProgress = {
-  total: number;
-  dominated: number;
+/** Progreso por titulo (keyed "RAMA|LIBRO|TITULO_ID") */
+export type TituloProgress = {
   completions: number;
+  flashcardTotal: number;
+  flashcardDominated: number;
+  mcqTotal: number;
+  mcqCorrect: number;
+  tfTotal: number;
+  tfCorrect: number;
 };
 
-export type ProgressData = Record<string, SubmatProgress>;
+export type ProgressData = Record<string, TituloProgress>;
 
-type Titulo = {
-  label: string;
-  submaterias: string[];
-};
+// ─── Helpers ────────────────────────────────────────────────
 
-type Materia = {
-  label: string;
-  titulos: Titulo[];
-};
-
-type Unidad = {
-  unidad: string;
-  label: string;
-  materias: Materia[];
-};
-
-// ─── Mapa curricular ───────────────────────────────────────
-
-const CURRICULUM: Unidad[] = [
-  {
-    unidad: "DERECHO_CIVIL_1",
-    label: "Unidad 1 — Derecho Civil I",
-    materias: [
-      {
-        label: "El Derecho, el Ordenamiento Jurídico y la Ley",
-        titulos: [
-          {
-            label: "El Derecho y el Ordenamiento Jurídico",
-            submaterias: [
-              "REGULACION_CONDUCTA",
-              "CONCEPTO_DERECHO",
-              "ORDENAMIENTO_JURIDICO",
-              "NORMA_JURIDICA",
-              "COMPONENTES_NORMA",
-              "TAXONOMIA_NORMAS",
-              "COSTUMBRE_JURISPRUDENCIA",
-              "ESTADO_DE_DERECHO",
-            ],
-          },
-          {
-            label: "Teoría de la Ley",
-            submaterias: [
-              "ORIGEN_DEFINICION_LEY",
-              "REQUISITOS_CARACTERISTICAS",
-              "CLASIFICACION_LEYES",
-              "JERARQUIA_NORMAS",
-              "CONSTITUCIONALIDAD",
-              "POTESTAD_REGLAMENTARIA",
-              "DECRETOS_Y_DFL",
-              "INTERPRETACION_LEY",
-              "INTEGRACION_LEY",
-              "EFECTOS_LEY",
-            ],
-          },
-          {
-            label: "El Derecho Civil y su Codificación",
-            submaterias: [
-              "CONCEPTO_ORIGEN_DERECHO_CIVIL",
-              "CODIFICACION_CODIGO_CIVIL",
-              "ESTRUCTURA_PROYECCION",
-              "PRINCIPIOS_FUNDAMENTALES",
-              "DERECHO_CIVIL_ACTUALIDAD",
-            ],
-          },
-          {
-            label: "La relación jurídica, el deber y los derechos subjetivos",
-            submaterias: [
-              "RELACION_JURIDICA",
-              "TEORIA_DERECHOS_SUBJETIVOS",
-              "CLASIFICACION_DERECHOS",
-              "DINAMICA_DERECHOS",
-              "EJERCICIO_Y_LIMITES",
-            ],
-          },
-        ],
-      },
-      {
-        label: "Los Sujetos de Derecho",
-        titulos: [
-          {
-            label: "Las Personas Naturales",
-            submaterias: ["PERSONA_NATURAL", "MUERTE_PRESUNTA"],
-          },
-          {
-            label: "Las Personas Jurídicas",
-            submaterias: ["NATURALEZA_CLASIFICACION", "RESPONSABILIDAD"],
-          },
-          {
-            label: "Los Atributos de la Personalidad",
-            submaterias: [
-              "ATRIBUTOS_PERSONALIDAD",
-              "NOMBRE_ESTADO_CIVIL",
-              "CAPACIDAD_PATRIMONIO",
-              "DOMICILIO",
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    unidad: "DERECHO_CIVIL_2",
-    label: "Unidad 2 — Acto Jurídico",
-    materias: [],
-  },
-  {
-    unidad: "DERECHO_CIVIL_3",
-    label: "Unidad 3 — Derecho de Bienes",
-    materias: [],
-  },
-];
-
-// ─── Labels legibles para submaterias ──────────────────────
-
-const SUBMATERIA_LABELS: Record<string, string> = {
-  REGULACION_CONDUCTA: "Regulación de la Conducta",
-  CONCEPTO_DERECHO: "Concepto de Derecho",
-  ORDENAMIENTO_JURIDICO: "Ordenamiento Jurídico",
-  NORMA_JURIDICA: "Norma Jurídica",
-  COMPONENTES_NORMA: "Componentes de la Norma",
-  TAXONOMIA_NORMAS: "Taxonomía de las Normas",
-  COSTUMBRE_JURISPRUDENCIA: "Costumbre y Jurisprudencia",
-  ESTADO_DE_DERECHO: "Estado de Derecho",
-  ORIGEN_DEFINICION_LEY: "Origen y Definición de la Ley",
-  REQUISITOS_CARACTERISTICAS: "Requisitos y Características",
-  CLASIFICACION_LEYES: "Clasificación de las Leyes",
-  JERARQUIA_NORMAS: "Jerarquía de las Normas",
-  CONSTITUCIONALIDAD: "Constitucionalidad",
-  POTESTAD_REGLAMENTARIA: "Potestad Reglamentaria",
-  DECRETOS_Y_DFL: "Decretos y DFL",
-  INTERPRETACION_LEY: "Interpretación de la Ley",
-  INTEGRACION_LEY: "Integración de la Ley",
-  EFECTOS_LEY: "Efectos de la Ley",
-  CONCEPTO_ORIGEN_DERECHO_CIVIL: "Concepto y Origen del Derecho Civil",
-  CODIFICACION_CODIGO_CIVIL: "Codificación y Código Civil",
-  ESTRUCTURA_PROYECCION: "Estructura y Proyección",
-  PRINCIPIOS_FUNDAMENTALES: "Principios Fundamentales",
-  DERECHO_CIVIL_ACTUALIDAD: "Derecho Civil en la Actualidad",
-  RELACION_JURIDICA: "La Relación Jurídica",
-  TEORIA_DERECHOS_SUBJETIVOS: "Teoría de los Derechos Subjetivos",
-  CLASIFICACION_DERECHOS: "Clasificación de los Derechos",
-  DINAMICA_DERECHOS: "Dinámica de los Derechos",
-  EJERCICIO_Y_LIMITES: "Ejercicio y Límites de los Derechos",
-  PERSONA_NATURAL: "Persona Natural",
-  MUERTE_PRESUNTA: "Muerte Presunta",
-  NATURALEZA_CLASIFICACION: "Naturaleza y Clasificación",
-  RESPONSABILIDAD: "Responsabilidad",
-  ATRIBUTOS_PERSONALIDAD: "Atributos de la Personalidad",
-  NOMBRE_ESTADO_CIVIL: "Nombre y Estado Civil",
-  CAPACIDAD_PATRIMONIO: "Capacidad y Patrimonio",
-  DOMICILIO: "Domicilio",
-};
-
-// ─── Funciones de cálculo ──────────────────────────────────
-
-function getSubPercent(data: ProgressData, sub: string): number {
-  const d = data[sub];
-  if (!d || d.total === 0) return 0;
-  return Math.round((d.dominated / d.total) * 100);
+function progressKey(rama: string, libro: string, tituloId: string): string {
+  return `${rama}|${libro}|${tituloId}`;
 }
 
-function getTituloPercent(data: ProgressData, titulo: Titulo): number {
-  const subs = titulo.submaterias.filter(
-    (s) => data[s] && data[s].total > 0
-  );
-  if (subs.length === 0) return 0;
-  return Math.round(subs.reduce((sum, s) => sum + getSubPercent(data, s), 0) / subs.length);
+function getFlashcardPercent(p: TituloProgress | undefined): number {
+  if (!p || p.flashcardTotal === 0) return 0;
+  return Math.round((p.flashcardDominated / p.flashcardTotal) * 100);
 }
 
-function getMateriaPercent(data: ProgressData, materia: Materia): number {
-  const tits = materia.titulos.filter((t) =>
-    t.submaterias.some((s) => data[s] && data[s].total > 0)
+function getMcqPercent(p: TituloProgress | undefined): number {
+  if (!p || p.mcqTotal === 0) return 0;
+  return Math.round((p.mcqCorrect / p.mcqTotal) * 100);
+}
+
+function getTfPercent(p: TituloProgress | undefined): number {
+  if (!p || p.tfTotal === 0) return 0;
+  return Math.round((p.tfCorrect / p.tfTotal) * 100);
+}
+
+function getOverallPercent(p: TituloProgress | undefined): number {
+  if (!p) return 0;
+  const parts: number[] = [];
+  if (p.flashcardTotal > 0) parts.push(getFlashcardPercent(p));
+  if (p.mcqTotal > 0) parts.push(getMcqPercent(p));
+  if (p.tfTotal > 0) parts.push(getTfPercent(p));
+  if (parts.length === 0) return 0;
+  return Math.round(parts.reduce((a, b) => a + b, 0) / parts.length);
+}
+
+function getLibroPercent(
+  data: ProgressData,
+  ramaKey: string,
+  seccion: SeccionNode
+): number {
+  if (seccion.titulos.length === 0) return 0;
+  const percents = seccion.titulos.map((t) =>
+    getOverallPercent(data[progressKey(ramaKey, seccion.libro, t.id)])
   );
-  if (tits.length === 0) return 0;
+  const withContent = percents.filter((_, i) => {
+    const p = data[progressKey(ramaKey, seccion.libro, seccion.titulos[i].id)];
+    return p && (p.flashcardTotal > 0 || p.mcqTotal > 0 || p.tfTotal > 0);
+  });
+  if (withContent.length === 0) return 0;
   return Math.round(
-    tits.reduce((sum, t) => sum + getTituloPercent(data, t), 0) / tits.length
+    withContent.reduce((a, b) => a + b, 0) / withContent.length
   );
 }
 
-function getUnidadPercent(data: ProgressData, unidad: Unidad): number {
-  if (unidad.materias.length === 0) return 0;
-  const mats = unidad.materias.filter((m) =>
-    m.titulos.some((t) =>
-      t.submaterias.some((s) => data[s] && data[s].total > 0)
-    )
+function getRamaPercent(data: ProgressData, ramaKey: string): number {
+  const rama = CURRICULUM[ramaKey];
+  if (!rama) return 0;
+  const libroPercents = rama.secciones.map((s) =>
+    getLibroPercent(data, ramaKey, s)
   );
-  if (mats.length === 0) return 0;
+  const withContent = libroPercents.filter((p) => p > 0);
+  if (withContent.length === 0) return 0;
   return Math.round(
-    mats.reduce((sum, m) => sum + getMateriaPercent(data, m), 0) / mats.length
+    withContent.reduce((a, b) => a + b, 0) / withContent.length
   );
 }
 
-function getMaxCompletions(data: ProgressData, submaterias: string[]): number {
-  return submaterias.reduce(
-    (max, s) => Math.max(max, data[s]?.completions ?? 0),
-    0
-  );
+function hasTituloContent(
+  data: ProgressData,
+  ramaKey: string,
+  libro: string,
+  tituloId: string
+): boolean {
+  const p = data[progressKey(ramaKey, libro, tituloId)];
+  return !!p && (p.flashcardTotal > 0 || p.mcqTotal > 0 || p.tfTotal > 0);
 }
 
 // ─── Chevron icon ──────────────────────────────────────────
@@ -255,252 +139,311 @@ function ProgressBar({
   );
 }
 
-// ─── Badge de vuelta ───────────────────────────────────────
+// ─── Progress pills ────────────────────────────────────────
+
+function ProgressPills({ progress }: { progress: TituloProgress | undefined }) {
+  if (!progress) return null;
+  const { flashcardTotal, mcqTotal, tfTotal } = progress;
+  if (flashcardTotal === 0 && mcqTotal === 0 && tfTotal === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {flashcardTotal > 0 && (
+        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-800">
+          Flashcards {getFlashcardPercent(progress)}%
+        </span>
+      )}
+      {mcqTotal > 0 && (
+        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-800">
+          MCQ {getMcqPercent(progress)}%
+        </span>
+      )}
+      {tfTotal > 0 && (
+        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-800">
+          V/F {getTfPercent(progress)}%
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ─── Vuelta badge ──────────────────────────────────────────
 
 function VueltaBadge({ completions }: { completions: number }) {
   if (completions < 1) return null;
   return (
-    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-xs font-semibold text-gold">
+    <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold">
       Vuelta {completions + 1}
     </span>
   );
 }
 
+// ─── Status icon ───────────────────────────────────────────
+
+function StatusIcon({ percent }: { percent: number }) {
+  if (percent >= 100) {
+    return <span className="text-green-500 text-sm shrink-0">&#10003;</span>;
+  }
+  if (percent > 0) {
+    return <span className="text-gold text-sm shrink-0">&#9679;</span>;
+  }
+  return <span className="text-navy/20 text-sm shrink-0">&#9675;</span>;
+}
+
 // ─── Componente principal ──────────────────────────────────
+
+export { progressKey };
 
 export function CurriculumProgress({
   progressData,
 }: {
   progressData: ProgressData;
 }) {
-  const [openUnidad, setOpenUnidad] = useState<string | null>(
-    "DERECHO_CIVIL_1"
-  );
-  const [openMateria, setOpenMateria] = useState<string | null>(null);
+  const [openRama, setOpenRama] = useState<string | null>("DERECHO_CIVIL");
+  const [openLibro, setOpenLibro] = useState<string | null>(null);
   const [openTitulo, setOpenTitulo] = useState<string | null>(null);
+
+  const ramaKeys = Object.keys(CURRICULUM);
 
   return (
     <div className="space-y-3">
-      {CURRICULUM.map((unidad) => {
-        const isUnidadOpen = openUnidad === unidad.unidad;
-        const unidadPercent = getUnidadPercent(progressData, unidad);
+      {ramaKeys.map((ramaKey) => {
+        const rama = CURRICULUM[ramaKey];
+        const isRamaOpen = openRama === ramaKey;
+        const ramaPercent = getRamaPercent(progressData, ramaKey);
 
         return (
           <div
-            key={unidad.unidad}
+            key={ramaKey}
             className="overflow-hidden rounded-xl border border-border bg-white"
           >
-            {/* Header unidad */}
+            {/* Header rama */}
             <button
-              onClick={() =>
-                setOpenUnidad(isUnidadOpen ? null : unidad.unidad)
-              }
+              onClick={() => setOpenRama(isRamaOpen ? null : ramaKey)}
               className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-paper/50"
             >
-              <Chevron open={isUnidadOpen} />
+              <Chevron open={isRamaOpen} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-navy">
-                    {unidad.label}
+                    {RAMA_LABELS[ramaKey] ?? rama.label}
                   </span>
-                  {unidadPercent > 0 && (
+                  {ramaPercent > 0 && (
                     <span className="text-xs text-navy/40">
-                      {unidadPercent}%
+                      {ramaPercent}%
                     </span>
                   )}
                 </div>
-                {unidad.materias.length > 0 && (
-                  <div className="mt-1.5">
-                    <ProgressBar percent={unidadPercent} size="sm" />
-                  </div>
-                )}
+                <div className="mt-1.5">
+                  <ProgressBar percent={ramaPercent} size="sm" />
+                </div>
               </div>
             </button>
 
-            {/* Contenido unidad */}
-            {isUnidadOpen && (
+            {/* Contenido rama — libros */}
+            {isRamaOpen && (
               <div className="border-t border-border/50 px-5 pb-4">
-                {unidad.materias.length === 0 ? (
-                  <p className="py-4 text-center text-sm italic text-navy/30">
-                    Proximamente
-                  </p>
-                ) : (
-                  <div className="mt-2 space-y-2">
-                    {unidad.materias.map((materia, mIdx) => {
-                      const materiaKey = `${unidad.unidad}-m${mIdx}`;
-                      const isMateriaOpen = openMateria === materiaKey;
-                      const materiaPercent = getMateriaPercent(
+                <div className="mt-2 space-y-2">
+                  {rama.secciones.map((seccion) => {
+                    const libroKey = `${ramaKey}:${seccion.libro}`;
+                    const isLibroOpen = openLibro === libroKey;
+                    const libroPercent = getLibroPercent(
+                      progressData,
+                      ramaKey,
+                      seccion
+                    );
+                    const titulosWithContent = seccion.titulos.filter((t) =>
+                      hasTituloContent(
                         progressData,
-                        materia
-                      );
+                        ramaKey,
+                        seccion.libro,
+                        t.id
+                      )
+                    );
 
-                      return (
-                        <div
-                          key={materiaKey}
-                          className="rounded-lg border border-border/40 bg-paper/30"
+                    return (
+                      <div
+                        key={libroKey}
+                        className="rounded-lg border border-border/40 bg-paper/30"
+                      >
+                        {/* Header libro */}
+                        <button
+                          onClick={() =>
+                            setOpenLibro(isLibroOpen ? null : libroKey)
+                          }
+                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-paper/60"
                         >
-                          {/* Header materia */}
-                          <button
-                            onClick={() =>
-                              setOpenMateria(
-                                isMateriaOpen ? null : materiaKey
-                              )
-                            }
-                            className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-paper/60"
-                          >
-                            <Chevron open={isMateriaOpen} />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-navy/80">
-                                  {materia.label}
-                                </span>
-                                <span className="text-xs text-navy/40">
-                                  {materiaPercent}%
-                                </span>
-                              </div>
-                              <div className="mt-1">
-                                <ProgressBar
-                                  percent={materiaPercent}
-                                  size="sm"
-                                />
-                              </div>
+                          <Chevron open={isLibroOpen} />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-navy/80">
+                                {seccion.label}
+                              </span>
+                              <span className="text-xs text-navy/40">
+                                {titulosWithContent.length}/
+                                {seccion.titulos.length}
+                              </span>
                             </div>
-                          </button>
+                            <div className="mt-1">
+                              <ProgressBar percent={libroPercent} size="sm" />
+                            </div>
+                          </div>
+                        </button>
 
-                          {/* Contenido materia */}
-                          {isMateriaOpen && (
-                            <div className="border-t border-border/30 px-4 pb-3">
-                              <div className="mt-2 space-y-2">
-                                {materia.titulos.map((titulo, tIdx) => {
-                                  const tituloKey = `${materiaKey}-t${tIdx}`;
-                                  const isTituloOpen =
-                                    openTitulo === tituloKey;
-                                  const tituloPercent = getTituloPercent(
-                                    progressData,
-                                    titulo
-                                  );
-                                  const allSubs = titulo.submaterias.flatMap(
-                                    (s) => s
-                                  );
-                                  const maxComp = getMaxCompletions(
-                                    progressData,
-                                    allSubs
-                                  );
+                        {/* Contenido libro — titulos */}
+                        {isLibroOpen && (
+                          <div className="border-t border-border/30 px-4 pb-3">
+                            <div className="mt-2 space-y-1.5">
+                              {seccion.titulos.map((titulo) => {
+                                const tKey = `${libroKey}:${titulo.id}`;
+                                const pKey = progressKey(
+                                  ramaKey,
+                                  seccion.libro,
+                                  titulo.id
+                                );
+                                const p = progressData[pKey];
+                                const overallPct = getOverallPercent(p);
+                                const hasParrafos =
+                                  titulo.parrafos && titulo.parrafos.length > 0;
+                                const isTituloOpen = openTitulo === tKey;
+                                const hasContent = hasTituloContent(
+                                  progressData,
+                                  ramaKey,
+                                  seccion.libro,
+                                  titulo.id
+                                );
 
-                                  return (
-                                    <div
-                                      key={tituloKey}
-                                      className="rounded-md border border-border/30 bg-white/60"
+                                return (
+                                  <div
+                                    key={tKey}
+                                    className="rounded-md border border-border/20 bg-white/60"
+                                  >
+                                    <button
+                                      onClick={() =>
+                                        hasParrafos
+                                          ? setOpenTitulo(
+                                              isTituloOpen ? null : tKey
+                                            )
+                                          : undefined
+                                      }
+                                      className={`flex w-full items-center gap-2 px-3 py-2 text-left ${
+                                        hasParrafos
+                                          ? "cursor-pointer hover:bg-paper/40"
+                                          : "cursor-default"
+                                      } transition-colors`}
                                     >
-                                      {/* Header título */}
-                                      <button
-                                        onClick={() =>
-                                          setOpenTitulo(
-                                            isTituloOpen ? null : tituloKey
-                                          )
-                                        }
-                                        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left transition-colors hover:bg-paper/40"
-                                      >
+                                      <StatusIcon percent={overallPct} />
+                                      {hasParrafos && (
                                         <Chevron open={isTituloOpen} />
-                                        <div className="min-w-0 flex-1">
-                                          <div className="flex items-center gap-2">
-                                            <span className="text-xs font-medium text-navy/70">
-                                              {titulo.label}
-                                            </span>
-                                            {titulo.submaterias.length > 0 && (
-                                              <span className="text-xs text-navy/35">
-                                                {tituloPercent}%
+                                      )}
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                          <span
+                                            className={`text-xs font-medium ${
+                                              hasContent
+                                                ? overallPct >= 100
+                                                  ? "text-green-700"
+                                                  : "text-navy/70"
+                                                : "text-navy/35"
+                                            }`}
+                                          >
+                                            {titulo.label}
+                                          </span>
+                                          {titulo.leyesAnexas &&
+                                            titulo.leyesAnexas.length > 0 && (
+                                              <span className="text-[9px] text-navy/30">
+                                                +{titulo.leyesAnexas.length} ley
+                                                {titulo.leyesAnexas.length > 1
+                                                  ? "es"
+                                                  : ""}
                                               </span>
                                             )}
-                                            {maxComp >= 1 && (
-                                              <VueltaBadge
-                                                completions={maxComp}
-                                              />
-                                            )}
-                                          </div>
-                                          {titulo.submaterias.length > 0 && (
-                                            <div className="mt-1">
-                                              <ProgressBar
-                                                percent={tituloPercent}
-                                                size="sm"
-                                              />
-                                            </div>
+                                          {p && p.completions >= 1 && (
+                                            <VueltaBadge
+                                              completions={p.completions}
+                                            />
                                           )}
                                         </div>
-                                      </button>
+                                        {hasContent && (
+                                          <div className="mt-1">
+                                            <ProgressPills progress={p} />
+                                          </div>
+                                        )}
+                                      </div>
+                                    </button>
 
-                                      {/* Contenido título — submaterias */}
-                                      {isTituloOpen && (
-                                        <div className="border-t border-border/20 px-3 pb-3">
-                                          {titulo.submaterias.length === 0 ? (
-                                            <p className="py-3 text-center text-xs italic text-navy/25">
-                                              Sin contenido aun
-                                            </p>
-                                          ) : (
-                                            <div className="mt-2 space-y-3">
-                                              {titulo.submaterias.map(
-                                                (sub) => {
-                                                  const d =
-                                                    progressData[sub];
-                                                  const pct =
-                                                    getSubPercent(
-                                                      progressData,
-                                                      sub
-                                                    );
-                                                  const comp =
-                                                    d?.completions ?? 0;
-                                                  const total =
-                                                    d?.total ?? 0;
-                                                  const dom =
-                                                    d?.dominated ?? 0;
-
-                                                  return (
-                                                    <div key={sub}>
-                                                      <div className="mb-1 flex items-center justify-between">
-                                                        <div className="flex items-center gap-1.5">
-                                                          <span className="text-xs font-medium text-navy/60">
-                                                            {SUBMATERIA_LABELS[
-                                                              sub
-                                                            ] ?? sub}
-                                                          </span>
-                                                          {comp >= 1 && (
-                                                            <VueltaBadge
-                                                              completions={
-                                                                comp
-                                                              }
-                                                            />
-                                                          )}
-                                                        </div>
-                                                        <span className="text-xs text-navy/35">
-                                                          {total > 0
-                                                            ? `${dom}/${total} · ${pct}%`
-                                                            : "Sin contenido aun"}
-                                                        </span>
-                                                      </div>
-                                                      {total > 0 && (
-                                                        <ProgressBar
-                                                          percent={pct}
-                                                        />
-                                                      )}
+                                    {/* Parrafos expandidos */}
+                                    {isTituloOpen &&
+                                      hasParrafos &&
+                                      titulo.parrafos && (
+                                        <div className="border-t border-border/15 px-3 pb-2">
+                                          <div className="mt-1.5 space-y-1 pl-6">
+                                            {titulo.parrafos.map((par) => (
+                                              <div
+                                                key={par}
+                                                className="flex items-center gap-2 py-0.5"
+                                              >
+                                                <span className="text-navy/20 text-[10px]">
+                                                  &#8226;
+                                                </span>
+                                                <span className="text-[11px] text-navy/50">
+                                                  {par}
+                                                </span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                          {titulo.leyesAnexas &&
+                                            titulo.leyesAnexas.length > 0 && (
+                                              <div className="mt-1.5 pl-6 space-y-0.5">
+                                                {titulo.leyesAnexas.map(
+                                                  (la) => (
+                                                    <div
+                                                      key={la.ley}
+                                                      className="flex items-center gap-1.5"
+                                                    >
+                                                      <span className="text-[10px] text-navy/25">
+                                                        &#128206;
+                                                      </span>
+                                                      <span className="text-[10px] text-navy/40">
+                                                        {la.ley} — {la.label}
+                                                      </span>
                                                     </div>
-                                                  );
-                                                }
-                                              )}
-                                            </div>
-                                          )}
+                                                  )
+                                                )}
+                                              </div>
+                                            )}
                                         </div>
                                       )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
+                                  </div>
+                                );
+                              })}
+
+                              {/* Leyes anexas de la seccion */}
+                              {seccion.leyesAnexas &&
+                                seccion.leyesAnexas.length > 0 && (
+                                  <div className="mt-2 pl-2 space-y-0.5">
+                                    {seccion.leyesAnexas.map((la) => (
+                                      <div
+                                        key={la.ley}
+                                        className="flex items-center gap-1.5"
+                                      >
+                                        <span className="text-[10px] text-navy/25">
+                                          &#128206;
+                                        </span>
+                                        <span className="text-[10px] text-navy/40">
+                                          {la.ley} — {la.label}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

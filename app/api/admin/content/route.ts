@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import type { Rama, Codigo, Libro } from "@/app/generated/prisma/client";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
@@ -34,14 +35,14 @@ export async function GET(request: NextRequest) {
           OR: [
             { front: { contains: search, mode: "insensitive" as const } },
             { back: { contains: search, mode: "insensitive" as const } },
-            { materia: { contains: search, mode: "insensitive" as const } },
+            { titulo: { contains: search, mode: "insensitive" as const } },
           ],
         }
       : {};
     const [items, total] = await Promise.all([
       prisma.flashcard.findMany({
         where,
-        orderBy: { materia: "asc" },
+        orderBy: { rama: "asc" },
         skip,
         take: limit,
       }),
@@ -60,14 +61,14 @@ export async function GET(request: NextRequest) {
       ? {
           OR: [
             { question: { contains: search, mode: "insensitive" as const } },
-            { materia: { contains: search, mode: "insensitive" as const } },
+            { titulo: { contains: search, mode: "insensitive" as const } },
           ],
         }
       : {};
     const [items, total] = await Promise.all([
       prisma.mCQ.findMany({
         where,
-        orderBy: { materia: "asc" },
+        orderBy: { rama: "asc" },
         skip,
         take: limit,
       }),
@@ -136,11 +137,14 @@ export async function POST(request: NextRequest) {
       data: {
         front: data.front as string,
         back: data.back as string,
-        unidad: data.unidad as string,
-        materia: data.materia as string,
-        submateria: data.submateria as string,
-        tipo: data.tipo as "CIVIL" | "PROCESAL",
-        nivel: (data.nivel as string) ?? "BASICO",
+        rama: data.rama as Rama,
+        codigo: data.codigo as Codigo,
+        libro: data.libro as Libro,
+        titulo: data.titulo as string,
+        parrafo: (data.parrafo as string) || null,
+        leyAnexa: (data.leyAnexa as string) || null,
+        articuloRef: (data.articuloRef as string) || null,
+        dificultad: (data.dificultad as string) ?? "BASICO",
       },
     });
     await prisma.adminLog.create({
@@ -163,11 +167,12 @@ export async function POST(request: NextRequest) {
         optionD: data.optionD as string,
         correctOption: data.correctOption as string,
         explanation: (data.explanation as string) ?? null,
-        unidad: data.unidad as string,
-        materia: data.materia as string,
-        submateria: data.submateria as string,
-        tipo: data.tipo as "CIVIL" | "PROCESAL",
-        nivel: (data.nivel as string) ?? "BASICO",
+        rama: data.rama as Rama,
+        codigo: data.codigo as Codigo,
+        libro: data.libro as Libro,
+        titulo: data.titulo as string,
+        parrafo: (data.parrafo as string) || null,
+        dificultad: (data.dificultad as string) ?? "BASICO",
       },
     });
     await prisma.adminLog.create({

@@ -8,7 +8,13 @@ const DAILY_FREE_LIMIT = 30;
 export default async function FlashcardsPage({
   searchParams,
 }: {
-  searchParams: { nivel?: string; materia?: string; submateria?: string; mode?: string };
+  searchParams: {
+    rama?: string;
+    libro?: string;
+    titulo?: string;
+    dificultad?: string;
+    mode?: string;
+  };
 }) {
   // 1. Autenticar
   const supabase = await createClient();
@@ -71,11 +77,14 @@ export default async function FlashcardsPage({
     id: fc.id,
     front: fc.front,
     back: fc.back,
-    unidad: fc.unidad,
-    materia: fc.materia,
-    submateria: fc.submateria,
-    tipo: fc.tipo,
-    nivel: fc.nivel,
+    rama: fc.rama,
+    codigo: fc.codigo,
+    libro: fc.libro,
+    titulo: fc.titulo,
+    parrafo: fc.parrafo,
+    leyAnexa: fc.leyAnexa,
+    articuloRef: fc.articuloRef,
+    dificultad: fc.dificultad,
     isFavorite: favSet.has(fc.id),
     progress: fc.progress[0]
       ? {
@@ -87,27 +96,20 @@ export default async function FlashcardsPage({
       : null,
   }));
 
-  // 6. Extraer materias, submaterias y niveles únicos
-  const materias = Array.from(new Set(rawFlashcards.map((fc) => fc.materia)));
-  const submaterias = Array.from(new Set(rawFlashcards.map((fc) => fc.submateria)));
-  const niveles = Array.from(new Set(rawFlashcards.map((fc) => fc.nivel)));
-
   return (
     <main className="min-h-screen bg-paper">
       <div className="mx-auto max-w-3xl px-6 py-8">
         <FlashcardViewer
           flashcards={flashcards}
           favoriteIds={favoriteIds}
-          materias={materias}
-          submaterias={submaterias}
-          niveles={niveles}
           reviewsToday={reviewsToday}
           dailyLimit={DAILY_FREE_LIMIT}
           isPremium={dbUser.plan !== "FREE"}
           initialFilters={{
-            nivel: searchParams.nivel,
-            materia: searchParams.materia,
-            submateria: searchParams.submateria,
+            rama: searchParams.rama,
+            libro: searchParams.libro,
+            titulo: searchParams.titulo,
+            dificultad: searchParams.dificultad,
             mode: searchParams.mode,
           }}
         />

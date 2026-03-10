@@ -77,10 +77,10 @@ export async function POST(request: Request) {
     );
   }
 
-  // 6. Buscar MCQ (incluyendo nivel para cálculo de XP)
+  // 6. Buscar MCQ (incluyendo dificultad para cálculo de XP)
   const mcq = await prisma.mCQ.findUnique({
     where: { id: mcqId },
-    select: { correctOption: true, explanation: true, nivel: true },
+    select: { correctOption: true, explanation: true, dificultad: true },
   });
 
   if (!mcq) {
@@ -90,9 +90,9 @@ export async function POST(request: Request) {
     );
   }
 
-  // 7. Evaluar respuesta y calcular XP por nivel
+  // 7. Evaluar respuesta y calcular XP por dificultad
   const isCorrect = selectedOption === mcq.correctOption;
-  const baseXP = calculateXP("MCQ", mcq.nivel, isCorrect);
+  const baseXP = calculateXP("MCQ", mcq.dificultad, isCorrect);
   const streakBonus = isCorrect ? calculateStreakBonus(streak ?? 0) : 0;
   const xpGained = baseXP + streakBonus;
 

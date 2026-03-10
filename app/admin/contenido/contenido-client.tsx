@@ -8,11 +8,12 @@ interface FlashcardItem {
   id: string;
   front: string;
   back: string;
-  unidad: string;
-  materia: string;
-  submateria: string;
-  tipo: string;
-  nivel: string;
+  rama: string;
+  codigo: string;
+  libro: string;
+  titulo: string;
+  parrafo: string | null;
+  dificultad: string;
 }
 
 interface MCQItem {
@@ -24,9 +25,11 @@ interface MCQItem {
   optionD: string;
   correctOption: string;
   explanation: string | null;
-  materia: string;
-  submateria: string;
-  tipo: string;
+  rama: string;
+  codigo: string;
+  libro: string;
+  titulo: string;
+  dificultad: string;
 }
 
 interface ReportItem {
@@ -178,15 +181,15 @@ export function ContenidoClient() {
                   <p className="text-xs text-navy/50 truncate mt-0.5">
                     {fc.back}
                   </p>
-                  <div className="mt-1 flex gap-2">
+                  <div className="mt-1 flex flex-wrap gap-2">
                     <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
-                      {fc.materia}
+                      {fc.rama}
                     </span>
                     <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
-                      {fc.tipo}
+                      {fc.libro}
                     </span>
                     <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
-                      {fc.nivel}
+                      {fc.dificultad}
                     </span>
                   </div>
                 </div>
@@ -246,12 +249,15 @@ export function ContenidoClient() {
                       D: {q.optionD}
                     </span>
                   </div>
-                  <div className="mt-1 flex gap-2">
+                  <div className="mt-1 flex flex-wrap gap-2">
                     <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
-                      {q.materia}
+                      {q.rama}
                     </span>
                     <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
-                      {q.tipo}
+                      {q.libro}
+                    </span>
+                    <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
+                      {q.dificultad}
                     </span>
                   </div>
                 </div>
@@ -478,28 +484,45 @@ function AddContentModal({
 
           {/* Common fields */}
           <div className="grid grid-cols-2 gap-3">
-            <input
-              name="materia"
-              required
-              placeholder="Materia"
-              className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
-            />
-            <input
-              name="submateria"
-              required
-              placeholder="Submateria"
-              className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
-            />
             <select
-              name="tipo"
+              name="rama"
               required
               className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
             >
-              <option value="CIVIL">Civil</option>
-              <option value="PROCESAL">Procesal</option>
+              <option value="">Rama…</option>
+              <option value="DERECHO_CIVIL">Derecho Civil</option>
+              <option value="DERECHO_PROCESAL_CIVIL">Derecho Procesal Civil</option>
             </select>
             <select
-              name="nivel"
+              name="codigo"
+              required
+              className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
+            >
+              <option value="">Código…</option>
+              <option value="CODIGO_CIVIL">Código Civil</option>
+              <option value="CODIGO_PROCEDIMIENTO_CIVIL">Código de Procedimiento Civil</option>
+              <option value="LEY_ANEXA">Ley Anexa</option>
+            </select>
+            <select
+              name="libro"
+              required
+              className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
+            >
+              <option value="">Libro…</option>
+              <option value="MENSAJE">Mensaje</option>
+              <option value="TITULO_PRELIMINAR">Título Preliminar</option>
+              <option value="LIBRO_I">Libro I</option>
+              <option value="LIBRO_II">Libro II</option>
+              <option value="LIBRO_III">Libro III</option>
+              <option value="LIBRO_IV">Libro IV</option>
+              <option value="TITULO_FINAL">Título Final</option>
+              <option value="LIBRO_I_CPC">Libro I CPC</option>
+              <option value="LIBRO_II_CPC">Libro II CPC</option>
+              <option value="LIBRO_III_CPC">Libro III CPC</option>
+              <option value="LIBRO_IV_CPC">Libro IV CPC</option>
+            </select>
+            <select
+              name="dificultad"
               className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
             >
               <option value="BASICO">Básico</option>
@@ -507,11 +530,30 @@ function AddContentModal({
               <option value="AVANZADO">Avanzado</option>
             </select>
             <input
-              name="unidad"
+              name="titulo"
               required
-              placeholder="Unidad (e.g. DERECHO_CIVIL_1)"
-              className="col-span-2 rounded-lg border border-border px-3 py-2 text-sm text-navy"
+              placeholder="Título (e.g. DEL_MATRIMONIO)"
+              className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
             />
+            <input
+              name="parrafo"
+              placeholder="Párrafo (opcional)"
+              className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
+            />
+            {type === "flashcards" && (
+              <>
+                <input
+                  name="leyAnexa"
+                  placeholder="Ley Anexa (opcional)"
+                  className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
+                />
+                <input
+                  name="articuloRef"
+                  placeholder="Artículo ref. (opcional)"
+                  className="rounded-lg border border-border px-3 py-2 text-sm text-navy"
+                />
+              </>
+            )}
           </div>
 
           <button
