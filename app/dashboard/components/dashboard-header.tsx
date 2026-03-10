@@ -65,6 +65,12 @@ export function DashboardHeader({
           >
             🏛️ Ranking
           </Link>
+          <Link
+            href="/dashboard/simulacro"
+            className="rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold text-navy hover:bg-navy/15 transition-colors hidden lg:inline-flex"
+          >
+            🎙️ Simulacro
+          </Link>
           <GlobalSearch />
           <NotificationBell />
           <ThemeToggle />

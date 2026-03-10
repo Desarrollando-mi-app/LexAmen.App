@@ -138,6 +138,25 @@ enum TipoInstitucion {
   OTRO
 }
 
+enum FuenteSimulacro {
+  APUNTES_PROPIOS
+  INDICE_MAESTRO
+}
+
+enum InterrogadorId {
+  DON_AUGUSTO
+  PROFESORA_VALERIA
+  EL_MINISTRO
+  COLEGA_MAYOR
+  COMPANERO_CLASES
+}
+
+enum NivelDificultad {
+  BASICO
+  INTERMEDIO
+  AVANZADO
+}
+
 // ─── Modelos ─────────────────────────────────────────────
 
 model User {
@@ -195,6 +214,7 @@ model User {
   adminLogs           AdminLog[]
   diarioPosts         DiarioPost[]
   diarioGuardados     DiarioGuardado[]
+  simulacroSesiones   SimulacroSesion[]
 }
 
 model Flashcard {
@@ -721,6 +741,45 @@ model DiarioGuardado {
   createdAt DateTime   @default(now())
 
   @@unique([userId, postId])
+}
+
+// ─── Simulacro de Interrogación Oral ─────────────────────
+
+model SimulacroSesion {
+  id              String            @id @default(cuid())
+  userId          String
+  interrogadorId  InterrogadorId
+  fuente          FuenteSimulacro
+  rama            String?
+  libro           String?
+  titulo          String?
+  apuntesNombre   String?
+  apuntesTexto    String?
+  totalPreguntas  Int               @default(10)
+  preguntaActual  Int               @default(0)
+  correctas       Int               @default(0)
+  incorrectas     Int               @default(0)
+  nivelActual     NivelDificultad   @default(BASICO)
+  completada      Boolean           @default(false)
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preguntas       SimulacroPregunta[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+model SimulacroPregunta {
+  id            String            @id @default(cuid())
+  sesionId      String
+  numero        Int
+  nivel         NivelDificultad
+  preguntaTexto String
+  respuestaUser String?
+  evaluacion    String?
+  correcta      Boolean?
+  sesion        SimulacroSesion   @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  createdAt     DateTime          @default(now())
 }
 
 // ─── Plan Institucional ──────────────────────────────────
