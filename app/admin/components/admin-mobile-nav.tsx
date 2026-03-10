@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: "/admin/notificaciones", label: "Notif.", icon: "🔔" },
   { href: "/admin/reportes", label: "Reportes", icon: "🚩" },
   { href: "/admin/contingencias", label: "Contingencias", icon: "📰" },
+  { href: "/admin/institucional", label: "Institucional", icon: "🏛️" },
   { href: "/admin/sistema", label: "Sistema", icon: "⚙️" },
 ];
 

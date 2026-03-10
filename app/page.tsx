@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ThemeToggle } from "./dashboard/components/theme-toggle";
+import { PlanInstitucionalCard } from "./plan-institucional-card";
 
 // ─── Data ────────────────────────────────────────────────
 
@@ -279,7 +280,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="mx-auto mt-14 grid max-w-2xl gap-6 sm:grid-cols-2">
+          <div className="mx-auto mt-14 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Free */}
             <div className="rounded-2xl border border-border p-8">
               <h3 className="text-lg font-bold text-navy">Gratis</h3>
@@ -347,6 +348,9 @@ export default async function HomePage() {
                 Disponible pronto
               </div>
             </div>
+
+            {/* Plan Institucional */}
+            <PlanInstitucionalCard />
           </div>
         </div>
       </section>

@@ -131,6 +131,13 @@ enum DiarioVisibilidad {
   COLEGAS
 }
 
+enum TipoInstitucion {
+  FACULTAD_DERECHO
+  ESTUDIO_JURIDICO
+  CENTRO_INVESTIGACION
+  OTRO
+}
+
 // ─── Modelos ─────────────────────────────────────────────
 
 model User {
@@ -714,4 +721,20 @@ model DiarioGuardado {
   createdAt DateTime   @default(now())
 
   @@unique([userId, postId])
+}
+
+// ─── Plan Institucional ──────────────────────────────────
+
+model RegistroInteres {
+  id                String           @id @default(cuid())
+  nombreInstitucion String
+  tipoInstitucion   TipoInstitucion
+  nombreContacto    String
+  emailContacto     String
+  telefono          String?
+  mensaje           String?
+  createdAt         DateTime         @default(now())
+
+  @@index([createdAt])
+  @@index([tipoInstitucion])
 }
