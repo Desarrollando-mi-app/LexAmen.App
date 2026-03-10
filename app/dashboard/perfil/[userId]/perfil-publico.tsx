@@ -37,6 +37,15 @@ interface ColegaPreview {
   xp: number;
 }
 
+interface DiarioPostPreview {
+  id: string;
+  formato: string;
+  titulo: string;
+  contenido: string | null;
+  opinion: string | null;
+  createdAt: string;
+}
+
 interface PerfilPublicoProps {
   user: ProfileUser;
   colegaStatus: string;
@@ -45,6 +54,7 @@ interface PerfilPublicoProps {
   earnedBadges: string[];
   colegasPreview: ColegaPreview[];
   cvRequestStatus: string | null;
+  diarioPostCount: number;
 }
 
 // ─── Component ───────────────────────────────────────────
@@ -57,10 +67,15 @@ export function PerfilPublico({
   earnedBadges,
   colegasPreview,
   cvRequestStatus: initialCvStatus,
+  diarioPostCount,
 }: PerfilPublicoProps) {
   const [colegaStatus, setColegaStatus] = useState(initialStatus);
   const [requestId, setRequestId] = useState(initialRequestId);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"perfil" | "publicaciones">("perfil");
+  const [diarioPosts, setDiarioPosts] = useState<DiarioPostPreview[]>([]);
+  const [diarioLoaded, setDiarioLoaded] = useState(false);
+  const [diarioLoading, setDiarioLoading] = useState(false);
 
   // CV request state
   const [cvStatus, setCvStatus] = useState(initialCvStatus);
@@ -185,7 +200,45 @@ export function PerfilPublico({
     }
   }
 
+  // ─── Diario Posts Loader ──────────────────────────────────
+
+  async function loadDiarioPosts() {
+    if (diarioLoaded) return;
+    setDiarioLoading(true);
+    try {
+      const res = await fetch(`/api/diario?userId=${user.id}&limit=20`);
+      const data = await res.json();
+      setDiarioPosts(
+        data.items.map((p: { id: string; formato: string; titulo: string; contenido: string | null; opinion: string | null; createdAt: string }) => ({
+          id: p.id,
+          formato: p.formato,
+          titulo: p.titulo,
+          contenido: p.contenido,
+          opinion: p.opinion,
+          createdAt: p.createdAt,
+        }))
+      );
+      setDiarioLoaded(true);
+    } catch {
+      toast.error("Error al cargar publicaciones");
+    } finally {
+      setDiarioLoading(false);
+    }
+  }
+
+  function handleTabChange(tab: "perfil" | "publicaciones") {
+    setActiveTab(tab);
+    if (tab === "publicaciones" && !diarioLoaded) {
+      loadDiarioPosts();
+    }
+  }
+
   // ─── Render ─────────────────────────────────────────────
+
+  const FORMATO_LABELS: Record<string, string> = {
+    OBITER_DICTUM: "Obiter Dictum",
+    ANALISIS_FALLOS: "Análisis de Fallos",
+  };
 
   return (
     <main className="min-h-screen bg-paper">
@@ -313,6 +366,87 @@ export function PerfilPublico({
           </div>
         </div>
 
+        {/* ─── Tabs ────────────────────────────────────── */}
+        <div className="flex gap-1 rounded-lg bg-border/20 p-1">
+          <button
+            onClick={() => handleTabChange("perfil")}
+            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+              activeTab === "perfil"
+                ? "bg-white text-navy shadow-sm"
+                : "text-navy/50 hover:text-navy/70"
+            }`}
+          >
+            Perfil
+          </button>
+          <button
+            onClick={() => handleTabChange("publicaciones")}
+            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+              activeTab === "publicaciones"
+                ? "bg-white text-navy shadow-sm"
+                : "text-navy/50 hover:text-navy/70"
+            }`}
+          >
+            Publicaciones ({diarioPostCount})
+          </button>
+        </div>
+
+        {activeTab === "publicaciones" && (
+          <div className="space-y-4">
+            {diarioLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+              </div>
+            ) : diarioPosts.length === 0 ? (
+              <div className="rounded-xl border border-border bg-white p-12 text-center">
+                <p className="text-4xl mb-3">📰</p>
+                <p className="text-sm text-navy/60">
+                  Este usuario aún no ha publicado en El Diario
+                </p>
+              </div>
+            ) : (
+              diarioPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/dashboard/diario/${post.id}`}
+                  className="block rounded-xl border border-border bg-white p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        post.formato === "OBITER_DICTUM"
+                          ? "bg-gold/15 text-gold"
+                          : "bg-navy/10 text-navy"
+                      }`}
+                    >
+                      {FORMATO_LABELS[post.formato] ?? post.formato}
+                    </span>
+                    <span className="text-xs text-navy/40">
+                      {new Date(post.createdAt).toLocaleDateString("es-CL", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                  <h3 className="text-sm font-bold text-navy">{post.titulo}</h3>
+                  {post.contenido && (
+                    <p className="mt-1 text-xs text-navy/60 line-clamp-2">
+                      {post.contenido}
+                    </p>
+                  )}
+                  {post.opinion && !post.contenido && (
+                    <p className="mt-1 text-xs text-navy/60 line-clamp-2">
+                      {post.opinion}
+                    </p>
+                  )}
+                </Link>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeTab === "perfil" && (
+        <>
         {/* ─── Stats ───────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-xl border border-border bg-white p-4 text-center">
@@ -413,6 +547,8 @@ export function PerfilPublico({
             year: "numeric",
           })}
         </div>
+        </>
+        )}
       </div>
 
       {/* ─── CV Request Modal ────────────────────────── */}

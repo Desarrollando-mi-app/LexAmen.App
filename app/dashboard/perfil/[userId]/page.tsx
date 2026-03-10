@@ -24,7 +24,7 @@ export default async function PerfilPage({ params }: Props) {
   }
 
   // Buscar usuario
-  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest] =
+  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest, diarioPostCount] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: params.userId },
@@ -72,6 +72,9 @@ export default async function PerfilPage({ params }: Props) {
         },
         select: { id: true, status: true },
       }),
+      prisma.diarioPost.count({
+        where: { userId: params.userId },
+      }),
     ]);
 
   if (!targetUser) {
@@ -112,6 +115,7 @@ export default async function PerfilPage({ params }: Props) {
       earnedBadges={targetBadges.map((b) => b.badge)}
       colegasPreview={targetColegas.slice(0, 6)}
       cvRequestStatus={cvRequest?.status ?? null}
+      diarioPostCount={diarioPostCount}
     />
   );
 }

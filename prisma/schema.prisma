@@ -121,6 +121,16 @@ enum ContactMethod {
   OTRO
 }
 
+enum DiarioFormato {
+  OBITER_DICTUM
+  ANALISIS_FALLOS
+}
+
+enum DiarioVisibilidad {
+  PUBLICO
+  COLEGAS
+}
+
 // ─── Modelos ─────────────────────────────────────────────
 
 model User {
@@ -174,6 +184,8 @@ model User {
   cvRequestsSent      CvRequest[]     @relation("CvRequestsSent")
   cvRequestsReceived  CvRequest[]     @relation("CvRequestsReceived")
   adminLogs           AdminLog[]
+  diarioPosts         DiarioPost[]
+  diarioGuardados     DiarioGuardado[]
 }
 
 model Flashcard {
@@ -631,4 +643,73 @@ model Subscription {
   createdAt      DateTime           @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── El Diario (Publicacion Academica) ─────────────────
+
+model DiarioPost {
+  id            String              @id @default(cuid())
+  userId        String
+  formato       DiarioFormato
+  visibilidad   DiarioVisibilidad   @default(PUBLICO)
+  titulo        String
+  materia       String?
+  // Obiter Dictum
+  contenido     String?
+  // Analisis de Fallos
+  rol           String?
+  tribunal      String?
+  fecha         String?
+  partes        String?
+  hechos        String?
+  ratio         String?
+  norma         String?
+  opinion       String?
+  pdfUrl        String?
+  // Metricas
+  views         Int                 @default(0)
+  // Citas (self-relation)
+  citadoDeId    String?
+  citadoDe      DiarioPost?         @relation("Citas", fields: [citadoDeId], references: [id], onDelete: SetNull)
+  citas         DiarioPost[]        @relation("Citas")
+  // Relations
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hashtags      DiarioPostHashtag[]
+  guardados     DiarioGuardado[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([formato, createdAt])
+}
+
+model DiarioHashtag {
+  id             String              @id @default(cuid())
+  tag            String              @unique
+  count          Int                 @default(0)
+  isContingencia Boolean             @default(false)
+  pinned         Boolean             @default(false)
+  hidden         Boolean             @default(false)
+  posts          DiarioPostHashtag[]
+  createdAt      DateTime            @default(now())
+}
+
+model DiarioPostHashtag {
+  postId    String
+  hashtagId String
+  post      DiarioPost    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  hashtag   DiarioHashtag @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, hashtagId])
+}
+
+model DiarioGuardado {
+  id        String     @id @default(cuid())
+  userId    String
+  postId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      DiarioPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+
+  @@unique([userId, postId])
 }

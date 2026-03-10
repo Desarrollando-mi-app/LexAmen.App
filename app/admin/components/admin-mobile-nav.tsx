@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: "/admin/ligas", label: "Ligas", icon: "🏆" },
   { href: "/admin/notificaciones", label: "Notif.", icon: "🔔" },
   { href: "/admin/reportes", label: "Reportes", icon: "🚩" },
+  { href: "/admin/contingencias", label: "Contingencias", icon: "📰" },
   { href: "/admin/sistema", label: "Sistema", icon: "⚙️" },
 ];
 

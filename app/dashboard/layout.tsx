@@ -3,7 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ensureLeagueMembership } from "@/lib/league-assign";
 import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
-import { getPendingColegaCount } from "@/lib/colegas";
 import { Toaster } from "sonner";
 import { DashboardHeader } from "./components/dashboard-header";
 import { MobileNav } from "./components/mobile-nav";
@@ -23,13 +22,12 @@ export default async function DashboardLayout({
   }
 
   // Queries mínimas para el layout (header)
-  const [dbUser, membership, pendingColegaCount] = await Promise.all([
+  const [dbUser, membership] = await Promise.all([
     prisma.user.findUnique({
       where: { id: authUser.id },
       select: { firstName: true, isAdmin: true, avatarUrl: true },
     }),
     ensureLeagueMembership(authUser.id),
-    getPendingColegaCount(authUser.id),
   ]);
 
   if (!dbUser) {
@@ -52,7 +50,7 @@ export default async function DashboardLayout({
         isAdmin={dbUser.isAdmin}
       />
       <div className="pb-16 lg:pb-0">{children}</div>
-      <MobileNav pendingColegaCount={pendingColegaCount} />
+      <MobileNav />
     </>
   );
 }

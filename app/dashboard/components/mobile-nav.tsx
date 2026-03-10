@@ -7,15 +7,11 @@ const NAV_ITEMS = [
   { href: "/dashboard", icon: "🏠", label: "Inicio" },
   { href: "/dashboard/flashcards", icon: "📚", label: "Estudiar" },
   { href: "/dashboard/causas", icon: "⚔️", label: "Causas" },
+  { href: "/dashboard/diario", icon: "📰", label: "Diario" },
   { href: "/dashboard/calendario", icon: "📅", label: "Calendario" },
-  { href: "/dashboard/colegas", icon: "👥", label: "Colegas" },
 ];
 
-interface MobileNavProps {
-  pendingColegaCount?: number;
-}
-
-export function MobileNav({ pendingColegaCount = 0 }: MobileNavProps) {
+export function MobileNav() {
   const pathname = usePathname();
 
   return (
@@ -44,12 +40,6 @@ export function MobileNav({ pendingColegaCount = 0 }: MobileNavProps) {
               <span className="text-[10px] font-medium leading-none">
                 {item.label}
               </span>
-              {item.href === "/dashboard/colegas" &&
-                pendingColegaCount > 0 && (
-                  <span className="absolute -top-0.5 right-1/2 translate-x-5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
-                    {pendingColegaCount > 9 ? "9+" : pendingColegaCount}
-                  </span>
-                )}
             </Link>
           );
         })}

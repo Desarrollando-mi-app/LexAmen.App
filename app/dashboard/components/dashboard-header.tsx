@@ -53,6 +53,12 @@ export function DashboardHeader({
           >
             {tierEmoji} {userTier}
           </Link>
+          <Link
+            href="/dashboard/diario"
+            className="rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold text-navy hover:bg-navy/15 transition-colors hidden sm:inline-flex"
+          >
+            📰 El Diario
+          </Link>
           <GlobalSearch />
           <NotificationBell />
           <ThemeToggle />
