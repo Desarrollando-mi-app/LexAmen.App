@@ -7,7 +7,8 @@ interface UserRow {
   firstName: string;
   lastName: string;
   email: string;
-  institution: string | null;
+  universidad: string | null;
+  sede: string | null;
   universityYear: number | null;
   avatarUrl: string | null;
   plan: string;
@@ -400,9 +401,10 @@ export function UsuariosClient() {
                 </p>
               </div>
               <div className="rounded-lg bg-navy/[0.03] p-3">
-                <p className="text-xs text-navy/50">Institución</p>
+                <p className="text-xs text-navy/50">Universidad</p>
                 <p className="font-bold text-navy text-xs">
-                  {selectedUser.institution ?? "No especificada"}
+                  {selectedUser.universidad ?? "No especificada"}
+                  {selectedUser.sede && ` · ${selectedUser.sede}`}
                 </p>
               </div>
               <div className="rounded-lg bg-navy/[0.03] p-3">

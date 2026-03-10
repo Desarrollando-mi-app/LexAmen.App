@@ -141,6 +141,8 @@ model User {
   age             Int?
   gender          String?
   institution     String?
+  universidad     String?
+  sede            String?
   universityYear  Int?
   plan            Plan      @default(FREE)
   planExpiresAt   DateTime?

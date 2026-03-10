@@ -13,7 +13,7 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json();
-  const { firstName, lastName, bio, institution, universityYear, cvAvailable } = body;
+  const { firstName, lastName, bio, universidad, sede, universityYear, cvAvailable } = body;
 
   // Build update data (only provided fields)
   const data: Record<string, unknown> = {};
@@ -21,7 +21,8 @@ export async function PATCH(request: Request) {
   if (typeof lastName === "string" && lastName.trim()) data.lastName = lastName.trim();
   if (typeof bio === "string") data.bio = bio.slice(0, 280);
   if (bio === null) data.bio = null;
-  if (typeof institution === "string") data.institution = institution;
+  if (typeof universidad === "string" || universidad === null) data.universidad = universidad;
+  if (typeof sede === "string" || sede === null) data.sede = sede;
   if (typeof universityYear === "number" && universityYear >= 1 && universityYear <= 7) {
     data.universityYear = universityYear;
   }
@@ -39,7 +40,8 @@ export async function PATCH(request: Request) {
       firstName: true,
       lastName: true,
       bio: true,
-      institution: true,
+      universidad: true,
+      sede: true,
       universityYear: true,
       cvAvailable: true,
       avatarUrl: true,

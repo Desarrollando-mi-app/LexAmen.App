@@ -12,7 +12,8 @@ interface ProfileUser {
   id: string;
   firstName: string;
   lastName: string;
-  institution: string | null;
+  universidad: string | null;
+  sede: string | null;
   universityYear: number | null;
   avatarUrl: string | null;
   bio: string | null;
@@ -32,7 +33,7 @@ interface ColegaPreview {
   id: string;
   firstName: string;
   lastName: string;
-  institution: string | null;
+  universidad: string | null;
   tier: string | null;
   xp: number;
 }
@@ -264,10 +265,11 @@ export function PerfilPublico({
                 {user.firstName} {user.lastName}
               </h1>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-navy/60">
-                {user.institution && <span>{user.institution}</span>}
+                {user.universidad && <span>{user.universidad}</span>}
+                {user.sede && <span>· {user.sede}</span>}
                 {user.universityYear && (
                   <span>
-                    {user.institution ? "·" : ""} {user.universityYear}° año
+                    {(user.universidad || user.sede) ? "·" : ""} {user.universityYear}° año
                   </span>
                 )}
               </div>

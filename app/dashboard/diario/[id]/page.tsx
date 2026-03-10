@@ -29,7 +29,7 @@ export default async function DiarioPostPage({
           firstName: true,
           lastName: true,
           avatarUrl: true,
-          institution: true,
+          universidad: true,
         },
       },
       hashtags: {

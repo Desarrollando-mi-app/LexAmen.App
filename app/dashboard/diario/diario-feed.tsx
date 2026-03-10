@@ -19,7 +19,7 @@ interface PostUser {
   firstName: string;
   lastName: string;
   avatarUrl: string | null;
-  institution: string | null;
+  universidad: string | null;
 }
 
 interface PostHashtag {
@@ -187,8 +187,8 @@ function PostCard({
             >
               {post.user.firstName} {post.user.lastName}
             </Link>
-            {post.user.institution && (
-              <span className="text-xs text-navy/50">{post.user.institution}</span>
+            {post.user.universidad && (
+              <span className="text-xs text-navy/50">{post.user.universidad}</span>
             )}
             <span className="text-xs text-navy/40">{timeAgo(post.createdAt)}</span>
           </div>

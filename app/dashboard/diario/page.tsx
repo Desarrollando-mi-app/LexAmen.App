@@ -47,7 +47,7 @@ export default async function DiarioPage() {
           firstName: true,
           lastName: true,
           avatarUrl: true,
-          institution: true,
+          universidad: true,
         },
       },
       hashtags: {

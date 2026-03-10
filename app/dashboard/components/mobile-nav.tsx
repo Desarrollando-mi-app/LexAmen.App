@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/flashcards", icon: "📚", label: "Estudiar" },
   { href: "/dashboard/causas", icon: "⚔️", label: "Causas" },
   { href: "/dashboard/diario", icon: "📰", label: "Diario" },
-  { href: "/dashboard/calendario", icon: "📅", label: "Calendario" },
+  { href: "/dashboard/ranking", icon: "🏛️", label: "Ranking" },
 ];
 
 export function MobileNav() {

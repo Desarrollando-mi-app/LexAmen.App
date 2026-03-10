@@ -59,6 +59,12 @@ export function DashboardHeader({
           >
             📰 El Diario
           </Link>
+          <Link
+            href="/dashboard/ranking"
+            className="rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold text-navy hover:bg-navy/15 transition-colors hidden sm:inline-flex"
+          >
+            🏛️ Ranking
+          </Link>
           <GlobalSearch />
           <NotificationBell />
           <ThemeToggle />

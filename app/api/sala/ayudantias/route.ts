@@ -139,7 +139,7 @@ export async function GET(request: Request) {
           id: true,
           firstName: true,
           lastName: true,
-          institution: true,
+          universidad: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
             take: 1,

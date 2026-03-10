@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   };
 
   if (university) {
-    whereClause.institution = university;
+    whereClause.universidad = university;
   }
 
   // Buscar usuarios por nombre
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
       id: true,
       firstName: true,
       lastName: true,
-      institution: true,
+      universidad: true,
       avatarUrl: true,
       xp: true,
       leagueMembers: {
@@ -85,7 +85,7 @@ export async function GET(request: Request) {
     id: u.id,
     firstName: u.firstName,
     lastName: u.lastName,
-    institution: u.institution,
+    universidad: u.universidad,
     avatarUrl: (u as Record<string, unknown>).avatarUrl as string | null,
     xp: u.xp,
     tier: u.leagueMembers[0]?.league.tier ?? null,

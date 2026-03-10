@@ -12,7 +12,7 @@ export interface ColegaUser {
   id: string;
   firstName: string;
   lastName: string;
-  institution: string | null;
+  universidad: string | null;
   tier: string | null;
   xp: number;
 }
@@ -22,7 +22,7 @@ export interface PendingRequest {
   senderId: string;
   senderFirstName: string;
   senderLastName: string;
-  senderInstitution: string | null;
+  senderUniversidad: string | null;
   senderTier: string | null;
   createdAt: string;
 }
@@ -32,7 +32,7 @@ export interface SentRequest {
   receiverId: string;
   receiverFirstName: string;
   receiverLastName: string;
-  receiverInstitution: string | null;
+  receiverUniversidad: string | null;
   receiverTier: string | null;
   createdAt: string;
 }
@@ -85,7 +85,7 @@ export async function getColegas(userId: string): Promise<ColegaUser[]> {
           id: true,
           firstName: true,
           lastName: true,
-          institution: true,
+          universidad: true,
           xp: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
@@ -99,7 +99,7 @@ export async function getColegas(userId: string): Promise<ColegaUser[]> {
           id: true,
           firstName: true,
           lastName: true,
-          institution: true,
+          universidad: true,
           xp: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
@@ -118,7 +118,7 @@ export async function getColegas(userId: string): Promise<ColegaUser[]> {
       id: other.id,
       firstName: other.firstName,
       lastName: other.lastName,
-      institution: other.institution,
+      universidad: other.universidad,
       tier,
       xp: other.xp,
     };
@@ -139,7 +139,7 @@ export async function getPendingRequests(
           id: true,
           firstName: true,
           lastName: true,
-          institution: true,
+          universidad: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
             take: 1,
@@ -155,7 +155,7 @@ export async function getPendingRequests(
     senderId: r.sender.id,
     senderFirstName: r.sender.firstName,
     senderLastName: r.sender.lastName,
-    senderInstitution: r.sender.institution,
+    senderUniversidad: r.sender.universidad,
     senderTier: r.sender.leagueMembers[0]?.league.tier ?? null,
     createdAt: r.createdAt.toISOString(),
   }));
@@ -175,7 +175,7 @@ export async function getSentRequests(
           id: true,
           firstName: true,
           lastName: true,
-          institution: true,
+          universidad: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
             take: 1,
@@ -191,7 +191,7 @@ export async function getSentRequests(
     receiverId: r.receiver.id,
     receiverFirstName: r.receiver.firstName,
     receiverLastName: r.receiver.lastName,
-    receiverInstitution: r.receiver.institution,
+    receiverUniversidad: r.receiver.universidad,
     receiverTier: r.receiver.leagueMembers[0]?.league.tier ?? null,
     createdAt: r.createdAt.toISOString(),
   }));

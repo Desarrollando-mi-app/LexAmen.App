@@ -14,7 +14,7 @@ interface PostUser {
   firstName: string;
   lastName: string;
   avatarUrl: string | null;
-  institution?: string | null;
+  universidad?: string | null;
 }
 
 interface CitaItem {
@@ -215,8 +215,8 @@ export function PostDetail({
             >
               {post.user.firstName} {post.user.lastName}
             </Link>
-            {post.user.institution && (
-              <p className="text-xs text-navy/50">{post.user.institution}</p>
+            {post.user.universidad && (
+              <p className="text-xs text-navy/50">{post.user.universidad}</p>
             )}
             <p className="text-xs text-navy/40">{createdDate}</p>
           </div>

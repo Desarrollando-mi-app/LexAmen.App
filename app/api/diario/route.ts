@@ -215,7 +215,7 @@ export async function GET(request: NextRequest) {
           firstName: true,
           lastName: true,
           avatarUrl: true,
-          institution: true,
+          universidad: true,
         },
       },
       hashtags: {

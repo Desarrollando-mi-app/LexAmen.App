@@ -12,7 +12,7 @@ interface ColegaUser {
   id: string;
   firstName: string;
   lastName: string;
-  institution: string | null;
+  universidad: string | null;
   tier: string | null;
   xp: number;
 }
@@ -22,7 +22,7 @@ interface PendingRequest {
   senderId: string;
   senderFirstName: string;
   senderLastName: string;
-  senderInstitution: string | null;
+  senderUniversidad: string | null;
   senderTier: string | null;
   createdAt: string;
 }
@@ -32,7 +32,7 @@ interface SentRequest {
   receiverId: string;
   receiverFirstName: string;
   receiverLastName: string;
-  receiverInstitution: string | null;
+  receiverUniversidad: string | null;
   receiverTier: string | null;
   createdAt: string;
 }
@@ -41,7 +41,7 @@ interface SearchResult {
   id: string;
   firstName: string;
   lastName: string;
-  institution: string | null;
+  universidad: string | null;
   xp: number;
   tier: string | null;
   colegaStatus: string;
@@ -294,7 +294,7 @@ export function ColegasClient({
                         {user.firstName} {user.lastName}
                       </p>
                       <p className="text-[11px] text-navy/40 truncate">
-                        {user.institution ?? ""}{" "}
+                        {user.universidad ?? ""}{" "}
                         {user.tier
                           ? `${TIER_EMOJIS[user.tier] ?? ""} ${
                               TIER_LABELS[user.tier] ?? user.tier
@@ -404,7 +404,7 @@ export function ColegasClient({
                           {c.firstName} {c.lastName}
                         </p>
                         <div className="flex items-center gap-2 text-xs text-navy/40">
-                          {c.institution && <span>{c.institution}</span>}
+                          {c.universidad && <span>{c.universidad}</span>}
                           {c.tier && (
                             <span>
                               {TIER_EMOJIS[c.tier] ?? ""}{" "}
@@ -472,7 +472,7 @@ export function ColegasClient({
                           {r.senderFirstName} {r.senderLastName}
                         </p>
                         <p className="text-xs text-navy/40">
-                          {r.senderInstitution ?? ""}{" "}
+                          {r.senderUniversidad ?? ""}{" "}
                           {r.senderTier
                             ? `${TIER_EMOJIS[r.senderTier] ?? ""} ${
                                 TIER_LABELS[r.senderTier] ?? r.senderTier

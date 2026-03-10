@@ -5,7 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
-import { UNIVERSIDADES_CHILE } from "@/lib/ayudantia-constants";
+import { UNIVERSIDAD_NOMBRES, getSedesForUniversidad } from "@/lib/universidades";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -16,7 +16,8 @@ interface ProfileData {
   email: string;
   bio: string | null;
   avatarUrl: string | null;
-  institution: string | null;
+  universidad: string | null;
+  sede: string | null;
   universityYear: number | null;
   cvAvailable: boolean;
   xp: number;
@@ -219,10 +220,11 @@ function ProfileView({
             {profile.firstName} {profile.lastName}
           </h2>
           <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-navy/60">
-            {profile.institution && <span>{profile.institution}</span>}
+            {profile.universidad && <span>{profile.universidad}</span>}
+            {profile.sede && <span>· {profile.sede}</span>}
             {profile.universityYear && (
               <span>
-                {profile.institution ? "·" : ""} {profile.universityYear}° año
+                {(profile.universidad || profile.sede) ? "·" : ""} {profile.universityYear}° año
               </span>
             )}
           </div>
@@ -371,10 +373,13 @@ function TabPerfil({
   const [firstName, setFirstName] = useState(profile.firstName);
   const [lastName, setLastName] = useState(profile.lastName);
   const [bio, setBio] = useState(profile.bio ?? "");
-  const [institution, setInstitution] = useState(profile.institution ?? "");
+  const [universidad, setUniversidad] = useState(profile.universidad ?? "");
+  const [sede, setSede] = useState(profile.sede ?? "");
   const [universityYear, setUniversityYear] = useState(profile.universityYear ?? 1);
   const [cvAvailable, setCvAvailable] = useState(profile.cvAvailable);
   const [saving, setSaving] = useState(false);
+
+  const sedesDisponibles = universidad ? getSedesForUniversidad(universidad) : [];
 
   async function handleSave() {
     setSaving(true);
@@ -386,7 +391,8 @@ function TabPerfil({
           firstName,
           lastName,
           bio: bio || null,
-          institution: institution || null,
+          universidad: universidad || null,
+          sede: sede || null,
           universityYear,
           cvAvailable,
         }),
@@ -400,7 +406,8 @@ function TabPerfil({
         firstName,
         lastName,
         bio: bio || null,
-        institution: institution || null,
+        universidad: universidad || null,
+        sede: sede || null,
         universityYear,
         cvAvailable,
       });
@@ -438,16 +445,35 @@ function TabPerfil({
       <div>
         <label className="text-xs font-semibold text-navy/60">Universidad</label>
         <select
-          value={institution}
-          onChange={(e) => setInstitution(e.target.value)}
+          value={universidad}
+          onChange={(e) => {
+            setUniversidad(e.target.value);
+            setSede(""); // reset sede al cambiar universidad
+          }}
           className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
         >
           <option value="">Selecciona una universidad</option>
-          {UNIVERSIDADES_CHILE.map((u) => (
+          {UNIVERSIDAD_NOMBRES.map((u) => (
             <option key={u} value={u}>{u}</option>
           ))}
         </select>
       </div>
+
+      {sedesDisponibles.length > 0 && (
+        <div>
+          <label className="text-xs font-semibold text-navy/60">Sede</label>
+          <select
+            value={sede}
+            onChange={(e) => setSede(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+          >
+            <option value="">Selecciona una sede</option>
+            {sedesDisponibles.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div>
         <label className="text-xs font-semibold text-navy/60">Año de carrera</label>

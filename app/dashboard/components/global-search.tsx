@@ -8,7 +8,7 @@ interface SearchResult {
   id: string;
   firstName: string;
   lastName: string;
-  institution: string | null;
+  universidad: string | null;
   avatarUrl: string | null;
   xp: number;
   tier: string | null;
@@ -183,7 +183,7 @@ export function GlobalSearch() {
                           {u.firstName} {u.lastName}
                         </p>
                         <div className="flex items-center gap-1.5 text-[11px] text-navy/50">
-                          {u.institution && <span className="truncate">{u.institution}</span>}
+                          {u.universidad && <span className="truncate">{u.universidad}</span>}
                           {tierLabel && (
                             <span className="shrink-0">
                               {tierEmoji} {tierLabel}
