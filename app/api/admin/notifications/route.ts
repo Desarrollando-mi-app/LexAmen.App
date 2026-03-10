@@ -26,11 +26,12 @@ export async function POST(request: Request) {
   }
 
   let body: {
-    type: "SYSTEM_BROADCAST" | "SYSTEM_SEGMENTED" | "SYSTEM_INDIVIDUAL";
+    type?: "SYSTEM_BROADCAST" | "SYSTEM_SEGMENTED" | "SYSTEM_INDIVIDUAL";
     title: string;
     body: string;
     targetUserId?: string;
     targetSegment?: string;
+    segment?: string;
     sendEmail?: boolean;
   };
 
@@ -40,20 +41,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
 
-  if (!body.title || !body.body || !body.type) {
+  if (!body.title || !body.body) {
     return NextResponse.json(
-      { error: "Faltan campos obligatorios: type, title, body" },
+      { error: "Faltan campos obligatorios: title, body" },
       { status: 400 }
     );
   }
 
+  // Support both legacy `type` field and new `segment` field
+  let notifType = body.type;
+  let targetSegment = body.targetSegment;
+
+  if (!notifType && body.segment) {
+    if (body.segment === "all") {
+      notifType = "SYSTEM_BROADCAST";
+    } else {
+      notifType = "SYSTEM_SEGMENTED";
+      targetSegment = body.segment;
+    }
+  }
+
+  if (!notifType) {
+    notifType = "SYSTEM_BROADCAST";
+  }
+
   const result = await sendNotification({
-    type: body.type,
+    type: notifType,
     title: body.title,
     body: body.body,
     targetUserId: body.targetUserId,
-    targetSegment: body.targetSegment,
+    targetSegment: targetSegment,
     sendEmail: body.sendEmail ?? false,
+  });
+
+  // Log the action
+  await prisma.adminLog.create({
+    data: {
+      adminId: authUser.id,
+      action: "SEND_NOTIFICATION",
+      target: result.notificationId ?? null,
+      metadata: {
+        title: body.title,
+        segment: body.segment ?? notifType,
+        recipientCount: result.recipientCount ?? 0,
+      },
+    },
   });
 
   return NextResponse.json(result);
@@ -81,27 +113,48 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const limit = Math.min(Number(searchParams.get("limit")) || 30, 100);
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
+  const limit = 20;
+  const skip = (page - 1) * limit;
 
-  const notifications = await prisma.notification.findMany({
-    orderBy: { createdAt: "desc" },
-    take: limit,
-    include: {
-      _count: { select: { userNotifications: true } },
-    },
-  });
+  const [notifications, total] = await Promise.all([
+    prisma.notification.findMany({
+      where: {
+        type: {
+          in: ["SYSTEM_BROADCAST", "SYSTEM_SEGMENTED", "SYSTEM_INDIVIDUAL"],
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+      include: {
+        userNotifications: {
+          select: { readAt: true },
+        },
+      },
+    }),
+    prisma.notification.count({
+      where: {
+        type: {
+          in: ["SYSTEM_BROADCAST", "SYSTEM_SEGMENTED", "SYSTEM_INDIVIDUAL"],
+        },
+      },
+    }),
+  ]);
 
   return NextResponse.json({
-    items: notifications.map((n) => ({
+    history: notifications.map((n) => ({
       id: n.id,
       type: n.type,
       title: n.title,
       body: n.body,
-      targetUserId: n.targetUserId,
       targetSegment: n.targetSegment,
-      sentViaEmail: n.sentViaEmail,
-      recipientCount: n._count.userNotifications,
-      createdAt: n.createdAt,
+      createdAt: n.createdAt.toISOString(),
+      recipientCount: n.userNotifications.length,
+      readCount: n.userNotifications.filter((un) => un.readAt !== null).length,
     })),
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
   });
 }

@@ -124,6 +124,7 @@ model User {
   xp              Int       @default(0)
   causasGanadas   Int       @default(0)
   causasPerdidas  Int       @default(0)
+  suspended       Boolean   @default(false)
   isAdmin         Boolean   @default(false)
   createdAt       DateTime  @default(now())
 
@@ -152,6 +153,7 @@ model User {
   calendarEvents      CalendarEvent[]
   cvRequestsSent      CvRequest[]     @relation("CvRequestsSent")
   cvRequestsReceived  CvRequest[]     @relation("CvRequestsReceived")
+  adminLogs           AdminLog[]
 }
 
 model Flashcard {
@@ -561,6 +563,22 @@ model CvRequest {
   toUser   User @relation("CvRequestsReceived", fields: [toUserId], references: [id], onDelete: Cascade)
 
   @@unique([fromUserId, toUserId])
+}
+
+// ─── Admin Logs ─────────────────────────────────────────
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String
+  target    String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  admin User @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, createdAt])
+  @@index([action, createdAt])
 }
 
 // ─── Suscripciones ──────────────────────────────────────

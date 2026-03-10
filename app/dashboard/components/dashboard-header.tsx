@@ -41,7 +41,7 @@ export function DashboardHeader({
         <div className="flex items-center gap-2 sm:gap-3">
           {isAdmin && (
             <Link
-              href="/dashboard/admin"
+              href="/admin"
               className="inline-flex rounded-full bg-gold/20 px-2.5 py-1 text-[10px] font-semibold text-gold hover:bg-gold/30 transition-colors"
             >
               Panel Admin
