@@ -121,6 +121,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
 
   // ── Config state
   const [interrogadorSeleccionado, setInterrogadorSeleccionado] = useState<string | null>(null);
+  const [bioExpandida, setBioExpandida] = useState<string | null>(null);
   const [fuente, setFuente] = useState<"INDICE_MAESTRO" | "APUNTES_PROPIOS" | null>(null);
   const [rama, setRama] = useState("");
   const [libro, setLibro] = useState("");
@@ -398,30 +399,67 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
           <h2 className="text-lg font-semibold text-navy">
             1. Elige tu interrogador
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {Object.values(INTERROGADORES).map((int) => {
               const selected = interrogadorSeleccionado === int.id;
+              const bioOpen = bioExpandida === int.id;
               return (
-                <button
+                <div
                   key={int.id}
-                  onClick={() => setInterrogadorSeleccionado(int.id)}
-                  className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition-all ${
+                  className={`rounded-xl border-2 transition-all ${
                     selected
                       ? "border-gold bg-gold/5 shadow-md"
                       : "border-border bg-white hover:border-gold/40"
                   }`}
                 >
-                  <AvatarInterrogador interrogador={int} size="md" />
-                  <span className="text-sm font-semibold text-navy">
-                    {int.nombre}
-                  </span>
-                  <span className="text-[11px] text-navy/60 leading-tight">
-                    {int.descripcion}
-                  </span>
-                  <span className="text-[10px] text-navy/40 italic leading-tight">
-                    {int.detalle}
-                  </span>
-                </button>
+                  <button
+                    onClick={() => setInterrogadorSeleccionado(int.id)}
+                    className="flex w-full items-center gap-3 p-4 text-left"
+                  >
+                    <AvatarInterrogador interrogador={int} size="md" />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-sm font-semibold text-navy block">
+                        {int.nombre}
+                      </span>
+                      <span className="text-[11px] italic text-navy/50 block mt-0.5">
+                        {int.tagline}
+                      </span>
+                      <span className="text-[11px] text-navy/60 block mt-1 leading-tight">
+                        {int.descripcion}
+                      </span>
+                    </div>
+                    {selected && (
+                      <span className="shrink-0 text-gold text-lg">✓</span>
+                    )}
+                  </button>
+
+                  {/* Conocer más / Biografía */}
+                  <div className="border-t border-border/50">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBioExpandida(bioOpen ? null : int.id);
+                      }}
+                      className="w-full px-4 py-2 text-[11px] font-medium text-navy/40 hover:text-navy/70 transition-colors flex items-center justify-center gap-1"
+                    >
+                      {bioOpen ? "Cerrar ↑" : "Conocer más ↓"}
+                    </button>
+
+                    <div
+                      className="overflow-hidden transition-all duration-300 ease-in-out"
+                      style={{
+                        maxHeight: bioOpen ? "200px" : "0px",
+                        opacity: bioOpen ? 1 : 0,
+                      }}
+                    >
+                      <div className="px-4 pb-4 max-h-[160px] overflow-y-auto">
+                        <p className="text-[12px] leading-relaxed text-navy/70">
+                          {int.biografia}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
