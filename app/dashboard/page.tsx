@@ -15,6 +15,7 @@ import { ActivityGrid } from "./components/activity-grid";
 import { OnboardingCard } from "./components/onboarding-card";
 import { ExamCountdown } from "./components/exam-countdown";
 import { PomodoroTimer } from "./components/pomodoro-timer";
+import { HeroCarrusel } from "./components/hero-carrusel";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -409,6 +410,11 @@ export default async function DashboardPage() {
 
         {/* CENTER */}
         <div className="min-w-0 flex-1">
+          {/* Hero Carrusel */}
+          <div className="mb-6">
+            <HeroCarrusel ubicacion="dashboard" />
+          </div>
+
           {/* Saludo */}
           <h2 className="text-2xl font-bold text-navy font-display">
             Hola, <em>{user.firstName ?? "estudiante"}</em>

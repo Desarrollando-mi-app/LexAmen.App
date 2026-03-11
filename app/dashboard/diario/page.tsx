@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { DiarioFeed } from "./diario-feed";
+import { HeroCarrusel } from "../components/hero-carrusel";
 
 export const metadata = {
   title: "El Diario — Iuris Studio",
@@ -95,11 +96,16 @@ export default async function DiarioPage() {
   });
 
   return (
-    <DiarioFeed
-      initialPosts={serializedPosts}
-      initialNextCursor={nextCursor}
-      initialHasMore={hasMore}
-      contingencias={contingencias}
-    />
+    <div>
+      <div className="mb-6">
+        <HeroCarrusel ubicacion="diario" />
+      </div>
+      <DiarioFeed
+        initialPosts={serializedPosts}
+        initialNextCursor={nextCursor}
+        initialHasMore={hasMore}
+        contingencias={contingencias}
+      />
+    </div>
   );
 }

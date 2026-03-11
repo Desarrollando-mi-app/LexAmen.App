@@ -3,6 +3,10 @@
     {
       "path": "/api/liga/process-week",
       "schedule": "0 4 * * 1"
+    },
+    {
+      "path": "/api/cron/hero-slides",
+      "schedule": "0 * * * *"
     }
   ]
 }

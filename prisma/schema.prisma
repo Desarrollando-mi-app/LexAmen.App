@@ -157,6 +157,19 @@ enum NivelDificultad {
   AVANZADO
 }
 
+enum SlideOrigen {
+  editorial
+  publicitario
+}
+
+enum SlideEstado {
+  borrador
+  aprobado
+  activo
+  pausado
+  finalizado
+}
+
 // ─── Modelos ─────────────────────────────────────────────
 
 model User {
@@ -215,6 +228,7 @@ model User {
   diarioPosts         DiarioPost[]
   diarioGuardados     DiarioGuardado[]
   simulacroSesiones   SimulacroSesion[]
+  heroSlideEventos    HeroSlideEvento[]
 }
 
 model Flashcard {
@@ -705,6 +719,7 @@ model DiarioPost {
   user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   hashtags      DiarioPostHashtag[]
   guardados     DiarioGuardado[]
+  heroSlides    HeroSlide[]
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
 
@@ -780,6 +795,62 @@ model SimulacroPregunta {
   correcta      Boolean?
   sesion        SimulacroSesion   @relation(fields: [sesionId], references: [id], onDelete: Cascade)
   createdAt     DateTime          @default(now())
+}
+
+// ─── Hero Carrusel & Anunciantes ─────────────────────────
+
+model HeroSlide {
+  id              String        @id @default(uuid())
+  origen          SlideOrigen   @default(editorial)
+  tipo            String
+  imagenUrl       String
+  imagenPosicion  String        @default("center")
+  overlayOpacidad Float         @default(0.45)
+  titulo          String
+  subtitulo       String?
+  ctaTexto        String        @default("Ver más")
+  ctaUrl          String
+  ctaExterno      Boolean       @default(false)
+  diarioPostId    String?
+  diarioPost      DiarioPost?   @relation(fields: [diarioPostId], references: [id], onDelete: SetNull)
+  anuncianteId    String?
+  anunciante      Anunciante?   @relation(fields: [anuncianteId], references: [id], onDelete: SetNull)
+  precioPactado   Int?
+  tipoCobro       String?
+  ubicaciones     String[]      @default(["dashboard"])
+  estado          SlideEstado   @default(borrador)
+  fechaInicio     DateTime      @default(now())
+  fechaFin        DateTime?
+  orden           Int           @default(0)
+  impresiones     Int           @default(0)
+  clics           Int           @default(0)
+  eventos         HeroSlideEvento[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model HeroSlideEvento {
+  id        String    @id @default(uuid())
+  slideId   String
+  slide     HeroSlide @relation(fields: [slideId], references: [id], onDelete: Cascade)
+  tipo      String
+  ubicacion String
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt DateTime  @default(now())
+}
+
+model Anunciante {
+  id               String      @id @default(uuid())
+  nombre           String
+  tipo             String
+  contactoNombre   String?
+  contactoEmail    String
+  contactoTelefono String?
+  rut              String?
+  activo           Boolean     @default(true)
+  slides           HeroSlide[]
+  createdAt        DateTime    @default(now())
 }
 
 // ─── Plan Institucional ──────────────────────────────────

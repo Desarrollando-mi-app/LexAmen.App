@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/admin/notificaciones", label: "Notificaciones", icon: "🔔" },
   { href: "/admin/reportes", label: "Reportes", icon: "🚩" },
   { href: "/admin/contingencias", label: "Contingencias", icon: "📰" },
+  { href: "/admin/hero-slides", label: "Hero Slides", icon: "🖼️" },
   { href: "/admin/institucional", label: "Institucional", icon: "🏛️" },
   { href: "/admin/sistema", label: "Sistema", icon: "⚙️" },
 ];
