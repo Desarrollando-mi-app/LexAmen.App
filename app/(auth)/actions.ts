@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { validatePassword, PASSWORD_ERROR_MESSAGE } from "@/lib/password-validation";
 
 export type ActionState = {
   error?: string;
@@ -32,8 +33,9 @@ export async function register(
     return { error: "Las contraseñas no coinciden." };
   }
 
-  if (password.length < 8) {
-    return { error: "La contraseña debe tener al menos 8 caracteres." };
+  const pwCheck = validatePassword(password);
+  if (!pwCheck.valid) {
+    return { error: PASSWORD_ERROR_MESSAGE };
   }
 
   if (acceptTerms !== "on") {

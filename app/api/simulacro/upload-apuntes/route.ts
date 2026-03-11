@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+export const runtime = "nodejs";
+
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_CHARS = 15000;
 
@@ -60,8 +62,21 @@ export async function POST(request: Request) {
     }
   } catch (err) {
     console.error("Error extrayendo texto:", err);
+    const errMsg = err instanceof Error ? err.message.toLowerCase() : "";
+    if (errMsg.includes("password") || errMsg.includes("encrypt")) {
+      return NextResponse.json(
+        { error: "El archivo está protegido con contraseña. Sube una versión sin protección." },
+        { status: 400 }
+      );
+    }
+    if (errMsg.includes("corrupt") || errMsg.includes("invalid")) {
+      return NextResponse.json(
+        { error: "El archivo parece estar dañado o en un formato no compatible." },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
-      { error: "No se pudo extraer el texto del archivo" },
+      { error: "No se pudo extraer el texto del archivo. Intenta con otro formato." },
       { status: 500 }
     );
   }
@@ -74,7 +89,7 @@ export async function POST(request: Request) {
 
   if (texto.length < 50) {
     return NextResponse.json(
-      { error: "El archivo no contiene suficiente texto legible" },
+      { error: "El archivo no contiene suficiente texto legible. Asegúrate de que no sea solo imágenes o esté vacío." },
       { status: 400 }
     );
   }

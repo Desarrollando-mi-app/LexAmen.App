@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
 import { register } from "../actions";
 import { AuthCard } from "@/components/ui/auth-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { validatePassword } from "@/lib/password-validation";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -21,8 +23,33 @@ function SubmitButton() {
   );
 }
 
+function PasswordStrength({ password }: { password: string }) {
+  if (!password) return null;
+  const check = validatePassword(password);
+  const items = [
+    { label: "8+ caracteres", ok: check.hasMinLength },
+    { label: "1 mayúscula", ok: check.hasUppercase },
+    { label: "2 números", ok: check.hasTwoNumbers },
+  ];
+  return (
+    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5">
+      {items.map((item) => (
+        <span
+          key={item.label}
+          className={`text-[11px] font-medium flex items-center gap-1 ${
+            item.ok ? "text-green-600" : "text-navy/40"
+          }`}
+        >
+          {item.ok ? "✓" : "○"} {item.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function RegisterPage() {
   const [state, formAction] = useFormState(register, {});
+  const [password, setPassword] = useState("");
 
   if (state?.success) {
     return (
@@ -104,14 +131,18 @@ export default function RegisterPage() {
           required
         />
 
-        <Input
-          label="Contraseña"
-          name="password"
-          type="password"
-          placeholder="Mínimo 8 caracteres"
-          required
-          minLength={8}
-        />
+        <div>
+          <Input
+            label="Contraseña"
+            name="password"
+            type="password"
+            placeholder="Mínimo 8 caracteres, 1 mayúscula, 2 números"
+            required
+            minLength={8}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+          />
+          <PasswordStrength password={password} />
+        </div>
 
         <Input
           label="Confirmar contraseña"

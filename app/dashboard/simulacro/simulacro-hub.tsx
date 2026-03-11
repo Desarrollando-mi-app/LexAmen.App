@@ -142,6 +142,12 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [statsActivas, setStatsActivas] = useState({ correctas: 0, incorrectas: 0 });
 
+  // ── Reportar problema state
+  const [reporteOpen, setReporteOpen] = useState(false);
+  const [reporteTipo, setReporteTipo] = useState("sistema");
+  const [reporteDesc, setReporteDesc] = useState("");
+  const [enviandoReporte, setEnviandoReporte] = useState(false);
+
   // ── Results state
   const [resultados, setResultados] = useState<{
     correctas: number;
@@ -173,6 +179,33 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
       if (audioRef.current) audioRef.current.pause();
     };
   }, []);
+
+  // ── Enviar reporte
+  const enviarReporte = async () => {
+    if (!sesionId) return;
+    setEnviandoReporte(true);
+    try {
+      const res = await fetch("/api/simulacro/reporte", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sesionId,
+          tipo: reporteTipo,
+          descripcion: reporteDesc || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success("Reporte enviado. Gracias por tu feedback.");
+      setReporteOpen(false);
+      setReporteTipo("sistema");
+      setReporteDesc("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al enviar reporte");
+    } finally {
+      setEnviandoReporte(false);
+    }
+  };
 
   // ── Curriculum helpers
   const ramaKeys = Object.keys(CURRICULUM);
@@ -677,12 +710,21 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
               )}
             </div>
           </div>
-          <button
-            onClick={() => nuevaSesion()}
-            className="text-sm text-navy/50 hover:text-red-600 transition-colors"
-          >
-            ✕ Salir
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setReporteOpen(true)}
+              className="text-sm text-navy/40 hover:text-amber-600 transition-colors"
+              title="Reportar problema"
+            >
+              ⚑
+            </button>
+            <button
+              onClick={() => nuevaSesion()}
+              className="text-sm text-navy/50 hover:text-red-600 transition-colors"
+            >
+              ✕ Salir
+            </button>
+          </div>
         </div>
 
         {/* Barra de progreso */}
@@ -882,6 +924,69 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
             />
           </div>
         </div>
+
+        {/* Modal Reportar problema */}
+        {reporteOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+              <h3 className="text-lg font-bold text-navy">⚑ Reportar problema</h3>
+              <p className="mt-1 text-xs text-navy/50">
+                Ayúdanos a mejorar. Describe qué salió mal.
+              </p>
+
+              <div className="mt-4 space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-navy/60">Tipo</label>
+                  <select
+                    value={reporteTipo}
+                    onChange={(e) => setReporteTipo(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy"
+                  >
+                    <option value="sistema">Problema del sistema (error, lentitud)</option>
+                    <option value="contenido">Contenido incorrecto (pregunta o evaluación errada)</option>
+                    <option value="otro">Otro</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-navy/60">
+                    Descripción (opcional)
+                  </label>
+                  <textarea
+                    value={reporteDesc}
+                    onChange={(e) => setReporteDesc(e.target.value)}
+                    placeholder="Describe brevemente el problema..."
+                    rows={3}
+                    maxLength={500}
+                    className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none resize-none"
+                  />
+                  <p className="mt-0.5 text-right text-[10px] text-navy/30">
+                    {reporteDesc.length}/500
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={() => {
+                    setReporteOpen(false);
+                    setReporteDesc("");
+                  }}
+                  className="flex-1 rounded-lg border border-border py-2 text-sm font-medium text-navy/60 hover:bg-navy/5 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={enviarReporte}
+                  disabled={enviandoReporte}
+                  className="flex-1 rounded-lg bg-amber-500 py-2 text-sm font-bold text-white hover:bg-amber-600 transition-colors disabled:opacity-50"
+                >
+                  {enviandoReporte ? "Enviando..." : "Enviar reporte"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

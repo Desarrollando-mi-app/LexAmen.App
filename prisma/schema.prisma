@@ -228,6 +228,7 @@ model User {
   diarioPosts         DiarioPost[]
   diarioGuardados     DiarioGuardado[]
   simulacroSesiones   SimulacroSesion[]
+  simulacroReportes   SimulacroReporte[]
   heroSlideEventos    HeroSlideEvento[]
 }
 
@@ -778,10 +779,24 @@ model SimulacroSesion {
   completada      Boolean           @default(false)
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   preguntas       SimulacroPregunta[]
+  reportes        SimulacroReporte[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
   @@index([userId, createdAt])
+}
+
+model SimulacroReporte {
+  id          String          @id @default(cuid())
+  sesionId    String
+  userId      String
+  tipo        String          // sistema | contenido | otro
+  descripcion String?
+  sesion      SimulacroSesion @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+
+  @@index([createdAt])
 }
 
 model SimulacroPregunta {

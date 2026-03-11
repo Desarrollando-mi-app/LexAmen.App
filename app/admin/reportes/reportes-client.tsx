@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 
-type ReportTab = "content" | "ayudantia";
+type ReportTab = "content" | "ayudantia" | "simulacro";
 
 interface ContentReportRow {
   id: string;
@@ -26,6 +26,25 @@ interface AyudantiaReportRow {
   ayudantiaReportCount: number;
 }
 
+interface SimulacroReporteRow {
+  id: string;
+  tipo: string;
+  descripcion: string | null;
+  createdAt: string;
+  user: { id: string; firstName: string; lastName: string; email: string };
+  sesion: {
+    id: string;
+    interrogadorId: string;
+    fuente: string;
+    rama: string | null;
+    totalPreguntas: number;
+    correctas: number;
+    incorrectas: number;
+    completada: boolean;
+    createdAt: string;
+  };
+}
+
 interface ReportesData {
   items: (ContentReportRow | AyudantiaReportRow)[];
   total: number;
@@ -34,12 +53,23 @@ interface ReportesData {
   pendingCount: number;
 }
 
+const TIPO_BADGE: Record<string, string> = {
+  sistema: "bg-red-100 text-red-700",
+  contenido: "bg-amber-100 text-amber-700",
+  otro: "bg-gray-100 text-gray-600",
+};
+
 export function ReportesClient() {
   const [tab, setTab] = useState<ReportTab>("content");
   const [data, setData] = useState<ReportesData | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("PENDING");
+
+  // Simulacro reportes state
+  const [simData, setSimData] = useState<{ items: SimulacroReporteRow[]; total: number; page: number; totalPages: number } | null>(null);
+  const [simLoading, setSimLoading] = useState(false);
+  const [simPage, setSimPage] = useState(1);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -58,9 +88,25 @@ export function ReportesClient() {
     }
   }, [tab, page, statusFilter]);
 
+  const fetchSimData = useCallback(async () => {
+    setSimLoading(true);
+    try {
+      const res = await fetch(`/api/admin/simulacro-reportes?page=${simPage}`);
+      if (res.ok) setSimData(await res.json());
+    } catch {
+      // silently fail
+    } finally {
+      setSimLoading(false);
+    }
+  }, [simPage]);
+
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (tab === "simulacro") {
+      fetchSimData();
+    } else {
+      fetchData();
+    }
+  }, [tab, fetchData, fetchSimData]);
 
   const handleAction = async (
     reportId: string,
@@ -74,6 +120,20 @@ export function ReportesClient() {
         body: JSON.stringify({ reportId, action, tab }),
       });
       if (res.ok) fetchData();
+    } catch {
+      // silently fail
+    }
+  };
+
+  const handleDeleteSimReporte = async (id: string) => {
+    if (!confirm("¿Eliminar este reporte?")) return;
+    try {
+      const res = await fetch("/api/admin/simulacro-reportes", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) fetchSimData();
     } catch {
       // silently fail
     }
@@ -104,27 +164,130 @@ export function ReportesClient() {
           >
             🎓 Ayudantías
           </button>
+          <button
+            onClick={() => { setTab("simulacro"); setSimPage(1); }}
+            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              tab === "simulacro" ? "bg-gold text-white" : "text-navy/60 hover:text-navy"
+            }`}
+          >
+            🎙️ Simulacro
+          </button>
         </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-          className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy"
-        >
-          <option value="PENDING">Pendientes</option>
-          <option value="RESOLVED">Resueltos</option>
-          <option value="">Todos</option>
-        </select>
+        {tab !== "simulacro" && <>
+          <select
+            value={statusFilter}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy"
+          >
+            <option value="PENDING">Pendientes</option>
+            <option value="RESOLVED">Resueltos</option>
+            <option value="">Todos</option>
+          </select>
 
-        {data && (
+          {data && (
+            <span className="text-sm text-navy/50">
+              {data.pendingCount} pendiente{data.pendingCount !== 1 ? "s" : ""}
+            </span>
+          )}
+        </>}
+
+        {tab === "simulacro" && simData && (
           <span className="text-sm text-navy/50">
-            {data.pendingCount} pendiente{data.pendingCount !== 1 ? "s" : ""}
+            {simData.total} reporte{simData.total !== 1 ? "s" : ""} total
           </span>
         )}
       </div>
 
+      {/* Simulacro Reports */}
+      {tab === "simulacro" && (
+        <div className="rounded-xl border border-border bg-white">
+          {simLoading ? (
+            <div className="space-y-3 p-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-16 animate-pulse rounded-lg bg-navy/5" />
+              ))}
+            </div>
+          ) : simData?.items.length === 0 ? (
+            <p className="py-12 text-center text-sm text-navy/40">
+              Sin reportes de simulacro
+            </p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {simData?.items.map((r) => (
+                <li key={r.id} className="px-4 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${TIPO_BADGE[r.tipo] || "bg-gray-100 text-gray-600"}`}>
+                          {r.tipo}
+                        </span>
+                        <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
+                          {r.sesion.interrogadorId.replace(/_/g, " ")}
+                        </span>
+                        <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
+                          {r.sesion.fuente === "APUNTES_PROPIOS" ? "Apuntes" : "Índice"}
+                        </span>
+                      </div>
+                      {r.descripcion && (
+                        <p className="mt-1 text-sm text-navy">
+                          {r.descripcion}
+                        </p>
+                      )}
+                      <p className="mt-1 text-[10px] text-navy/40">
+                        Por {r.user.firstName} {r.user.lastName} ·{" "}
+                        {new Date(r.createdAt).toLocaleDateString("es-CL", {
+                          day: "numeric",
+                          month: "short",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                        {" · Sesión: "}
+                        {r.sesion.correctas}/{r.sesion.totalPreguntas} correctas
+                        {r.sesion.completada ? " (completada)" : " (en curso)"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteSimReporte(r.id)}
+                      className="shrink-0 rounded-lg border border-border px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
+      {/* Simulacro Pagination */}
+      {tab === "simulacro" && simData && simData.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-navy/50">
+            Página {simData.page} de {simData.totalPages}
+          </p>
+          <div className="flex gap-2">
+            <button
+              disabled={simPage <= 1}
+              onClick={() => setSimPage(simPage - 1)}
+              className="rounded-lg border border-border px-3 py-1.5 text-sm text-navy hover:bg-navy/5 disabled:opacity-40"
+            >
+              Anterior
+            </button>
+            <button
+              disabled={simPage >= simData.totalPages}
+              onClick={() => setSimPage(simPage + 1)}
+              className="rounded-lg border border-border px-3 py-1.5 text-sm text-navy hover:bg-navy/5 disabled:opacity-40"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Report List */}
-      <div className="rounded-xl border border-border bg-white">
+      {tab !== "simulacro" && <div className="rounded-xl border border-border bg-white">
         {loading ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -239,10 +402,10 @@ export function ReportesClient() {
             ))}
           </ul>
         )}
-      </div>
+      </div>}
 
       {/* Pagination */}
-      {data && data.totalPages > 1 && (
+      {tab !== "simulacro" && data && data.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-navy/50">
             Página {data.page} de {data.totalPages}

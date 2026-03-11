@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
 import { UNIVERSIDAD_NOMBRES, getSedesForUniversidad } from "@/lib/universidades";
+import { validatePassword, PASSWORD_ERROR_MESSAGE } from "@/lib/password-validation";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -539,13 +540,15 @@ function TabSeguridad() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const pwCheck = validatePassword(newPassword);
+
   async function handleChangePassword() {
     if (newPassword !== confirmPassword) {
       toast.error("Las contraseñas no coinciden");
       return;
     }
-    if (newPassword.length < 8) {
-      toast.error("La contraseña debe tener al menos 8 caracteres");
+    if (!pwCheck.valid) {
+      toast.error(PASSWORD_ERROR_MESSAGE);
       return;
     }
 
@@ -572,6 +575,12 @@ function TabSeguridad() {
     }
   }
 
+  const strengthItems = [
+    { label: "8+ caracteres", ok: pwCheck.hasMinLength },
+    { label: "1 mayúscula", ok: pwCheck.hasUppercase },
+    { label: "2 números", ok: pwCheck.hasTwoNumbers },
+  ];
+
   return (
     <div className="space-y-4">
       <div>
@@ -589,9 +598,23 @@ function TabSeguridad() {
           type="password"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="Mínimo 8 caracteres"
+          placeholder="8+ caracteres, 1 mayúscula, 2 números"
           className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
         />
+        {newPassword && (
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5">
+            {strengthItems.map((item) => (
+              <span
+                key={item.label}
+                className={`text-[11px] font-medium flex items-center gap-1 ${
+                  item.ok ? "text-green-600" : "text-navy/40"
+                }`}
+              >
+                {item.ok ? "✓" : "○"} {item.label}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <div>
         <label className="text-xs font-semibold text-navy/60">Confirmar contraseña</label>
@@ -604,7 +627,7 @@ function TabSeguridad() {
       </div>
       <button
         onClick={handleChangePassword}
-        disabled={saving || !currentPassword || !newPassword}
+        disabled={saving || !currentPassword || !newPassword || !pwCheck.valid}
         className="w-full rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
       >
         {saving ? "Cambiando..." : "Cambiar contraseña"}
