@@ -248,16 +248,7 @@ export function ColegasClient({
   // ─── Render ─────────────────────────────────────────────
 
   return (
-    <main className="min-h-screen bg-paper">
-      <div className="mx-auto max-w-3xl px-6 py-8 space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-navy font-display"><em>Colegas</em></h1>
-          <p className="mt-1 text-sm text-navy/60">
-            Agrega colegas para desafiarlos en causas
-          </p>
-        </div>
-
+    <div className="space-y-6">
         {/* Search */}
         <div className="relative">
           <input
@@ -265,35 +256,35 @@ export function ColegasClient({
             placeholder="Buscar usuarios por nombre..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            className="w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-navy placeholder:text-navy/40 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+            className="w-full rounded-[4px] border border-gz-rule bg-white px-4 py-3 font-archivo text-[14px] text-gz-ink placeholder:text-gz-ink-light focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20"
           />
           {searching && (
-            <div className="absolute right-3 top-3.5 text-xs text-navy/40">
+            <div className="absolute right-3 top-3.5 text-xs text-gz-ink-light">
               Buscando...
             </div>
           )}
 
           {/* Search Results */}
           {searchResults.length > 0 && (
-            <div className="mt-2 rounded-xl border border-border bg-white shadow-lg">
+            <div className="mt-2 rounded-[4px] border border-gz-rule bg-white shadow-sm">
               {searchResults.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between border-b border-border/50 px-4 py-3 last:border-0"
+                  className="flex items-center justify-between border-b border-gz-rule px-4 py-3 last:border-0"
                 >
                   <Link
                     href={`/dashboard/perfil/${user.id}`}
                     className="flex items-center gap-3 min-w-0 flex-1"
                   >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy/10 text-xs font-bold text-navy">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gz-navy/10 font-ibm-mono text-[11px] font-bold text-gz-ink">
                       {user.firstName[0]}
                       {user.lastName[0]}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-navy truncate">
+                      <p className="font-archivo text-[13px] font-medium text-gz-ink truncate">
                         {user.firstName} {user.lastName}
                       </p>
-                      <p className="text-[11px] text-navy/40 truncate">
+                      <p className="font-ibm-mono text-[10px] text-gz-ink-light truncate">
                         {user.universidad ?? ""}{" "}
                         {user.tier
                           ? `${TIER_EMOJIS[user.tier] ?? ""} ${
@@ -308,23 +299,23 @@ export function ColegasClient({
                       <button
                         onClick={() => handleSendRequest(user.id)}
                         disabled={actionLoading === user.id}
-                        className="rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+                        className="rounded-[3px] bg-gz-navy px-3 py-1.5 font-archivo text-[11px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"
                       >
                         Agregar
                       </button>
                     )}
                     {user.colegaStatus === "pending_sent" && (
-                      <span className="rounded-lg bg-border/30 px-3 py-1.5 text-xs font-medium text-navy/40">
+                      <span className="rounded-[3px] bg-gz-cream-dark px-3 py-1.5 font-ibm-mono text-[10px] text-gz-ink-light">
                         Enviada
                       </span>
                     )}
                     {user.colegaStatus === "pending_received" && (
-                      <span className="rounded-lg bg-gold/10 px-3 py-1.5 text-xs font-semibold text-gold">
+                      <span className="rounded-[3px] bg-gz-gold/10 px-3 py-1.5 font-ibm-mono text-[10px] font-semibold text-gz-gold">
                         Te envio solicitud
                       </span>
                     )}
                     {user.colegaStatus === "accepted" && (
-                      <span className="rounded-lg bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700">
+                      <span className="rounded-[3px] bg-gz-sage/[0.15] px-3 py-1.5 font-ibm-mono text-[10px] font-semibold text-gz-sage">
                         Colega
                       </span>
                     )}
@@ -336,38 +327,38 @@ export function ColegasClient({
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 rounded-lg bg-border/20 p-1">
+        <div className="flex gap-2 border border-gz-rule rounded-[4px] p-1">
           <button
             onClick={() => setTab("colegas")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-[3px] px-4 py-2 text-sm font-semibold transition-colors ${
               tab === "colegas"
-                ? "bg-white text-navy shadow-sm"
-                : "text-navy/50 hover:text-navy"
+                ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                : "text-gz-ink-mid hover:text-gz-ink"
             }`}
           >
             Mis Colegas ({colegas.length})
           </button>
           <button
             onClick={() => setTab("solicitudes")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-[3px] px-4 py-2 text-sm font-semibold transition-colors ${
               tab === "solicitudes"
-                ? "bg-white text-navy shadow-sm"
-                : "text-navy/50 hover:text-navy"
+                ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                : "text-gz-ink-mid hover:text-gz-ink"
             }`}
           >
             Solicitudes
             {pending.length > 0 && (
-              <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-white">
+              <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gz-gold font-ibm-mono text-[9px] font-bold text-white">
                 {pending.length}
               </span>
             )}
           </button>
           <button
             onClick={() => setTab("enviadas")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-[3px] px-4 py-2 text-sm font-semibold transition-colors ${
               tab === "enviadas"
-                ? "bg-white text-navy shadow-sm"
-                : "text-navy/50 hover:text-navy"
+                ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                : "text-gz-ink-mid hover:text-gz-ink"
             }`}
           >
             Enviadas ({sent.length})
@@ -378,9 +369,9 @@ export function ColegasClient({
         {tab === "colegas" && (
           <div>
             {colegas.length === 0 ? (
-              <div className="rounded-xl border border-border bg-white p-8 text-center">
+              <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center">
                 <p className="text-4xl">👥</p>
-                <p className="mt-3 text-sm text-navy/50">
+                <p className="mt-3 font-cormorant italic text-[17px] text-gz-ink-light text-center">
                   Aun no tienes colegas. Busca usuarios para agregarlos.
                 </p>
               </div>
@@ -389,21 +380,21 @@ export function ColegasClient({
                 {colegas.map((c) => (
                   <div
                     key={c.id}
-                    className="flex items-center justify-between rounded-xl border border-border bg-white p-4"
+                    className="flex items-center justify-between rounded-[4px] border border-gz-rule bg-white p-4 hover:border-gz-gold transition-colors"
                   >
                     <Link
                       href={`/dashboard/perfil/${c.id}`}
                       className="flex items-center gap-3 min-w-0 flex-1"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy text-sm font-bold text-white">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gz-navy font-archivo text-[14px] font-bold text-gz-gold-bright">
                         {c.firstName[0]}
                         {c.lastName[0]}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-navy truncate">
+                        <p className="font-archivo text-[14px] font-medium text-gz-ink truncate">
                           {c.firstName} {c.lastName}
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-navy/40">
+                        <div className="flex items-center gap-2 font-ibm-mono text-[11px] text-gz-ink-light">
                           {c.universidad && <span>{c.universidad}</span>}
                           {c.tier && (
                             <span>
@@ -418,7 +409,7 @@ export function ColegasClient({
                     <div className="flex items-center gap-2 shrink-0 ml-3">
                       <Link
                         href={`/dashboard/causas?challenge=${c.id}`}
-                        className="rounded-lg bg-gold/10 px-3 py-1.5 text-xs font-semibold text-gold transition-colors hover:bg-gold/20"
+                        className="rounded-[3px] bg-gz-gold/10 px-3 py-1.5 font-archivo text-[11px] font-semibold text-gz-gold hover:bg-gz-gold/20"
                       >
                         Desafiar
                       </Link>
@@ -430,7 +421,7 @@ export function ColegasClient({
                           )
                         }
                         disabled={actionLoading === c.id}
-                        className="rounded-lg border border-border px-3 py-1.5 text-xs text-navy/40 transition-colors hover:border-red-200 hover:text-red-500 disabled:opacity-50"
+                        className="rounded-[3px] border border-gz-rule px-3 py-1.5 font-archivo text-[11px] text-gz-ink-light hover:border-gz-burgundy hover:text-gz-burgundy disabled:opacity-50"
                       >
                         Eliminar
                       </button>
@@ -446,9 +437,9 @@ export function ColegasClient({
         {tab === "solicitudes" && (
           <div>
             {pending.length === 0 ? (
-              <div className="rounded-xl border border-border bg-white p-8 text-center">
+              <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center">
                 <p className="text-4xl">📩</p>
-                <p className="mt-3 text-sm text-navy/50">
+                <p className="mt-3 font-cormorant italic text-[17px] text-gz-ink-light text-center">
                   No tienes solicitudes pendientes
                 </p>
               </div>
@@ -457,21 +448,21 @@ export function ColegasClient({
                 {pending.map((r) => (
                   <div
                     key={r.id}
-                    className="flex items-center justify-between rounded-xl border border-border bg-white p-4"
+                    className="flex items-center justify-between rounded-[4px] border border-gz-rule bg-white p-4 hover:border-gz-gold transition-colors"
                   >
                     <Link
                       href={`/dashboard/perfil/${r.senderId}`}
                       className="flex items-center gap-3 min-w-0 flex-1"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/10 text-sm font-bold text-gold">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gz-gold/10 font-archivo text-[14px] font-bold text-gz-gold">
                         {r.senderFirstName[0]}
                         {r.senderLastName[0]}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-navy truncate">
+                        <p className="font-archivo text-[14px] font-medium text-gz-ink truncate">
                           {r.senderFirstName} {r.senderLastName}
                         </p>
-                        <p className="text-xs text-navy/40">
+                        <p className="font-ibm-mono text-[11px] text-gz-ink-light">
                           {r.senderUniversidad ?? ""}{" "}
                           {r.senderTier
                             ? `${TIER_EMOJIS[r.senderTier] ?? ""} ${
@@ -490,14 +481,14 @@ export function ColegasClient({
                           )
                         }
                         disabled={actionLoading === r.id}
-                        className="rounded-lg bg-green-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                        className="rounded-[3px] bg-gz-sage px-4 py-2 font-archivo text-[11px] font-semibold text-white hover:bg-gz-sage/90 disabled:opacity-50"
                       >
                         Aceptar
                       </button>
                       <button
                         onClick={() => handleReject(r.id)}
                         disabled={actionLoading === r.id}
-                        className="rounded-lg bg-red-100 px-4 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-200 disabled:opacity-50"
+                        className="rounded-[3px] bg-gz-burgundy/[0.15] px-4 py-2 font-archivo text-[11px] font-semibold text-gz-burgundy hover:bg-gz-burgundy/20 disabled:opacity-50"
                       >
                         Rechazar
                       </button>
@@ -513,9 +504,9 @@ export function ColegasClient({
         {tab === "enviadas" && (
           <div>
             {sent.length === 0 ? (
-              <div className="rounded-xl border border-border bg-white p-8 text-center">
+              <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center">
                 <p className="text-4xl">📤</p>
-                <p className="mt-3 text-sm text-navy/50">
+                <p className="mt-3 font-cormorant italic text-[17px] text-gz-ink-light text-center">
                   No tienes solicitudes enviadas pendientes
                 </p>
               </div>
@@ -524,21 +515,21 @@ export function ColegasClient({
                 {sent.map((r) => (
                   <div
                     key={r.id}
-                    className="flex items-center justify-between rounded-xl border border-border bg-white p-4"
+                    className="flex items-center justify-between rounded-[4px] border border-gz-rule bg-white p-4 hover:border-gz-gold transition-colors"
                   >
                     <Link
                       href={`/dashboard/perfil/${r.receiverId}`}
                       className="flex items-center gap-3 min-w-0 flex-1"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy/10 text-sm font-bold text-navy">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gz-navy/10 font-ibm-mono text-[11px] font-bold text-gz-ink">
                         {r.receiverFirstName[0]}
                         {r.receiverLastName[0]}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-navy truncate">
+                        <p className="font-archivo text-[14px] font-medium text-gz-ink truncate">
                           {r.receiverFirstName} {r.receiverLastName}
                         </p>
-                        <p className="text-xs text-navy/40">
+                        <p className="font-ibm-mono text-[11px] text-gz-ink-light">
                           Enviada el{" "}
                           {new Date(r.createdAt).toLocaleDateString("es-CL")}
                         </p>
@@ -547,7 +538,7 @@ export function ColegasClient({
                     <button
                       onClick={() => handleCancelSent(r.id)}
                       disabled={actionLoading === r.id}
-                      className="shrink-0 ml-3 rounded-lg border border-border px-4 py-2 text-xs font-medium text-navy/50 transition-colors hover:border-red-200 hover:text-red-500 disabled:opacity-50"
+                      className="shrink-0 ml-3 rounded-[3px] border border-gz-rule px-4 py-2 font-archivo text-[11px] text-gz-ink-light hover:border-gz-burgundy hover:text-gz-burgundy disabled:opacity-50"
                     >
                       Cancelar
                     </button>
@@ -557,7 +548,6 @@ export function ColegasClient({
             )}
           </div>
         )}
-      </div>
-    </main>
+    </div>
   );
 }

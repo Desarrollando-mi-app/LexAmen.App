@@ -8,11 +8,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    "bg-navy text-paper hover:bg-navy/90 focus-visible:ring-navy",
+    "bg-gz-navy text-white hover:bg-gz-gold hover:text-gz-navy focus-visible:ring-gz-navy transition-colors",
   secondary:
-    "bg-gold text-white hover:bg-gold/90 focus-visible:ring-gold",
+    "bg-gz-navy text-white hover:bg-gz-gold hover:text-gz-navy focus-visible:ring-gz-gold transition-colors",
   outline:
-    "border-2 border-navy text-navy hover:bg-navy hover:text-paper focus-visible:ring-navy",
+    "border-2 border-gz-navy text-gz-navy hover:bg-gz-navy hover:text-white focus-visible:ring-gz-navy transition-colors",
 };
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -20,7 +20,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variantStyles[variant]} ${className}`}
+        className={`inline-flex items-center justify-center rounded-[3px] px-5 py-2.5 font-archivo text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variantStyles[variant]} ${className}`}
         {...props}
       >
         {children}

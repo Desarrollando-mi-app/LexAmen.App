@@ -203,55 +203,55 @@ export function CausaViewer({
     const draw = winnerId === null;
 
     return (
-      <main className="min-h-screen bg-paper">
+      <main className="min-h-screen">
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Resultado */}
           <div
-            className={`rounded-xl border-2 p-8 text-center ${
+            className={`rounded-[4px] border-2 p-8 text-center ${
               draw
-                ? "border-gray-300 bg-gray-50"
+                ? "border-gz-rule bg-gz-cream-dark"
                 : won
-                ? "border-green-300 bg-green-50"
-                : "border-red-300 bg-red-50"
+                ? "border-gz-sage bg-gz-sage/[0.06]"
+                : "border-gz-burgundy bg-gz-burgundy/[0.06]"
             }`}
           >
             <p className="text-5xl">
               {draw ? "🤝" : won ? "🏆" : "😔"}
             </p>
             <h2
-              className={`mt-4 text-2xl font-bold ${
+              className={`mt-4 font-cormorant text-[28px] !font-bold ${
                 draw
-                  ? "text-gray-700"
+                  ? "text-gz-ink-mid"
                   : won
-                  ? "text-green-700"
-                  : "text-red-600"
+                  ? "text-gz-sage"
+                  : "text-gz-burgundy"
               }`}
             >
               {draw ? "Empate" : won ? "¡Victoria!" : "Derrota"}
             </h2>
-            <p className="mt-2 text-navy/60">vs {opponentName}</p>
+            <p className="mt-2 font-archivo text-[13px] text-gz-ink-mid">vs {opponentName}</p>
           </div>
 
           {/* Scores */}
           <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="rounded-xl border border-border bg-white p-6 text-center">
-              <p className="text-sm text-navy/50">Tu Score</p>
-              <p className="mt-1 text-3xl font-bold text-navy">
+            <div className="rounded-[4px] border border-gz-rule p-6 text-center" style={{ backgroundColor: "var(--gz-cream)" }}>
+              <p className="font-ibm-mono text-[11px] text-gz-ink-light">Tu Score</p>
+              <p className="mt-1 font-cormorant text-[32px] !font-bold text-gz-ink">
                 {myScore}
               </p>
             </div>
-            <div className="rounded-xl border border-border bg-white p-6 text-center">
-              <p className="text-sm text-navy/50">
+            <div className="rounded-[4px] border border-gz-rule p-6 text-center" style={{ backgroundColor: "var(--gz-cream)" }}>
+              <p className="font-ibm-mono text-[11px] text-gz-ink-light">
                 Score {opponentName.split(" ")[0]}
               </p>
-              <p className="mt-1 text-3xl font-bold text-navy">
+              <p className="mt-1 font-cormorant text-[32px] !font-bold text-gz-ink">
                 {opponentScore}
               </p>
             </div>
           </div>
 
           {/* Detalle preguntas */}
-          <h3 className="mt-8 text-lg font-semibold text-navy">
+          <h3 className="mt-8 font-cormorant text-[20px] !font-bold text-gz-ink">
             Detalle de respuestas
           </h3>
           <div className="mt-4 space-y-3">
@@ -262,17 +262,17 @@ export function CausaViewer({
               return (
                 <div
                   key={idx}
-                  className="rounded-lg border border-border bg-white p-4"
+                  className="rounded-[4px] border border-gz-rule p-4" style={{ backgroundColor: "var(--gz-cream)" }}
                 >
-                  <p className="text-sm font-medium text-navy">
+                  <p className="font-archivo text-[13px] font-medium text-gz-ink">
                     {idx + 1}. {a.mcq.question}
                   </p>
                   <div className="mt-2 grid grid-cols-2 gap-4 text-xs">
                     <div>
-                      <p className="text-navy/50">Tú</p>
+                      <p className="font-ibm-mono text-[11px] text-gz-ink-light">Tú</p>
                       <p
                         className={
-                          a.isCorrect ? "text-green-600" : "text-red-500"
+                          a.isCorrect ? "text-gz-sage" : "text-gz-burgundy"
                         }
                       >
                         {a.selectedOption || "Sin respuesta"}{" "}
@@ -280,12 +280,12 @@ export function CausaViewer({
                       </p>
                     </div>
                     <div>
-                      <p className="text-navy/50">Oponente</p>
+                      <p className="font-ibm-mono text-[11px] text-gz-ink-light">Oponente</p>
                       <p
                         className={
                           opAns?.isCorrect
-                            ? "text-green-600"
-                            : "text-red-500"
+                            ? "text-gz-sage"
+                            : "text-gz-burgundy"
                         }
                       >
                         {opAns?.selectedOption || "Sin respuesta"}{" "}
@@ -313,12 +313,12 @@ export function CausaViewer({
     ];
 
     return (
-      <main className="min-h-screen bg-paper">
+      <main className="min-h-screen">
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Sub-header inline */}
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-navy">vs {opponentName}</h2>
-            <span className="text-sm text-navy/50">{answeredCount}/{totalQuestions}</span>
+            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">vs {opponentName}</h2>
+            <span className="font-ibm-mono text-[12px] text-gz-ink-light">{answeredCount}/{totalQuestions}</span>
           </div>
           {/* Barra de progreso */}
           <div className="mb-4 flex gap-1">
@@ -327,14 +327,14 @@ export function CausaViewer({
               return (
                 <div
                   key={i}
-                  className={`h-2 flex-1 rounded-full ${
+                  className={`h-2 flex-1 rounded-sm ${
                     i === currentIdx
-                      ? "bg-gold"
+                      ? "bg-gz-gold"
                       : ans?.selectedOption !== null
                       ? ans?.isCorrect
-                        ? "bg-green-400"
-                        : "bg-red-400"
-                      : "bg-border"
+                        ? "bg-gz-sage"
+                        : "bg-gz-burgundy"
+                      : "bg-gz-cream-dark"
                   }`}
                 />
               );
@@ -343,28 +343,28 @@ export function CausaViewer({
 
           {/* Timer */}
           <div className="mb-6">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-navy/50">Tiempo</span>
+            <div className="flex items-center justify-between">
+              <span className="font-ibm-mono text-[12px] text-gz-ink-light">Tiempo</span>
               <span
-                className={`font-mono font-bold ${
+                className={`font-ibm-mono font-bold ${
                   timerMs < 5000
-                    ? "text-red-500"
+                    ? "text-gz-burgundy"
                     : timerMs < 10000
-                    ? "text-orange-500"
-                    : "text-navy"
+                    ? "text-gz-gold"
+                    : "text-gz-ink"
                 }`}
               >
                 {timerSeconds}s
               </span>
             </div>
-            <div className="mt-1 h-2 overflow-hidden rounded-full bg-border">
+            <div className="mt-1 h-2 overflow-hidden rounded-sm bg-gz-cream-dark">
               <div
-                className={`h-full rounded-full transition-all ${
+                className={`h-full rounded-sm transition-all ${
                   timerMs < 5000
-                    ? "bg-red-500"
+                    ? "bg-gz-burgundy"
                     : timerMs < 10000
-                    ? "bg-orange-500"
-                    : "bg-gold"
+                    ? "bg-gz-gold"
+                    : "bg-gz-gold"
                 }`}
                 style={{ width: `${timerPercent}%` }}
               />
@@ -373,41 +373,41 @@ export function CausaViewer({
 
           {/* Score actual */}
           <div className="mb-4 text-center">
-            <span className="rounded-full bg-gold/15 px-3 py-1 text-sm font-semibold text-gold">
+            <span className="rounded-[3px] bg-gz-gold/15 px-3 py-1 font-ibm-mono text-[12px] font-semibold text-gz-gold">
               {myScore} pts
             </span>
           </div>
 
           {/* Pregunta */}
-          <div className="rounded-xl border border-border bg-white p-6">
-            <p className="text-xs text-navy/50 mb-2">
+          <div className="rounded-[4px] border border-gz-rule p-6" style={{ backgroundColor: "var(--gz-cream)" }}>
+            <p className="font-ibm-mono text-[10px] text-gz-ink-light uppercase mb-2">
               Pregunta {currentIdx + 1} de {totalQuestions}
             </p>
-            <p className="text-lg font-medium text-navy">
+            <p className="font-cormorant text-[20px] font-semibold text-gz-ink">
               {currentAnswer.mcq.question}
             </p>
 
             <div className="mt-6 space-y-3">
               {options.map((opt) => {
                 let style =
-                  "border-border bg-paper text-navy hover:border-gold/50";
+                  "border-gz-rule text-gz-ink hover:border-gz-gold";
 
                 if (feedback) {
                   if (opt.key === feedback.correctOption) {
                     style =
-                      "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200";
+                      "border-gz-sage bg-gz-sage/[0.06] text-gz-sage ring-1 ring-gz-sage/30";
                   } else if (
                     opt.key === selected &&
                     !feedback.isCorrect
                   ) {
                     style =
-                      "border-red-500 bg-red-50 text-red-600 ring-2 ring-red-200";
+                      "border-gz-burgundy bg-gz-burgundy/[0.06] text-gz-burgundy ring-1 ring-gz-burgundy/30";
                   } else {
-                    style = "border-border bg-paper/50 text-navy/40";
+                    style = "border-gz-rule bg-gz-cream-dark text-gz-ink-light";
                   }
                 } else if (selected === opt.key) {
                   style =
-                    "border-gold bg-gold/10 text-navy ring-2 ring-gold/30";
+                    "border-gz-gold bg-gz-gold/[0.06] text-gz-ink ring-1 ring-gz-gold/20";
                 }
 
                 return (
@@ -419,7 +419,7 @@ export function CausaViewer({
                       }
                     }}
                     disabled={!!feedback || submitting}
-                    className={`w-full rounded-lg border px-4 py-3 text-left text-sm transition-all ${style}`}
+                    className={`w-full rounded-[3px] border px-4 py-3 text-left font-archivo text-[14px] transition-all ${style}`}
                   >
                     <span className="font-semibold">{opt.key}.</span>{" "}
                     {opt.text}
@@ -431,10 +431,10 @@ export function CausaViewer({
             {/* Feedback */}
             {feedback && (
               <div
-                className={`mt-4 rounded-lg p-3 text-sm font-medium ${
+                className={`mt-4 rounded-[3px] p-3 font-archivo text-[13px] font-medium ${
                   feedback.isCorrect
-                    ? "bg-green-50 text-green-700"
-                    : "bg-red-50 text-red-600"
+                    ? "border-l-[3px] border-gz-sage bg-gz-sage/[0.06] text-gz-sage"
+                    : "border-l-[3px] border-gz-burgundy bg-gz-burgundy/[0.06] text-gz-burgundy"
                 }`}
               >
                 {feedback.isCorrect ? "¡Correcto!" : "Incorrecto"} — +
@@ -448,14 +448,14 @@ export function CausaViewer({
                 <button
                   onClick={() => handleSubmit(selected)}
                   disabled={!selected || submitting}
-                  className="rounded-lg bg-navy px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+                  className="rounded-[3px] bg-gz-navy px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"
                 >
                   {submitting ? "Enviando..." : "Confirmar"}
                 </button>
               ) : (
                 <button
                   onClick={handleNext}
-                  className="rounded-lg bg-gold px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90"
+                  className="rounded-[3px] bg-gz-gold px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold/90"
                 >
                   {answeredCount >= totalQuestions
                     ? "Ver resultado"
@@ -472,22 +472,22 @@ export function CausaViewer({
   // ─── ACTIVE pero todas respondidas (esperando al oponente) ───
   if (status === "ACTIVE" && currentIdx === null) {
     return (
-      <main className="min-h-screen bg-paper">
+      <main className="min-h-screen">
         <div className="mx-auto max-w-3xl px-6 py-16 text-center">
           <p className="text-5xl">⏳</p>
-          <h2 className="mt-4 text-xl font-bold text-navy">
+          <h2 className="mt-4 font-cormorant text-[22px] !font-bold text-gz-ink">
             ¡Has completado tus respuestas!
           </h2>
-          <p className="mt-2 text-navy/60">
-            Tu puntaje: <span className="font-bold text-gold">{myScore}</span>{" "}
+          <p className="mt-2 font-archivo text-[13px] text-gz-ink-mid">
+            Tu puntaje: <span className="font-bold text-gz-gold">{myScore}</span>{" "}
             pts
           </p>
-          <p className="mt-4 text-sm text-navy/50">
+          <p className="mt-4 font-ibm-mono text-[12px] text-gz-ink-light">
             Esperando a que {opponentName} termine...
           </p>
           <button
             onClick={() => router.refresh()}
-            className="mt-6 rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+            className="mt-6 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
           >
             Actualizar
           </button>
@@ -498,16 +498,16 @@ export function CausaViewer({
 
   // ─── Fallback (PENDING, REJECTED, EXPIRED) ──────────
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen">
       <div className="mx-auto max-w-3xl px-6 py-16 text-center">
         <p className="text-5xl">📋</p>
-        <h2 className="mt-4 text-xl font-bold text-navy">
+        <h2 className="mt-4 font-cormorant text-[22px] !font-bold text-gz-ink">
           Estado: {status === "PENDING" ? "Pendiente" : status}
         </h2>
-        <p className="mt-2 text-navy/60">vs {opponentName}</p>
+        <p className="mt-2 font-archivo text-[13px] text-gz-ink-mid">vs {opponentName}</p>
         <Link
           href="/dashboard/causas"
-          className="mt-6 inline-block rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+          className="mt-6 inline-block rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
           Volver
         </Link>

@@ -38,11 +38,22 @@ export default async function CalendarioPage() {
   }));
 
   return (
-    <CalendarioClient
-      initialEvents={serialized}
-      initialMonth={now.getMonth() + 1}
-      initialYear={now.getFullYear()}
-      examDate={user?.examDate?.toISOString() ?? null}
-    />
+    <div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+        <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-1">
+          Planificación · Calendario
+        </p>
+        <h1 className="font-cormorant text-[28px] !font-bold text-gz-ink leading-none">
+          Calendario Personal
+        </h1>
+        <div className="mt-3 h-[2px] bg-gz-rule-dark" />
+      </div>
+      <CalendarioClient
+        initialEvents={serialized}
+        initialMonth={now.getMonth() + 1}
+        initialYear={now.getFullYear()}
+        examDate={user?.examDate?.toISOString() ?? null}
+      />
+    </div>
   );
 }

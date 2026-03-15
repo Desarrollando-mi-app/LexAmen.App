@@ -77,6 +77,9 @@ enum BadgeSlug {
   PENALISTA_EN_SERIE
   JURISCONSULTO_SEMANA
   SOCIEDAD_DE_HECHO
+  VOZ_DEL_FORO
+  DOCTRINARIO
+  CONTROVERSIA
 }
 
 enum NotificationType {
@@ -91,6 +94,14 @@ enum NotificationType {
   COLEGA_ACCEPTED
   CV_REQUEST
   CV_REQUEST_ACCEPTED
+  OBITER_APOYO
+  OBITER_CITA
+  OBITER_COMUNIQUESE
+  ANALISIS_APOYO
+  ANALISIS_COMUNIQUESE
+  ENSAYO_APOYO
+  ENSAYO_COMUNIQUESE
+  EVENTO_INTERES
 }
 
 enum ColegaStatus {
@@ -215,9 +226,18 @@ model User {
   causaParticipations CausaParticipant[]
   causaRoomAnswers    CausaRoomAnswer[]
   subscriptions       Subscription[]
-  ayudantias          Ayudantia[]
-  ayudantiaReports    AyudantiaReport[]
-  ayudantiaStreak     AyudantiaStreak?
+  ayudantias              Ayudantia[]           @relation("AyudantiasCreadas")
+  ayudantiaReports        AyudantiaReport[]
+  ayudantiaStreak         AyudantiaStreak?
+  sesionesTutor           AyudantiaSesion[]     @relation("SesionesTutor")
+  sesionesEstudiante      AyudantiaSesion[]     @relation("SesionesEstudiante")
+  evaluacionesDadas       AyudantiaEvaluacion[] @relation("EvaluacionesDadas")
+  evaluacionesRecibidas   AyudantiaEvaluacion[] @relation("EvaluacionesRecibidas")
+  pasantiasCreadas        Pasantia[]            @relation("PasantiasCreadas")
+  eventosCreados          EventoAcademico[]     @relation("EventosCreados")
+  eventosInteres          EventoInteres[]       @relation("EventosInteres")
+  ofertasCreadas          OfertaTrabajo[]       @relation("OfertasCreadas")
+  reportesSalaCreados     SalaReporte[]         @relation("ReportesCreados")
   notifications       UserNotification[]
   colegasSent         ColegaRequest[] @relation("ColegasSent")
   colegasReceived     ColegaRequest[] @relation("ColegasReceived")
@@ -230,6 +250,22 @@ model User {
   simulacroSesiones   SimulacroSesion[]
   simulacroReportes   SimulacroReporte[]
   heroSlideEventos    HeroSlideEvento[]
+  obiters             ObiterDictum[]
+  obiterApoyos        ObiterApoyo[]
+  obiterGuardados     ObiterGuardado[]
+  examenConfig        ExamenConfig?
+  examenReportes      ExamenReporte[]
+  obiterComuniquese   ObiterComuniquese[]
+
+  // El Diario — Análisis y Ensayos
+  analisisCreados         AnalisisSentencia[]   @relation("AnalisisCreados")
+  analisisApoyos          AnalisisApoyo[]       @relation("AnalisisApoyos")
+  analisisGuardados       AnalisisGuardado[]    @relation("AnalisisGuardados")
+  analisisComuniquese     AnalisisComuniquese[] @relation("AnalisisComuniquese")
+  ensayosCreados          Ensayo[]              @relation("EnsayosCreados")
+  ensayoApoyos            EnsayoApoyo[]         @relation("EnsayoApoyos")
+  ensayoGuardados         EnsayoGuardado[]      @relation("EnsayoGuardados")
+  ensayoComuniquese       EnsayoComuniquese[]   @relation("EnsayoComuniquese")
 }
 
 model Flashcard {
@@ -524,31 +560,37 @@ model FlashcardFavorite {
   @@unique([userId, flashcardId])
 }
 
-// ─── La Sala (Ayudantías) ─────────────────────────────────
+// ─── La Sala ─────────────────────────────────────────────
 
 model Ayudantia {
-  id            String          @id @default(cuid())
-  userId        String
-  type          AyudantiaType
-  materia       String
-  format        AyudantiaFormat
-  priceType     PriceType
-  priceAmount   Int?
-  description   String
-  universidad   String
-  orientadaA    String[]
-  contactMethod ContactMethod
-  contactValue  String
-  isActive      Boolean         @default(true)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  reportCount   Int             @default(0)
+  id             String          @id @default(cuid())
+  userId         String
+  type           AyudantiaType
+  materia        String
+  titulo         String          @default("")
+  format         AyudantiaFormat
+  priceType      PriceType
+  priceAmount    Int?
+  description    String
+  universidad    String
+  orientadaA     String[]
+  contactMethod  ContactMethod
+  contactValue   String
+  disponibilidad String?
+  isActive       Boolean         @default(true)
+  isHidden       Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  reportCount    Int             @default(0)
 
-  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reports AyudantiaReport[]
+  user         User              @relation("AyudantiasCreadas", fields: [userId], references: [id], onDelete: Cascade)
+  reports      AyudantiaReport[]
+  sesiones     AyudantiaSesion[]
+  salaReportes SalaReporte[]
 
-  @@index([type, isActive])
+  @@index([type, isActive, isHidden])
   @@index([userId])
+  @@index([materia])
 }
 
 model AyudantiaReport {
@@ -571,6 +613,213 @@ model AyudantiaStreak {
   longestStreak   Int    @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AyudantiaSesion {
+  id            String    @id @default(uuid())
+  ayudantiaId   String
+  ayudantia     Ayudantia @relation(fields: [ayudantiaId], references: [id], onDelete: Cascade)
+
+  tutorId       String
+  tutor         User      @relation("SesionesTutor", fields: [tutorId], references: [id])
+  estudianteId  String
+  estudiante    User      @relation("SesionesEstudiante", fields: [estudianteId], references: [id])
+
+  fecha         DateTime
+  duracionMin   Int?
+  materia       String
+  notas         String?
+
+  status        String    @default("pendiente") // "pendiente" | "confirmada" | "completada" | "cancelada"
+  completadaAt  DateTime?
+  canceladaAt   DateTime?
+  canceladaPor  String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  evaluaciones  AyudantiaEvaluacion[]
+
+  @@index([tutorId])
+  @@index([estudianteId])
+  @@index([ayudantiaId])
+  @@index([status])
+}
+
+model AyudantiaEvaluacion {
+  id            String          @id @default(uuid())
+  sesionId      String
+  sesion        AyudantiaSesion @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+
+  evaluadorId   String
+  evaluador     User            @relation("EvaluacionesDadas", fields: [evaluadorId], references: [id])
+  evaluadoId    String
+  evaluado      User            @relation("EvaluacionesRecibidas", fields: [evaluadoId], references: [id])
+
+  rating        Int             // 1-5
+  comentario    String?
+
+  createdAt     DateTime        @default(now())
+
+  @@unique([sesionId, evaluadorId])
+  @@index([evaluadoId])
+}
+
+// ─── Pasantías ──────────────────────────────────────────
+
+model Pasantia {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation("PasantiasCreadas", fields: [userId], references: [id])
+
+  empresa             String
+  areaPractica        String
+  titulo              String
+  descripcion         String
+  ciudad              String
+  formato             String   // "presencial" | "remoto" | "hibrido"
+  duracion            String?
+  remuneracion        String   // "pagada" | "no_pagada" | "a_convenir"
+  montoRemu           String?
+  requisitos          String?
+  metodoPostulacion   String   // "email" | "formulario" | "en_plataforma"
+  contactoPostulacion String?
+
+  isActive            Boolean  @default(true)
+  isHidden            Boolean  @default(false)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  salaReportes        SalaReporte[]
+
+  @@index([userId])
+  @@index([areaPractica])
+  @@index([isActive, isHidden, createdAt(sort: Desc)])
+}
+
+// ─── Eventos Académicos ─────────────────────────────────
+
+model EventoAcademico {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation("EventosCreados", fields: [userId], references: [id])
+
+  titulo          String
+  descripcion     String
+  organizador     String
+  fecha           DateTime
+  fechaFin        DateTime?
+  hora            String?
+  formato         String    // "presencial" | "online" | "hibrido"
+  lugar           String?
+  linkOnline      String?
+  costo           String    // "gratis" | "pagado"
+  montoCosto      String?
+  linkInscripcion String?
+  materias        String?
+
+  approvalStatus  String    @default("pendiente") // "pendiente" | "aprobado" | "rechazado"
+  approvedAt      DateTime?
+  approvedBy      String?
+  rejectionReason String?
+
+  isActive        Boolean   @default(true)
+  isHidden        Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  interesados     EventoInteres[]
+  salaReportes    SalaReporte[]
+
+  @@index([userId])
+  @@index([approvalStatus])
+  @@index([isActive, isHidden, fecha(sort: Asc)])
+}
+
+model EventoInteres {
+  id        String          @id @default(uuid())
+  eventoId  String
+  evento    EventoAcademico @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation("EventosInteres", fields: [userId], references: [id])
+
+  createdAt DateTime        @default(now())
+
+  @@unique([eventoId, userId])
+  @@index([userId])
+}
+
+// ─── Ofertas de Trabajo ─────────────────────────────────
+
+model OfertaTrabajo {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation("OfertasCreadas", fields: [userId], references: [id])
+
+  empresa             String
+  cargo               String
+  areaPractica        String
+  descripcion         String
+  ciudad              String
+  formato             String   // "presencial" | "remoto" | "hibrido"
+  tipoContrato        String   // "indefinido" | "plazo_fijo" | "honorarios" | "part_time"
+  experienciaReq      String?
+  remuneracion        String?
+  requisitos          String?
+  metodoPostulacion   String
+  contactoPostulacion String?
+
+  isActive            Boolean  @default(true)
+  isHidden            Boolean  @default(false)
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  salaReportes        SalaReporte[]
+
+  @@index([userId])
+  @@index([areaPractica])
+  @@index([isActive, isHidden, createdAt(sort: Desc)])
+}
+
+// ─── Reportes de La Sala (unificado) ────────────────────
+
+model SalaReporte {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation("ReportesCreados", fields: [userId], references: [id])
+
+  ayudantiaId   String?
+  ayudantia     Ayudantia?       @relation(fields: [ayudantiaId], references: [id], onDelete: Cascade)
+  pasantiaId    String?
+  pasantia      Pasantia?        @relation(fields: [pasantiaId], references: [id], onDelete: Cascade)
+  eventoId      String?
+  evento        EventoAcademico? @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  ofertaId      String?
+  oferta        OfertaTrabajo?   @relation(fields: [ofertaId], references: [id], onDelete: Cascade)
+  analisisId    String?
+  analisis      AnalisisSentencia? @relation(fields: [analisisId], references: [id], onDelete: Cascade)
+  ensayoId      String?
+  ensayo        Ensayo?          @relation(fields: [ensayoId], references: [id], onDelete: Cascade)
+
+  motivo        String   // "spam" | "informacion_falsa" | "contenido_inapropiado" | "oferta_sospechosa" | "otro"
+  descripcion   String?
+
+  reviewStatus  String   @default("pendiente") // "pendiente" | "accion_tomada" | "descartado"
+  reviewedAt    DateTime?
+  reviewedBy    String?
+
+  createdAt     DateTime @default(now())
+
+  @@index([ayudantiaId])
+  @@index([pasantiaId])
+  @@index([eventoId])
+  @@index([ofertaId])
+  @@index([analisisId])
+  @@index([ensayoId])
+  @@index([reviewStatus])
 }
 
 // ─── Notificaciones ─────────────────────────────────────
@@ -882,4 +1131,352 @@ model RegistroInteres {
 
   @@index([createdAt])
   @@index([tipoInstitucion])
+}
+
+// ─── Obiter Dictum (Microblogging Jurídico) ──────────────
+
+model ObiterDictum {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content          String   // Texto del obiter, máx ~1000 caracteres (~200 palabras)
+
+  // Metadata opcionales
+  materia          String?  // "acto_juridico", "obligaciones", "procesal", etc.
+  tipo             String?  // "reflexion", "pregunta", "cita_doctrinal", "opinion", "dato"
+
+  // === HILOS ===
+  threadId         String?
+  threadOrder      Int?     // 1 a 10 (máximo 10 partes por hilo)
+
+  // === CITAS ===
+  citedObiterId    String?
+  citedObiter      ObiterDictum?    @relation("CitaObiter", fields: [citedObiterId], references: [id], onDelete: SetNull)
+  citadoPor        ObiterDictum[]   @relation("CitaObiter")
+
+  citedAnalisisId  String?
+  citedAnalisis    AnalisisSentencia? @relation("CitaAnalisis", fields: [citedAnalisisId], references: [id], onDelete: SetNull)
+  citedEnsayoId    String?
+  citedEnsayo      Ensayo?          @relation("CitaEnsayo", fields: [citedEnsayoId], references: [id], onDelete: SetNull)
+
+  // === CONTADORES DESNORMALIZADOS ===
+  apoyosCount      Int @default(0)
+  citasCount       Int @default(0)
+  guardadosCount   Int @default(0)
+  comuniqueseCount Int @default(0)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relaciones
+  apoyos           ObiterApoyo[]
+  guardados        ObiterGuardado[]
+  comuniquese      ObiterComuniquese[]
+
+  @@index([userId])
+  @@index([threadId, threadOrder])
+  @@index([citedObiterId])
+  @@index([createdAt(sort: Desc)])
+  @@index([materia])
+}
+
+model ObiterApoyo {
+  id        String       @id @default(cuid())
+  obiterId  String
+  obiter    ObiterDictum @relation(fields: [obiterId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([obiterId, userId])
+  @@index([userId])
+}
+
+model ObiterGuardado {
+  id        String       @id @default(cuid())
+  obiterId  String
+  obiter    ObiterDictum @relation(fields: [obiterId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([obiterId, userId])
+  @@index([userId])
+}
+
+model ObiterComuniquese {
+  id        String       @id @default(cuid())
+  obiterId  String
+  obiter    ObiterDictum @relation(fields: [obiterId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([obiterId, userId])
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+}
+
+// ─── El Diario — Análisis de Sentencia ───────────────────
+
+model AnalisisSentencia {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation("AnalisisCreados", fields: [userId], references: [id])
+
+  // === FICHA TÉCNICA DEL FALLO ===
+  tribunal        String
+  numeroRol       String
+  fechaFallo      DateTime
+  partes          String
+  materia         String
+  falloUrl        String?
+  falloPdfUrl     String?
+
+  // === 4 SECCIONES DE CONTENIDO ===
+  hechos          String
+  ratioDecidendi  String
+  opinion         String
+
+  // === METADATA PARA FEED Y BÚSQUEDA ===
+  titulo          String
+  resumen         String
+  tags            String?
+  tiempoLectura   Int     @default(5)
+
+  // === VISIBILIDAD ===
+  showInFeed      Boolean @default(true)
+  isActive        Boolean @default(true)
+  isHidden        Boolean @default(false)
+
+  // === CONTADORES DESNORMALIZADOS ===
+  apoyosCount      Int @default(0)
+  citasCount       Int @default(0)
+  guardadosCount   Int @default(0)
+  comuniqueseCount Int @default(0)
+  viewsCount       Int @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  apoyos          AnalisisApoyo[]
+  guardados       AnalisisGuardado[]
+  comuniquese     AnalisisComuniquese[]
+  reportes        SalaReporte[]
+  citadoPorObiters ObiterDictum[] @relation("CitaAnalisis")
+
+  @@index([userId])
+  @@index([materia])
+  @@index([isActive, isHidden, createdAt(sort: Desc)])
+}
+
+model AnalisisApoyo {
+  id          String            @id @default(uuid())
+  analisisId  String
+  analisis    AnalisisSentencia @relation(fields: [analisisId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User              @relation("AnalisisApoyos", fields: [userId], references: [id])
+  createdAt   DateTime          @default(now())
+
+  @@unique([analisisId, userId])
+  @@index([userId])
+}
+
+model AnalisisGuardado {
+  id          String            @id @default(uuid())
+  analisisId  String
+  analisis    AnalisisSentencia @relation(fields: [analisisId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User              @relation("AnalisisGuardados", fields: [userId], references: [id])
+  createdAt   DateTime          @default(now())
+
+  @@unique([analisisId, userId])
+  @@index([userId])
+}
+
+model AnalisisComuniquese {
+  id          String            @id @default(uuid())
+  analisisId  String
+  analisis    AnalisisSentencia @relation(fields: [analisisId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User              @relation("AnalisisComuniquese", fields: [userId], references: [id])
+  createdAt   DateTime          @default(now())
+
+  @@unique([analisisId, userId])
+  @@index([userId])
+}
+
+// ─── El Diario — Ensayos ─────────────────────────────────
+
+model Ensayo {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation("EnsayosCreados", fields: [userId], references: [id])
+
+  // === METADATA ===
+  titulo          String
+  materia         String
+  tipo            String   // "opinion" | "nota_doctrinaria" | "comentario_reforma" | "analisis_comparado" | "tesis" | "otro"
+  tags            String?
+  resumen         String?
+
+  // === ARCHIVO ===
+  archivoUrl      String
+  archivoNombre   String
+  archivoFormato  String   // "pdf" | "docx"
+  archivoTamano   Int
+
+  // === VISIBILIDAD ===
+  showInFeed      Boolean @default(true)
+  isActive        Boolean @default(true)
+  isHidden        Boolean @default(false)
+
+  // === CONTADORES DESNORMALIZADOS ===
+  apoyosCount      Int @default(0)
+  citasCount       Int @default(0)
+  guardadosCount   Int @default(0)
+  comuniqueseCount Int @default(0)
+  viewsCount       Int @default(0)
+  downloadsCount   Int @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relaciones
+  apoyos          EnsayoApoyo[]
+  guardados       EnsayoGuardado[]
+  comuniquese     EnsayoComuniquese[]
+  reportes        SalaReporte[]
+  citadoPorObiters ObiterDictum[] @relation("CitaEnsayo")
+
+  @@index([userId])
+  @@index([materia])
+  @@index([tipo])
+  @@index([isActive, isHidden, createdAt(sort: Desc)])
+}
+
+model EnsayoApoyo {
+  id        String   @id @default(uuid())
+  ensayoId  String
+  ensayo    Ensayo   @relation(fields: [ensayoId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation("EnsayoApoyos", fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([ensayoId, userId])
+  @@index([userId])
+}
+
+model EnsayoGuardado {
+  id        String   @id @default(uuid())
+  ensayoId  String
+  ensayo    Ensayo   @relation(fields: [ensayoId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation("EnsayoGuardados", fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([ensayoId, userId])
+  @@index([userId])
+}
+
+model EnsayoComuniquese {
+  id        String   @id @default(uuid())
+  ensayoId  String
+  ensayo    Ensayo   @relation(fields: [ensayoId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation("EnsayoComuniquese", fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([ensayoId, userId])
+  @@index([userId])
+}
+
+// ─── Mi Examen (Plan de Estudio Personalizado) ───────────
+
+model ExamenConfig {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Datos del examen
+  universidad     String
+  sede            String?
+  fechaExamen     DateTime?
+
+  // Cedulario original
+  cedularioTexto  String?
+  cedularioUrl    String?
+  cedularioSource String?   // "text" | "pdf"
+
+  // Estado del parsing
+  parseStatus     String    @default("pending") // "pending" | "parsing" | "completed" | "error"
+  parseError      String?
+  parsedAt        DateTime?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  temas           ExamenTema[]
+
+  @@index([userId])
+}
+
+model ExamenTema {
+  id                String       @id @default(uuid())
+  examenConfigId    String
+  examenConfig      ExamenConfig @relation(fields: [examenConfigId], references: [id], onDelete: Cascade)
+
+  // Datos del tema extraído del cedulario
+  nombre            String
+  descripcion       String?
+  categoriaOriginal String?
+
+  // Mapeo al contenido de Studio Iuris
+  materiaMapping    String?   // Valor de rama que corresponde: "DERECHO_CIVIL", "DERECHO_PROCESAL_CIVIL"
+  libroMapping      String?   // Valor de libro si hay match más granular
+  tituloMapping     String?   // Valor de titulo si hay match aún más específico
+
+  // Disponibilidad de contenido
+  flashcardsDisponibles Int     @default(0)
+  mcqDisponibles        Int     @default(0)
+  vfDisponibles         Int     @default(0)
+  tieneContenido        Boolean @default(false)
+
+  // Progreso del usuario (se actualiza periódicamente)
+  flashcardsDominadas   Int     @default(0)
+  mcqCorrectas          Int     @default(0)
+  vfCorrectas           Int     @default(0)
+  porcentajeAvance      Float   @default(0) // 0-100
+
+  // Orden y peso
+  orden                 Int     @default(0)
+  peso                  Float   @default(1.0)
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([examenConfigId])
+  @@index([materiaMapping])
+}
+
+model ExamenReporte {
+  id                  String    @id @default(uuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  universidad         String
+  fechaExamen         DateTime
+  aprobado            Boolean?
+
+  materiasPreguntadas String    // JSON: ["obligaciones", "procesal_civil", ...]
+
+  comentario          String?
+  dificultadPercibida Int?      // 1-5
+
+  createdAt           DateTime  @default(now())
+
+  @@index([universidad])
+  @@index([createdAt(sort: Desc)])
 }

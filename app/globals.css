@@ -208,3 +208,70 @@ textarea:focus {
   z-index: 9999;
   pointer-events: none;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   GAZETTE — "La Gaceta" editorial variables
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --gz-cream: #f5f0e6;
+  --gz-cream-dark: #e9e0cf;
+  --gz-ink: #1c1814;
+  --gz-ink-mid: #4a433a;
+  --gz-ink-light: #8a8073;
+  --gz-gold: #9a7230;
+  --gz-gold-bright: #c49a50;
+  --gz-burgundy: #6b1d2a;
+  --gz-navy: #12203a;
+  --gz-sage: #3a5a35;
+  --gz-rule: #c4b99a;
+  --gz-rule-dark: #a09580;
+  --gz-red: #c41a1a;
+  --gz-red-dark: #9a1515;
+}
+
+[data-theme="dark"] {
+  --gz-cream: #0D0B08;
+  --gz-cream-dark: #1A1612;
+  --gz-ink: #F0E8D5;
+  --gz-ink-mid: #8A7D6A;
+  --gz-ink-light: #5A4E3C;
+  --gz-gold: #C9A84C;
+  --gz-gold-bright: #E8C870;
+  --gz-burgundy: #c2485a;
+  --gz-navy: #1a3055;
+  --gz-sage: #5a8a55;
+  --gz-rule: #3a3020;
+  --gz-rule-dark: #4a4030;
+  --gz-red: #e04040;
+  --gz-red-dark: #c43030;
+}
+
+/* Paper grain overlay */
+.gz-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+[data-theme="dark"] .gz-page::after {
+  opacity: 0.015;
+}
+
+/* Gazette scrollbar hide */
+.gz-scrollbar-hide::-webkit-scrollbar { display: none; }
+.gz-scrollbar-hide { scrollbar-width: none; }
+
+/* Gazette animations */
+@keyframes gz-slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gz-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}

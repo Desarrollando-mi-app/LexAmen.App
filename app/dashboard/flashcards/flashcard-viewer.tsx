@@ -355,7 +355,7 @@ export function FlashcardViewer({
           <select
             value={selectedRama}
             onChange={(e) => handleRamaChange(e.target.value)}
-            className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20 sm:w-auto"
+            className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink transition-colors focus:border-gz-gold focus:ring-1 focus:ring-gz-gold/20 focus:outline-none sm:w-auto"
           >
             <option value="ALL">Todas las ramas</option>
             {availableRamas.map((r) => (
@@ -367,7 +367,7 @@ export function FlashcardViewer({
           <select
             value={selectedLibro}
             onChange={(e) => handleLibroChange(e.target.value)}
-            className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20 sm:w-auto"
+            className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink transition-colors focus:border-gz-gold focus:ring-1 focus:ring-gz-gold/20 focus:outline-none sm:w-auto"
           >
             <option value="ALL">Todos los libros</option>
             {availableLibros.map((l) => (
@@ -380,7 +380,7 @@ export function FlashcardViewer({
             <select
               value={selectedTitulo}
               onChange={(e) => handleTituloChange(e.target.value)}
-              className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20 sm:w-auto"
+              className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink transition-colors focus:border-gz-gold focus:ring-1 focus:ring-gz-gold/20 focus:outline-none sm:w-auto"
             >
               <option value="ALL">Todos los titulos</option>
               {availableTitulos.map((t) => (
@@ -394,7 +394,7 @@ export function FlashcardViewer({
             <select
               value={selectedDificultad}
               onChange={(e) => handleDificultadChange(e.target.value)}
-              className="w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-navy outline-none transition-colors focus:border-gold focus:ring-2 focus:ring-gold/20 sm:w-auto"
+              className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink transition-colors focus:border-gz-gold focus:ring-1 focus:ring-gz-gold/20 focus:outline-none sm:w-auto"
             >
               <option value="ALL">Toda dificultad</option>
               {availableDificultades.map((d) => (
@@ -410,10 +410,10 @@ export function FlashcardViewer({
             <button
               key={mode}
               onClick={() => handleViewModeChange(mode)}
-              className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-full font-archivo text-[12px] px-3 py-1.5 transition-colors ${
                 viewMode === mode
-                  ? "bg-gold text-white"
-                  : "bg-border/30 text-navy/60 hover:bg-border/50"
+                  ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold border"
+                  : "text-gz-ink-mid border border-gz-rule hover:border-gz-gold"
               }`}
             >
               {mode === "ALL" && "Todas"}
@@ -431,14 +431,14 @@ export function FlashcardViewer({
   if (limitReached && !isPremium) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gold/10">
-          <svg className="h-10 w-10 text-gold" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gz-gold/10">
+          <svg className="h-10 w-10 text-gz-gold" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
           </svg>
         </div>
-        <h2 className="mt-6 text-2xl font-bold text-navy font-display">Limite diario alcanzado</h2>
-        <p className="mt-2 max-w-sm text-navy/60">Has completado {dailyLimit} revisiones hoy. Actualiza a Premium para revisiones ilimitadas.</p>
-        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-navy/90">Volver al Dashboard</Link>
+        <h2 className="mt-6 font-cormorant text-[28px] !font-bold text-gz-ink">Limite diario alcanzado</h2>
+        <p className="mt-2 max-w-sm font-archivo text-[14px] text-gz-ink-mid">Has completado {dailyLimit} revisiones hoy. Actualiza a Premium para revisiones ilimitadas.</p>
+        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
       </div>
     );
   }
@@ -446,14 +446,14 @@ export function FlashcardViewer({
   if (completed) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10">
-          <svg className="h-10 w-10 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gz-sage/10">
+          <svg className="h-10 w-10 text-gz-sage" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h2 className="mt-6 text-2xl font-bold text-navy font-display">Sesion completada!</h2>
-        <p className="mt-2 text-navy/60">Has revisado {reviewsCount} tarjeta{reviewsCount !== 1 ? "s" : ""} hoy.</p>
-        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-navy/90">Volver al Dashboard</Link>
+        <h2 className="mt-6 font-cormorant text-[28px] !font-bold text-gz-ink">Sesion completada!</h2>
+        <p className="mt-2 font-archivo text-[14px] text-gz-ink-mid">Has revisado {reviewsCount} tarjeta{reviewsCount !== 1 ? "s" : ""} hoy.</p>
+        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
       </div>
     );
   }
@@ -462,14 +462,14 @@ export function FlashcardViewer({
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-navy/70 transition-colors hover:text-navy">
+          <Link href="/dashboard" className="inline-flex items-center gap-1.5 font-archivo text-[13px] font-medium text-gz-ink-mid transition-colors hover:text-gz-ink">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
             Volver
           </Link>
         </div>
         <FiltersUI />
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="text-lg text-navy/60">
+          <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">
             {viewMode === "FAVORITES" ? "No tienes tarjetas favoritas en esta seleccion." : viewMode === "PENDING" ? "No tienes tarjetas pendientes de revision." : "No hay tarjetas disponibles para esta seleccion."}
           </p>
         </div>
@@ -492,11 +492,11 @@ export function FlashcardViewer({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-medium text-navy/70 transition-colors hover:text-navy">
+        <Link href="/dashboard" className="inline-flex items-center gap-1.5 font-archivo text-[13px] font-medium text-gz-ink-mid transition-colors hover:text-gz-ink">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
           Volver
         </Link>
-        <span className="text-sm font-medium text-navy/60">Tarjeta {currentIndex + 1} de {totalCards}</span>
+        <span className="font-ibm-mono text-[12px] text-gz-ink-light">Tarjeta {currentIndex + 1} de {totalCards}</span>
       </div>
 
       <FiltersUI />
@@ -505,30 +505,30 @@ export function FlashcardViewer({
       <div className="relative">
         <div className="perspective cursor-pointer" onClick={() => !isSubmitting && setIsFlipped((prev) => !prev)}>
           <div className={`flip-card-inner min-h-[300px] sm:min-h-[350px] ${isFlipped ? "flipped" : ""}`}>
-            <div className="flip-card-front flex flex-col items-center justify-center rounded-2xl border border-border bg-white p-8 shadow-sm">
-              <div className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold">{cardLabel}</div>
-              <p className="text-center text-lg font-semibold leading-relaxed text-navy sm:text-xl">{currentCard.front}</p>
-              <p className="mt-6 text-sm text-navy/40">Toca para ver la respuesta</p>
+            <div className="flip-card-front flex flex-col items-center justify-center rounded-[4px] border border-gz-rule bg-white p-8 shadow-sm">
+              <div className="mb-4 font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-gold">{cardLabel}</div>
+              <p className="font-cormorant text-[20px] lg:text-[24px] text-gz-ink text-center leading-relaxed">{currentCard.front}</p>
+              <p className="mt-6 font-archivo text-[13px] text-gz-ink-light">Toca para ver la respuesta</p>
             </div>
-            <div className="flip-card-back flex flex-col items-center justify-center rounded-2xl border-2 border-gold/30 p-8 shadow-sm" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)" }}>
-              <div className="mb-4 text-xs font-semibold uppercase tracking-wider text-gold/70">Respuesta</div>
-              <p className="text-center text-base leading-relaxed sm:text-lg" style={{ color: "var(--text-primary)" }}>{currentCard.back}</p>
+            <div className="flip-card-back flex flex-col items-center justify-center rounded-[4px] border-2 border-gz-gold/30 p-8 shadow-sm" style={{ backgroundColor: "var(--bg-card)", color: "var(--text-primary)" }}>
+              <div className="mb-4 font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-gold/70">Respuesta</div>
+              <p className="font-cormorant text-[18px] leading-relaxed text-center" style={{ color: "var(--text-primary)" }}>{currentCard.back}</p>
             </div>
           </div>
         </div>
         <button onClick={(e) => handleToggleFavorite(e, currentCard.id)} className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-colors hover:bg-white" title={favoriteSet.has(currentCard.id) ? "Quitar de favoritas" : "Agregar a favoritas"}>
           {favoriteSet.has(currentCard.id) ? (
-            <svg className="h-5 w-5 text-gold" viewBox="0 0 24 24" fill="currentColor"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" /></svg>
+            <svg className="h-5 w-5 text-gz-gold" viewBox="0 0 24 24" fill="currentColor"><path d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" /></svg>
           ) : (
-            <svg className="h-5 w-5 text-navy/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
+            <svg className="h-5 w-5 text-gz-ink-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" /></svg>
           )}
         </button>
       </div>
 
       <div className={`grid grid-cols-3 gap-3 transition-all duration-300 ${isFlipped ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"}`}>
-        <button onClick={() => handleRate(0)} disabled={isSubmitting || !isFlipped} className="flex flex-col items-center gap-1 rounded-xl border border-red-300 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-700 transition-colors hover:bg-red-500/20 disabled:opacity-50"><span className="text-lg">&#10007;</span><span>No lo sabia</span></button>
-        <button onClick={() => handleRate(3)} disabled={isSubmitting || !isFlipped} className="flex flex-col items-center gap-1 rounded-xl border border-gold bg-gold/10 px-4 py-3 text-sm font-medium text-gold transition-colors hover:bg-gold/20 disabled:opacity-50"><span className="text-lg">~</span><span>Con dificultad</span></button>
-        <button onClick={() => handleRate(5)} disabled={isSubmitting || !isFlipped} className="flex flex-col items-center gap-1 rounded-xl border border-green-400 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-700 transition-colors hover:bg-green-500/20 disabled:opacity-50"><span className="text-lg">&#10003;</span><span>Lo sabia</span></button>
+        <button onClick={() => handleRate(0)} disabled={isSubmitting || !isFlipped} className="flex flex-col items-center gap-1 rounded-[3px] border border-gz-burgundy text-gz-burgundy px-4 py-3 font-archivo text-[13px] font-semibold transition-colors hover:bg-gz-burgundy hover:text-white disabled:opacity-50"><span className="text-lg">&#10007;</span><span>No lo sabia</span></button>
+        <button onClick={() => handleRate(3)} disabled={isSubmitting || !isFlipped} className="flex flex-col items-center gap-1 rounded-[3px] border border-gz-gold text-gz-gold px-4 py-3 font-archivo text-[13px] font-semibold transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"><span className="text-lg">~</span><span>Con dificultad</span></button>
+        <button onClick={() => handleRate(5)} disabled={isSubmitting || !isFlipped} className="flex flex-col items-center gap-1 rounded-[3px] border border-gz-sage text-gz-sage px-4 py-3 font-archivo text-[13px] font-semibold transition-colors hover:bg-gz-sage hover:text-white disabled:opacity-50"><span className="text-lg">&#10003;</span><span>Lo sabia</span></button>
       </div>
 
       {isFlipped && (
@@ -537,7 +537,7 @@ export function FlashcardViewer({
         </div>
       )}
 
-      <div className="border-t border-border pt-4 text-center text-sm text-navy/50">
+      <div className="border-t border-gz-rule pt-4 text-center font-ibm-mono text-[12px] text-gz-ink-light">
         Hoy: {reviewsCount}{!isPremium ? ` / ${dailyLimit}` : ""} revisiones
       </div>
     </div>

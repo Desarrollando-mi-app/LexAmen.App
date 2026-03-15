@@ -2,6 +2,40 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { updateAyudantiaStreak } from "@/lib/ayudantia-streak";
+import { getAyudantiaWithStats } from "@/lib/sala-utils";
+
+// ─── GET: Obtener ayudantía con stats ────────────────────
+
+export async function GET(
+  _request: Request,
+  { params }: { params: { id: string } }
+) {
+  const supabase = await createClient();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+
+  if (!authUser) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const result = await getAyudantiaWithStats(params.id);
+
+  if (!result) {
+    return NextResponse.json({ error: "No encontrada" }, { status: 404 });
+  }
+
+  const { ayudantia, stats } = result;
+
+  if (!ayudantia.isActive || ayudantia.isHidden) {
+    // Only the owner can see inactive/hidden ayudantias
+    if (ayudantia.userId !== authUser.id) {
+      return NextResponse.json({ error: "No encontrada" }, { status: 404 });
+    }
+  }
+
+  return NextResponse.json({ ayudantia, stats });
+}
 
 // ─── PATCH: Editar ayudantía ──────────────────────────────
 
@@ -60,6 +94,8 @@ export async function PATCH(
     "contactMethod",
     "contactValue",
     "isActive",
+    "titulo",
+    "disponibilidad",
   ];
 
   const updateData: Record<string, unknown> = {};

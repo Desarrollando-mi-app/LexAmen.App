@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface AuthCardProps {
   title: string;
   subtitle?: string;
@@ -7,22 +9,31 @@ interface AuthCardProps {
 
 export function AuthCard({ title, subtitle, children, footer }: AuthCardProps) {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-paper px-4 py-12">
+    <main className="flex min-h-screen items-center justify-center px-4 py-12" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-navy">Iuris Studio</h1>
-          <h2 className="mt-2 text-xl font-semibold text-navy">{title}</h2>
+          <div className="flex flex-col items-center mb-2">
+            <Image
+              src="/brand/logo-horizontal.svg"
+              alt="Studio Iuris"
+              width={240}
+              height={52}
+              className="h-[48px] w-auto mb-2"
+              priority
+            />
+          </div>
+          <h2 className="mt-2 font-cormorant text-[22px] !font-bold text-gz-ink">{title}</h2>
           {subtitle && (
-            <p className="mt-1 text-sm text-navy/60">{subtitle}</p>
+            <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">{subtitle}</p>
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-white p-8 shadow-sm">
+        <div className="rounded-[4px] border border-gz-rule bg-white p-8 shadow-sm">
           {children}
         </div>
 
         {footer && (
-          <div className="mt-4 text-center text-sm text-navy/60">
+          <div className="mt-4 text-center font-archivo text-[13px] text-gz-ink-mid">
             {footer}
           </div>
         )}

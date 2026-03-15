@@ -1,5 +1,5 @@
 /**
- * Índice Maestro del Curriculum — Iuris Studio
+ * Índice Maestro del Curriculum — Studio Iuris
  * Estructura jerárquica: Rama → Código → Libro → Título → Párrafo
  * Basado en el Código Civil y Código de Procedimiento Civil de Chile.
  */

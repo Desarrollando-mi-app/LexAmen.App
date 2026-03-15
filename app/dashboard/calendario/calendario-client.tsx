@@ -374,7 +374,7 @@ export function CalendarioClient({
   }
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <div className="flex gap-6">
         {/* ─── Calendar content — flex-1 ─────────────── */}
@@ -384,18 +384,18 @@ export function CalendarioClient({
           <div className="flex items-center gap-3">
             <button
               onClick={prevMonth}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-navy/60 hover:bg-navy/5 transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-[3px] border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
               </svg>
             </button>
-            <h2 className="text-xl font-bold text-navy font-display min-w-[180px] text-center">
-              <em>{MONTHS_ES[month - 1]}</em> {year}
+            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink min-w-[180px] text-center">
+              {MONTHS_ES[month - 1]} {year}
             </h2>
             <button
               onClick={nextMonth}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-navy/60 hover:bg-navy/5 transition-colors"
+              className="flex h-8 w-8 items-center justify-center rounded-[3px] border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -405,7 +405,7 @@ export function CalendarioClient({
 
           <button
             onClick={() => openCreateModal()}
-            className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white hover:bg-gold/90 transition-colors"
+            className="flex items-center gap-2 rounded-[3px] bg-gz-navy px-4 py-2 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors"
           >
             <span>+</span> Nuevo evento
           </button>
@@ -413,21 +413,21 @@ export function CalendarioClient({
 
         {loading && (
           <div className="flex justify-center py-4">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-gz-gold border-t-transparent" />
           </div>
         )}
 
         {/* ─── Calendar Grid ───────────────────────────── */}
         <div
           ref={gridRef}
-          className="rounded-xl border border-border bg-white overflow-hidden"
+          className="rounded-[4px] border border-gz-rule bg-white overflow-hidden"
         >
           {/* Day headers */}
-          <div className="grid grid-cols-7 border-b border-border">
+          <div className="grid grid-cols-7 border-b border-gz-rule">
             {DAYS_ES.map((d) => (
               <div
                 key={d}
-                className="py-2 text-center text-xs font-semibold text-navy/50 uppercase tracking-wider"
+                className="py-2 text-center font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light"
               >
                 {d}
               </div>
@@ -477,10 +477,10 @@ export function CalendarioClient({
                               }
                             }}
                             className={`
-                              relative min-h-[90px] border-b border-r border-border cursor-pointer
+                              relative min-h-[90px] border-b border-r border-gz-cream-dark cursor-pointer
                               transition-colors duration-200
-                              ${cell.currentMonth ? "hover:bg-navy/[0.02]" : "opacity-40"}
-                              ${isSelected ? "bg-gold/5 ring-1 ring-inset ring-gold/30" : ""}
+                              ${cell.currentMonth ? "hover:bg-gz-cream-dark/30" : "opacity-40"}
+                              ${isSelected ? "bg-gz-gold/[0.06] ring-1 ring-inset ring-gz-gold/30" : ""}
                             `}
                           >
                             {/* Day number */}
@@ -488,8 +488,8 @@ export function CalendarioClient({
                               <span
                                 className={`
                                   inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium
-                                  ${isTodayCell ? "bg-gold text-white font-bold" : "text-navy/70"}
-                                  ${!cell.currentMonth ? "text-navy/30" : ""}
+                                  ${isTodayCell ? "bg-gz-gold text-white font-bold" : "text-gz-ink-mid"}
+                                  ${!cell.currentMonth ? "text-gz-ink-light/50" : ""}
                                 `}
                               >
                                 {cell.day}
@@ -502,7 +502,7 @@ export function CalendarioClient({
                                 {dayEvents.slice(0, maxVisible).map((ev) => (
                                   <div
                                     key={ev.id}
-                                    className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium truncate"
+                                    className="flex items-center gap-1 rounded-sm px-1.5 py-0.5 font-ibm-mono text-[9px] font-medium truncate"
                                     style={{
                                       backgroundColor: `${EVENT_COLORS[ev.eventType] ?? EVENT_COLORS.personal}20`,
                                       color:
@@ -518,7 +518,7 @@ export function CalendarioClient({
                                   </div>
                                 ))}
                                 {hiddenCount > 0 && (
-                                  <div className="text-[10px] text-navy/40 pl-1.5">
+                                  <div className="text-[10px] text-gz-ink-light pl-1.5">
                                     +{hiddenCount} más
                                   </div>
                                 )}
@@ -531,14 +531,14 @@ export function CalendarioClient({
 
                     {/* Detail panel — spans full width below the row */}
                     {selectedInRow && selectedDay && (
-                      <div className="border-b border-border bg-navy/[0.02] px-4 py-3 transition-all duration-300">
+                      <div className="border-b border-gz-rule bg-gz-cream-dark/30 px-4 py-3 transition-all duration-300">
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-sm font-semibold text-navy font-display">
+                          <h4 className="font-cormorant text-[16px] !font-bold text-gz-ink">
                             {selectedDay} de {MONTHS_ES[month - 1]}
                           </h4>
                           <button
                             onClick={() => setSelectedDay(null)}
-                            className="text-navy/40 hover:text-navy/60 transition-colors"
+                            className="text-gz-ink-light hover:text-gz-ink-mid transition-colors"
                           >
                             <svg
                               className="h-4 w-4"
@@ -562,7 +562,7 @@ export function CalendarioClient({
                             {selectedDayEvents.map((ev) => (
                               <div
                                 key={ev.id}
-                                className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-border cursor-pointer hover:border-gold/30 transition-colors"
+                                className="flex items-center gap-2 rounded-[3px] bg-white px-3 py-2 border border-gz-rule cursor-pointer hover:border-gz-gold/30 transition-colors"
                                 onClick={() => openEditModal(ev)}
                               >
                                 <span
@@ -573,17 +573,17 @@ export function CalendarioClient({
                                       EVENT_COLORS.personal,
                                   }}
                                 />
-                                <span className="text-xs font-medium text-navy flex-1 truncate">
+                                <span className="text-xs font-medium text-gz-ink flex-1 truncate">
                                   {EVENT_ICONS[ev.eventType] ?? "📌"}{" "}
                                   {ev.title}
                                 </span>
                                 {!ev.allDay && (
-                                  <span className="text-[10px] text-navy/40 shrink-0">
+                                  <span className="text-[10px] text-gz-ink-light shrink-0">
                                     {formatTime(ev.startDate)}
                                   </span>
                                 )}
                                 <svg
-                                  className="h-3 w-3 text-navy/30 shrink-0"
+                                  className="h-3 w-3 text-gz-ink-light/50 shrink-0"
                                   fill="none"
                                   viewBox="0 0 24 24"
                                   strokeWidth={2}
@@ -599,7 +599,7 @@ export function CalendarioClient({
                             ))}
                           </div>
                         ) : (
-                          <p className="text-xs text-navy/40 mb-3">
+                          <p className="font-cormorant italic text-[13px] text-gz-ink-light mb-3">
                             Sin eventos este día
                           </p>
                         )}
@@ -614,7 +614,7 @@ export function CalendarioClient({
                             value={quickInput}
                             onChange={(e) => setQuickInput(e.target.value)}
                             placeholder="＋ Agregar evento rápido..."
-                            className="flex-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none"
+                            className="flex-1 rounded-[3px] border border-gz-rule bg-white px-3 py-1.5 font-archivo text-[12px] text-gz-ink placeholder:text-gz-ink-light/50 focus:border-gz-gold focus:outline-none"
                             disabled={quickLoading}
                             autoFocus
                           />
@@ -622,7 +622,7 @@ export function CalendarioClient({
                             <button
                               type="submit"
                               disabled={quickLoading}
-                              className="rounded-lg bg-gold px-3 py-1.5 text-xs font-semibold text-white hover:bg-gold/90 disabled:opacity-50"
+                              className="rounded-[3px] bg-gz-navy px-3 py-1.5 font-archivo text-[12px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50 transition-colors"
                             >
                               {quickLoading ? "..." : "Agregar"}
                             </button>
@@ -638,7 +638,7 @@ export function CalendarioClient({
         </div>
 
         {/* ─── Legend ───────────────────────────────────── */}
-        <div className="mt-4 flex flex-wrap items-center gap-4 text-[11px] text-navy/50">
+        <div className="mt-4 flex flex-wrap items-center gap-4 font-ibm-mono text-[10px] text-gz-ink-light">
           {EVENT_TYPE_OPTIONS.map((t) => (
             <div key={t.value} className="flex items-center gap-1.5">
               <div
@@ -677,37 +677,40 @@ export function CalendarioClient({
           onClick={() => setModalOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-xl border border-border bg-white p-6 shadow-xl"
+            className="w-full max-w-md rounded-[4px] border border-gz-rule p-6 shadow-sm"
+            style={{ backgroundColor: "var(--gz-cream)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-navy font-display mb-4">
+            <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-4">
               {editingEvent ? "Editar evento" : "Nuevo evento"}
             </h3>
 
             <div className="space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-xs font-medium text-navy/60 mb-1">
+                <label className="block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light mb-1">
                   Título *
                 </label>
                 <input
                   type="text"
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none"
+                  className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                   placeholder="Ej: Estudiar obligaciones"
                 />
               </div>
 
               {/* Event type */}
               <div>
-                <label className="block text-xs font-medium text-navy/60 mb-1">
+                <label className="block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light mb-1">
                   Tipo de evento
                 </label>
                 <select
                   value={formType}
                   onChange={(e) => setFormType(e.target.value)}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none"
+                  className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                 >
                   {EVENT_TYPE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -723,34 +726,36 @@ export function CalendarioClient({
                   type="checkbox"
                   checked={formAllDay}
                   onChange={(e) => setFormAllDay(e.target.checked)}
-                  className="h-4 w-4 rounded border-border text-gold focus:ring-gold"
+                  className="h-4 w-4 rounded border-gz-rule text-gz-gold focus:ring-gz-gold"
                 />
-                <span className="text-sm text-navy">Todo el día</span>
+                <span className="font-archivo text-[13px] text-gz-ink">Todo el día</span>
               </label>
 
               {/* Dates */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-navy/60 mb-1">
+                  <label className="block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light mb-1">
                     Fecha inicio *
                   </label>
                   <input
                     type="date"
                     value={formStartDate}
                     onChange={(e) => setFormStartDate(e.target.value)}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none"
+                    className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   />
                 </div>
                 {!formAllDay && (
                   <div>
-                    <label className="block text-xs font-medium text-navy/60 mb-1">
+                    <label className="block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light mb-1">
                       Hora inicio
                     </label>
                     <input
                       type="time"
                       value={formStartTime}
                       onChange={(e) => setFormStartTime(e.target.value)}
-                      className="w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none"
+                      className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                      style={{ backgroundColor: "var(--gz-cream)" }}
                     />
                   </div>
                 )}
@@ -758,26 +763,28 @@ export function CalendarioClient({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-navy/60 mb-1">
+                  <label className="block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light mb-1">
                     Fecha fin (opcional)
                   </label>
                   <input
                     type="date"
                     value={formEndDate}
                     onChange={(e) => setFormEndDate(e.target.value)}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none"
+                    className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   />
                 </div>
                 {!formAllDay && (
                   <div>
-                    <label className="block text-xs font-medium text-navy/60 mb-1">
+                    <label className="block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light mb-1">
                       Hora fin
                     </label>
                     <input
                       type="time"
                       value={formEndTime}
                       onChange={(e) => setFormEndTime(e.target.value)}
-                      className="w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none"
+                      className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                      style={{ backgroundColor: "var(--gz-cream)" }}
                     />
                   </div>
                 )}
@@ -785,14 +792,15 @@ export function CalendarioClient({
 
               {/* Description */}
               <div>
-                <label className="block text-xs font-medium text-navy/60 mb-1">
+                <label className="block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light mb-1">
                   Descripción (opcional)
                 </label>
                 <textarea
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
                   rows={3}
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none resize-none"
+                  className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none resize-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                   placeholder="Notas adicionales..."
                 />
               </div>
@@ -805,7 +813,7 @@ export function CalendarioClient({
                   <button
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                    className="rounded-[3px] border border-gz-burgundy/30 px-4 py-2 font-archivo text-[13px] font-medium text-gz-burgundy hover:bg-gz-burgundy/[0.06] disabled:opacity-50 transition-colors"
                   >
                     {deleting ? "Eliminando..." : "Eliminar"}
                   </button>
@@ -814,14 +822,14 @@ export function CalendarioClient({
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setModalOpen(false)}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-navy/60 hover:bg-navy/5 transition-colors"
+                  className="rounded-[3px] border border-gz-rule px-4 py-2 font-archivo text-[13px] font-medium text-gz-ink-mid hover:bg-gz-cream-dark/50 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving || !formTitle.trim() || !formStartDate}
-                  className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white hover:bg-gold/90 disabled:opacity-50 transition-colors"
+                  className="rounded-[3px] bg-gz-navy px-4 py-2 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50 transition-colors"
                 >
                   {saving ? "Guardando..." : "Guardar"}
                 </button>

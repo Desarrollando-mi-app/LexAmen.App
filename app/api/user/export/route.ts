@@ -130,7 +130,7 @@ export async function GET() {
 
   const exportData = {
     exportedAt: new Date().toISOString(),
-    platform: "Iuris Studio",
+    platform: "Studio Iuris",
     user,
     flashcardProgress,
     mcqAttempts,
@@ -146,7 +146,7 @@ export async function GET() {
   return new NextResponse(JSON.stringify(exportData, null, 2), {
     headers: {
       "Content-Type": "application/json",
-      "Content-Disposition": 'attachment; filename="mis-datos-iuris-studio.json"',
+      "Content-Disposition": 'attachment; filename="mis-datos-studio-iuris.json"',
     },
   });
 }

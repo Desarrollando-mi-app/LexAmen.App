@@ -88,7 +88,7 @@ export function GlobalSearch() {
       {!open && (
         <button
           onClick={handleOpen}
-          className="rounded-lg p-1.5 text-navy/60 hover:bg-navy/5 hover:text-navy transition-colors"
+          className="rounded-[3px] p-1.5 text-navy/60 hover:bg-navy/5 hover:text-navy transition-colors"
           aria-label="Buscar"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -115,7 +115,7 @@ export function GlobalSearch() {
               value={query}
               onChange={handleInputChange}
               placeholder="Buscar estudiantes..."
-              className="w-[200px] sm:w-[280px] rounded-lg border border-border bg-paper py-1.5 pl-9 pr-3 text-sm text-navy placeholder:text-navy/40 focus:border-gold/50 focus:outline-none transition-all animate-in fade-in slide-in-from-right-2 duration-200"
+              className="w-[200px] sm:w-[280px] rounded-[3px] border border-gz-rule bg-gz-cream-dark py-1.5 pl-9 pr-3 text-sm text-navy placeholder:text-navy/40 focus:border-gold/50 focus:outline-none transition-all animate-in fade-in slide-in-from-right-2 duration-200"
             />
           </div>
           <button
@@ -125,7 +125,7 @@ export function GlobalSearch() {
               setResults([]);
               setSearched(false);
             }}
-            className="rounded-lg p-1 text-navy/40 hover:text-navy transition-colors"
+            className="rounded-[3px] p-1 text-navy/40 hover:text-navy transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6 6 18" /><path d="M6 6 18 18" />
@@ -136,7 +136,7 @@ export function GlobalSearch() {
 
       {/* Dropdown results */}
       {open && searched && (
-        <div className="absolute right-0 top-full mt-2 w-[320px] rounded-xl border border-border bg-white shadow-xl z-50 overflow-hidden">
+        <div className="absolute right-0 top-full mt-2 w-[320px] rounded-[4px] border border-gz-rule bg-white shadow-sm z-50 overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-gold border-t-transparent" />
@@ -146,7 +146,7 @@ export function GlobalSearch() {
               Sin resultados
             </div>
           ) : (
-            <ul className="divide-y divide-border max-h-[360px] overflow-y-auto">
+            <ul className="divide-y divide-gz-rule max-h-[360px] overflow-y-auto">
               {results.map((u) => {
                 const initials = `${u.firstName[0]}${u.lastName[0]}`.toUpperCase();
                 const tierLabel = u.tier ? TIER_LABELS[u.tier] : null;
@@ -162,7 +162,7 @@ export function GlobalSearch() {
                         setResults([]);
                         setSearched(false);
                       }}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-paper"
+                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-gz-cream-dark"
                     >
                       {/* Avatar */}
                       {u.avatarUrl ? (
@@ -194,7 +194,7 @@ export function GlobalSearch() {
 
                       {/* Status */}
                       {u.colegaStatus === "accepted" && (
-                        <span className="shrink-0 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-600">
+                        <span className="shrink-0 rounded-full bg-gz-sage/10 px-2 py-0.5 text-[10px] font-semibold text-gz-sage">
                           Colega
                         </span>
                       )}

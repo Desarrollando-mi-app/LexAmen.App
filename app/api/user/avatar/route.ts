@@ -1,11 +1,28 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";
+import sharp from "sharp";
 
-const MAX_SIZE = 2 * 1024 * 1024; // 2MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+];
+
+// Admin client with service role key — bypasses RLS for Storage uploads
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Supabase env vars faltantes para Storage");
+  return createSupabaseClient(url, key);
+}
 
 export async function POST(request: Request) {
+  // Auth check with anon key client (respects RLS for auth)
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -24,29 +41,36 @@ export async function POST(request: Request) {
 
   if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json(
-      { error: "Tipo de archivo no permitido. Usa JPG, PNG o WebP." },
+      { error: "Tipo de archivo no permitido. Usa JPG, PNG, WebP o HEIC." },
       { status: 400 }
     );
   }
 
   if (file.size > MAX_SIZE) {
     return NextResponse.json(
-      { error: "El archivo excede el límite de 2MB." },
+      { error: "El archivo excede el límite de 5 MB." },
       { status: 400 }
     );
   }
 
-  const ext = file.type.split("/")[1] === "jpeg" ? "jpg" : file.type.split("/")[1];
-  const path = `${authUser.id}/avatar.${ext}`;
-
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
-  // Upload to Supabase Storage
-  const { error: uploadError } = await supabase.storage
+  // Convert to 400x400 WebP regardless of input format
+  const converted = await sharp(buffer)
+    .resize(400, 400, { fit: "cover", position: "center" })
+    .webp({ quality: 85 })
+    .toBuffer();
+
+  const path = `${authUser.id}/avatar.webp`;
+
+  // Upload with service role key to bypass RLS
+  const supabaseAdmin = getSupabaseAdmin();
+
+  const { error: uploadError } = await supabaseAdmin.storage
     .from("avatars")
-    .upload(path, buffer, {
-      contentType: file.type,
+    .upload(path, converted, {
+      contentType: "image/webp",
       upsert: true,
     });
 
@@ -58,7 +82,7 @@ export async function POST(request: Request) {
   }
 
   // Get public URL
-  const { data: urlData } = supabase.storage
+  const { data: urlData } = supabaseAdmin.storage
     .from("avatars")
     .getPublicUrl(path);
 

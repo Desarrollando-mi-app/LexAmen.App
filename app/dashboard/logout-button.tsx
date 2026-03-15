@@ -24,7 +24,7 @@ export function LogoutButton() {
           onClick={() => setShowModal(false)}
         >
           <div
-            className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+            className="mx-4 w-full max-w-sm rounded-[4px] bg-white p-6 shadow-sm"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-bold text-navy">¿Cerrar sesión?</h3>
@@ -34,7 +34,7 @@ export function LogoutButton() {
             <div className="mt-6 flex justify-end gap-3">
               <button
                 type="button"
-                className="rounded-lg px-4 py-2 text-sm font-medium text-navy/70 transition-colors hover:bg-navy/5"
+                className="rounded-[3px] px-4 py-2 text-sm font-medium text-navy/70 transition-colors hover:bg-navy/5"
                 onClick={() => setShowModal(false)}
               >
                 Cancelar
@@ -42,7 +42,7 @@ export function LogoutButton() {
               <form action={logout}>
                 <button
                   type="submit"
-                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+                  className="rounded-[3px] bg-gz-burgundy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gz-burgundy/90"
                 >
                   Cerrar sesión
                 </button>

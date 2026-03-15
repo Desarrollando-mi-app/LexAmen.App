@@ -110,8 +110,8 @@ export function AdminPanel() {
   return (
     <div className="space-y-8">
       {/* ─── Formulario de envío ──────────────────────────── */}
-      <section className="rounded-xl border border-border bg-white p-6">
-        <h2 className="text-lg font-bold text-navy mb-4 font-display">
+      <section className="rounded-[4px] border border-gz-rule bg-white p-6">
+        <h2 className="text-lg font-bold text-navy mb-4 font-cormorant">
           Enviar notificación
         </h2>
 
@@ -125,7 +125,7 @@ export function AdminPanel() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ej: ¡Nuevo contenido disponible!"
-              className="w-full rounded-lg border border-border bg-paper px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none"
+              className="w-full rounded-[3px] border border-gz-rule bg-gz-cream-dark px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none"
             />
           </div>
 
@@ -138,7 +138,7 @@ export function AdminPanel() {
               onChange={(e) => setBody(e.target.value)}
               placeholder="Escribe el cuerpo de la notificación..."
               rows={3}
-              className="w-full rounded-lg border border-border bg-paper px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none resize-none"
+              className="w-full rounded-[3px] border border-gz-rule bg-gz-cream-dark px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none resize-none"
             />
           </div>
 
@@ -151,7 +151,7 @@ export function AdminPanel() {
                 value={segment}
                 onChange={(e) => setSegment(e.target.value)}
                 disabled={!!targetUserId.trim()}
-                className="w-full rounded-lg border border-border bg-paper px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none disabled:opacity-50"
+                className="w-full rounded-[3px] border border-gz-rule bg-gz-cream-dark px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none disabled:opacity-50"
               >
                 {SEGMENT_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -170,7 +170,7 @@ export function AdminPanel() {
                 value={targetUserId}
                 onChange={(e) => setTargetUserId(e.target.value)}
                 placeholder="cuid del usuario"
-                className="w-full rounded-lg border border-border bg-paper px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none"
+                className="w-full rounded-[3px] border border-gz-rule bg-gz-cream-dark px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none"
               />
             </div>
           </div>
@@ -180,7 +180,7 @@ export function AdminPanel() {
               type="checkbox"
               checked={sendEmail}
               onChange={(e) => setSendEmail(e.target.checked)}
-              className="h-4 w-4 rounded border-border text-gold focus:ring-gold accent-gold"
+              className="h-4 w-4 rounded border-gz-rule text-gold focus:ring-gold accent-gold"
             />
             <span className="text-sm text-navy/70">
               Enviar también por email (vía Resend)
@@ -190,7 +190,7 @@ export function AdminPanel() {
           {result && (
             <p
               className={`text-sm font-medium ${
-                result.startsWith("✅") ? "text-green-600" : "text-red-500"
+                result.startsWith("✅") ? "text-gz-sage" : "text-gz-burgundy"
               }`}
             >
               {result}
@@ -200,7 +200,7 @@ export function AdminPanel() {
           <button
             onClick={handleSend}
             disabled={sending || !title.trim() || !body.trim()}
-            className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-50 transition-colors"
+            className="rounded-[3px] bg-navy px-5 py-2.5 text-sm font-semibold text-white hover:bg-navy/90 disabled:opacity-50 transition-colors"
           >
             {sending ? "Enviando..." : "Enviar notificación"}
           </button>
@@ -208,8 +208,8 @@ export function AdminPanel() {
       </section>
 
       {/* ─── Historial ───────────────────────────────────── */}
-      <section className="rounded-xl border border-border bg-white p-6">
-        <h2 className="text-lg font-bold text-navy mb-4 font-display">
+      <section className="rounded-[4px] border border-gz-rule bg-white p-6">
+        <h2 className="text-lg font-bold text-navy mb-4 font-cormorant">
           Historial de envíos
         </h2>
 
@@ -225,7 +225,7 @@ export function AdminPanel() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border text-left text-navy/50">
+                <tr className="border-b border-gz-rule text-left text-navy/50">
                   <th className="pb-2 pr-4 font-medium">Tipo</th>
                   <th className="pb-2 pr-4 font-medium">Título</th>
                   <th className="pb-2 pr-4 font-medium">Dest.</th>

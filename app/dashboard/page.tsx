@@ -1,21 +1,20 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import {
-  CurriculumProgress,
-  progressKey,
-} from "./components/curriculum-progress";
+import { progressKey } from "@/lib/progress-utils";
 import type { ProgressData } from "./components/curriculum-progress";
-import { ensureLeagueMembership } from "@/lib/league-assign";
-import { TIER_LABELS, TIER_EMOJIS, getDaysRemaining } from "@/lib/league";
-import { SidebarCausas } from "./components/sidebar-causas";
-import { SidebarLiga } from "./components/sidebar-liga";
-import { ActivityGrid } from "./components/activity-grid";
+import { RAMA_LABELS, CURRICULUM } from "@/lib/curriculum-data";
+
+import { GzMasthead } from "./components/gz-masthead";
+import { GzUserBar } from "./components/gz-user-bar";
+import { GzHeadline } from "./components/gz-headline";
+import { GzCausasWire } from "./components/gz-causas-wire";
+import { GzStudyColumns } from "./components/gz-study-columns";
+import { GzCommunity } from "./components/gz-community";
+import { GzObiterSemana } from "./components/gz-obiter-semana";
+import { GzMiExamenResumen } from "./components/gz-mi-examen-resumen";
+import { GzFooter } from "./components/gz-footer";
 import { OnboardingCard } from "./components/onboarding-card";
-import { ExamCountdown } from "./components/exam-countdown";
-import { PomodoroTimer } from "./components/pomodoro-timer";
-import { HeroCarrusel } from "./components/hero-carrusel";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -50,6 +49,33 @@ function calculateStreak(dates: (Date | null)[]): number {
   }
 
   return streak;
+}
+
+// ─── Calcular progreso por rama ─────────────────────────────
+
+function getRamaProgress(
+  progressData: ProgressData,
+  ramaKey: string
+): number {
+  const rama = CURRICULUM[ramaKey];
+  if (!rama) return 0;
+
+  let totalFlashcards = 0;
+  let dominatedFlashcards = 0;
+
+  for (const seccion of rama.secciones) {
+    for (const titulo of seccion.titulos) {
+      const key = progressKey(ramaKey, seccion.libro, titulo.id);
+      const p = progressData[key];
+      if (p) {
+        totalFlashcards += p.flashcardTotal;
+        dominatedFlashcards += p.flashcardDominated;
+      }
+    }
+  }
+
+  if (totalFlashcards === 0) return 0;
+  return Math.round((dominatedFlashcards / totalFlashcards) * 100);
 }
 
 // ─── Página principal ────────────────────────────────────
@@ -87,71 +113,45 @@ export default async function DashboardPage() {
     }
   }
 
-  // ─── Liga (lazy assignment) ──────────────────────────────
-  const leagueMembership = await ensureLeagueMembership(authUser.id);
-  const tierLabel =
-    TIER_LABELS[leagueMembership.league.tier] ?? leagueMembership.league.tier;
-  const tierEmoji = TIER_EMOJIS[leagueMembership.league.tier] ?? "";
-  const daysRemaining = getDaysRemaining();
-
   // ─── Consultas de estadísticas (en paralelo) ──────────────
   const [
     masteredCount,
     reviewDatesRaw,
-    pendingFlashcards,
     flashcardsByTitulo,
     dominatedRecords,
     curriculumProgressRecords,
-    mcqCount,
-    tfCount,
-    // Sidebar causas
-    pendingCausasDetailed,
-    activeCausasDetailed,
-    historyCausas,
-    // Sidebar liga
-    leagueMembers,
-    // Actividad 30 días
     flashcardReviews30d,
     mcqAttempts30d,
     tfAttempts30d,
-    // Salas grupales
-    activeRoomsCount,
+    // Gazette queries
+    totalFlashcards,
+    mcqTotal,
+    mcqCorrect,
+    causaRoomsRaw,
+    userBadgesRaw,
+    colegasRaw,
+    ayudantiasRaw,
+    obiterDeLaSemanaRaw,
+    examenConfigRaw,
+    // La Sala resumen
+    proximoEventoRaw,
+    pasantiasNuevasCount,
+    ayudantiasActivasCount,
   ] = await Promise.all([
-    // 1. Flashcards dominadas
     prisma.userFlashcardProgress.count({
       where: { userId: authUser.id, repetitions: { gte: 3 } },
     }),
 
-    // 2. Fechas de revisión para racha
     prisma.userFlashcardProgress.findMany({
       where: { userId: authUser.id, lastReviewedAt: { not: null } },
       select: { lastReviewedAt: true },
     }),
 
-    // 3. Flashcards pendientes hoy
-    prisma.flashcard.count({
-      where: {
-        OR: [
-          { progress: { none: { userId: authUser.id } } },
-          {
-            progress: {
-              some: {
-                userId: authUser.id,
-                nextReviewAt: { lte: new Date() },
-              },
-            },
-          },
-        ],
-      },
-    }),
-
-    // 4. Total flashcards por rama/libro/titulo
     prisma.flashcard.groupBy({
       by: ["rama", "libro", "titulo"],
       _count: { id: true },
     }),
 
-    // 5. Flashcards dominadas por rama/libro/titulo
     prisma.userFlashcardProgress.findMany({
       where: { userId: authUser.id, repetitions: { gte: 3 } },
       select: {
@@ -159,79 +159,11 @@ export default async function DashboardPage() {
       },
     }),
 
-    // 6. CurriculumProgress (vueltas)
     prisma.curriculumProgress.findMany({
       where: { userId: authUser.id },
       select: { rama: true, libro: true, titulo: true, completions: true },
     }),
 
-    // 7. MCQs disponibles
-    prisma.mCQ.count(),
-
-    // 8. V/F disponibles
-    prisma.trueFalse.count(),
-
-    // 9. Causas pendientes con detalles (sidebar)
-    prisma.causa.findMany({
-      where: { challengedId: authUser.id, status: "PENDING" },
-      orderBy: { createdAt: "desc" },
-      include: {
-        challenger: { select: { firstName: true, lastName: true } },
-      },
-    }),
-
-    // 10. Causas activas con detalles (sidebar)
-    prisma.causa.findMany({
-      where: {
-        OR: [
-          { challengerId: authUser.id },
-          { challengedId: authUser.id },
-        ],
-        status: "ACTIVE",
-      },
-      orderBy: { startedAt: "desc" },
-      include: {
-        challenger: {
-          select: { id: true, firstName: true, lastName: true },
-        },
-        challenged: {
-          select: { id: true, firstName: true, lastName: true },
-        },
-      },
-    }),
-
-    // 11. Historial causas últimas 5 (sidebar)
-    prisma.causa.findMany({
-      where: {
-        OR: [
-          { challengerId: authUser.id },
-          { challengedId: authUser.id },
-        ],
-        status: { in: ["COMPLETED", "REJECTED"] },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      include: {
-        challenger: {
-          select: { id: true, firstName: true, lastName: true },
-        },
-        challenged: {
-          select: { id: true, firstName: true, lastName: true },
-        },
-        winner: { select: { id: true } },
-      },
-    }),
-
-    // 12. Liga: todos los miembros (sidebar)
-    prisma.leagueMember.findMany({
-      where: { leagueId: leagueMembership.leagueId },
-      orderBy: { weeklyXp: "desc" },
-      include: {
-        user: { select: { id: true, firstName: true, lastName: true } },
-      },
-    }),
-
-    // 13. Flashcard reviews últimos 30 días
     prisma.userFlashcardProgress.findMany({
       where: {
         userId: authUser.id,
@@ -242,7 +174,6 @@ export default async function DashboardPage() {
       select: { lastReviewedAt: true },
     }),
 
-    // 14. MCQ attempts últimos 30 días
     prisma.userMCQAttempt.findMany({
       where: {
         userId: authUser.id,
@@ -253,7 +184,6 @@ export default async function DashboardPage() {
       select: { attemptedAt: true },
     }),
 
-    // 15. TF attempts últimos 30 días
     prisma.userTrueFalseAttempt.findMany({
       where: {
         userId: authUser.id,
@@ -264,56 +194,123 @@ export default async function DashboardPage() {
       select: { attemptedAt: true },
     }),
 
-    // 16. Salas grupales activas (sidebar)
-    prisma.causaRoom.count({
-      where: {
-        participants: { some: { userId: authUser.id } },
-        status: { in: ["lobby", "active"] },
+    // ── Gazette-specific ─────────────────────────────────────
+    prisma.flashcard.count(),
+
+    prisma.userMCQAttempt.count({
+      where: { userId: authUser.id },
+    }),
+
+    prisma.userMCQAttempt.count({
+      where: { userId: authUser.id, isCorrect: true },
+    }),
+
+    prisma.causaRoom.findMany({
+      where: { status: { in: ["lobby", "active"] } },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      include: {
+        createdBy: { select: { firstName: true } },
+        _count: { select: { participants: true } },
       },
     }),
+
+    prisma.userBadge.findMany({
+      where: { userId: authUser.id },
+      select: { badge: true, earnedAt: true },
+    }),
+
+    prisma.colegaRequest.findMany({
+      where: {
+        OR: [
+          { senderId: authUser.id, status: "ACCEPTED" },
+          { receiverId: authUser.id, status: "ACCEPTED" },
+        ],
+      },
+      take: 4,
+      orderBy: { updatedAt: "desc" },
+      include: {
+        sender: {
+          select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+        },
+        receiver: {
+          select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+        },
+      },
+    }),
+
+    prisma.ayudantia.findMany({
+      where: { isActive: true },
+      take: 3,
+      orderBy: { createdAt: "desc" },
+      include: { user: { select: { firstName: true } } },
+    }),
+
+    // Obiter de la Semana (más citado de los últimos 7 días)
+    prisma.obiterDictum.findFirst({
+      where: {
+        createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        citasCount: { gte: 1 },
+      },
+      orderBy: { citasCount: "desc" },
+      select: {
+        id: true,
+        content: true,
+        citasCount: true,
+        apoyosCount: true,
+        user: { select: { firstName: true, lastName: true } },
+      },
+    }),
+
+    // Mi Examen config (para mini-resumen)
+    prisma.examenConfig.findUnique({
+      where: { userId: authUser.id },
+      select: {
+        universidad: true,
+        sede: true,
+        fechaExamen: true,
+        parseStatus: true,
+        temas: {
+          where: { tieneContenido: true },
+          select: {
+            nombre: true,
+            porcentajeAvance: true,
+            peso: true,
+          },
+          orderBy: { porcentajeAvance: "asc" },
+        },
+      },
+    }),
+
+    // ── La Sala resumen ─────────────────────────────────────
+    prisma.eventoAcademico.findFirst({
+      where: {
+        approvalStatus: "aprobado",
+        isActive: true,
+        isHidden: false,
+        fecha: { gte: new Date() },
+      },
+      orderBy: { fecha: "asc" },
+      select: {
+        titulo: true,
+        fecha: true,
+        lugar: true,
+        _count: { select: { interesados: true } },
+      },
+    }),
+
+    prisma.pasantia.count({
+      where: {
+        isActive: true,
+        isHidden: false,
+        createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+      },
+    }),
+
+    prisma.ayudantia.count({
+      where: { isActive: true, isHidden: false },
+    }),
   ]);
-
-  // ─── Derivar counts para badges ───────────────────────────
-  const pendingCausas = pendingCausasDetailed.length;
-  const activeCausas = activeCausasDetailed.length;
-
-  // ─── Serializar datos para sidebars ───────────────────────
-  const serializedPending = pendingCausasDetailed.map((c) => ({
-    id: c.id,
-    challengerName: `${c.challenger.firstName} ${c.challenger.lastName}`,
-    createdAt: c.createdAt.toISOString(),
-  }));
-
-  const serializedActive = activeCausasDetailed.map((c) => {
-    const opponent =
-      c.challengerId === authUser.id ? c.challenged : c.challenger;
-    return {
-      id: c.id,
-      opponentName: `${opponent.firstName} ${opponent.lastName}`,
-      startedAt: c.startedAt?.toISOString() ?? "",
-    };
-  });
-
-  const serializedHistory = historyCausas.map((c) => {
-    const opponent =
-      c.challengerId === authUser.id ? c.challenged : c.challenger;
-    return {
-      id: c.id,
-      opponentName: `${opponent.firstName} ${opponent.lastName}`,
-      status: c.status,
-      won: c.winner?.id === authUser.id,
-      lost: c.winner !== null && c.winner.id !== authUser.id,
-      createdAt: c.createdAt.toISOString(),
-    };
-  });
-
-  const serializedLeagueMembers = leagueMembers.map((m, idx) => ({
-    position: idx + 1,
-    userId: m.user.id,
-    firstName: m.user.firstName,
-    lastName: m.user.lastName,
-    weeklyXp: m.weeklyXp,
-  }));
 
   // ─── Calcular racha ───────────────────────────────────────
   const streak = calculateStreak(
@@ -361,6 +358,12 @@ export default async function DashboardPage() {
     };
   }
 
+  // ─── Progreso por rama para las barras ─────────────────────
+  const ramaProgressItems = Object.keys(CURRICULUM).map((ramaKey) => ({
+    label: RAMA_LABELS[ramaKey] ?? ramaKey,
+    percent: getRamaProgress(progressData, ramaKey),
+  }));
+
   // ─── Construir actividad de 30 días ──────────────────────
   const activityMap: Record<string, number> = {};
 
@@ -387,268 +390,165 @@ export default async function DashboardPage() {
     activityDays.push({ date: key, count: activityMap[key] ?? 0 });
   }
 
+  // ─── Serializar datos gazette ─────────────────────────────
+  const mcqPercent =
+    mcqTotal > 0 ? Math.round((mcqCorrect / mcqTotal) * 100) : 0;
+
+  const serializedRooms = causaRoomsRaw.map((r) => ({
+    id: r.id,
+    mode: r.mode,
+    status: r.status,
+    rama: r.rama,
+    maxPlayers: r.maxPlayers,
+    createdAt: r.createdAt.toISOString(),
+    createdBy: r.createdBy,
+    _count: r._count,
+  }));
+
+  const serializedBadges = userBadgesRaw.map((b) => ({
+    badge: b.badge,
+    earnedAt: b.earnedAt.toISOString(),
+  }));
+
+  const serializedColegas = colegasRaw.map((c) => {
+    const other = c.senderId === authUser.id ? c.receiver : c.sender;
+    return {
+      id: other.id,
+      firstName: other.firstName,
+      lastName: other.lastName,
+      avatarUrl: other.avatarUrl,
+    };
+  });
+
+  const serializedAyudantias = ayudantiasRaw.map((a) => ({
+    id: a.id,
+    type: a.type,
+    materia: a.materia,
+    description: a.description,
+    format: a.format,
+    priceType: a.priceType,
+    priceAmount: a.priceAmount,
+    universidad: a.universidad,
+    user: a.user,
+  }));
+
+  const obiterDeLaSemana = obiterDeLaSemanaRaw
+    ? {
+        id: obiterDeLaSemanaRaw.id,
+        content: obiterDeLaSemanaRaw.content,
+        apoyosCount: obiterDeLaSemanaRaw.apoyosCount,
+        citasCount: obiterDeLaSemanaRaw.citasCount,
+        userName: `${obiterDeLaSemanaRaw.user.firstName} ${obiterDeLaSemanaRaw.user.lastName}`,
+      }
+    : null;
+
+  // ─── Mi Examen resumen ───────────────────────────────────
+  let examenResumen: {
+    universidad: string;
+    sede: string | null;
+    fechaExamen: string | null;
+    progresoGlobal: number;
+    temaDebil: string | null;
+    temaDebilPorcentaje: number | null;
+  } | null = null;
+
+  if (examenConfigRaw && examenConfigRaw.parseStatus === "completed" && examenConfigRaw.temas.length > 0) {
+    let totalWeight = 0;
+    let weightedProgress = 0;
+    for (const tema of examenConfigRaw.temas) {
+      totalWeight += tema.peso;
+      weightedProgress += tema.porcentajeAvance * tema.peso;
+    }
+    const progresoGlobal = totalWeight > 0 ? Math.round((weightedProgress / totalWeight) * 10) / 10 : 0;
+    const weakest = examenConfigRaw.temas[0]; // already sorted by porcentajeAvance asc
+
+    examenResumen = {
+      universidad: examenConfigRaw.universidad,
+      sede: examenConfigRaw.sede,
+      fechaExamen: examenConfigRaw.fechaExamen?.toISOString() ?? null,
+      progresoGlobal,
+      temaDebil: weakest?.nombre ?? null,
+      temaDebilPorcentaje: weakest ? Math.round(weakest.porcentajeAvance) : null,
+    };
+  }
+
+  // ─── La Sala resumen ─────────────────────────────────────
+  const salaResumen = {
+    proximoEvento: proximoEventoRaw
+      ? {
+          titulo: proximoEventoRaw.titulo,
+          fecha: proximoEventoRaw.fecha.toISOString(),
+          lugar: proximoEventoRaw.lugar,
+          interesadosCount: proximoEventoRaw._count.interesados,
+        }
+      : null,
+    pasantiasNuevas: pasantiasNuevasCount,
+    ayudantiasActivas: ayudantiasActivasCount,
+  };
+
   // ─── Render ───────────────────────────────────────────────
 
   return (
-    <main className="min-h-screen bg-paper">
-      {/* ─── 3-column body ─────────────────────────────────── */}
-      <div className="mx-auto flex max-w-[1440px] gap-6 px-4 py-6">
-        {/* LEFT: Causas sidebar — hidden below lg */}
-        <aside className="hidden lg:block w-[280px] shrink-0">
-          <div className="sticky top-[72px] max-h-[calc(100vh-5rem)] overflow-y-auto">
-            <SidebarCausas
-              pendingFlashcards={pendingFlashcards}
-              mcqCount={mcqCount}
-              tfCount={tfCount}
-              pending={serializedPending}
-              active={serializedActive}
-              history={serializedHistory}
-              activeRooms={activeRoomsCount}
-            />
-          </div>
-        </aside>
+    <main className="gz-page min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
+      {/* Hide standard dashboard header on this page only */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: "#dashboard-standard-header { display: none !important; }",
+        }}
+      />
 
-        {/* CENTER */}
-        <div className="min-w-0 flex-1">
-          {/* Hero Carrusel */}
+      <GzMasthead />
+
+      <GzUserBar
+        userName={user.firstName}
+        avatarUrl={user.avatarUrl}
+        streak={streak}
+        causasGanadas={user.causasGanadas}
+        tasaAcierto={mcqPercent}
+      />
+
+      <div className="mx-auto max-w-[1280px] px-4 lg:px-10 py-6 pb-20">
+        {/* Onboarding for new users */}
+        {user.xp === 0 && masteredCount === 0 && (
           <div className="mb-6">
-            <HeroCarrusel ubicacion="dashboard" />
+            <OnboardingCard />
           </div>
+        )}
 
-          {/* Saludo */}
-          <h2 className="text-2xl font-bold text-navy font-display">
-            Hola, <em>{user.firstName ?? "estudiante"}</em>
-          </h2>
-          <p className="mt-1 text-navy/60">¿Qué quieres estudiar hoy?</p>
+        <GzHeadline
+          flashcardsDominated={masteredCount}
+          flashcardsTotal={totalFlashcards}
+          streak={streak}
+          activityDays={activityDays}
+        />
 
-          {/* ─── Onboarding (usuarios nuevos) ──────────────── */}
-          {user.xp === 0 && masteredCount === 0 && <OnboardingCard />}
-
-          {/* ─── Cuenta regresiva examen ────────────────── */}
-          <div className="mt-6">
-            <ExamCountdown initialExamDate={user.examDate?.toISOString() ?? null} />
-          </div>
-
-          {/* ─── Estadísticas ─────────────────────────────── */}
-          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <StatCard
-              icon={
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.562.562 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
-                </svg>
-              }
-              value={masteredCount}
-              label="Dominadas"
-              accent="text-gold"
-              subtitle={getMotivation("Dominadas", masteredCount)}
-            />
-            <StatCard
-              icon={
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.047 8.287 8.287 0 009 9.601a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 00.495-7.468 5.99 5.99 0 00-1.925 3.547 5.975 5.975 0 01-2.133-1.001A3.75 3.75 0 0012 18z" />
-                </svg>
-              }
-              value={streak > 0 ? `${streak} día${streak !== 1 ? "s" : ""}` : "0"}
-              label="Racha"
-              accent="text-orange-500"
-              subtitle={getMotivation("Racha", streak)}
-            />
-            <StatCard
-              icon={
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-                </svg>
-              }
-              value={pendingFlashcards}
-              label="Pendientes"
-              accent="text-navy"
-              subtitle={getMotivation("Pendientes", pendingFlashcards)}
-            />
-            <StatCard
-              icon={
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
-              }
-              value={user.xp}
-              label="XP Total"
-              accent="text-gold"
-              subtitle={getMotivation("XP Total", user.xp)}
-            />
-          </div>
-
-          {/* ─── Notificación causas — solo mobile/tablet ── */}
-          {pendingCausas > 0 && (
-            <div className="lg:hidden">
-              <Link
-                href="/dashboard/causas"
-                className="mt-6 flex items-center gap-3 rounded-xl border border-gold/30 bg-gold/5 px-5 py-4 transition-shadow hover:shadow-md"
-              >
-                <span className="text-2xl">⚔️</span>
-                <div className="flex-1">
-                  <p className="font-semibold text-navy">
-                    {pendingCausas} reto{pendingCausas !== 1 ? "s" : ""} pendiente{pendingCausas !== 1 ? "s" : ""}
-                  </p>
-                  <p className="text-sm text-navy/60">
-                    Alguien te ha desafiado a una causa
-                  </p>
-                </div>
-                <span className="text-sm font-semibold text-gold">Ver &rarr;</span>
-              </Link>
-            </div>
-          )}
-
-          {/* ─── Actividad reciente ─────────────────────── */}
-          <div className="mt-8">
-            <ActivityGrid days={activityDays} />
-          </div>
-
-          {/* ─── Pomodoro — desktop only ──────────────────── */}
-          <div className="mt-8 hidden lg:block">
-            <PomodoroTimer variant="card" />
-          </div>
-
-          {/* ─── Mobile: Entrenamiento + Liga + Causas ──── */}
-          <div className="mt-6 grid grid-cols-3 gap-3 lg:hidden">
-            <Link
-              href="/dashboard/flashcards"
-              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
-            >
-              <span className="text-xl">📇</span>
-              <p className="mt-1 text-xs font-semibold text-navy">Flashcards</p>
-            </Link>
-            <Link
-              href="/dashboard/mcq"
-              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
-            >
-              <span className="text-xl">✅</span>
-              <p className="mt-1 text-xs font-semibold text-navy">Sel. Múltiple</p>
-            </Link>
-            <Link
-              href="/dashboard/truefalse"
-              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
-            >
-              <span className="text-xl">⚖️</span>
-              <p className="mt-1 text-xs font-semibold text-navy">V / F</p>
-            </Link>
-          </div>
-          <div className="mt-3 grid grid-cols-3 gap-3 lg:hidden">
-            <Link
-              href="/dashboard/liga"
-              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
-            >
-              <span className="text-xl">🏆</span>
-              <p className="mt-1 text-xs font-semibold text-navy">Liga</p>
-              <p className="text-[10px] text-navy/50">{tierEmoji} {tierLabel}</p>
-            </Link>
-            <Link
-              href="/dashboard/causas"
-              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
-            >
-              <span className="text-xl">⚔️</span>
-              <p className="mt-1 text-xs font-semibold text-navy">Causas</p>
-              {activeCausas > 0 && (
-                <p className="text-[10px] text-gold">{activeCausas} activa{activeCausas !== 1 ? "s" : ""}</p>
-              )}
-            </Link>
-            <Link
-              href="/dashboard/sala"
-              className="rounded-xl border border-border bg-white p-3 text-center transition-shadow hover:shadow-md"
-            >
-              <span className="text-xl">🏛️</span>
-              <p className="mt-1 text-xs font-semibold text-navy">La Sala</p>
-              <p className="text-[10px] text-navy/50">Ayudantias</p>
-            </Link>
-          </div>
-
-          {/* ─── Progreso curricular ─────────────────────── */}
-          <div className="mt-10">
-            <h3 className="text-lg font-semibold text-navy font-display">
-              Tu progreso curricular
-            </h3>
-            <div className="mt-4">
-              <CurriculumProgress progressData={progressData} />
-            </div>
-          </div>
+        <div className="mt-4 mb-2">
+          <GzMiExamenResumen config={examenResumen} />
         </div>
 
-        {/* RIGHT: Liga sidebar — hidden below lg */}
-        <aside className="hidden lg:block w-[260px] shrink-0">
-          <div className="sticky top-[72px] max-h-[calc(100vh-5rem)] overflow-y-auto">
-            <SidebarLiga
-              tierLabel={tierLabel}
-              tierEmoji={tierEmoji}
-              daysRemaining={daysRemaining}
-              userId={authUser.id}
-              members={serializedLeagueMembers}
-            />
-          </div>
-        </aside>
+        <GzCausasWire initialRooms={serializedRooms} />
+
+        <GzStudyColumns
+          ramaProgressItems={ramaProgressItems}
+          flashcardsDominated={masteredCount}
+          flashcardsTotal={totalFlashcards}
+          mcqCorrect={mcqCorrect}
+          mcqTotal={mcqTotal}
+          mcqPercent={mcqPercent}
+        />
+
+        <GzObiterSemana obiter={obiterDeLaSemana} />
+
+        <GzCommunity
+          badges={serializedBadges}
+          colegas={serializedColegas}
+          ayudantias={serializedAyudantias}
+          userId={authUser.id}
+          salaResumen={salaResumen}
+        />
       </div>
+
+      <GzFooter />
     </main>
   );
 }
-
-// ─── Helpers ─────────────────────────────────────────────
-
-function getMotivation(label: string, rawValue: number): string | undefined {
-  switch (label) {
-    case "Dominadas":
-      if (rawValue === 0) return "Comienza tu primera flashcard";
-      if (rawValue <= 10) return "Buen comienzo";
-      if (rawValue <= 50) return "Vas por buen camino";
-      if (rawValue <= 100) return "Excelente progreso";
-      return "Eres una máquina";
-    case "Racha":
-      if (rawValue === 0) return "Estudia hoy para empezar";
-      if (rawValue <= 2) return "Mantén el ritmo";
-      if (rawValue <= 6) return "En racha!";
-      return "Constancia impresionante";
-    case "Pendientes":
-      if (rawValue === 0) return "Todo al día";
-      if (rawValue <= 10) return "Pocas pendientes";
-      if (rawValue <= 50) return "Hay trabajo por hacer";
-      return "Muchas por repasar";
-    case "XP Total":
-      if (rawValue === 0) return "Tu aventura comienza aquí";
-      if (rawValue <= 100) return "Primeros pasos";
-      if (rawValue <= 500) return "En ascenso";
-      if (rawValue <= 1000) return "Casi experto";
-      return "Nivel jurisconsulto";
-    default:
-      return undefined;
-  }
-}
-
-// ─── Componentes internos ────────────────────────────────
-
-function StatCard({
-  icon,
-  value,
-  label,
-  accent = "text-gold",
-  subtitle,
-}: {
-  icon: React.ReactNode;
-  value: string | number;
-  label: string;
-  accent?: string;
-  subtitle?: string;
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-white p-5">
-      <div className={`mb-3 ${accent}`}>{icon}</div>
-      <p className="text-2xl font-bold text-navy">
-        {typeof value === "number"
-          ? new Intl.NumberFormat("es-CL").format(value)
-          : value}
-      </p>
-      <p className="mt-0.5 text-sm text-navy/50">{label}</p>
-      {subtitle && (
-        <p className="mt-1 text-xs text-gold/80">{subtitle}</p>
-      )}
-    </div>
-  );
-}
-

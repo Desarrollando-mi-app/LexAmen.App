@@ -19,7 +19,7 @@ export default async function AdminPage() {
   if (!user?.isAdmin) redirect("/dashboard");
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="mx-auto max-w-4xl px-4 py-6">
         <AdminPanel />
       </div>

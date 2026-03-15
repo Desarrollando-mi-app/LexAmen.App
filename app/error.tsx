@@ -8,20 +8,26 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-paper px-4">
+    <main className="flex min-h-screen flex-col items-center justify-center px-4" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="text-center max-w-md">
-        <p className="text-4xl mb-4">⚖️</p>
-        <h1 className="text-2xl font-bold text-navy">Iuris Studio</h1>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/brand/logo-horizontal.svg"
+          alt="Studio Iuris"
+          width={200}
+          height={44}
+          className="h-[40px] w-auto mx-auto mb-4"
+        />
 
         <div className="mt-8">
-          <h2 className="text-xl font-semibold text-navy">Algo salió mal</h2>
-          <p className="mt-2 text-sm text-navy/60">
-            Ocurrió un error inesperado. Puedes intentar de nuevo o volver al
+          <h2 className="font-cormorant text-[22px] !font-bold text-gz-ink">Algo salio mal</h2>
+          <p className="mt-2 font-archivo text-[14px] text-gz-ink-light">
+            Ocurrio un error inesperado. Puedes intentar de nuevo o volver al
             inicio.
           </p>
           {error.digest && (
-            <p className="mt-2 text-xs text-navy/30 font-mono">
-              Código: {error.digest}
+            <p className="mt-2 font-ibm-mono text-[10px] text-gz-ink-light/50">
+              Codigo: {error.digest}
             </p>
           )}
         </div>
@@ -29,21 +35,21 @@ export default function GlobalError({
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
             onClick={reset}
-            className="inline-flex items-center justify-center rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-paper hover:bg-navy/90 transition-colors"
+            className="inline-flex items-center justify-center rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors"
           >
             Reintentar
           </button>
           <a
             href="/dashboard"
-            className="inline-flex items-center justify-center rounded-lg border-2 border-navy px-5 py-2.5 text-sm font-semibold text-navy hover:bg-navy hover:text-paper transition-colors"
+            className="inline-flex items-center justify-center rounded-[3px] border-2 border-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-gz-navy hover:bg-gz-navy hover:text-white transition-colors"
           >
             Volver al inicio
           </a>
         </div>
       </div>
 
-      <footer className="absolute bottom-6 text-xs text-navy/30">
-        Iuris Studio — Si el problema persiste, contacta soporte.
+      <footer className="absolute bottom-6 font-ibm-mono text-[10px] text-gz-ink-light/50">
+        Studio <span className="text-gz-red">Iuris</span> — Si el problema persiste, contacta soporte.
       </footer>
     </main>
   );

@@ -1,9 +1,9 @@
 {
-  "name": "lexamen",
+  "name": "studio-iuris",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "lsof -ti:3000 | xargs kill -9 2>/dev/null; next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -18,11 +18,13 @@
     "next": "14.2.35",
     "openai": "^6.27.0",
     "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^5.5.207",
     "pg": "^8.18.0",
     "react": "^18",
     "react-dom": "^18",
     "recharts": "^3.8.0",
     "resend": "^6.9.2",
+    "sharp": "^0.34.5",
     "sonner": "^2.0.7"
   },
   "prisma": {

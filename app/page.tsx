@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ThemeToggle } from "./dashboard/components/theme-toggle";
@@ -79,27 +80,33 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="gz-page min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
       {/* ─── Navbar ─────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 border-b border-navy/10 bg-navy/95 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-gz-navy/10 bg-gz-navy/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl">⚖️</span>
-            <span className="font-serif text-xl font-bold text-paper">
-              Iuris Studio
+            <Image
+              src="/brand/logo-sello.svg"
+              alt="Studio Iuris"
+              width={32}
+              height={32}
+              className="h-[32px] w-[32px]"
+            />
+            <span className="font-cormorant text-[22px] !font-bold text-white">
+              Studio <span className="text-gz-red">Iuris</span>
             </span>
           </Link>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <Link
               href="/login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-paper/80 transition-colors hover:text-paper"
+              className="rounded-[3px] px-4 py-2 font-archivo text-[13px] font-medium text-white/80 hover:text-white transition-colors"
             >
               Iniciar sesión
             </Link>
             <Link
               href="/register"
-              className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gold/90"
+              className="rounded-[3px] bg-gz-gold px-5 py-2 font-archivo text-[13px] font-semibold text-white hover:bg-white hover:text-gz-navy transition-colors"
             >
               Comenzar gratis
             </Link>
@@ -108,26 +115,34 @@ export default async function HomePage() {
       </nav>
 
       {/* ─── Hero ───────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-navy px-6 py-24 text-center lg:py-32">
+      <section className="relative overflow-hidden bg-gz-navy px-6 py-24 text-center lg:py-32">
         {/* Decorative bg circles */}
-        <div className="pointer-events-none absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-gold/5" />
-        <div className="pointer-events-none absolute -bottom-20 right-0 h-[300px] w-[300px] rounded-full bg-gold/5" />
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-gz-gold/5" />
+        <div className="pointer-events-none absolute -bottom-20 right-0 h-[300px] w-[300px] rounded-full bg-gz-gold/5" />
 
         <div className="relative mx-auto max-w-3xl">
-          <span className="inline-block rounded-full bg-gold/15 px-4 py-1.5 text-xs font-semibold text-gold">
+          <Image
+            src="/brand/logo-horizontal.svg"
+            alt="Studio Iuris"
+            width={360}
+            height={78}
+            className="mx-auto h-[56px] w-auto mb-6"
+            priority
+          />
+          <span className="inline-block rounded-sm bg-gz-gold/15 px-4 py-1.5 font-ibm-mono text-[10px] uppercase tracking-[1px] font-semibold text-gz-gold-bright">
             Preparación de examen de grado
           </span>
-          <h1 className="mt-6 text-4xl font-bold leading-tight text-paper sm:text-5xl lg:text-6xl">
+          <h1 className="mt-6 font-cormorant text-[40px] sm:text-[48px] lg:text-[56px] !font-bold leading-tight text-white">
             Domina el <em>Derecho</em> Civil y Procesal Civil
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-paper/70">
+          <p className="mx-auto mt-6 max-w-xl font-cormorant text-[18px] lg:text-[20px] text-white/70 italic">
             La plataforma de estudio diseñada por y para estudiantes de Derecho
             en Chile. Flashcards, preguntas, duelos y más.
           </p>
           <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 rounded-xl bg-gold px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-gold/25 transition-all hover:bg-gold/90 hover:shadow-xl hover:shadow-gold/30"
+              className="inline-flex items-center gap-2 rounded-[3px] bg-gz-gold px-8 py-3.5 font-archivo text-[15px] font-semibold text-white shadow-sm shadow-gz-gold/25 transition-all hover:bg-white hover:text-gz-navy"
             >
               Comenzar gratis
               <svg
@@ -146,7 +161,7 @@ export default async function HomePage() {
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center rounded-xl border-2 border-paper/20 px-8 py-3.5 text-base font-semibold text-paper transition-colors hover:border-paper/40 hover:bg-paper/5"
+              className="inline-flex items-center rounded-[3px] border-2 border-white/20 px-8 py-3.5 font-archivo text-[15px] font-semibold text-white transition-colors hover:border-white/40 hover:bg-white/5"
             >
               Ya tengo cuenta
             </Link>
@@ -155,37 +170,37 @@ export default async function HomePage() {
 
         {/* Mockup cards */}
         <div className="relative mx-auto mt-16 flex max-w-2xl justify-center gap-4">
-          <div className="w-48 rotate-[-6deg] rounded-xl border border-paper/10 bg-paper/5 p-4 backdrop-blur-sm sm:w-56">
-            <p className="text-xs font-semibold text-gold">Flashcard</p>
-            <p className="mt-2 text-sm text-paper/80">
+          <div className="w-48 rotate-[-6deg] rounded-[4px] border border-white/10 bg-white/5 p-4 backdrop-blur-sm sm:w-56">
+            <p className="font-ibm-mono text-[10px] uppercase tracking-[0.5px] font-semibold text-gz-gold-bright">Flashcard</p>
+            <p className="mt-2 font-cormorant text-[14px] text-white/80">
               ¿Cuál es el plazo de prescripción de la acción ejecutiva?
             </p>
-            <div className="mt-3 h-px bg-paper/10" />
-            <p className="mt-2 text-xs text-paper/50">Nivel: Básico</p>
+            <div className="mt-3 h-px bg-white/10" />
+            <p className="mt-2 font-ibm-mono text-[10px] text-white/50">Nivel: Básico</p>
           </div>
-          <div className="w-48 rotate-[3deg] rounded-xl border border-paper/10 bg-paper/5 p-4 backdrop-blur-sm sm:w-56">
-            <p className="text-xs font-semibold text-gold">Sel. Múltiple</p>
-            <p className="mt-2 text-sm text-paper/80">
+          <div className="w-48 rotate-[3deg] rounded-[4px] border border-white/10 bg-white/5 p-4 backdrop-blur-sm sm:w-56">
+            <p className="font-ibm-mono text-[10px] uppercase tracking-[0.5px] font-semibold text-gz-gold-bright">Sel. Múltiple</p>
+            <p className="mt-2 font-cormorant text-[14px] text-white/80">
               La competencia absoluta se determina por...
             </p>
             <div className="mt-3 space-y-1.5">
-              <div className="rounded bg-paper/10 px-2 py-1 text-xs text-paper/60">
+              <div className="rounded bg-white/10 px-2 py-1 font-archivo text-[11px] text-white/60">
                 A) Cuantía, materia y fuero
               </div>
-              <div className="rounded bg-green-500/20 px-2 py-1 text-xs text-green-300">
+              <div className="rounded bg-gz-sage/20 px-2 py-1 text-xs text-gz-sage">
                 B) Cuantía, materia y fuero ✓
               </div>
             </div>
           </div>
-          <div className="hidden w-48 rotate-[8deg] rounded-xl border border-paper/10 bg-paper/5 p-4 backdrop-blur-sm sm:block sm:w-56">
-            <p className="text-xs font-semibold text-gold">Causa ⚔️</p>
-            <p className="mt-2 text-sm text-paper/80">vs María González</p>
+          <div className="hidden w-48 rotate-[8deg] rounded-[4px] border border-white/10 bg-white/5 p-4 backdrop-blur-sm sm:block sm:w-56">
+            <p className="font-ibm-mono text-[10px] uppercase tracking-[0.5px] font-semibold text-gz-gold-bright">Causa ⚔️</p>
+            <p className="mt-2 font-cormorant text-[14px] text-white/80">vs María González</p>
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-xs text-green-400">7 pts</span>
-              <span className="text-paper/30">—</span>
-              <span className="text-xs text-red-400">4 pts</span>
+              <span className="text-xs text-gz-sage">7 pts</span>
+              <span className="text-white/30">—</span>
+              <span className="text-xs text-gz-burgundy">4 pts</span>
             </div>
-            <p className="mt-2 text-xs text-gold">Victoria 🏆</p>
+            <p className="mt-2 text-xs text-gz-gold-bright">Victoria 🏆</p>
           </div>
         </div>
       </section>
@@ -194,10 +209,10 @@ export default async function HomePage() {
       <section className="px-6 py-20 lg:py-28">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <h2 className="font-serif text-3xl font-bold text-navy sm:text-4xl">
+            <h2 className="font-cormorant text-[28px] sm:text-[36px] !font-bold text-gz-ink">
               Todo lo que necesitas para preparar tu examen
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-navy/60">
+            <p className="mx-auto mt-4 max-w-xl font-archivo text-[15px] text-gz-ink-mid leading-relaxed">
               Herramientas diseñadas específicamente para el estudio del Derecho
               Civil y Procesal Civil chileno.
             </p>
@@ -207,13 +222,13 @@ export default async function HomePage() {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="group rounded-2xl border border-border bg-white p-6 transition-all hover:border-gold/30 hover:shadow-lg"
+                className="group rounded-[4px] border border-gz-rule bg-white p-6 transition-all hover:border-gz-gold hover:shadow-sm"
               >
                 <span className="text-3xl">{f.emoji}</span>
-                <h3 className="mt-4 text-lg font-semibold text-navy">
+                <h3 className="mt-4 font-cormorant text-[18px] !font-bold text-gz-ink">
                   {f.title}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-navy/60">
+                <p className="mt-2 font-archivo text-[14px] leading-relaxed text-gz-ink-mid">
                   {f.description}
                 </p>
               </div>
@@ -223,10 +238,10 @@ export default async function HomePage() {
       </section>
 
       {/* ─── How it Works ───────────────────────────────────── */}
-      <section className="border-y border-border bg-white px-6 py-20 lg:py-28">
+      <section className="border-y border-gz-rule bg-white px-6 py-20 lg:py-28">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
-            <h2 className="font-serif text-3xl font-bold text-navy sm:text-4xl">
+            <h2 className="font-cormorant text-[28px] sm:text-[36px] !font-bold text-gz-ink">
               Comienza en 3 simples pasos
             </h2>
           </div>
@@ -234,13 +249,13 @@ export default async function HomePage() {
           <div className="mt-14 grid gap-8 sm:grid-cols-3">
             {STEPS.map((s) => (
               <div key={s.num} className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-navy text-lg font-bold text-paper">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gz-navy font-ibm-mono text-[16px] font-bold text-white">
                   {s.num}
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-navy">
+                <h3 className="mt-4 font-cormorant text-[18px] !font-bold text-gz-ink">
                   {s.title}
                 </h3>
-                <p className="mt-2 text-sm text-navy/60">{s.description}</p>
+                <p className="mt-2 font-archivo text-[14px] text-gz-ink-mid">{s.description}</p>
               </div>
             ))}
           </div>
@@ -258,10 +273,10 @@ export default async function HomePage() {
               { value: "100%", label: "Gratis" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <p className="text-3xl font-bold text-navy sm:text-4xl">
+                <p className="font-cormorant text-[32px] sm:text-[40px] !font-bold text-gz-ink">
                   {s.value}
                 </p>
-                <p className="mt-1 text-sm text-navy/50">{s.label}</p>
+                <p className="mt-1 font-ibm-mono text-[11px] uppercase tracking-[1px] text-gz-ink-light">{s.label}</p>
               </div>
             ))}
           </div>
@@ -269,82 +284,82 @@ export default async function HomePage() {
       </section>
 
       {/* ─── Pricing ────────────────────────────────────────── */}
-      <section className="border-y border-border bg-white px-6 py-20 lg:py-28">
+      <section className="border-y border-gz-rule bg-white px-6 py-20 lg:py-28">
         <div className="mx-auto max-w-4xl">
           <div className="text-center">
-            <h2 className="font-serif text-3xl font-bold text-navy sm:text-4xl">
+            <h2 className="font-cormorant text-[28px] sm:text-[36px] !font-bold text-gz-ink">
               Simple y accesible
             </h2>
-            <p className="mt-4 text-navy/60">
+            <p className="mt-4 font-archivo text-[15px] text-gz-ink-mid">
               Comienza gratis. Mejora cuando quieras.
             </p>
           </div>
 
           <div className="mx-auto mt-14 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {/* Free */}
-            <div className="rounded-2xl border border-border p-8">
-              <h3 className="text-lg font-bold text-navy">Gratis</h3>
-              <p className="mt-1 text-3xl font-bold text-navy">
+            <div className="rounded-[4px] border border-gz-rule p-8">
+              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">Gratis</h3>
+              <p className="mt-1 font-cormorant text-[32px] !font-bold text-gz-ink">
                 $0
-                <span className="text-base font-normal text-navy/50">
+                <span className="font-archivo text-[14px] font-normal text-gz-ink-light">
                   {" "}
                   / siempre
                 </span>
               </p>
-              <ul className="mt-6 space-y-3 text-sm text-navy/70">
+              <ul className="mt-6 space-y-3 font-archivo text-[14px] text-gz-ink-mid">
                 <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span> 30 flashcards/día
+                  <span className="text-gz-sage">✓</span> 30 flashcards/día
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span> 10 preguntas
+                  <span className="text-gz-sage">✓</span> 10 preguntas
                   MCQ/día
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span> 20 preguntas V/F
+                  <span className="text-gz-sage">✓</span> 20 preguntas V/F
                   por día
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span> Causas y liga
+                  <span className="text-gz-sage">✓</span> Causas y liga
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-green-600">✓</span> La Sala
+                  <span className="text-gz-sage">✓</span> La Sala
                 </li>
               </ul>
               <Link
                 href="/register"
-                className="mt-8 block rounded-xl border-2 border-navy px-6 py-3 text-center text-sm font-semibold text-navy transition-colors hover:bg-navy hover:text-paper"
+                className="mt-8 block rounded-[3px] border-2 border-gz-navy px-6 py-3 text-center font-archivo text-[14px] font-semibold text-gz-navy transition-colors hover:bg-gz-navy hover:text-white"
               >
                 Comenzar gratis
               </Link>
             </div>
 
             {/* Premium */}
-            <div className="relative rounded-2xl border-2 border-gold bg-gold/5 p-8">
-              <span className="absolute -top-3 left-6 rounded-full bg-gold px-3 py-1 text-xs font-bold text-white">
+            <div className="relative rounded-[4px] border-2 border-gz-gold bg-gz-gold/[0.06] p-8">
+              <span className="absolute -top-3 left-6 rounded-sm bg-gz-gold px-3 py-1 font-ibm-mono text-[10px] uppercase tracking-[0.5px] font-bold text-white">
                 Recomendado
               </span>
-              <h3 className="text-lg font-bold text-navy">Premium</h3>
-              <p className="mt-1 text-3xl font-bold text-navy">
+              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">Premium</h3>
+              <p className="mt-1 font-cormorant text-[32px] !font-bold text-gz-ink">
                 Próximamente
               </p>
-              <ul className="mt-6 space-y-3 text-sm text-navy/70">
+              <ul className="mt-6 space-y-3 font-archivo text-[14px] text-gz-ink-mid">
                 <li className="flex items-center gap-2">
-                  <span className="text-gold">★</span> Flashcards ilimitadas
+                  <span className="text-gz-gold">★</span> Flashcards ilimitadas
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-gold">★</span> Preguntas ilimitadas
+                  <span className="text-gz-gold">★</span> Preguntas ilimitadas
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-gold">★</span> Estadísticas avanzadas
+                  <span className="text-gz-gold">★</span> Estadísticas avanzadas
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-gold">★</span> Contenido exclusivo
+                  <span className="text-gz-gold">★</span> Contenido exclusivo
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="text-gold">★</span> Sin publicidad
+                  <span className="text-gz-gold">★</span> Sin publicidad
                 </li>
               </ul>
-              <div className="mt-8 rounded-xl bg-gold/20 px-6 py-3 text-center text-sm font-semibold text-gold">
+              <div className="mt-8 rounded-[3px] bg-gz-gold/20 px-6 py-3 text-center font-archivo text-[14px] font-semibold text-gz-gold">
                 Disponible pronto
               </div>
             </div>
@@ -356,18 +371,18 @@ export default async function HomePage() {
       </section>
 
       {/* ─── CTA Final ──────────────────────────────────────── */}
-      <section className="bg-navy px-6 py-20 text-center lg:py-28">
+      <section className="bg-gz-navy px-6 py-20 text-center lg:py-28">
         <div className="mx-auto max-w-2xl">
-          <h2 className="text-3xl font-bold text-paper sm:text-4xl">
+          <h2 className="font-cormorant text-[28px] sm:text-[36px] !font-bold text-white">
             Empieza a preparar tu <em>examen</em> hoy
           </h2>
-          <p className="mt-4 text-paper/60">
-            Únete a otros estudiantes de Derecho que ya están usando Iuris Studio para
+          <p className="mt-4 font-archivo text-[15px] text-white/60">
+            Únete a otros estudiantes de Derecho que ya están usando Studio <span className="text-gz-red">Iuris</span> para
             dominar la materia.
           </p>
           <Link
             href="/register"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-gold px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-gold/25 transition-all hover:bg-gold/90"
+            className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-gold px-8 py-3.5 font-archivo text-[15px] font-semibold text-white shadow-sm shadow-gz-gold/25 transition-all hover:bg-white hover:text-gz-navy"
           >
             Crear mi cuenta gratis
             <svg
@@ -388,14 +403,22 @@ export default async function HomePage() {
       </section>
 
       {/* ─── Footer ─────────────────────────────────────────── */}
-      <footer className="border-t border-border bg-paper px-6 py-8">
+      <footer className="border-t border-gz-rule px-6 py-8" style={{ backgroundColor: "var(--gz-cream)" }}>
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
           <div className="flex items-center gap-2">
-            <span className="text-lg">⚖️</span>
-            <span className="font-serif font-bold text-navy">Iuris Studio</span>
+            <Image
+              src="/brand/logo-sello.svg"
+              alt="Studio Iuris"
+              width={36}
+              height={36}
+              className="h-[28px] w-[28px] opacity-60"
+            />
+            <span className="font-cormorant text-[18px] !font-bold text-gz-ink">
+              Studio <span className="text-gz-red">Iuris</span>
+            </span>
           </div>
-          <p className="text-sm text-navy/40">
-            &copy; {new Date().getFullYear()} Iuris Studio — Chile. Todos los
+          <p className="font-ibm-mono text-[10px] text-gz-ink-light/50">
+            &copy; {new Date().getFullYear()} Studio Iuris — Chile. Todos los
             derechos reservados.
           </p>
         </div>

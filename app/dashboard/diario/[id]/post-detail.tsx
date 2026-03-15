@@ -77,7 +77,7 @@ function RichText({ text }: { text: string }) {
             <Link
               key={i}
               href={`/dashboard/diario?hashtag=${tag}`}
-              className="font-semibold text-gold hover:underline"
+              className="font-semibold text-gz-gold hover:underline"
             >
               {part}
             </Link>
@@ -105,7 +105,7 @@ function RichText({ text }: { text: string }) {
               href={norma.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
+              className="text-gz-gold hover:underline"
               title={`${norma.codigo} — Art. ${norma.articulo}`}
             >
               {norma.original}
@@ -186,13 +186,13 @@ export function PostDetail({
       {/* Back link */}
       <Link
         href="/dashboard/diario"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-navy/50 hover:text-navy transition-colors"
+        className="mb-4 inline-flex items-center gap-1 font-archivo text-[12px] text-gz-ink-light hover:text-gz-ink transition-colors"
       >
         ← Volver al feed
       </Link>
 
       {/* Main card */}
-      <article className="rounded-2xl border border-border bg-white p-6 sm:p-8">
+      <article className="rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8">
         {/* Header */}
         <div className="mb-6 flex items-start gap-3">
           <Link href={`/dashboard/perfil/${post.user.id}`}>
@@ -203,7 +203,7 @@ export function PostDetail({
                 className="h-12 w-12 rounded-full object-cover"
               />
             ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold/20 text-sm font-bold text-gold">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gz-navy/10 font-ibm-mono text-[11px] font-bold text-gz-gold">
                 {initials}
               </div>
             )}
@@ -211,52 +211,52 @@ export function PostDetail({
           <div className="min-w-0 flex-1">
             <Link
               href={`/dashboard/perfil/${post.user.id}`}
-              className="text-base font-semibold text-navy hover:underline"
+              className="font-archivo text-[14px] font-semibold text-gz-ink hover:underline"
             >
               {post.user.firstName} {post.user.lastName}
             </Link>
             {post.user.universidad && (
-              <p className="text-xs text-navy/50">{post.user.universidad}</p>
+              <p className="font-ibm-mono text-[10px] text-gz-ink-light">{post.user.universidad}</p>
             )}
-            <p className="text-xs text-navy/40">{createdDate}</p>
+            <p className="font-ibm-mono text-[11px] text-gz-ink-light">{createdDate}</p>
           </div>
           <div className="flex items-center gap-2">
             <span
-              className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
+              className={`rounded-sm px-2.5 py-1 font-ibm-mono text-[9px] uppercase tracking-[0.5px] font-medium ${
                 post.formato === "OBITER_DICTUM"
-                  ? "bg-gold/15 text-gold"
-                  : "bg-navy/10 text-navy"
+                  ? "bg-gz-gold/[0.1] text-gz-gold"
+                  : "bg-gz-navy/[0.1] text-gz-navy"
               }`}
             >
               {FORMATO_LABELS[post.formato] ?? post.formato}
             </span>
             {post.visibilidad === "COLEGAS" && (
-              <span className="text-[10px] text-navy/40">🔒</span>
+              <span className="text-[10px] text-gz-ink-light">🔒</span>
             )}
           </div>
         </div>
 
         {/* Title */}
-        <h1 className="mb-4 text-xl font-bold text-navy font-display sm:text-2xl">
+        <h1 className="mb-4 font-cormorant text-[24px] sm:text-[28px] !font-bold text-gz-ink leading-tight">
           {post.titulo}
         </h1>
 
         {/* Materia */}
         {post.materia && (
-          <p className="mb-4 text-xs text-navy/50">📚 {post.materia}</p>
+          <p className="mb-4 font-ibm-mono text-[10px] text-gz-ink-light">📚 {post.materia}</p>
         )}
 
         {/* Cited from */}
         {post.citadoDe && (
           <Link
             href={`/dashboard/diario/${post.citadoDe.id}`}
-            className="mb-4 block rounded-lg border border-gold/20 bg-gold/5 p-3"
+            className="mb-4 block rounded-[3px] border border-gz-gold/20 bg-gz-gold/[0.06] p-3"
           >
-            <p className="text-xs text-navy/50">📎 Cita a:</p>
-            <p className="text-sm font-semibold text-navy">
+            <p className="font-ibm-mono text-[10px] text-gz-ink-light">Cita a:</p>
+            <p className="font-cormorant text-[15px] font-semibold text-gz-ink">
               {post.citadoDe.titulo}
             </p>
-            <p className="text-xs text-navy/40">
+            <p className="font-ibm-mono text-[10px] text-gz-ink-light">
               por {post.citadoDe.userName}
             </p>
           </Link>
@@ -264,7 +264,7 @@ export function PostDetail({
 
         {/* ─── Obiter Dictum body ──────────────────────── */}
         {post.formato === "OBITER_DICTUM" && post.contenido && (
-          <div className="mb-6 text-sm text-navy/80 leading-relaxed whitespace-pre-line">
+          <div className="mb-6 font-cormorant text-[17px] text-gz-ink leading-[1.8] whitespace-pre-line">
             <RichText text={post.contenido} />
           </div>
         )}
@@ -273,29 +273,29 @@ export function PostDetail({
         {post.formato === "ANALISIS_FALLOS" && (
           <div className="mb-6 space-y-4">
             {(post.rol || post.tribunal || post.fecha || post.partes) && (
-              <div className="rounded-lg bg-navy/5 p-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-[3px] bg-gz-cream-dark p-4 grid grid-cols-2 gap-3 text-sm">
                 {post.rol && (
                   <div>
-                    <span className="text-xs font-semibold text-navy/50">Rol</span>
-                    <p className="text-navy">{post.rol}</p>
+                    <span className="font-ibm-mono text-[10px] uppercase tracking-[0.5px] text-gz-ink-light font-medium">Rol</span>
+                    <p className="font-archivo text-[14px] text-gz-ink-mid">{post.rol}</p>
                   </div>
                 )}
                 {post.tribunal && (
                   <div>
-                    <span className="text-xs font-semibold text-navy/50">Tribunal</span>
-                    <p className="text-navy">{post.tribunal}</p>
+                    <span className="font-ibm-mono text-[10px] uppercase tracking-[0.5px] text-gz-ink-light font-medium">Tribunal</span>
+                    <p className="font-archivo text-[14px] text-gz-ink-mid">{post.tribunal}</p>
                   </div>
                 )}
                 {post.fecha && (
                   <div>
-                    <span className="text-xs font-semibold text-navy/50">Fecha</span>
-                    <p className="text-navy">{post.fecha}</p>
+                    <span className="font-ibm-mono text-[10px] uppercase tracking-[0.5px] text-gz-ink-light font-medium">Fecha</span>
+                    <p className="font-archivo text-[14px] text-gz-ink-mid">{post.fecha}</p>
                   </div>
                 )}
                 {post.partes && (
                   <div>
-                    <span className="text-xs font-semibold text-navy/50">Partes</span>
-                    <p className="text-navy">{post.partes}</p>
+                    <span className="font-ibm-mono text-[10px] uppercase tracking-[0.5px] text-gz-ink-light font-medium">Partes</span>
+                    <p className="font-archivo text-[14px] text-gz-ink-mid">{post.partes}</p>
                   </div>
                 )}
               </div>
@@ -303,10 +303,10 @@ export function PostDetail({
 
             {post.hechos && (
               <div>
-                <h3 className="mb-1 text-sm font-bold text-navy">
+                <h3 className="mb-1 font-archivo text-[13px] font-bold text-gz-ink">
                   Hechos relevantes
                 </h3>
-                <div className="text-sm text-navy/80 leading-relaxed whitespace-pre-line">
+                <div className="font-archivo text-[14px] text-gz-ink-mid leading-relaxed whitespace-pre-line">
                   <RichText text={post.hechos} />
                 </div>
               </div>
@@ -314,10 +314,10 @@ export function PostDetail({
 
             {post.ratio && (
               <div>
-                <h3 className="mb-1 text-sm font-bold text-navy">
+                <h3 className="mb-1 font-archivo text-[13px] font-bold text-gz-ink">
                   Ratio Decidendi
                 </h3>
-                <div className="text-sm text-navy/80 leading-relaxed whitespace-pre-line">
+                <div className="font-archivo text-[14px] text-gz-ink-mid leading-relaxed whitespace-pre-line">
                   <RichText text={post.ratio} />
                 </div>
               </div>
@@ -325,10 +325,10 @@ export function PostDetail({
 
             {post.norma && (
               <div>
-                <h3 className="mb-1 text-sm font-bold text-navy">
+                <h3 className="mb-1 font-archivo text-[13px] font-bold text-gz-ink">
                   Normas aplicadas
                 </h3>
-                <div className="text-sm text-navy/80 leading-relaxed">
+                <div className="font-archivo text-[14px] text-gz-ink-mid leading-relaxed">
                   <RichText text={post.norma} />
                 </div>
               </div>
@@ -336,10 +336,10 @@ export function PostDetail({
 
             {post.opinion && (
               <div>
-                <h3 className="mb-1 text-sm font-bold text-navy">
+                <h3 className="mb-1 font-archivo text-[13px] font-bold text-gz-ink">
                   Opinión / Análisis
                 </h3>
-                <div className="text-sm text-navy/80 leading-relaxed whitespace-pre-line">
+                <div className="font-archivo text-[14px] text-gz-ink-mid leading-relaxed whitespace-pre-line">
                   <RichText text={post.opinion} />
                 </div>
               </div>
@@ -350,7 +350,7 @@ export function PostDetail({
                 href={post.pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm text-navy/70 hover:bg-navy/5 transition-colors"
+                className="inline-flex items-center gap-1 rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink-mid hover:bg-gz-cream-dark/50 transition-colors"
               >
                 📄 Ver PDF del fallo
               </a>
@@ -365,7 +365,7 @@ export function PostDetail({
               <Link
                 key={h.id}
                 href={`/dashboard/diario?hashtag=${h.tag}`}
-                className="rounded-full bg-gold/10 px-2.5 py-1 text-xs font-medium text-gold hover:bg-gold/20 transition-colors"
+                className="rounded-sm bg-gz-gold/[0.08] px-2.5 py-1 font-ibm-mono text-[10px] font-medium text-gz-gold hover:bg-gz-gold/[0.15] transition-colors"
               >
                 #{h.tag}
               </Link>
@@ -374,42 +374,42 @@ export function PostDetail({
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-3 border-t border-border pt-4">
+        <div className="flex items-center gap-3 border-t border-gz-rule pt-4">
           <button
             onClick={handleToggleGuardar}
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 rounded-[3px] px-3 py-2 font-archivo text-[13px] font-medium transition-colors ${
               isGuardado
-                ? "bg-gold/15 text-gold"
-                : "border border-border text-navy/60 hover:bg-navy/5"
+                ? "bg-gz-gold/[0.1] text-gz-gold"
+                : "border border-gz-rule text-gz-ink-mid hover:bg-gz-cream-dark/50"
             }`}
           >
-            {isGuardado ? "🔖 Guardado" : "📑 Guardar"} ({guardadosCount})
+            {isGuardado ? "Guardado" : "Guardar"} ({guardadosCount})
           </button>
 
           <Link
             href={`/dashboard/diario?citar=${post.id}`}
-            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-navy/60 hover:bg-navy/5 transition-colors"
+            className="flex items-center gap-1.5 rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] font-medium text-gz-ink-mid hover:bg-gz-cream-dark/50 transition-colors"
           >
-            💬 Citar ({post.citasCount})
+            Citar ({post.citasCount})
           </Link>
 
-          <span className="text-xs text-navy/40">👁 {post.views} vistas</span>
+          <span className="font-ibm-mono text-[10px] text-gz-ink-light">{post.views} vistas</span>
 
           {isOwner && (
             <div className="ml-auto">
               {showDeleteConfirm ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-red-500">¿Eliminar?</span>
+                  <span className="font-archivo text-[12px] text-gz-burgundy">¿Eliminar?</span>
                   <button
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-600 disabled:opacity-50"
+                    className="rounded-[3px] bg-gz-burgundy px-3 py-1.5 font-archivo text-[12px] font-medium text-white hover:bg-gz-burgundy/90 disabled:opacity-50"
                   >
                     {deleting ? "..." : "Sí, eliminar"}
                   </button>
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
-                    className="rounded-lg border border-border px-3 py-1.5 text-xs text-navy/60 hover:bg-navy/5"
+                    className="rounded-[3px] border border-gz-rule px-3 py-1.5 font-archivo text-[12px] text-gz-ink-mid hover:bg-gz-cream-dark/50"
                   >
                     Cancelar
                   </button>
@@ -417,7 +417,7 @@ export function PostDetail({
               ) : (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="rounded-lg border border-red-200 px-3 py-1.5 text-xs text-red-500 hover:bg-red-50 transition-colors"
+                  className="rounded-[3px] border border-gz-burgundy/20 px-3 py-1.5 font-archivo text-[12px] text-gz-burgundy hover:bg-gz-burgundy/[0.06] transition-colors"
                 >
                   🗑 Eliminar
                 </button>
@@ -430,7 +430,7 @@ export function PostDetail({
       {/* ─── Citas (posts que citan este) ──────────────── */}
       {post.citas.length > 0 && (
         <div className="mt-6">
-          <h2 className="mb-3 text-lg font-bold text-navy font-display">
+          <h2 className="mb-3 font-cormorant text-[20px] !font-bold text-gz-ink">
             💬 Citas ({post.citasCount})
           </h2>
           <div className="space-y-3">
@@ -440,7 +440,7 @@ export function PostDetail({
                 <Link
                   key={cita.id}
                   href={`/dashboard/diario/${cita.id}`}
-                  className="block rounded-xl border border-border bg-white p-4 hover:shadow-md transition-shadow"
+                  className="block rounded-[4px] border border-gz-rule bg-white p-4 hover:border-gz-gold transition-colors"
                 >
                   <div className="flex items-center gap-2 mb-2">
                     {cita.user.avatarUrl ? (
@@ -450,31 +450,31 @@ export function PostDetail({
                         className="h-7 w-7 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gold/20 text-[10px] font-bold text-gold">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gz-navy/10 text-[10px] font-bold text-gz-gold">
                         {citaInitials}
                       </div>
                     )}
-                    <span className="text-sm font-semibold text-navy">
+                    <span className="font-archivo text-[13px] font-semibold text-gz-ink">
                       {cita.user.firstName} {cita.user.lastName}
                     </span>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${
+                      className={`rounded-sm px-2 py-0.5 font-ibm-mono text-[9px] uppercase tracking-[0.5px] font-semibold ${
                         cita.formato === "OBITER_DICTUM"
-                          ? "bg-gold/15 text-gold"
-                          : "bg-navy/10 text-navy"
+                          ? "bg-gz-gold/[0.1] text-gz-gold"
+                          : "bg-gz-navy/[0.1] text-gz-navy"
                       }`}
                     >
                       {FORMATO_LABELS[cita.formato]}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-navy">{cita.titulo}</h4>
+                  <h4 className="font-archivo text-[13px] font-bold text-gz-ink">{cita.titulo}</h4>
                   {cita.contenido && (
-                    <p className="mt-1 text-xs text-navy/60 line-clamp-2">
+                    <p className="mt-1 font-archivo text-[12px] text-gz-ink-mid line-clamp-2">
                       {cita.contenido}
                     </p>
                   )}
                   {cita.opinion && !cita.contenido && (
-                    <p className="mt-1 text-xs text-navy/60 line-clamp-2">
+                    <p className="mt-1 font-archivo text-[12px] text-gz-ink-mid line-clamp-2">
                       {cita.opinion}
                     </p>
                   )}

@@ -51,11 +51,11 @@ export function OnboardingCard() {
   if (dismissed) return null;
 
   return (
-    <div className="mt-6 rounded-xl border border-gold/30 bg-gradient-to-br from-gold/5 to-paper p-6">
+    <div className="mt-6 rounded-[4px] border border-gold/30 bg-gradient-to-br from-gold/5 to-gz-cream-dark p-6">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-lg font-bold text-navy">
-            ¡Bienvenido a Iuris Studio! 👋
+            ¡Bienvenido a Studio Iuris! 👋
           </h3>
           <p className="mt-1 text-sm text-navy/60">
             Sigue estos 3 pasos para comenzar tu preparación
@@ -63,7 +63,7 @@ export function OnboardingCard() {
         </div>
         <button
           onClick={handleDismiss}
-          className="shrink-0 rounded-lg p-1.5 text-navy/30 transition-colors hover:bg-navy/5 hover:text-navy/60"
+          className="shrink-0 rounded-[3px] p-1.5 text-navy/30 transition-colors hover:bg-navy/5 hover:text-navy/60"
           aria-label="Cerrar"
         >
           <svg
@@ -87,7 +87,7 @@ export function OnboardingCard() {
           <Link
             key={s.step}
             href={s.href}
-            className="group rounded-xl border border-border bg-white p-4 transition-all hover:border-gold/40 hover:shadow-md"
+            className="group rounded-[4px] border border-gz-rule bg-white p-4 transition-all hover:border-gold/40 hover:shadow-sm"
           >
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gold/10 text-xs font-bold text-gold">

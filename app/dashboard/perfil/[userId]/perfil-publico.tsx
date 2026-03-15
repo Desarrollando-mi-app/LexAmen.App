@@ -47,6 +47,19 @@ interface DiarioPostPreview {
   createdAt: string;
 }
 
+interface TutorStats {
+  sesionesCompletadas: number;
+  ratingPromedio: number | null;
+  totalEvaluaciones: number;
+  horasAcumuladas: number;
+}
+
+interface RecentEvaluation {
+  rating: number;
+  comentario: string;
+  evaluadorNombre: string;
+}
+
 interface PerfilPublicoProps {
   user: ProfileUser;
   colegaStatus: string;
@@ -56,6 +69,11 @@ interface PerfilPublicoProps {
   colegasPreview: ColegaPreview[];
   cvRequestStatus: string | null;
   diarioPostCount: number;
+  obiterCount: number;
+  obiterCitasReceived: number;
+  obiterApoyosReceived: number;
+  tutorStats?: TutorStats;
+  recentEvaluations?: RecentEvaluation[];
 }
 
 // ─── Component ───────────────────────────────────────────
@@ -69,6 +87,11 @@ export function PerfilPublico({
   colegasPreview,
   cvRequestStatus: initialCvStatus,
   diarioPostCount,
+  obiterCount,
+  obiterCitasReceived,
+  obiterApoyosReceived,
+  tutorStats,
+  recentEvaluations,
 }: PerfilPublicoProps) {
   const [colegaStatus, setColegaStatus] = useState(initialStatus);
   const [requestId, setRequestId] = useState(initialRequestId);
@@ -242,17 +265,17 @@ export function PerfilPublico({
   };
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="mx-auto max-w-3xl px-6 py-8 space-y-8">
         {/* ─── Header ──────────────────────────────────── */}
-        <div className="rounded-xl border border-border bg-white p-6">
+        <div className="rounded-[4px] border border-gz-rule bg-white p-6">
           <div className="flex items-start gap-5">
             {/* Avatar */}
             {user.avatarUrl ? (
               <img
                 src={user.avatarUrl}
                 alt={`${user.firstName} ${user.lastName}`}
-                className="h-16 w-16 shrink-0 rounded-full object-cover border-2 border-border"
+                className="h-16 w-16 shrink-0 rounded-full object-cover border-2 border-gz-rule"
               />
             ) : (
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-navy text-xl font-bold text-white">
@@ -261,7 +284,7 @@ export function PerfilPublico({
             )}
 
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-navy font-display truncate">
+              <h1 className="text-xl font-bold text-navy font-cormorant truncate">
                 {user.firstName} {user.lastName}
               </h1>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-navy/60">
@@ -294,7 +317,7 @@ export function PerfilPublico({
               <button
                 onClick={handleSendRequest}
                 disabled={loading}
-                className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+                className="rounded-[3px] bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
               >
                 {loading ? "Enviando..." : "Agregar Colega"}
               </button>
@@ -304,7 +327,7 @@ export function PerfilPublico({
               <button
                 onClick={handleCancelRequest}
                 disabled={loading}
-                className="rounded-lg border border-border bg-white px-5 py-2.5 text-sm font-semibold text-navy/60 transition-colors hover:bg-paper disabled:opacity-50"
+                className="rounded-[3px] border border-gz-rule bg-white px-5 py-2.5 text-sm font-semibold text-navy/60 transition-colors hover:bg-gz-cream-dark disabled:opacity-50"
               >
                 {loading ? "..." : "Cancelar Solicitud"}
               </button>
@@ -314,7 +337,7 @@ export function PerfilPublico({
               <button
                 onClick={handleAcceptRequest}
                 disabled={loading}
-                className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                className="rounded-[3px] bg-gz-sage px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gz-sage/90 disabled:opacity-50"
               >
                 {loading ? "..." : "Aceptar Solicitud"}
               </button>
@@ -322,13 +345,13 @@ export function PerfilPublico({
 
             {colegaStatus === "accepted" && (
               <>
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-green-50 px-4 py-2.5 text-sm font-semibold text-green-700">
+                <span className="inline-flex items-center gap-1.5 rounded-[3px] bg-gz-sage/10 px-4 py-2.5 text-sm font-semibold text-gz-sage">
                   Colegas
                 </span>
                 <button
                   onClick={handleRemoveColega}
                   disabled={loading}
-                  className="rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                  className="rounded-[3px] border border-gz-burgundy/20 bg-white px-4 py-2.5 text-sm font-medium text-gz-burgundy transition-colors hover:bg-gz-burgundy/10 disabled:opacity-50"
                 >
                   Eliminar
                 </button>
@@ -338,7 +361,7 @@ export function PerfilPublico({
             {colegaStatus === "accepted" && (
               <Link
                 href={`/dashboard/causas?challenge=${user.id}`}
-                className="rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90"
+                className="rounded-[3px] bg-gold px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90"
               >
                 Desafiar
               </Link>
@@ -348,20 +371,20 @@ export function PerfilPublico({
             {user.cvAvailable && !cvStatus && (
               <button
                 onClick={() => setShowCvModal(true)}
-                className="rounded-lg border border-gold/30 bg-gold/5 px-5 py-2.5 text-sm font-semibold text-gold transition-colors hover:bg-gold/10"
+                className="rounded-[3px] border border-gold/30 bg-gold/5 px-5 py-2.5 text-sm font-semibold text-gold transition-colors hover:bg-gold/10"
               >
                 📄 Solicitar CV
               </button>
             )}
 
             {cvStatus === "pending" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-gold/10 px-4 py-2.5 text-sm font-medium text-gold/70">
+              <span className="inline-flex items-center gap-1 rounded-[3px] bg-gold/10 px-4 py-2.5 text-sm font-medium text-gold/70">
                 ✓ Solicitud enviada
               </span>
             )}
 
             {cvStatus === "accepted" && (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700">
+              <span className="inline-flex items-center gap-1 rounded-[3px] bg-gz-sage/10 px-4 py-2.5 text-sm font-medium text-gz-sage">
                 ✓ CV disponible — contacta directamente
               </span>
             )}
@@ -369,7 +392,7 @@ export function PerfilPublico({
         </div>
 
         {/* ─── Tabs ────────────────────────────────────── */}
-        <div className="flex gap-1 rounded-lg bg-border/20 p-1">
+        <div className="flex gap-1 rounded-[3px] bg-gz-rule/20 p-1">
           <button
             onClick={() => handleTabChange("perfil")}
             className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
@@ -399,7 +422,7 @@ export function PerfilPublico({
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
               </div>
             ) : diarioPosts.length === 0 ? (
-              <div className="rounded-xl border border-border bg-white p-12 text-center">
+              <div className="rounded-[4px] border border-gz-rule bg-white p-12 text-center">
                 <p className="text-4xl mb-3">📰</p>
                 <p className="text-sm text-navy/60">
                   Este usuario aún no ha publicado en El Diario
@@ -410,7 +433,7 @@ export function PerfilPublico({
                 <Link
                   key={post.id}
                   href={`/dashboard/diario/${post.id}`}
-                  className="block rounded-xl border border-border bg-white p-4 hover:shadow-md transition-shadow"
+                  className="block rounded-[4px] border border-gz-rule bg-white p-4 hover:shadow-sm transition-shadow"
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <span
@@ -451,32 +474,115 @@ export function PerfilPublico({
         <>
         {/* ─── Stats ───────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-xl border border-border bg-white p-4 text-center">
-            <p className="text-2xl font-bold text-navy font-display">
+          <div className="rounded-[4px] border border-gz-rule bg-white p-4 text-center">
+            <p className="text-2xl font-bold text-navy font-cormorant">
               {user.xp.toLocaleString()}
             </p>
             <p className="text-xs text-navy/50">XP Total</p>
           </div>
-          <div className="rounded-xl border border-border bg-white p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">
+          <div className="rounded-[4px] border border-gz-rule bg-white p-4 text-center">
+            <p className="text-2xl font-bold text-gz-sage">
               {user.causasGanadas}
             </p>
             <p className="text-xs text-navy/50">Causas Ganadas</p>
           </div>
-          <div className="rounded-xl border border-border bg-white p-4 text-center">
+          <div className="rounded-[4px] border border-gz-rule bg-white p-4 text-center">
             <p className="text-2xl font-bold text-gold">{user.winRate}%</p>
             <p className="text-xs text-navy/50">Win Rate</p>
           </div>
-          <div className="rounded-xl border border-border bg-white p-4 text-center">
-            <p className="text-2xl font-bold text-navy font-display">
+          <div className="rounded-[4px] border border-gz-rule bg-white p-4 text-center">
+            <p className="text-2xl font-bold text-navy font-cormorant">
               {user.flashcardsStudied}
             </p>
             <p className="text-xs text-navy/50">Flashcards</p>
           </div>
         </div>
 
+        {/* ─── Obiter Dictum Stats ────────────────────── */}
+        {obiterCount > 0 && (
+          <div className="rounded-[4px] border border-gz-rule bg-white p-6">
+            <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider mb-4">
+              Actividad en Obiter Dictum
+            </h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gz-gold font-cormorant">
+                  {obiterCount}
+                </p>
+                <p className="text-xs text-navy/50">Obiters publicados</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gz-burgundy font-cormorant">
+                  {obiterCitasReceived}
+                </p>
+                <p className="text-xs text-navy/50">Citas recibidas</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gz-sage font-cormorant">
+                  {obiterApoyosReceived}
+                </p>
+                <p className="text-xs text-navy/50">Apoyos recibidos</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─── Ayudantías Stats ────────────────────────── */}
+        {tutorStats && tutorStats.sesionesCompletadas > 0 && (
+          <div className="rounded-[4px] border border-gz-rule bg-white p-6">
+            <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider mb-4">
+              Actividad en Ayudantías
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gz-gold font-cormorant">
+                  {tutorStats.ratingPromedio ? tutorStats.ratingPromedio.toFixed(1) : "—"}
+                </p>
+                <p className="text-xs text-navy/50">Rating promedio</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-navy font-cormorant">
+                  {tutorStats.sesionesCompletadas}
+                </p>
+                <p className="text-xs text-navy/50">Sesiones completadas</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gz-sage font-cormorant">
+                  {tutorStats.totalEvaluaciones}
+                </p>
+                <p className="text-xs text-navy/50">Evaluaciones</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-gz-burgundy font-cormorant">
+                  {tutorStats.horasAcumuladas}h
+                </p>
+                <p className="text-xs text-navy/50">Horas acumuladas</p>
+              </div>
+            </div>
+            {recentEvaluations && recentEvaluations.length > 0 && (
+              <div className="border-t border-gz-rule pt-3 mt-3">
+                <p className="text-xs font-semibold text-navy/50 uppercase tracking-wider mb-2">
+                  Evaluaciones recientes
+                </p>
+                <div className="space-y-2">
+                  {recentEvaluations.map((ev, i) => (
+                    <div key={i} className="flex items-start gap-2 text-sm">
+                      <span className="text-gz-gold shrink-0">
+                        {"★".repeat(ev.rating)}{"☆".repeat(5 - ev.rating)}
+                      </span>
+                      <span className="text-navy/70 italic">
+                        &ldquo;{ev.comentario}&rdquo; — {ev.evaluadorNombre}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ─── Insignias ───────────────────────────────── */}
-        <div className="rounded-xl border border-border bg-white p-6">
+        <div className="rounded-[4px] border border-gz-rule bg-white p-6">
           <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider">
             Insignias
           </h2>
@@ -502,7 +608,7 @@ export function PerfilPublico({
         </div>
 
         {/* ─── Colegas ─────────────────────────────────── */}
-        <div className="rounded-xl border border-border bg-white p-6">
+        <div className="rounded-[4px] border border-gz-rule bg-white p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider">
               Colegas ({colegaCount})
@@ -518,7 +624,7 @@ export function PerfilPublico({
                 <Link
                   key={c.id}
                   href={`/dashboard/perfil/${c.id}`}
-                  className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-paper"
+                  className="flex items-center gap-3 rounded-[3px] border border-gz-rule p-3 transition-colors hover:bg-gz-cream-dark"
                 >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy/10 text-xs font-bold text-navy">
                     {c.firstName[0]}
@@ -597,8 +703,8 @@ function CvRequestModal({
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
         onClick={(e) => e.target === overlayRef.current && onClose()}
       >
-        <div className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-2xl">
-          <h3 className="text-lg font-bold text-navy font-display">
+        <div className="w-full max-w-md rounded-[4px] border border-gz-rule bg-white p-6 shadow-sm">
+          <h3 className="text-lg font-bold text-navy font-cormorant">
             Solicitar CV
           </h3>
           <p className="mt-1 text-sm text-navy/60">
@@ -610,20 +716,20 @@ function CvRequestModal({
             onChange={(e) => onMessageChange(e.target.value.slice(0, 500))}
             rows={3}
             placeholder="Mensaje opcional (ej: para qué es la solicitud)"
-            className="mt-4 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy resize-none focus:border-gold/50 focus:outline-none"
+            className="mt-4 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy resize-none focus:border-gold/50 focus:outline-none"
           />
 
           <div className="mt-4 flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-semibold text-navy/60 transition-colors hover:bg-paper"
+              className="flex-1 rounded-[3px] border border-gz-rule px-4 py-2.5 text-sm font-semibold text-navy/60 transition-colors hover:bg-gz-cream-dark"
             >
               Cancelar
             </button>
             <button
               onClick={onSubmit}
               disabled={loading}
-              className="flex-1 rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90 disabled:opacity-50"
+              className="flex-1 rounded-[3px] bg-gold px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90 disabled:opacity-50"
             >
               {loading ? "Enviando..." : "Enviar solicitud"}
             </button>

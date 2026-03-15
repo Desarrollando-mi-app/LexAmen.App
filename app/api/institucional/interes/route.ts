@@ -114,7 +114,7 @@ async function sendConfirmationEmail(
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;">
     <tr>
       <td style="background-color:#12203A;padding:24px 32px;text-align:center;">
-        <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Iuris Studio</h1>
+        <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Studio Iuris</h1>
       </td>
     </tr>
     <tr>
@@ -122,7 +122,7 @@ async function sendConfirmationEmail(
         <p style="color:#12203A;font-size:16px;margin:0 0 16px;">Hola ${nombre},</p>
         <h2 style="color:#12203A;font-size:20px;margin:0 0 12px;">Recibimos tu solicitud</h2>
         <p style="color:#12203A;font-size:15px;line-height:1.6;margin:0 0 16px;">
-          Gracias por registrar el inter\u00e9s de <strong>${institucion}</strong> en el Plan Institucional de Iuris Studio.
+          Gracias por registrar el inter\u00e9s de <strong>${institucion}</strong> en el Plan Institucional de Studio Iuris.
         </p>
         <p style="color:#12203A;font-size:15px;line-height:1.6;margin:0 0 24px;">
           Nuestro equipo se pondr\u00e1 en contacto contigo pronto para conversar sobre las posibilidades de colaboraci\u00f3n.
@@ -138,7 +138,7 @@ async function sendConfirmationEmail(
     <tr>
       <td style="padding:20px 32px;border-top:1px solid #D4C9B4;text-align:center;">
         <p style="color:#12203A;opacity:0.5;font-size:12px;margin:0;">
-          Iuris Studio \u00b7 Plataforma de estudio jur\u00eddico
+          Studio Iuris \u00b7 Plataforma de estudio jur\u00eddico
         </p>
       </td>
     </tr>
@@ -147,9 +147,9 @@ async function sendConfirmationEmail(
 </html>`;
 
   await getResend().emails.send({
-    from: "Iuris Studio <noreply@lexamen.cl>",
+    from: "Studio Iuris <noreply@lexamen.cl>",
     to: email,
-    subject: "Recibimos tu solicitud \u2014 Iuris Studio",
+    subject: "Recibimos tu solicitud \u2014 Studio Iuris",
     html,
   });
 }
@@ -172,7 +172,7 @@ async function sendAdminNotificationEmail(
   <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;margin:0 auto;background:#ffffff;">
     <tr>
       <td style="background-color:#12203A;padding:24px 32px;text-align:center;">
-        <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Iuris Studio \u2014 Admin</h1>
+        <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Studio Iuris \u2014 Admin</h1>
       </td>
     </tr>
     <tr>
@@ -209,7 +209,7 @@ async function sendAdminNotificationEmail(
     <tr>
       <td style="padding:20px 32px;border-top:1px solid #D4C9B4;text-align:center;">
         <p style="color:#12203A;opacity:0.5;font-size:12px;margin:0;">
-          Notificaci\u00f3n autom\u00e1tica \u2014 Iuris Studio
+          Notificaci\u00f3n autom\u00e1tica \u2014 Studio Iuris
         </p>
       </td>
     </tr>
@@ -218,7 +218,7 @@ async function sendAdminNotificationEmail(
 </html>`;
 
   await getResend().emails.send({
-    from: "Iuris Studio <noreply@lexamen.cl>",
+    from: "Studio Iuris <noreply@lexamen.cl>",
     to: ADMIN_EMAIL,
     subject: `Nuevo inter\u00e9s institucional: ${institucion}`,
     html,

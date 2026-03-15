@@ -4,6 +4,8 @@ import {
   Playfair_Display,
   Outfit,
   DM_Sans,
+  IBM_Plex_Mono,
+  Archivo,
 } from "next/font/google";
 import "./globals.css";
 
@@ -37,10 +39,24 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-ibm-plex-mono",
+  display: "swap",
+});
+
+const archivo = Archivo({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-archivo",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
-    default: "Iuris Studio — Aprende Derecho Civil y Procesal Civil",
-    template: "%s | Iuris Studio",
+    default: "Studio Iuris — Aprende Derecho Civil y Procesal Civil",
+    template: "%s | Studio Iuris",
   },
   description:
     "Plataforma de estudio de Derecho Civil y Procesal Civil para estudiantes en Chile. Flashcards, preguntas, duelos y liga semanal.",
@@ -50,26 +66,27 @@ export const metadata: Metadata = {
     "examen de grado",
     "flashcards derecho",
     "chile",
-    "iuris studio",
+    "studio iuris",
   ],
   metadataBase: new URL("https://lexamen.cl"),
   openGraph: {
-    title: "Iuris Studio — Domina el Derecho Civil y Procesal Civil",
+    title: "Studio Iuris — Domina el Derecho Civil y Procesal Civil",
     description:
       "Flashcards, preguntas, duelos y más. La plataforma de estudio para estudiantes de Derecho en Chile.",
     url: "https://lexamen.cl",
-    siteName: "Iuris Studio",
+    siteName: "Studio Iuris",
     locale: "es_CL",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Iuris Studio — Domina el Derecho Civil y Procesal Civil",
+    title: "Studio Iuris — Domina el Derecho Civil y Procesal Civil",
     description:
       "Flashcards, preguntas, duelos y más. La plataforma de estudio para estudiantes de Derecho en Chile.",
   },
   icons: {
-    icon: "/favicon.svg",
+    icon: "/brand/logo-sello.svg",
+    apple: "/brand/logo-sello.png",
   },
 };
 
@@ -88,7 +105,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${cormorant.variable} ${playfair.variable} ${outfit.variable} ${dmSans.variable} antialiased`}
+        className={`${cormorant.variable} ${playfair.variable} ${outfit.variable} ${dmSans.variable} ${ibmPlexMono.variable} ${archivo.variable} antialiased`}
       >
         {children}
       </body>

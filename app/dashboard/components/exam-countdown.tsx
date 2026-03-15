@@ -17,7 +17,7 @@ export function ExamCountdown({ initialExamDate }: ExamCountdownProps) {
   const [displayMode, setDisplayMode] = useState<DisplayMode>("total");
   const [saving, setSaving] = useState(false);
 
-  // ─── Cálculos ──────────────────────────────────────────────
+  // ─── Calculos ──────────────────────────────────────────────
 
   const countdown = useMemo(() => {
     if (!examDate) return null;
@@ -92,15 +92,15 @@ export function ExamCountdown({ initialExamDate }: ExamCountdownProps) {
 
   if (!examDate) {
     return (
-      <div className="rounded-xl border border-gold/20 bg-gold/5 p-5">
+      <div className="rounded-[4px] border border-gz-gold/20 bg-gz-gold/[0.06] p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🎓</span>
+            <span className="text-2xl">{"\uD83C\uDF93"}</span>
             <div>
-              <p className="font-semibold text-navy font-display">
+              <p className="font-cormorant text-[16px] !font-bold text-gz-ink">
                 Fecha de examen
               </p>
-              <p className="text-sm text-navy/60">
+              <p className="font-archivo text-[13px] text-gz-ink-mid">
                 Configura tu fecha de examen de grado
               </p>
             </div>
@@ -111,12 +111,13 @@ export function ExamCountdown({ initialExamDate }: ExamCountdownProps) {
             type="date"
             value={dateInput}
             onChange={(e) => setDateInput(e.target.value)}
-            className="flex-1 rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none bg-white"
+            className="flex-1 rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none bg-white"
+            style={{ backgroundColor: "var(--gz-cream)" }}
           />
           <button
             onClick={handleSave}
             disabled={!dateInput || saving}
-            className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white hover:bg-gold/90 disabled:opacity-50 transition-colors"
+            className="rounded-[3px] bg-gz-gold px-4 py-2 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold/90 disabled:opacity-50 transition-colors"
           >
             {saving ? "..." : "Guardar"}
           </button>
@@ -128,41 +129,41 @@ export function ExamCountdown({ initialExamDate }: ExamCountdownProps) {
   // ─── Con fecha configurada ─────────────────────────────────
 
   return (
-    <div className="rounded-xl border border-gold/20 bg-gold/5 p-5">
+    <div className="rounded-[4px] border border-gz-gold/20 bg-gz-gold/[0.06] p-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-2xl">
-            {countdown?.status === "today" ? "🎓" : "⏳"}
+            {countdown?.status === "today" ? "\uD83C\uDF93" : "\u23F3"}
           </span>
           <div className="flex-1">
             {countdown?.status === "past" && (
               <>
-                <p className="font-semibold text-navy font-display">
-                  Tu examen ya pasó
+                <p className="font-cormorant text-[16px] !font-bold text-gz-ink">
+                  Tu examen ya paso
                 </p>
-                <p className="text-sm text-navy/60">
-                  Hace {countdown.totalDays} día{countdown.totalDays !== 1 ? "s" : ""}
+                <p className="font-archivo text-[13px] text-gz-ink-mid">
+                  Hace {countdown.totalDays} dia{countdown.totalDays !== 1 ? "s" : ""}
                 </p>
               </>
             )}
             {countdown?.status === "today" && (
               <>
-                <p className="font-semibold text-navy font-display">
+                <p className="font-cormorant text-[16px] !font-bold text-gz-ink">
                   Tu examen es hoy
                 </p>
-                <p className="text-sm text-gold">
-                  Confía en tu preparación
+                <p className="font-archivo text-[13px] text-gz-gold">
+                  Confia en tu preparacion
                 </p>
               </>
             )}
             {countdown?.status === "future" && (
               <>
                 {displayMode === "total" ? (
-                  <p className="text-2xl font-bold text-navy font-display">
-                    {countdown.totalDays} día{countdown.totalDays !== 1 ? "s" : ""}
+                  <p className="font-cormorant text-[32px] !font-bold text-gz-ink">
+                    {countdown.totalDays} dia{countdown.totalDays !== 1 ? "s" : ""}
                   </p>
                 ) : (
-                  <p className="text-lg font-bold text-navy font-display">
+                  <p className="font-cormorant text-[20px] !font-bold text-gz-ink">
                     {countdown.months > 0 &&
                       `${countdown.months} mes${countdown.months !== 1 ? "es" : ""}`}
                     {countdown.months > 0 && (countdown.weeks > 0 || countdown.days > 0) &&
@@ -171,12 +172,12 @@ export function ExamCountdown({ initialExamDate }: ExamCountdownProps) {
                       `${countdown.weeks} semana${countdown.weeks !== 1 ? "s" : ""}`}
                     {countdown.weeks > 0 && countdown.days > 0 && ", "}
                     {countdown.days > 0 &&
-                      `${countdown.days} día${countdown.days !== 1 ? "s" : ""}`}
+                      `${countdown.days} dia${countdown.days !== 1 ? "s" : ""}`}
                     {countdown.months === 0 && countdown.weeks === 0 && countdown.days === 0 &&
                       "Hoy"}
                   </p>
                 )}
-                <p className="text-sm text-navy/60">
+                <p className="font-archivo text-[13px] text-gz-ink-mid">
                   para tu examen de grado
                 </p>
               </>
@@ -190,7 +191,7 @@ export function ExamCountdown({ initialExamDate }: ExamCountdownProps) {
             setShowConfig(!showConfig);
             setDateInput(examDate ? examDate.slice(0, 10) : "");
           }}
-          className="rounded-lg p-2 text-navy/40 hover:text-navy hover:bg-navy/5 transition-colors"
+          className="rounded-[3px] p-2 text-gz-ink-light hover:text-gz-ink hover:bg-gz-cream-dark/50 transition-colors"
           title="Configurar fecha"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -201,23 +202,23 @@ export function ExamCountdown({ initialExamDate }: ExamCountdownProps) {
 
       {/* Toggle total / desglosado */}
       {countdown?.status === "future" && (
-        <div className="mt-3 flex gap-1 rounded-lg bg-navy/5 p-0.5">
+        <div className="mt-3 flex gap-1 rounded-[3px] bg-gz-cream-dark p-0.5">
           <button
             onClick={() => setDisplayMode("total")}
-            className={`flex-1 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+            className={`flex-1 rounded-[3px] px-3 py-1 font-ibm-mono text-[10px] font-medium transition-colors ${
               displayMode === "total"
-                ? "bg-white text-navy shadow-sm"
-                : "text-navy/50 hover:text-navy"
+                ? "bg-white text-gz-ink shadow-sm"
+                : "text-gz-ink-light hover:text-gz-ink"
             }`}
           >
             Total
           </button>
           <button
             onClick={() => setDisplayMode("desglosado")}
-            className={`flex-1 rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+            className={`flex-1 rounded-[3px] px-3 py-1 font-ibm-mono text-[10px] font-medium transition-colors ${
               displayMode === "desglosado"
-                ? "bg-white text-navy shadow-sm"
-                : "text-navy/50 hover:text-navy"
+                ? "bg-white text-gz-ink shadow-sm"
+                : "text-gz-ink-light hover:text-gz-ink"
             }`}
           >
             Desglosado
@@ -232,19 +233,20 @@ export function ExamCountdown({ initialExamDate }: ExamCountdownProps) {
             type="date"
             value={dateInput}
             onChange={(e) => setDateInput(e.target.value)}
-            className="flex-1 rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none bg-white"
+            className="flex-1 rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none"
+            style={{ backgroundColor: "var(--gz-cream)" }}
           />
           <button
             onClick={handleSave}
             disabled={!dateInput || saving}
-            className="rounded-lg bg-gold px-3 py-2 text-sm font-semibold text-white hover:bg-gold/90 disabled:opacity-50 transition-colors"
+            className="rounded-[3px] bg-gz-gold px-3 py-2 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold/90 disabled:opacity-50 transition-colors"
           >
             {saving ? "..." : "Guardar"}
           </button>
           <button
             onClick={handleClear}
             disabled={saving}
-            className="rounded-lg border border-red-300 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+            className="rounded-[3px] border border-gz-burgundy/30 px-3 py-2 font-archivo text-[13px] font-medium text-gz-burgundy hover:bg-gz-burgundy/[0.06] disabled:opacity-50 transition-colors"
           >
             Borrar
           </button>

@@ -5,7 +5,7 @@ import { AdminSidebar } from "./components/admin-sidebar";
 import { AdminMobileNav } from "./components/admin-mobile-nav";
 
 export const metadata = {
-  title: "Admin — Iuris Studio",
+  title: "Admin — Studio Iuris",
 };
 
 export default async function AdminLayout({

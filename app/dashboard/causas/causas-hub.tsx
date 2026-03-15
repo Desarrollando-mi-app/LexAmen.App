@@ -257,11 +257,11 @@ export function CausasHub({
   // ─── Render ───────────────────────────────────────────
 
   return (
-    <main className="min-h-screen bg-paper">
-      <div className="mx-auto max-w-3xl px-6 py-8 space-y-8">
+    <main className="min-h-screen">
+      <div className="space-y-8">
         {/* ─── Insignias ──────────────────────────────────── */}
-        <div className="rounded-xl border border-border bg-white p-6">
-          <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider font-display">
+        <div className="rounded-[4px] border border-gz-rule p-6" style={{ backgroundColor: "var(--gz-cream)" }}>
+          <h2 className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light font-semibold">
             Insignias
           </h2>
           <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-6">
@@ -276,7 +276,7 @@ export function CausasHub({
                   title={badge.description}
                 >
                   <span className="text-3xl">{badge.emoji}</span>
-                  <p className="mt-1 text-[11px] font-medium text-navy leading-tight">
+                  <p className="mt-1 text-[11px] font-medium text-gz-ink leading-tight">
                     {badge.label}
                   </p>
                 </div>
@@ -286,28 +286,28 @@ export function CausasHub({
         </div>
 
         {/* ─── Tabs ───────────────────────────────────────── */}
-        <div className="flex gap-2 rounded-lg bg-border/20 p-1">
+        <div className="flex gap-2 rounded-[3px] border border-gz-rule p-1">
           <button
             onClick={() => setTab("individual")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-[3px] px-4 py-2 font-archivo text-[13px] font-semibold transition-colors ${
               tab === "individual"
-                ? "bg-white text-navy shadow-sm"
-                : "text-navy/50 hover:text-navy"
+                ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                : "text-gz-ink-mid hover:text-gz-ink"
             }`}
           >
             Individual
           </button>
           <button
             onClick={() => setTab("grupal")}
-            className={`flex-1 rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-[3px] px-4 py-2 font-archivo text-[13px] font-semibold transition-colors ${
               tab === "grupal"
-                ? "bg-white text-navy shadow-sm"
-                : "text-navy/50 hover:text-navy"
+                ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                : "text-gz-ink-mid hover:text-gz-ink"
             }`}
           >
             Grupal
             {activeRooms.length > 0 && (
-              <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-white">
+              <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gz-gold font-ibm-mono text-[9px] font-bold text-white">
                 {activeRooms.length}
               </span>
             )}
@@ -316,17 +316,17 @@ export function CausasHub({
 
         {/* ─── Estadísticas ──────────────────────────────── */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-xl border border-border bg-white p-4 text-center">
-            <p className="text-2xl font-bold text-green-600">{causasGanadas}</p>
-            <p className="text-xs text-navy/50">Ganadas</p>
+          <div className="rounded-[4px] border border-gz-rule p-4 text-center" style={{ backgroundColor: "var(--gz-cream)" }}>
+            <p className="font-cormorant text-[28px] !font-bold text-gz-sage">{causasGanadas}</p>
+            <p className="font-ibm-mono text-[11px] text-gz-ink-light">Ganadas</p>
           </div>
-          <div className="rounded-xl border border-border bg-white p-4 text-center">
-            <p className="text-2xl font-bold text-red-500">{causasPerdidas}</p>
-            <p className="text-xs text-navy/50">Perdidas</p>
+          <div className="rounded-[4px] border border-gz-rule p-4 text-center" style={{ backgroundColor: "var(--gz-cream)" }}>
+            <p className="font-cormorant text-[28px] !font-bold text-gz-burgundy">{causasPerdidas}</p>
+            <p className="font-ibm-mono text-[11px] text-gz-ink-light">Perdidas</p>
           </div>
-          <div className="rounded-xl border border-border bg-white p-4 text-center">
-            <p className="text-2xl font-bold text-gold">{winRate}%</p>
-            <p className="text-xs text-navy/50">Win Rate</p>
+          <div className="rounded-[4px] border border-gz-rule p-4 text-center" style={{ backgroundColor: "var(--gz-cream)" }}>
+            <p className="font-cormorant text-[28px] !font-bold text-gz-gold">{winRate}%</p>
+            <p className="font-ibm-mono text-[11px] text-gz-ink-light">Win Rate</p>
           </div>
         </div>
 
@@ -334,9 +334,9 @@ export function CausasHub({
         {tab === "individual" && (
           <>
             {/* Retar */}
-            <div className="rounded-xl border border-border bg-white p-6">
-              <h2 className="text-lg font-semibold text-navy font-display">Desafiar</h2>
-              <p className="mt-1 text-sm text-navy/60">
+            <div className="rounded-[4px] border border-gz-rule p-6" style={{ backgroundColor: "var(--gz-cream)" }}>
+              <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Desafiar</h2>
+              <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
                 Ingresa el email de tu oponente para iniciar una causa
               </p>
               <form onSubmit={handleChallenge} className="mt-4 flex items-center gap-3">
@@ -345,46 +345,47 @@ export function CausasHub({
                   placeholder="email@ejemplo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy placeholder:text-navy/40 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                  className="flex-1 rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink placeholder:text-gz-ink-light focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                 />
                 <button
                   type="submit"
                   disabled={loading || !email.trim()}
-                  className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+                  className="rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"
                 >
                   {loading ? "Enviando..." : "Desafiar"}
                 </button>
               </form>
-              {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-              {success && <p className="mt-3 text-sm text-green-600">{success}</p>}
+              {error && <p className="mt-3 font-archivo text-[13px] text-gz-burgundy">{error}</p>}
+              {success && <p className="mt-3 font-archivo text-[13px] text-gz-sage">{success}</p>}
             </div>
 
             {/* Desafiar Colegas */}
             {colegas.length > 0 && (
-              <div className="rounded-xl border border-border bg-white p-6">
-                <h2 className="text-lg font-semibold text-navy font-display">
+              <div className="rounded-[4px] border border-gz-rule p-6" style={{ backgroundColor: "var(--gz-cream)" }}>
+                <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
                   Desafiar a un Colega
                 </h2>
                 <div className="mt-3 space-y-2">
                   {colegas.map((c) => (
                     <div
                       key={c.id}
-                      className="flex items-center justify-between rounded-lg border border-border/50 px-4 py-3"
+                      className="flex items-center justify-between rounded-[3px] border border-gz-rule px-4 py-3"
                     >
                       <Link
                         href={`/dashboard/perfil/${c.id}`}
                         className="flex items-center gap-3 min-w-0"
                       >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy/10 text-xs font-bold text-navy">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gz-navy/10 text-xs font-bold text-gz-ink">
                           {c.firstName[0]}
                           {c.lastName[0]}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-navy truncate">
+                          <p className="font-archivo text-[13px] font-medium text-gz-ink truncate">
                             {c.firstName} {c.lastName}
                           </p>
                           {c.tier && (
-                            <p className="text-[10px] text-navy/40">
+                            <p className="text-[10px] text-gz-ink-light">
                               {TIER_EMOJIS[c.tier] ?? ""}{" "}
                               {TIER_LABELS[c.tier] ?? c.tier}
                             </p>
@@ -399,7 +400,7 @@ export function CausasHub({
                           )
                         }
                         disabled={challengingColega === c.id}
-                        className="shrink-0 ml-3 rounded-lg bg-gold px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-gold/90 disabled:opacity-50"
+                        className="shrink-0 ml-3 rounded-[3px] bg-gz-gold px-4 py-1.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold/90 disabled:opacity-50"
                       >
                         {challengingColega === c.id ? "..." : "Desafiar"}
                       </button>
@@ -412,19 +413,19 @@ export function CausasHub({
             {/* Activas */}
             {active.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-navy font-display">Causas Activas</h2>
+                <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Causas Activas</h2>
                 <div className="mt-3 space-y-3">
                   {active.map((c) => (
                     <Link
                       key={c.id}
                       href={`/dashboard/causas/${c.id}`}
-                      className="flex items-center justify-between rounded-xl border border-gold/30 bg-gold/5 p-4 transition-shadow hover:shadow-md"
+                      className="flex items-center justify-between rounded-[4px] border border-gz-gold/30 bg-gz-gold/[0.06] p-4 transition-shadow hover:shadow-sm"
                     >
                       <div>
-                        <p className="font-medium text-navy">vs {c.opponentName}</p>
-                        <p className="text-xs text-navy/50">En curso</p>
+                        <p className="font-archivo font-medium text-gz-ink">vs {c.opponentName}</p>
+                        <p className="font-ibm-mono text-[11px] text-gz-ink-light">En curso</p>
                       </div>
-                      <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
+                      <span className="rounded-full bg-gz-gold/15 px-3 py-1 font-ibm-mono text-[9px] font-semibold text-gz-gold">
                         Jugar &rarr;
                       </span>
                     </Link>
@@ -436,16 +437,17 @@ export function CausasHub({
             {/* Pendientes */}
             {pending.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-navy font-display">Retos Pendientes</h2>
+                <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Retos Pendientes</h2>
                 <div className="mt-3 space-y-3">
                   {pending.map((c) => (
                     <div
                       key={c.id}
-                      className="flex items-center justify-between rounded-xl border border-border bg-white p-4"
+                      className="flex items-center justify-between rounded-[4px] border border-gz-rule p-4"
+                      style={{ backgroundColor: "var(--gz-cream)" }}
                     >
                       <div>
-                        <p className="font-medium text-navy">{c.challengerName}</p>
-                        <p className="text-xs text-navy/50">
+                        <p className="font-archivo font-medium text-gz-ink">{c.challengerName}</p>
+                        <p className="font-ibm-mono text-[11px] text-gz-ink-light">
                           {new Date(c.createdAt).toLocaleDateString("es-CL")}
                         </p>
                       </div>
@@ -453,14 +455,14 @@ export function CausasHub({
                         <button
                           onClick={() => handleAccept(c.id)}
                           disabled={actionLoading === c.id}
-                          className="rounded-lg bg-green-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+                          className="rounded-[3px] bg-gz-sage px-4 py-2 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-sage/90 disabled:opacity-50"
                         >
                           Aceptar
                         </button>
                         <button
                           onClick={() => handleReject(c.id)}
                           disabled={actionLoading === c.id}
-                          className="rounded-lg bg-red-100 px-4 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-200 disabled:opacity-50"
+                          className="rounded-[3px] bg-gz-burgundy/[0.15] px-4 py-2 font-archivo text-[13px] font-semibold text-gz-burgundy transition-colors hover:bg-gz-burgundy/20 disabled:opacity-50"
                         >
                           Rechazar
                         </button>
@@ -473,9 +475,9 @@ export function CausasHub({
 
             {/* Historial */}
             <div>
-              <h2 className="text-lg font-semibold text-navy">Historial</h2>
+              <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Historial</h2>
               {history.length === 0 ? (
-                <p className="mt-3 text-sm text-navy/50">
+                <p className="mt-3 font-archivo text-[13px] text-gz-ink-light">
                   Aún no tienes causas completadas
                 </p>
               ) : (
@@ -484,28 +486,29 @@ export function CausasHub({
                     <Link
                       key={c.id}
                       href={`/dashboard/causas/${c.id}`}
-                      className="flex items-center justify-between rounded-lg border border-border bg-white px-4 py-3 transition-colors hover:bg-paper"
+                      className="flex items-center justify-between rounded-[3px] border border-gz-rule px-4 py-3 transition-colors hover:bg-gz-gold/[0.06]"
+                      style={{ backgroundColor: "var(--gz-cream)" }}
                     >
                       <div>
-                        <p className="text-sm font-medium text-navy">vs {c.opponentName}</p>
-                        <p className="text-xs text-navy/50">
+                        <p className="font-archivo text-[13px] font-medium text-gz-ink">vs {c.opponentName}</p>
+                        <p className="font-ibm-mono text-[11px] text-gz-ink-light">
                           {new Date(c.createdAt).toLocaleDateString("es-CL")}
                         </p>
                       </div>
                       {c.status === "COMPLETED" ? (
                         <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          className={`rounded-full px-3 py-1 font-ibm-mono text-[9px] font-semibold ${
                             c.won
-                              ? "bg-green-100 text-green-700"
+                              ? "bg-gz-sage/[0.15] text-gz-sage"
                               : c.lost
-                              ? "bg-red-100 text-red-600"
-                              : "bg-gray-100 text-gray-600"
+                              ? "bg-gz-burgundy/[0.15] text-gz-burgundy"
+                              : "bg-gz-rule/30 text-gz-ink-mid"
                           }`}
                         >
                           {c.won ? "Victoria" : c.lost ? "Derrota" : "Empate"}
                         </span>
                       ) : (
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
+                        <span className="rounded-full bg-gz-rule/30 px-3 py-1 font-ibm-mono text-[9px] font-semibold text-gz-ink-light">
                           Rechazada
                         </span>
                       )}
@@ -523,23 +526,23 @@ export function CausasHub({
             {/* Crear / Unirse */}
             <div className="grid gap-4 sm:grid-cols-2">
               {/* Crear sala */}
-              <div className="rounded-xl border border-border bg-white p-6">
-                <h2 className="text-lg font-semibold text-navy">Crear Sala</h2>
-                <p className="mt-1 text-sm text-navy/60">
+              <div className="rounded-[4px] border border-gz-rule p-6" style={{ backgroundColor: "var(--gz-cream)" }}>
+                <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Crear Sala</h2>
+                <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
                   Crea una sala y comparte el código
                 </p>
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="mt-4 w-full rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+                  className="mt-4 w-full rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
                 >
                   Crear Sala
                 </button>
               </div>
 
               {/* Unirse por código */}
-              <div className="rounded-xl border border-border bg-white p-6">
-                <h2 className="text-lg font-semibold text-navy">Unirse</h2>
-                <p className="mt-1 text-sm text-navy/60">
+              <div className="rounded-[4px] border border-gz-rule p-6" style={{ backgroundColor: "var(--gz-cream)" }}>
+                <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Unirse</h2>
+                <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
                   Ingresa el código de la sala
                 </p>
                 <form onSubmit={handleJoinByCode} className="mt-4 flex gap-2">
@@ -549,18 +552,19 @@ export function CausasHub({
                     value={joinCode}
                     onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                     maxLength={6}
-                    className="flex-1 rounded-lg border border-border bg-paper px-4 py-2.5 text-sm font-mono text-navy uppercase placeholder:text-navy/40 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="flex-1 rounded-[3px] border border-gz-rule px-4 py-2.5 font-ibm-mono text-[14px] text-gz-ink uppercase placeholder:text-gz-ink-light focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   />
                   <button
                     type="submit"
                     disabled={joiningRoom || joinCode.length < 4}
-                    className="rounded-lg bg-gold px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90 disabled:opacity-50"
+                    className="rounded-[3px] bg-gz-gold px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold/90 disabled:opacity-50"
                   >
                     {joiningRoom ? "..." : "Unirse"}
                   </button>
                 </form>
                 {joinError && (
-                  <p className="mt-2 text-sm text-red-600">{joinError}</p>
+                  <p className="mt-2 font-archivo text-[13px] text-gz-burgundy">{joinError}</p>
                 )}
               </div>
             </div>
@@ -568,29 +572,29 @@ export function CausasHub({
             {/* Salas activas */}
             {activeRooms.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold text-navy">Salas Activas</h2>
+                <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Salas Activas</h2>
                 <div className="mt-3 space-y-3">
                   {activeRooms.map((r) => (
                     <Link
                       key={r.id}
                       href={`/dashboard/causas/sala/${r.id}`}
-                      className="flex items-center justify-between rounded-xl border border-gold/30 bg-gold/5 p-4 transition-shadow hover:shadow-md"
+                      className="flex items-center justify-between rounded-[4px] border border-gz-gold/30 bg-gz-gold/[0.06] p-4 transition-shadow hover:shadow-sm"
                     >
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-navy">
+                          <p className="font-archivo font-medium text-gz-ink">
                             Sala de {r.creatorName}
                           </p>
-                          <span className="rounded-full bg-border/40 px-2 py-0.5 text-[10px] font-mono text-navy/50">
+                          <span className="rounded-full bg-gz-rule/40 px-2 py-0.5 font-ibm-mono text-[10px] text-gz-ink-light">
                             {r.code}
                           </span>
                         </div>
-                        <p className="text-xs text-navy/50">
+                        <p className="font-ibm-mono text-[11px] text-gz-ink-light">
                           {r.participantCount}/{r.maxPlayers} jugadores ·{" "}
                           {r.status === "lobby" ? "En espera" : "En curso"}
                         </p>
                       </div>
-                      <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
+                      <span className="rounded-full bg-gz-gold/15 px-3 py-1 font-ibm-mono text-[9px] font-semibold text-gz-gold">
                         {r.status === "lobby" ? "Entrar" : "Jugar"} &rarr;
                       </span>
                     </Link>
@@ -601,9 +605,9 @@ export function CausasHub({
 
             {/* Historial salas */}
             <div>
-              <h2 className="text-lg font-semibold text-navy">Historial Grupal</h2>
+              <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Historial Grupal</h2>
               {roomHistory.length === 0 ? (
-                <p className="mt-3 text-sm text-navy/50">
+                <p className="mt-3 font-archivo text-[13px] text-gz-ink-light">
                   Aún no has participado en causas grupales
                 </p>
               ) : (
@@ -612,25 +616,26 @@ export function CausasHub({
                     <Link
                       key={r.id}
                       href={`/dashboard/causas/sala/${r.id}`}
-                      className="flex items-center justify-between rounded-lg border border-border bg-white px-4 py-3 transition-colors hover:bg-paper"
+                      className="flex items-center justify-between rounded-[3px] border border-gz-rule px-4 py-3 transition-colors hover:bg-gz-gold/[0.06]"
+                      style={{ backgroundColor: "var(--gz-cream)" }}
                     >
                       <div>
-                        <p className="text-sm font-medium text-navy">
+                        <p className="font-archivo text-[13px] font-medium text-gz-ink">
                           {r.participantCount} jugadores · {r.score} pts
                         </p>
-                        <p className="text-xs text-navy/50">
+                        <p className="font-ibm-mono text-[11px] text-gz-ink-light">
                           {new Date(r.createdAt).toLocaleDateString("es-CL")}
                         </p>
                       </div>
                       <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                        className={`rounded-full px-3 py-1 font-ibm-mono text-[9px] font-semibold ${
                           r.position === 1
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-gz-sage/[0.15] text-gz-sage"
                             : r.position === 2
-                            ? "bg-blue-100 text-blue-700"
+                            ? "bg-gz-navy/[0.15] text-gz-navy"
                             : r.position === 3
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-100 text-gray-600"
+                            ? "bg-gz-gold/[0.15] text-gz-gold"
+                            : "bg-gz-rule/30 text-gz-ink-mid"
                         }`}
                       >
                         {r.position === 1
@@ -653,16 +658,17 @@ export function CausasHub({
       {/* ─── Modal Crear Sala ──────────────────────────────── */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-navy">Crear Causa Grupal</h2>
+          <div className="w-full max-w-md rounded-[4px] p-6 shadow-xl border border-gz-rule" style={{ backgroundColor: "var(--gz-cream)" }}>
+            <h2 className="font-cormorant text-[22px] !font-bold text-gz-ink">Crear Causa Grupal</h2>
 
             <div className="mt-5 space-y-4">
               <div>
-                <label className="text-sm font-medium text-navy/70">Rama</label>
+                <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">Rama</label>
                 <select
                   value={roomRama}
                   onChange={(e) => setRoomRama(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none"
+                  className="mt-1 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                 >
                   <option value="">Todas</option>
                   <option value="DERECHO_CIVIL">Derecho Civil</option>
@@ -673,13 +679,14 @@ export function CausasHub({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-navy/70">
+                <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                   Dificultad
                 </label>
                 <select
                   value={roomDifficulty}
                   onChange={(e) => setRoomDifficulty(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none"
+                  className="mt-1 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                 >
                   <option value="">Mixto</option>
                   <option value="BASICO">Básico</option>
@@ -689,7 +696,7 @@ export function CausasHub({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-navy/70">
+                <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                   Max. jugadores (2-10)
                 </label>
                 <input
@@ -698,7 +705,8 @@ export function CausasHub({
                   max={10}
                   value={roomMaxPlayers}
                   onChange={(e) => setRoomMaxPlayers(Number(e.target.value))}
-                  className="mt-1 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none"
+                  className="mt-1 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                 />
               </div>
             </div>
@@ -706,14 +714,14 @@ export function CausasHub({
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-navy/70 transition-colors hover:bg-paper"
+                className="flex-1 rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[13px] text-gz-ink-mid transition-colors hover:border-gz-gold hover:text-gz-gold"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleCreateRoom}
                 disabled={creatingRoom}
-                className="flex-1 rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+                className="flex-1 rounded-[3px] bg-gz-navy px-4 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"
               >
                 {creatingRoom ? "Creando..." : "Crear"}
               </button>

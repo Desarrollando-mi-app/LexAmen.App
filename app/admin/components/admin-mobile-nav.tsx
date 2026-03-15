@@ -31,7 +31,7 @@ export function AdminMobileNav() {
           href="/dashboard"
           className="text-lg font-bold text-navy font-display"
         >
-          ⚖️ Admin
+          Studio <span className="text-gz-red">Iuris</span> · Admin
         </Link>
         <button
           onClick={() => setOpen(!open)}

@@ -37,11 +37,11 @@ export function LigaViewer({
   const isCurrentUser = (id: string) => id === userId;
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
       {/* Subheader de liga */}
       <div className="mx-auto max-w-3xl px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-navy font-display">
+          <h2 className="text-xl font-bold text-navy font-cormorant">
             {tierEmoji} <em>Liga</em> {tierLabel}
           </h2>
           <span className="rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-gold">
@@ -49,10 +49,10 @@ export function LigaViewer({
             {daysRemaining !== 1 ? "s" : ""}
           </span>
         </div>
-        <div className="overflow-hidden rounded-xl border border-border bg-white">
+        <div className="overflow-hidden rounded-[4px] border border-gz-rule bg-white">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-border bg-navy/5">
+              <tr className="border-b border-gz-rule bg-navy/5">
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-navy/60">
                   #
                 </th>
@@ -74,13 +74,13 @@ export function LigaViewer({
                 return (
                   <tr
                     key={member.userId}
-                    className={`border-b border-border/50 transition-colors ${
+                    className={`border-b border-gz-rule/50 transition-colors ${
                       me
                         ? "bg-gold/10 ring-2 ring-inset ring-gold/30"
                         : promo
-                        ? "bg-green-50"
+                        ? "bg-gz-sage/10"
                         : releg
-                        ? "bg-red-50"
+                        ? "bg-gz-burgundy/10"
                         : ""
                     }`}
                   >
@@ -117,12 +117,12 @@ export function LigaViewer({
                     </td>
                     <td className="px-4 py-3 text-center">
                       {promo && (
-                        <span className="text-green-600" title="Zona de ascenso">
+                        <span className="text-gz-sage" title="Zona de ascenso">
                           ↑
                         </span>
                       )}
                       {releg && (
-                        <span className="text-red-500" title="Zona de descenso">
+                        <span className="text-gz-burgundy" title="Zona de descenso">
                           ↓
                         </span>
                       )}
@@ -137,11 +137,11 @@ export function LigaViewer({
         {/* Leyenda */}
         <div className="mt-4 flex items-center justify-center gap-6 text-xs text-navy/50">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rounded-sm bg-green-100 border border-green-300"></span>
+            <span className="inline-block h-3 w-3 rounded-sm bg-gz-sage/20 border border-gz-sage/40"></span>
             Top {PROMOTION_SPOTS} — Ascienden
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rounded-sm bg-red-100 border border-red-300"></span>
+            <span className="inline-block h-3 w-3 rounded-sm bg-gz-burgundy/20 border border-gz-burgundy/40"></span>
             Bottom {RELEGATION_SPOTS} — Descienden
           </span>
           <span className="flex items-center gap-1.5">

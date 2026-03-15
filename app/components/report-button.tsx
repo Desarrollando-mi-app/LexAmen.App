@@ -65,7 +65,7 @@ export function ReportButton({ contentType, contentId }: ReportButtonProps) {
       {/* Botón discreto */}
       <button
         onClick={() => setIsOpen(true)}
-        className="mt-3 text-xs text-navy/40 transition-colors hover:text-navy/60"
+        className="mt-3 font-archivo text-[11px] text-gz-ink-light transition-colors hover:text-gz-ink"
       >
         ⚑ Reportar error
       </button>
@@ -78,39 +78,43 @@ export function ReportButton({ contentType, contentId }: ReportButtonProps) {
             if (e.target === e.currentTarget) handleClose();
           }}
         >
-          <div className="w-full max-w-md rounded-xl border border-border bg-white p-6">
+          <div
+            className="w-full max-w-md rounded-[4px] border border-gz-rule p-6 shadow-sm"
+            style={{ backgroundColor: "var(--gz-cream)" }}
+          >
             {sent ? (
               /* Estado: Enviado */
               <div className="flex flex-col items-center py-6 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500/10">
-                  <span className="text-xl text-green-500">✓</span>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gz-sage/10">
+                  <span className="text-xl text-gz-sage">✓</span>
                 </div>
-                <p className="mt-4 font-semibold text-navy">
+                <p className="mt-4 font-cormorant text-[18px] !font-bold text-gz-ink">
                   Reporte enviado. ¡Gracias!
                 </p>
-                <p className="mt-1 text-sm text-navy/50">
+                <p className="mt-1 font-archivo text-[13px] text-gz-ink-light">
                   Lo revisaremos pronto.
                 </p>
               </div>
             ) : (
               /* Estado: Formulario */
               <>
-                <h3 className="text-lg font-semibold text-navy">
+                <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">
                   Reportar un error
                 </h3>
-                <p className="mt-1 text-sm text-navy/50">
+                <p className="mt-1 font-archivo text-[13px] text-gz-ink-light">
                   Ayúdanos a mejorar el contenido.
                 </p>
 
                 {/* Selector de razón */}
                 <div className="mt-4">
-                  <label className="mb-1.5 block text-sm font-medium text-navy">
+                  <label className="mb-1.5 block font-ibm-mono text-[10px] font-medium uppercase tracking-[1px] text-gz-ink-light">
                     ¿Cuál es el problema?
                   </label>
                   <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/30"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   >
                     <option value="">Selecciona una razón...</option>
                     {REASONS.map((r) => (
@@ -123,16 +127,17 @@ export function ReportButton({ contentType, contentId }: ReportButtonProps) {
 
                 {/* Descripción opcional */}
                 <div className="mt-4">
-                  <label className="mb-1.5 block text-sm font-medium text-navy">
+                  <label className="mb-1.5 block font-ibm-mono text-[10px] font-medium uppercase tracking-[1px] text-gz-ink-light">
                     Describe el problema{" "}
-                    <span className="text-navy/40">(opcional)</span>
+                    <span className="normal-case tracking-normal font-archivo text-gz-ink-light/50">(opcional)</span>
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Ej: El artículo correcto es el 1545, no el 1546..."
                     rows={3}
-                    className="w-full resize-none rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+                    className="w-full resize-none rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink placeholder:text-gz-ink-light/50 focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/30"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   />
                 </div>
 
@@ -140,14 +145,14 @@ export function ReportButton({ contentType, contentId }: ReportButtonProps) {
                 <div className="mt-5 flex justify-end gap-3">
                   <button
                     onClick={handleClose}
-                    className="rounded-lg px-4 py-2 text-sm font-medium text-navy/60 transition-colors hover:text-navy"
+                    className="rounded-[3px] px-4 py-2 font-archivo text-[13px] font-medium text-gz-ink-light transition-colors hover:text-gz-ink"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={!reason || isSubmitting}
-                    className="rounded-lg bg-navy px-5 py-2 text-sm font-medium text-paper transition-colors hover:bg-navy/90 disabled:opacity-50"
+                    className="rounded-[3px] bg-gz-navy px-5 py-2 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"
                   >
                     {isSubmitting ? "Enviando..." : "Enviar reporte"}
                   </button>

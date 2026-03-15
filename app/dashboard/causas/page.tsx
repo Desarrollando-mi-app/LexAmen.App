@@ -157,21 +157,32 @@ export default async function CausasPage() {
   }));
 
   return (
-    <CausasHub
-      causasGanadas={dbUser?.causasGanadas ?? 0}
-      causasPerdidas={dbUser?.causasPerdidas ?? 0}
-      pending={serializedPending}
-      active={serializedActive}
-      history={serializedHistory}
-      activeRooms={serializedActiveRooms}
-      roomHistory={serializedRoomHistory}
-      earnedBadges={badges.map((b) => b.badge)}
-      colegas={colegas.map((c) => ({
-        id: c.id,
-        firstName: c.firstName,
-        lastName: c.lastName,
-        tier: c.tier,
-      }))}
-    />
+    <div className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+        <div className="mb-6">
+          <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
+            Competici&oacute;n &middot; Causas
+          </span>
+          <h1 className="font-cormorant text-[28px] lg:text-[32px] !font-bold text-gz-ink mb-3">Causas</h1>
+          <div className="h-[2px] bg-gz-rule-dark" />
+        </div>
+        <CausasHub
+          causasGanadas={dbUser?.causasGanadas ?? 0}
+          causasPerdidas={dbUser?.causasPerdidas ?? 0}
+          pending={serializedPending}
+          active={serializedActive}
+          history={serializedHistory}
+          activeRooms={serializedActiveRooms}
+          roomHistory={serializedRoomHistory}
+          earnedBadges={badges.map((b) => b.badge)}
+          colegas={colegas.map((c) => ({
+            id: c.id,
+            firstName: c.firstName,
+            lastName: c.lastName,
+            tier: c.tier,
+          }))}
+        />
+      </div>
+    </div>
   );
 }

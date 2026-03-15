@@ -118,11 +118,11 @@ export function ProfileModal({
         onClick={(e) => e.target === overlayRef.current && onClose()}
       >
         {/* Modal */}
-        <div className="relative w-full max-w-[680px] max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-white shadow-2xl">
+        <div className="relative w-full max-w-[680px] max-h-[90vh] overflow-y-auto rounded-[4px] border border-gz-rule bg-white shadow-sm">
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute right-4 top-4 z-10 rounded-lg p-1.5 text-navy/40 hover:bg-navy/5 hover:text-navy transition-colors"
+            className="absolute right-4 top-4 z-10 rounded-[3px] p-1.5 text-navy/40 hover:bg-navy/5 hover:text-navy transition-colors"
             aria-label="Cerrar"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -158,7 +158,7 @@ export function ProfileModal({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
         className="hidden"
         onChange={handleAvatarUpload}
       />
@@ -197,7 +197,7 @@ function ProfileView({
             <img
               src={profile.avatarUrl}
               alt={`${profile.firstName} ${profile.lastName}`}
-              className="h-20 w-20 rounded-full object-cover border-2 border-border"
+              className="h-20 w-20 rounded-full object-cover border-2 border-gz-rule"
             />
           ) : (
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-navy text-2xl font-bold text-white">
@@ -206,7 +206,7 @@ function ProfileView({
           )}
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-gold text-white shadow-md hover:bg-gold/90 transition-colors"
+            className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-gold text-white shadow-sm hover:bg-gold/90 transition-colors"
             title="Cambiar foto"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -217,7 +217,7 @@ function ProfileView({
         </div>
 
         <div className="min-w-0">
-          <h2 className="text-xl font-bold text-navy font-display truncate">
+          <h2 className="text-xl font-bold text-navy font-cormorant truncate">
             {profile.firstName} {profile.lastName}
           </h2>
           <div className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-navy/60">
@@ -245,8 +245,8 @@ function ProfileView({
           { value: String(profile.causasGanadas), label: "Causas ganadas" },
           { value: String(profile.badgeCount), label: "Insignias" },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-border bg-paper p-3 text-center">
-            <p className="text-lg font-bold text-navy font-display">{s.value}</p>
+          <div key={s.label} className="rounded-[4px] border border-gz-rule p-3 text-center" style={{ backgroundColor: "var(--gz-cream)" }}>
+            <p className="text-lg font-bold text-navy font-cormorant">{s.value}</p>
             <p className="text-[11px] text-navy/50">{s.label}</p>
           </div>
         ))}
@@ -286,13 +286,13 @@ function ProfileView({
       <div className="mt-6 flex flex-wrap gap-3">
         <button
           onClick={onEditClick}
-          className="rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+          className="rounded-[3px] bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
         >
           Editar perfil
         </button>
         <Link
           href={`/dashboard/perfil/${profile.id}`}
-          className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-navy/70 transition-colors hover:bg-paper"
+          className="rounded-[3px] border border-gz-rule px-5 py-2.5 text-sm font-semibold text-navy/70 transition-colors hover:bg-gz-cream-dark"
           onClick={(e) => e.stopPropagation()}
         >
           Ver mi perfil público
@@ -330,10 +330,10 @@ function SettingsView({
         Volver al perfil
       </button>
 
-      <h2 className="text-lg font-bold text-navy font-display">Configuración</h2>
+      <h2 className="text-lg font-bold text-navy font-cormorant">Configuración</h2>
 
       {/* Tabs */}
-      <div className="mt-4 flex gap-1 rounded-lg bg-paper p-1">
+      <div className="mt-4 flex gap-1 rounded-[3px] bg-gz-cream-dark p-1">
         {SETTINGS_TABS.map((tab) => (
           <button
             key={tab.key}
@@ -429,7 +429,7 @@ function TabPerfil({
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+            className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
           />
         </div>
         <div>
@@ -438,7 +438,7 @@ function TabPerfil({
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+            className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
           />
         </div>
       </div>
@@ -451,7 +451,7 @@ function TabPerfil({
             setUniversidad(e.target.value);
             setSede(""); // reset sede al cambiar universidad
           }}
-          className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+          className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
         >
           <option value="">Selecciona una universidad</option>
           {UNIVERSIDAD_NOMBRES.map((u) => (
@@ -466,7 +466,7 @@ function TabPerfil({
           <select
             value={sede}
             onChange={(e) => setSede(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+            className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
           >
             <option value="">Selecciona una sede</option>
             {sedesDisponibles.map((s) => (
@@ -481,7 +481,7 @@ function TabPerfil({
         <select
           value={universityYear}
           onChange={(e) => setUniversityYear(Number(e.target.value))}
-          className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+          className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
         >
           {[1, 2, 3, 4, 5, 6, 7].map((y) => (
             <option key={y} value={y}>{y}° año</option>
@@ -498,11 +498,11 @@ function TabPerfil({
           onChange={(e) => setBio(e.target.value.slice(0, 280))}
           rows={3}
           placeholder="Cuéntanos sobre ti..."
-          className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy resize-none focus:border-gold/50 focus:outline-none"
+          className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy resize-none focus:border-gold/50 focus:outline-none"
         />
       </div>
 
-      <div className="flex items-center justify-between rounded-lg border border-border p-3">
+      <div className="flex items-center justify-between rounded-[3px] border border-gz-rule p-3">
         <div>
           <p className="text-sm font-medium text-navy">Acepto solicitudes de CV</p>
           <p className="text-xs text-navy/50">Otros usuarios podrán solicitarte tu CV</p>
@@ -524,7 +524,7 @@ function TabPerfil({
       <button
         onClick={handleSave}
         disabled={saving}
-        className="w-full rounded-lg bg-gold px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90 disabled:opacity-50"
+        className="w-full rounded-[3px] bg-gold px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90 disabled:opacity-50"
       >
         {saving ? "Guardando..." : "Guardar cambios"}
       </button>
@@ -589,7 +589,7 @@ function TabSeguridad() {
           type="password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+          className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
         />
       </div>
       <div>
@@ -599,7 +599,7 @@ function TabSeguridad() {
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
           placeholder="8+ caracteres, 1 mayúscula, 2 números"
-          className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+          className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
         />
         {newPassword && (
           <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5">
@@ -607,7 +607,7 @@ function TabSeguridad() {
               <span
                 key={item.label}
                 className={`text-[11px] font-medium flex items-center gap-1 ${
-                  item.ok ? "text-green-600" : "text-navy/40"
+                  item.ok ? "text-gz-sage" : "text-navy/40"
                 }`}
               >
                 {item.ok ? "✓" : "○"} {item.label}
@@ -622,13 +622,13 @@ function TabSeguridad() {
           type="password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
+          className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
         />
       </div>
       <button
         onClick={handleChangePassword}
         disabled={saving || !currentPassword || !newPassword || !pwCheck.valid}
-        className="w-full rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+        className="w-full rounded-[3px] bg-navy px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
       >
         {saving ? "Cambiando..." : "Cambiar contraseña"}
       </button>
@@ -653,7 +653,7 @@ function TabDatos() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "mis-datos-iuris-studio.json";
+      a.download = "mis-datos-studio-iuris.json";
       a.click();
       URL.revokeObjectURL(url);
       toast.success("Datos descargados");
@@ -696,28 +696,28 @@ function TabDatos() {
       </div>
 
       {/* Export */}
-      <div className="rounded-lg border border-border p-4">
+      <div className="rounded-[3px] border border-gz-rule p-4">
         <h4 className="text-sm font-semibold text-navy">Descargar mis datos</h4>
         <p className="mt-1 text-xs text-navy/50">
           Descarga una copia completa de toda tu información en formato JSON.
         </p>
         <button
           onClick={handleExport}
-          className="mt-3 rounded-lg border border-border px-4 py-2 text-xs font-semibold text-navy hover:bg-paper transition-colors"
+          className="mt-3 rounded-[3px] border border-gz-rule px-4 py-2 text-xs font-semibold text-navy hover:bg-gz-cream-dark transition-colors"
         >
           📥 Descargar JSON
         </button>
       </div>
 
       {/* Delete */}
-      <div className="rounded-lg border border-red-200 bg-red-50/50 p-4">
-        <h4 className="text-sm font-semibold text-red-700">Eliminar mi cuenta</h4>
-        <p className="mt-1 text-xs text-red-600/70">
+      <div className="rounded-[3px] border border-gz-burgundy/30 bg-gz-burgundy/5 p-4">
+        <h4 className="text-sm font-semibold text-gz-burgundy">Eliminar mi cuenta</h4>
+        <p className="mt-1 text-xs text-gz-burgundy/70">
           Esta acción es irreversible. Se eliminarán tu perfil, progreso, estadísticas
           y todos tus datos asociados.
         </p>
         <div className="mt-3">
-          <label className="text-xs text-red-600/70">
+          <label className="text-xs text-gz-burgundy/70">
             Escribe <strong>ELIMINAR MI CUENTA</strong> para confirmar
           </label>
           <input
@@ -725,13 +725,13 @@ function TabDatos() {
             value={confirmation}
             onChange={(e) => setConfirmation(e.target.value)}
             placeholder="ELIMINAR MI CUENTA"
-            className="mt-1 w-full rounded-lg border border-red-200 px-3 py-2 text-sm text-red-700 focus:border-red-400 focus:outline-none"
+            className="mt-1 w-full rounded-[3px] border border-gz-burgundy/30 px-3 py-2 text-sm text-gz-burgundy focus:border-gz-burgundy/60 focus:outline-none"
           />
         </div>
         <button
           onClick={handleDelete}
           disabled={confirmation !== "ELIMINAR MI CUENTA" || deleting}
-          className="mt-3 rounded-lg bg-red-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-40"
+          className="mt-3 rounded-[3px] bg-gz-burgundy px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-gz-burgundy/90 disabled:opacity-40"
         >
           {deleting ? "Eliminando..." : "Eliminar cuenta permanentemente"}
         </button>
@@ -759,7 +759,7 @@ function TabPreferencias() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between rounded-lg border border-border p-4">
+      <div className="flex items-center justify-between rounded-[3px] border border-gz-rule p-4">
         <div>
           <p className="text-sm font-medium text-navy">Tema visual</p>
           <p className="text-xs text-navy/50">

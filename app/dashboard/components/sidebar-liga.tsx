@@ -30,7 +30,7 @@ export function SidebarLiga({
   const userMember = members.find((m) => m.userId === userId);
 
   return (
-    <div className="rounded-xl border border-border bg-white p-4">
+    <div className="rounded-[4px] border border-gz-rule bg-white p-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-bold text-navy">
@@ -48,10 +48,10 @@ export function SidebarLiga({
           return (
             <div
               key={m.userId}
-              className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs ${
+              className={`flex items-center gap-2 rounded-[3px] px-2 py-1.5 text-xs ${
                 isMe
                   ? "border-2 border-gold/30 bg-gold/5"
-                  : "hover:bg-paper"
+                  : "hover:bg-gz-cream-dark"
               }`}
             >
               <span className="w-5 text-center font-bold text-navy/50">
@@ -78,7 +78,7 @@ export function SidebarLiga({
         {!userInTop10 && userMember && (
           <>
             <div className="py-1 text-center text-xs text-navy/30">···</div>
-            <div className="flex items-center gap-2 rounded-lg border-2 border-gold/30 bg-gold/5 px-2 py-1.5 text-xs">
+            <div className="flex items-center gap-2 rounded-[3px] border-2 border-gold/30 bg-gold/5 px-2 py-1.5 text-xs">
               <span className="w-5 text-center font-bold text-navy/50">
                 {userMember.position}
               </span>
@@ -95,7 +95,7 @@ export function SidebarLiga({
       </div>
 
       {/* Footer */}
-      <div className="mt-3 border-t border-border pt-3">
+      <div className="mt-3 border-t border-gz-rule pt-3">
         <Link
           href="/dashboard/liga"
           className="block text-center text-xs font-semibold text-gold hover:text-gold/80 transition-colors"

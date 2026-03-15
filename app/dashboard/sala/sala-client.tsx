@@ -343,19 +343,19 @@ export function SalaClient({
   // ─── Render ─────────────────────────────────────────────
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen">
       {/* Sub-header de La Sala */}
-      <div className="border-b border-border bg-white px-6 py-3">
+      <div className="border-b border-gz-rule px-4 sm:px-6 py-3" style={{ backgroundColor: "var(--gz-cream)" }}>
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-navy font-display">La <em>Sala</em></h2>
-            <p className="text-xs text-navy/50">
+            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">La Sala</h2>
+            <p className="font-ibm-mono text-[10px] text-gz-ink-light">
               Conecta con tutores y estudiantes de Derecho
             </p>
           </div>
           <button
             onClick={openPublishModal}
-            className="rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+            className="rounded-[3px] bg-gz-navy px-4 py-2 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors"
           >
             + Publicar
           </button>
@@ -365,12 +365,12 @@ export function SalaClient({
       <div className="mx-auto max-w-5xl px-6 py-6">
         {/* Streak banner */}
         {streak && streak.monthsActive >= 2 && (
-          <div className="mb-6 rounded-xl border border-gold/30 bg-gold/5 px-5 py-3 text-center">
+          <div className="mb-6 rounded-[4px] border border-gz-gold/30 bg-gz-gold/[0.06] px-5 py-3 text-center">
             <span className="text-lg">🔥</span>
-            <span className="ml-2 text-sm font-semibold text-navy">
+            <span className="ml-2 font-archivo text-[13px] font-semibold text-gz-ink">
               Llevas {streak.monthsActive} meses activo como tutor
             </span>
-            <span className="ml-2 text-xs text-navy/50">
+            <span className="ml-2 font-ibm-mono text-[11px] text-gz-ink-light">
               (record: {streak.longestStreak})
             </span>
           </div>
@@ -378,28 +378,28 @@ export function SalaClient({
 
         {/* Section tabs */}
         <div className="mb-6 flex items-center gap-4">
-          <div className="flex gap-2 rounded-lg bg-border/20 p-1">
+          <div className="flex gap-2 border border-gz-rule rounded-[4px] p-1">
             <button
               onClick={() => setSection("tablon")}
-              className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+              className={`rounded-[3px] px-4 py-2 text-sm font-semibold transition-colors ${
                 section === "tablon"
-                  ? "bg-white text-navy shadow-sm"
-                  : "text-navy/50 hover:text-navy"
+                  ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                  : "text-gz-ink-mid hover:text-gz-ink"
               }`}
             >
               Tablon
             </button>
             <button
               onClick={() => setSection("mis")}
-              className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+              className={`rounded-[3px] px-4 py-2 text-sm font-semibold transition-colors ${
                 section === "mis"
-                  ? "bg-white text-navy shadow-sm"
-                  : "text-navy/50 hover:text-navy"
+                  ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                  : "text-gz-ink-mid hover:text-gz-ink"
               }`}
             >
               Mis Publicaciones
               {misAyudantias.filter((a) => a.isActive).length > 0 && (
-                <span className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-white">
+                <span className="ml-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gz-gold text-[10px] font-bold text-white">
                   {misAyudantias.filter((a) => a.isActive).length}
                 </span>
               )}
@@ -407,23 +407,23 @@ export function SalaClient({
           </div>
 
           {section === "tablon" && (
-            <div className="flex gap-2 rounded-lg bg-border/20 p-1">
+            <div className="flex gap-2 border border-gz-rule rounded-[4px] p-1">
               <button
                 onClick={() => handleTabChange("OFREZCO")}
-                className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`rounded-[3px] px-4 py-2 text-sm font-semibold transition-colors ${
                   tab === "OFREZCO"
-                    ? "bg-white text-navy shadow-sm"
-                    : "text-navy/50 hover:text-navy"
+                    ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                    : "text-gz-ink-mid hover:text-gz-ink"
                 }`}
               >
                 Ofrecen Ayudantia
               </button>
               <button
                 onClick={() => handleTabChange("BUSCO")}
-                className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`rounded-[3px] px-4 py-2 text-sm font-semibold transition-colors ${
                   tab === "BUSCO"
-                    ? "bg-white text-navy shadow-sm"
-                    : "text-navy/50 hover:text-navy"
+                    ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                    : "text-gz-ink-mid hover:text-gz-ink"
                 }`}
               >
                 Buscan Ayudantia
@@ -437,17 +437,18 @@ export function SalaClient({
           <div className="flex gap-6">
             {/* Sidebar filtros */}
             <aside className="hidden w-[220px] shrink-0 lg:block">
-              <div className="sticky top-4 space-y-4 rounded-xl border border-border bg-white p-4">
-                <h3 className="text-sm font-bold text-navy">Filtros</h3>
+              <div className="sticky top-4 space-y-4 rounded-[4px] border border-gz-rule p-4" style={{ backgroundColor: "var(--gz-cream)" }}>
+                <h3 className="font-ibm-mono text-[11px] uppercase tracking-[1.5px] text-gz-ink-light">Filtros</h3>
 
                 <div>
-                  <label className="text-xs font-medium text-navy/60">
+                  <label className="font-ibm-mono text-[10px] text-gz-ink-light">
                     Materia
                   </label>
                   <select
                     value={filterMateria}
                     onChange={(e) => setFilterMateria(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-paper px-3 py-2 text-xs text-navy focus:border-gold focus:outline-none"
+                    className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[12px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   >
                     <option value="">Todas</option>
                     {MATERIAS_SALA.map((m) => (
@@ -459,13 +460,14 @@ export function SalaClient({
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-navy/60">
+                  <label className="font-ibm-mono text-[10px] text-gz-ink-light">
                     Formato
                   </label>
                   <select
                     value={filterFormat}
                     onChange={(e) => setFilterFormat(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-paper px-3 py-2 text-xs text-navy focus:border-gold focus:outline-none"
+                    className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[12px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   >
                     <option value="">Todos</option>
                     <option value="ONLINE">Online</option>
@@ -475,13 +477,14 @@ export function SalaClient({
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-navy/60">
+                  <label className="font-ibm-mono text-[10px] text-gz-ink-light">
                     Precio
                   </label>
                   <select
                     value={filterPrice}
                     onChange={(e) => setFilterPrice(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-paper px-3 py-2 text-xs text-navy focus:border-gold focus:outline-none"
+                    className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[12px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   >
                     <option value="">Todos</option>
                     <option value="GRATUITO">Gratuito</option>
@@ -490,13 +493,14 @@ export function SalaClient({
                 </div>
 
                 <div>
-                  <label className="text-xs font-medium text-navy/60">
+                  <label className="font-ibm-mono text-[10px] text-gz-ink-light">
                     Universidad
                   </label>
                   <select
                     value={filterUni}
                     onChange={(e) => setFilterUni(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-paper px-3 py-2 text-xs text-navy focus:border-gold focus:outline-none"
+                    className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[12px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                    style={{ backgroundColor: "var(--gz-cream)" }}
                   >
                     <option value="">Todas</option>
                     {UNIVERSIDADES_CHILE.map((u) => (
@@ -510,13 +514,13 @@ export function SalaClient({
                 <div className="flex gap-2">
                   <button
                     onClick={handleFilter}
-                    className="flex-1 rounded-lg bg-navy px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-navy/90"
+                    className="flex-1 rounded-[3px] bg-gz-navy px-3 py-2 font-archivo text-[11px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors"
                   >
                     Filtrar
                   </button>
                   <button
                     onClick={clearFilters}
-                    className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-navy/60 transition-colors hover:bg-paper"
+                    className="rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[11px] text-gz-ink-mid hover:border-gz-gold transition-colors"
                   >
                     Limpiar
                   </button>
@@ -534,7 +538,8 @@ export function SalaClient({
                     setFilterMateria(e.target.value);
                     setTimeout(() => fetchAyudantias(tab), 0);
                   }}
-                  className="rounded-lg border border-border bg-white px-3 py-2 text-xs text-navy"
+                  className="rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[12px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                 >
                   <option value="">Materia</option>
                   {MATERIAS_SALA.map((m) => (
@@ -549,7 +554,8 @@ export function SalaClient({
                     setFilterFormat(e.target.value);
                     setTimeout(() => fetchAyudantias(tab), 0);
                   }}
-                  className="rounded-lg border border-border bg-white px-3 py-2 text-xs text-navy"
+                  className="rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[12px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                 >
                   <option value="">Formato</option>
                   <option value="ONLINE">Online</option>
@@ -562,7 +568,8 @@ export function SalaClient({
                     setFilterPrice(e.target.value);
                     setTimeout(() => fetchAyudantias(tab), 0);
                   }}
-                  className="rounded-lg border border-border bg-white px-3 py-2 text-xs text-navy"
+                  className="rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[12px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                  style={{ backgroundColor: "var(--gz-cream)" }}
                 >
                   <option value="">Precio</option>
                   <option value="GRATUITO">Gratis</option>
@@ -572,17 +579,17 @@ export function SalaClient({
 
               {loading ? (
                 <div className="py-12 text-center">
-                  <p className="text-navy/50">Cargando...</p>
+                  <p className="font-cormorant italic text-[17px] text-gz-ink-light">Cargando...</p>
                 </div>
               ) : ayudantias.length === 0 ? (
                 <div className="py-12 text-center">
                   <p className="text-4xl">📋</p>
-                  <p className="mt-3 text-navy/50">
+                  <p className="mt-3 font-cormorant italic text-[17px] text-gz-ink-light">
                     No hay publicaciones con estos filtros
                   </p>
                   <button
                     onClick={openPublishModal}
-                    className="mt-4 rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+                    className="mt-4 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors"
                   >
                     Se el primero en publicar
                   </button>
@@ -624,12 +631,12 @@ export function SalaClient({
             {misAyudantias.length === 0 ? (
               <div className="py-12 text-center">
                 <p className="text-4xl">📝</p>
-                <p className="mt-3 text-navy/50">
+                <p className="mt-3 font-cormorant italic text-[17px] text-gz-ink-light">
                   No tienes publicaciones aun
                 </p>
                 <button
                   onClick={openPublishModal}
-                  className="mt-4 rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+                  className="mt-4 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors"
                 >
                   Crear tu primera publicacion
                 </button>
@@ -639,51 +646,52 @@ export function SalaClient({
                 {misAyudantias.map((a) => (
                   <div
                     key={a.id}
-                    className={`rounded-xl border p-4 ${
+                    className={`rounded-[4px] border border-gz-rule p-4 ${
                       a.isActive
-                        ? "border-border bg-white"
-                        : "border-border/50 bg-paper/50 opacity-60"
+                        ? "bg-white"
+                        : "opacity-60"
                     }`}
+                    style={!a.isActive ? { backgroundColor: "var(--gz-cream)" } : undefined}
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2">
                           <span
-                            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                            className={`rounded-sm px-2 py-0.5 font-ibm-mono text-[9px] font-semibold ${
                               a.type === "OFREZCO"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-blue-100 text-blue-700"
+                                ? "bg-gz-sage/[0.15] text-gz-sage"
+                                : "bg-gz-navy/[0.15] text-gz-navy"
                             }`}
                           >
                             {a.type === "OFREZCO" ? "Ofrezco" : "Busco"}
                           </span>
-                          <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-medium text-gold">
+                          <span className="rounded-sm bg-gz-gold/15 px-2 py-0.5 font-ibm-mono text-[9px] font-medium text-gz-gold">
                             {a.materia}
                           </span>
                           {!a.isActive && (
-                            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-600">
+                            <span className="rounded-sm bg-gz-burgundy/[0.15] px-2 py-0.5 font-ibm-mono text-[9px] font-medium text-gz-burgundy">
                               Inactiva
                             </span>
                           )}
                           {a.reportCount > 0 && (
-                            <span className="text-[10px] text-red-400">
+                            <span className="font-ibm-mono text-[10px] text-gz-burgundy">
                               {a.reportCount} reporte{a.reportCount > 1 ? "s" : ""}
                             </span>
                           )}
                         </div>
-                        <p className="mt-2 text-sm text-navy">
+                        <p className="mt-2 font-archivo text-[13px] text-gz-ink">
                           {a.description}
                         </p>
-                        <p className="mt-1 text-xs text-navy/40">
+                        <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light">
                           {new Date(a.createdAt).toLocaleDateString("es-CL")}
                         </p>
                       </div>
                       <button
                         onClick={() => handleToggleActive(a.id, a.isActive)}
-                        className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        className={`shrink-0 rounded-[3px] px-3 py-1.5 text-xs font-semibold transition-colors ${
                           a.isActive
-                            ? "bg-red-100 text-red-600 hover:bg-red-200"
-                            : "bg-green-100 text-green-700 hover:bg-green-200"
+                            ? "bg-gz-burgundy/[0.15] text-gz-burgundy hover:bg-gz-burgundy/20"
+                            : "bg-gz-sage/[0.15] text-gz-sage hover:bg-gz-sage/20"
                         }`}
                       >
                         {a.isActive ? "Desactivar" : "Reactivar"}
@@ -699,11 +707,11 @@ export function SalaClient({
 
       {/* ─── Modal Publicar ────────────────────────────────── */}
       {showPublish && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[4px] p-6 shadow-xl border border-gz-rule" style={{ backgroundColor: "var(--gz-cream)" }}>
             {publishStep === 1 && (
               <>
-                <h2 className="text-lg font-bold text-navy font-display">
+                <h2 className="font-cormorant text-[22px] !font-bold text-gz-ink">
                   Que tipo de publicacion?
                 </h2>
                 <div className="mt-6 grid grid-cols-2 gap-4">
@@ -712,13 +720,13 @@ export function SalaClient({
                       setPubType("OFREZCO");
                       setPublishStep(2);
                     }}
-                    className="rounded-xl border-2 border-green-200 bg-green-50 p-6 text-center transition-colors hover:border-green-400"
+                    className="rounded-[4px] border-2 border-gz-sage/30 bg-gz-sage/[0.06] p-6 text-center transition-colors hover:border-gz-sage"
                   >
                     <span className="text-3xl">🎓</span>
-                    <p className="mt-2 font-semibold text-green-700">
+                    <p className="mt-2 font-semibold text-gz-sage">
                       Ofrezco Ayudantia
                     </p>
-                    <p className="mt-1 text-xs text-green-600/70">
+                    <p className="mt-1 text-xs text-gz-sage/70">
                       Soy tutor y quiero ayudar
                     </p>
                   </button>
@@ -727,20 +735,20 @@ export function SalaClient({
                       setPubType("BUSCO");
                       setPublishStep(2);
                     }}
-                    className="rounded-xl border-2 border-blue-200 bg-blue-50 p-6 text-center transition-colors hover:border-blue-400"
+                    className="rounded-[4px] border-2 border-gz-burgundy/30 bg-gz-burgundy/[0.06] p-6 text-center transition-colors hover:border-gz-burgundy"
                   >
                     <span className="text-3xl">🔍</span>
-                    <p className="mt-2 font-semibold text-blue-700">
+                    <p className="mt-2 font-semibold text-gz-burgundy">
                       Busco Ayudantia
                     </p>
-                    <p className="mt-1 text-xs text-blue-600/70">
+                    <p className="mt-1 text-xs text-gz-burgundy/70">
                       Necesito un tutor
                     </p>
                   </button>
                 </div>
                 <button
                   onClick={() => setShowPublish(false)}
-                  className="mt-6 w-full rounded-lg border border-border px-4 py-2 text-sm font-medium text-navy/60 transition-colors hover:bg-paper"
+                  className="mt-6 w-full rounded-[3px] border border-gz-rule px-4 py-2 font-archivo text-[13px] text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
                 >
                   Cancelar
                 </button>
@@ -752,11 +760,11 @@ export function SalaClient({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setPublishStep(1)}
-                    className="text-sm text-navy/50 hover:text-navy"
+                    className="text-sm text-gz-ink-light hover:text-gz-ink"
                   >
                     &larr;
                   </button>
-                  <h2 className="text-lg font-bold text-navy font-display">
+                  <h2 className="font-cormorant text-[22px] !font-bold text-gz-ink">
                     {pubType === "OFREZCO"
                       ? "Ofrezco Ayudantia"
                       : "Busco Ayudantia"}
@@ -766,13 +774,14 @@ export function SalaClient({
                 <div className="mt-5 space-y-4">
                   {/* Materia */}
                   <div>
-                    <label className="text-sm font-medium text-navy/70">
+                    <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                       Materia *
                     </label>
                     <select
                       value={pubMateria}
                       onChange={(e) => setPubMateria(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none"
+                      className="mt-1 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                      style={{ backgroundColor: "var(--gz-cream)" }}
                     >
                       <option value="">Selecciona...</option>
                       {MATERIAS_SALA.map((m) => (
@@ -785,13 +794,14 @@ export function SalaClient({
 
                   {/* Universidad */}
                   <div>
-                    <label className="text-sm font-medium text-navy/70">
+                    <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                       Tu universidad *
                     </label>
                     <select
                       value={pubUni}
                       onChange={(e) => setPubUni(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none"
+                      className="mt-1 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                      style={{ backgroundColor: "var(--gz-cream)" }}
                     >
                       <option value="">Selecciona...</option>
                       {UNIVERSIDADES_CHILE.map((u) => (
@@ -807,7 +817,7 @@ export function SalaClient({
                     <>
                       {/* Orientada a */}
                       <div>
-                        <label className="text-sm font-medium text-navy/70">
+                        <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                           Orientada a (max 5 universidades)
                         </label>
                         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -817,9 +827,10 @@ export function SalaClient({
                               onClick={() => toggleOrientadaA(u)}
                               className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
                                 pubOrientadaA.includes(u)
-                                  ? "bg-gold/20 text-gold ring-1 ring-gold/30"
-                                  : "bg-paper text-navy/50 hover:bg-border/30"
+                                  ? "bg-gz-gold/20 text-gz-gold ring-1 ring-gz-gold/30"
+                                  : "text-gz-ink-light hover:bg-gz-cream-dark"
                               }`}
+                              style={!pubOrientadaA.includes(u) ? { backgroundColor: "var(--gz-cream)" } : undefined}
                             >
                               {u.replace("Universidad ", "U. ").replace("Pontificia ", "P. ")}
                             </button>
@@ -829,7 +840,7 @@ export function SalaClient({
 
                       {/* Formato */}
                       <div>
-                        <label className="text-sm font-medium text-navy/70">
+                        <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                           Formato
                         </label>
                         <div className="mt-2 flex gap-2">
@@ -837,10 +848,10 @@ export function SalaClient({
                             <button
                               key={f}
                               onClick={() => setPubFormat(f)}
-                              className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                              className={`flex-1 rounded-[3px] border px-3 py-2 text-xs font-semibold transition-colors ${
                                 pubFormat === f
-                                  ? "border-gold bg-gold/10 text-navy"
-                                  : "border-border text-navy/50 hover:bg-paper"
+                                  ? "border-gz-gold bg-gz-gold/10 text-gz-ink"
+                                  : "border-gz-rule text-gz-ink-mid hover:bg-gz-cream-dark"
                               }`}
                             >
                               {f === "ONLINE"
@@ -855,26 +866,26 @@ export function SalaClient({
 
                       {/* Precio */}
                       <div>
-                        <label className="text-sm font-medium text-navy/70">
+                        <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                           Precio
                         </label>
                         <div className="mt-2 flex gap-2">
                           <button
                             onClick={() => setPubPriceType("GRATUITO")}
-                            className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                            className={`flex-1 rounded-[3px] border px-3 py-2 text-xs font-semibold transition-colors ${
                               pubPriceType === "GRATUITO"
-                                ? "border-green-400 bg-green-50 text-green-700"
-                                : "border-border text-navy/50 hover:bg-paper"
+                                ? "border-gz-sage bg-gz-sage/[0.06] text-gz-sage"
+                                : "border-gz-rule text-gz-ink-mid hover:bg-gz-cream-dark"
                             }`}
                           >
                             Gratuito
                           </button>
                           <button
                             onClick={() => setPubPriceType("PAGADO")}
-                            className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                            className={`flex-1 rounded-[3px] border px-3 py-2 text-xs font-semibold transition-colors ${
                               pubPriceType === "PAGADO"
-                                ? "border-gold bg-gold/10 text-navy"
-                                : "border-border text-navy/50 hover:bg-paper"
+                                ? "border-gz-gold bg-gz-gold/10 text-gz-ink"
+                                : "border-gz-rule text-gz-ink-mid hover:bg-gz-cream-dark"
                             }`}
                           >
                             Pagado
@@ -882,7 +893,7 @@ export function SalaClient({
                         </div>
                         {pubPriceType === "PAGADO" && (
                           <div className="mt-2 flex items-center gap-2">
-                            <span className="text-sm text-navy/50">$</span>
+                            <span className="text-sm text-gz-ink-light">$</span>
                             <input
                               type="number"
                               placeholder="Precio CLP"
@@ -890,16 +901,17 @@ export function SalaClient({
                               onChange={(e) =>
                                 setPubPriceAmount(e.target.value)
                               }
-                              className="flex-1 rounded-lg border border-border bg-paper px-4 py-2 text-sm text-navy focus:border-gold focus:outline-none"
+                              className="flex-1 rounded-[3px] border border-gz-rule px-4 py-2 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                              style={{ backgroundColor: "var(--gz-cream)" }}
                             />
-                            <span className="text-xs text-navy/40">CLP</span>
+                            <span className="font-ibm-mono text-[11px] text-gz-ink-light">CLP</span>
                           </div>
                         )}
                       </div>
 
                       {/* Contacto */}
                       <div>
-                        <label className="text-sm font-medium text-navy/70">
+                        <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                           Metodo de contacto *
                         </label>
                         <div className="mt-2 flex gap-2">
@@ -911,10 +923,10 @@ export function SalaClient({
                             <button
                               key={c.v}
                               onClick={() => setPubContactMethod(c.v)}
-                              className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                              className={`flex-1 rounded-[3px] border px-3 py-2 text-xs font-semibold transition-colors ${
                                 pubContactMethod === c.v
-                                  ? "border-gold bg-gold/10 text-navy"
-                                  : "border-border text-navy/50 hover:bg-paper"
+                                  ? "border-gz-gold bg-gz-gold/10 text-gz-ink"
+                                  : "border-gz-rule text-gz-ink-mid hover:bg-gz-cream-dark"
                               }`}
                             >
                               {c.l}
@@ -936,7 +948,8 @@ export function SalaClient({
                           onChange={(e) =>
                             setPubContactValue(e.target.value)
                           }
-                          className="mt-2 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none"
+                          className="mt-2 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                          style={{ backgroundColor: "var(--gz-cream)" }}
                         />
                       </div>
                     </>
@@ -946,7 +959,7 @@ export function SalaClient({
                   {pubType === "BUSCO" && (
                     <>
                       <div>
-                        <label className="text-sm font-medium text-navy/70">
+                        <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                           Metodo de contacto *
                         </label>
                         <div className="mt-2 flex gap-2">
@@ -958,10 +971,10 @@ export function SalaClient({
                             <button
                               key={c.v}
                               onClick={() => setPubContactMethod(c.v)}
-                              className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
+                              className={`flex-1 rounded-[3px] border px-3 py-2 text-xs font-semibold transition-colors ${
                                 pubContactMethod === c.v
-                                  ? "border-gold bg-gold/10 text-navy"
-                                  : "border-border text-navy/50 hover:bg-paper"
+                                  ? "border-gz-gold bg-gz-gold/10 text-gz-ink"
+                                  : "border-gz-rule text-gz-ink-mid hover:bg-gz-cream-dark"
                               }`}
                             >
                               {c.l}
@@ -983,7 +996,8 @@ export function SalaClient({
                           onChange={(e) =>
                             setPubContactValue(e.target.value)
                           }
-                          className="mt-2 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none"
+                          className="mt-2 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
+                          style={{ backgroundColor: "var(--gz-cream)" }}
                         />
                       </div>
                     </>
@@ -991,7 +1005,7 @@ export function SalaClient({
 
                   {/* Descripcion */}
                   <div>
-                    <label className="text-sm font-medium text-navy/70">
+                    <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                       Descripcion *
                     </label>
                     <textarea
@@ -1005,13 +1019,14 @@ export function SalaClient({
                           ? "Describe tu experiencia, metodologia, horarios disponibles..."
                           : "Describe que necesitas, que temas, en que te cuesta mas..."
                       }
-                      className="mt-1 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy placeholder:text-navy/40 focus:border-gold focus:outline-none resize-none"
+                      className="mt-1 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink placeholder:text-gz-ink-light focus:border-gz-gold focus:outline-none resize-none min-h-[100px]"
+                      style={{ backgroundColor: "var(--gz-cream)" }}
                     />
                     <p
-                      className={`mt-1 text-right text-xs ${
+                      className={`mt-1 text-right font-ibm-mono text-[11px] ${
                         pubDescription.length >= 450
-                          ? "text-red-500"
-                          : "text-navy/40"
+                          ? "text-gz-burgundy"
+                          : "text-gz-ink-light"
                       }`}
                     >
                       {pubDescription.length}/500
@@ -1020,20 +1035,20 @@ export function SalaClient({
                 </div>
 
                 {pubError && (
-                  <p className="mt-3 text-sm text-red-600">{pubError}</p>
+                  <p className="mt-3 font-archivo text-[13px] text-gz-burgundy">{pubError}</p>
                 )}
 
                 <div className="mt-6 flex gap-3">
                   <button
                     onClick={() => setShowPublish(false)}
-                    className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-navy/60 transition-colors hover:bg-paper"
+                    className="flex-1 rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[13px] text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handlePublish}
                     disabled={publishing}
-                    className="flex-1 rounded-lg bg-navy px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+                    className="flex-1 rounded-[3px] bg-gz-navy px-4 py-2.5 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors disabled:opacity-50"
                   >
                     {publishing ? "Publicando..." : "Publicar"}
                   </button>
@@ -1046,9 +1061,9 @@ export function SalaClient({
 
       {/* ─── Modal Reportar ────────────────────────────────── */}
       {reportingId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-navy font-display">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-[4px] p-6 shadow-xl border border-gz-rule" style={{ backgroundColor: "var(--gz-cream)" }}>
+            <h2 className="font-cormorant text-[22px] !font-bold text-gz-ink">
               Reportar publicacion
             </h2>
 
@@ -1057,10 +1072,10 @@ export function SalaClient({
                 <button
                   key={r}
                   onClick={() => setReportReason(r)}
-                  className={`w-full rounded-lg border px-4 py-2.5 text-left text-sm transition-colors ${
+                  className={`w-full rounded-[3px] border px-4 py-2.5 text-left text-sm transition-colors ${
                     reportReason === r
-                      ? "border-red-400 bg-red-50 text-red-700"
-                      : "border-border text-navy hover:bg-paper"
+                      ? "border-gz-burgundy bg-gz-burgundy/[0.06] text-gz-burgundy"
+                      : "border-gz-rule text-gz-ink hover:bg-gz-cream-dark"
                   }`}
                 >
                   {r}
@@ -1074,14 +1089,15 @@ export function SalaClient({
                 onChange={(e) => setReportCustom(e.target.value)}
                 placeholder="Describe el problema..."
                 rows={3}
-                className="mt-3 w-full rounded-lg border border-border bg-paper px-4 py-2.5 text-sm text-navy focus:border-gold focus:outline-none resize-none"
+                className="mt-3 w-full rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none resize-none min-h-[100px]"
+                style={{ backgroundColor: "var(--gz-cream)" }}
               />
             )}
 
             <div className="mt-6 flex gap-3">
               <button
                 onClick={() => setReportingId(null)}
-                className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-navy/60 transition-colors hover:bg-paper"
+                className="flex-1 rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[13px] text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
               >
                 Cancelar
               </button>
@@ -1092,7 +1108,7 @@ export function SalaClient({
                   !reportReason ||
                   (reportReason === "Otro" && !reportCustom.trim())
                 }
-                className="flex-1 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+                className="flex-1 rounded-[3px] bg-gz-burgundy px-4 py-2.5 font-archivo text-[13px] font-semibold text-white hover:bg-gz-burgundy/90 transition-colors disabled:opacity-50"
               >
                 {reportLoading ? "Reportando..." : "Reportar"}
               </button>
@@ -1127,21 +1143,21 @@ function AyudantiaCard({
   const isOwn = item.user.id === userId;
 
   return (
-    <div className="rounded-xl border border-border bg-white p-5 transition-shadow hover:shadow-sm">
+    <div className="rounded-[4px] border border-gz-rule bg-white p-5 hover:border-gz-gold transition-colors">
       {/* Header: user info */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-navy/10 text-sm font-bold text-navy">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gz-navy/10 font-ibm-mono text-[12px] font-bold text-gz-ink">
             {item.user.firstName[0]}
             {item.user.lastName[0]}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-medium text-navy">
+              <span className="font-archivo text-[14px] font-medium text-gz-ink">
                 {item.user.firstName} {item.user.lastName}
               </span>
               {item.user.tier && (
-                <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold text-gold">
+                <span className="rounded-sm bg-gz-gold/15 px-2 py-0.5 font-ibm-mono text-[9px] font-semibold text-gz-gold">
                   {TIER_EMOJIS[item.user.tier] ?? ""}{" "}
                   {TIER_LABELS[item.user.tier] ?? item.user.tier}
                 </span>
@@ -1149,12 +1165,12 @@ function AyudantiaCard({
               {item.type === "OFREZCO" &&
                 item.streak &&
                 item.streak.monthsActive >= 2 && (
-                  <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-semibold text-orange-600">
+                  <span className="rounded-sm bg-gz-gold/[0.15] px-2 py-0.5 font-ibm-mono text-[9px] font-semibold text-gz-gold">
                     🔥 {item.streak.monthsActive} meses activo
                   </span>
                 )}
             </div>
-            <p className="text-xs text-navy/40">
+            <p className="font-ibm-mono text-[11px] text-gz-ink-light">
               {item.universidad} · {timeAgo(item.createdAt)}
             </p>
           </div>
@@ -1164,7 +1180,7 @@ function AyudantiaCard({
         {!isOwn && (
           <button
             onClick={onReport}
-            className="shrink-0 rounded-lg p-1.5 text-navy/30 transition-colors hover:bg-red-50 hover:text-red-500"
+            className="shrink-0 rounded-[3px] p-1.5 text-gz-ink-light transition-colors hover:bg-gz-burgundy/[0.06] hover:text-gz-burgundy"
             title="Reportar"
           >
             <svg
@@ -1186,16 +1202,16 @@ function AyudantiaCard({
 
       {/* Tags */}
       <div className="mt-3 flex flex-wrap gap-2">
-        <span className="rounded-full bg-gold/15 px-2.5 py-0.5 text-xs font-medium text-gold">
+        <span className="rounded-sm bg-gz-gold/15 px-2.5 py-0.5 font-ibm-mono text-[9px] font-medium text-gz-gold">
           {item.materia}
         </span>
         <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+          className={`rounded-sm px-2.5 py-0.5 font-ibm-mono text-[9px] font-medium ${
             item.format === "ONLINE"
-              ? "bg-blue-100 text-blue-700"
+              ? "bg-gz-navy/[0.15] text-gz-navy"
               : item.format === "PRESENCIAL"
-              ? "bg-purple-100 text-purple-700"
-              : "bg-teal-100 text-teal-700"
+              ? "bg-gz-ink-mid/[0.15] text-gz-ink-mid"
+              : "bg-gz-sage/[0.1] text-gz-sage"
           }`}
         >
           {item.format === "ONLINE"
@@ -1205,10 +1221,10 @@ function AyudantiaCard({
             : "Online + Presencial"}
         </span>
         <span
-          className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+          className={`rounded-sm px-2.5 py-0.5 font-ibm-mono text-[9px] font-medium ${
             item.priceType === "GRATUITO"
-              ? "bg-green-100 text-green-700"
-              : "bg-amber-100 text-amber-700"
+              ? "bg-gz-sage/[0.15] text-gz-sage"
+              : "bg-gz-gold/[0.15] text-gz-gold"
           }`}
         >
           {item.priceType === "GRATUITO"
@@ -1219,7 +1235,7 @@ function AyudantiaCard({
 
       {/* Orientada a */}
       {item.orientadaA.length > 0 && (
-        <p className="mt-2 text-xs text-navy/50">
+        <p className="mt-2 font-ibm-mono text-[11px] text-gz-ink-light">
           Orienta a:{" "}
           {item.orientadaA
             .map((u) =>
@@ -1232,7 +1248,7 @@ function AyudantiaCard({
       {/* Description */}
       <div className="mt-3">
         <p
-          className={`text-sm text-navy/80 ${
+          className={`font-archivo text-[13px] text-gz-ink ${
             expanded ? "" : "line-clamp-3"
           }`}
         >
@@ -1241,7 +1257,7 @@ function AyudantiaCard({
         {item.description.length > 150 && (
           <button
             onClick={onToggleExpand}
-            className="mt-1 text-xs font-medium text-gold hover:text-gold/80"
+            className="mt-1 font-archivo text-[12px] font-medium text-gz-gold hover:text-gz-ink"
           >
             {expanded ? "Ver menos" : "Ver mas"}
           </button>
@@ -1255,14 +1271,14 @@ function AyudantiaCard({
             href={contactUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+            className="inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-4 py-2 font-archivo text-[13px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors"
           >
             {item.contactMethod === "WHATSAPP" && "📱"}
             {item.contactMethod === "EMAIL" && "📧"}
             Contactar por {getContactLabel(item.contactMethod)}
           </a>
         ) : (
-          <div className="inline-flex items-center gap-2 rounded-lg bg-paper px-4 py-2 text-sm text-navy/70">
+          <div className="inline-flex items-center gap-2 rounded-[3px] px-4 py-2 font-archivo text-[13px] text-gz-ink-mid" style={{ backgroundColor: "var(--gz-cream)" }}>
             📋 {item.contactValue}
           </div>
         )}

@@ -84,7 +84,7 @@ function DayCell({ day }: { day: { date: string; count: number } | null }) {
         }
       />
       {open && (
-        <div className="absolute bottom-full left-1/2 z-40 mb-2 w-44 -translate-x-1/2 rounded-lg border border-border bg-white p-3 text-xs shadow-lg">
+        <div className="absolute bottom-full left-1/2 z-40 mb-2 w-44 -translate-x-1/2 rounded-[4px] border border-gz-rule bg-white p-3 text-xs shadow-sm">
           <p className="font-semibold text-navy">{formatDate(day.date)}</p>
           {loading ? (
             <p className="mt-1.5 text-navy/50">Cargando...</p>
@@ -102,7 +102,7 @@ function DayCell({ day }: { day: { date: string; count: number } | null }) {
                 <span className="text-navy/60">V / F</span>
                 <span className="font-medium text-navy">{data.truefalse}</span>
               </div>
-              <div className="flex justify-between border-t border-border pt-1">
+              <div className="flex justify-between border-t border-gz-rule pt-1">
                 <span className="font-medium text-navy/60">Total</span>
                 <span className="font-bold text-navy">{data.total}</span>
               </div>
@@ -118,9 +118,10 @@ function DayCell({ day }: { day: { date: string; count: number } | null }) {
 
 interface ActivityGridProps {
   days: Array<{ date: string; count: number }>;
+  inline?: boolean;
 }
 
-export function ActivityGrid({ days }: ActivityGridProps) {
+export function ActivityGrid({ days, inline }: ActivityGridProps) {
   const totalActivity = days.reduce((sum, d) => sum + d.count, 0);
 
   // Organizar en semanas (columnas) para grilla estilo GitHub
@@ -149,11 +150,11 @@ export function ActivityGrid({ days }: ActivityGridProps) {
     weeks.push(currentWeek);
   }
 
-  return (
-    <div className="rounded-xl border border-border bg-white p-5">
+  const content = (
+    <>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-navy font-display">
+        <h3 className="text-sm font-semibold text-navy font-cormorant">
           Actividad reciente
         </h3>
         <span className="text-xs text-navy/50">
@@ -196,6 +197,14 @@ export function ActivityGrid({ days }: ActivityGridProps) {
         <div className="h-[10px] w-[10px] rounded-sm bg-gold" />
         <span>Más</span>
       </div>
+    </>
+  );
+
+  if (inline) return <div>{content}</div>;
+
+  return (
+    <div className="rounded-[4px] border border-gz-rule bg-white p-5">
+      {content}
     </div>
   );
 }

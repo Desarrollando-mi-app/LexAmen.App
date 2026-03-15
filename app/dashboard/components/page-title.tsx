@@ -14,6 +14,8 @@ const TITLES: Record<string, string> = {
   "/dashboard/sala": "La Sala",
   "/dashboard/calendario": "Calendario",
   "/dashboard/simulacro": "Simulacro",
+  "/dashboard/diario": "El Diario",
+  "/dashboard/ranking": "Ranking",
   "/dashboard/admin": "Panel Admin",
 };
 
@@ -32,7 +34,7 @@ export function PageTitle() {
   if (!title || pathname === "/dashboard") return null;
 
   return (
-    <span className="text-sm font-semibold text-navy lg:hidden truncate max-w-[160px]">
+    <span className="text-base font-bold text-navy font-cormorant truncate max-w-[200px]">
       {title}
     </span>
   );

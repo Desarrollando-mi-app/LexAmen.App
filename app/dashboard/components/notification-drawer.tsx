@@ -110,9 +110,9 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 z-50 h-full w-full max-w-md bg-white shadow-2xl border-l border-border animate-in slide-in-from-right duration-200">
+      <div className="fixed right-0 top-0 z-50 h-full w-full max-w-md bg-white shadow-sm border-l border-gz-rule animate-in slide-in-from-right duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <div className="flex items-center justify-between border-b border-gz-rule px-5 py-4">
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-navy">Notificaciones</h2>
             {unreadCount > 0 && (
@@ -132,7 +132,7 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
             )}
             <button
               onClick={onClose}
-              className="rounded-lg p-1 text-navy/50 hover:bg-navy/5 hover:text-navy transition-colors"
+              className="rounded-[3px] p-1 text-navy/50 hover:bg-navy/5 hover:text-navy transition-colors"
               aria-label="Cerrar"
             >
               <svg
@@ -175,12 +175,12 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
               <p className="text-sm">Sin notificaciones</p>
             </div>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="divide-y divide-gz-rule">
               {items.map((item) => (
                 <li
                   key={item.id}
                   onClick={() => !item.readAt && markOneRead(item.notificationId)}
-                  className={`flex gap-3 px-5 py-4 cursor-pointer transition-colors hover:bg-paper/50 ${
+                  className={`flex gap-3 px-5 py-4 cursor-pointer transition-colors hover:bg-gz-cream-dark/50 ${
                     !item.readAt ? "bg-gold/5" : ""
                   }`}
                 >
@@ -284,7 +284,7 @@ function CvRequestActions({
           handleAction("accept");
         }}
         disabled={loading}
-        className="rounded-md bg-green-600 px-3 py-1 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+        className="rounded-[3px] bg-gz-sage px-3 py-1 text-xs font-semibold text-white hover:bg-gz-sage/90 disabled:opacity-50"
       >
         Aceptar
       </button>
@@ -294,7 +294,7 @@ function CvRequestActions({
           handleAction("decline");
         }}
         disabled={loading}
-        className="rounded-md border border-border px-3 py-1 text-xs font-semibold text-navy/60 hover:bg-paper disabled:opacity-50"
+        className="rounded-[3px] border border-gz-rule px-3 py-1 text-xs font-semibold text-navy/60 hover:bg-gz-cream-dark disabled:opacity-50"
       >
         Rechazar
       </button>

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ContingenciasClient } from "./contingencias-client";
 
 export const metadata = {
-  title: "Contingencias — Admin — Iuris Studio",
+  title: "Contingencias — Admin — Studio Iuris",
 };
 
 export default async function ContingenciasAdminPage() {

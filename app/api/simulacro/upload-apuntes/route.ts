@@ -6,6 +6,35 @@ export const runtime = "nodejs";
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_CHARS = 15000;
 
+/* ─── PDF extraction via pdfjs-dist ────────────────────────── */
+
+async function extractPdfText(buffer: Buffer): Promise<string> {
+  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
+
+  const uint8Array = new Uint8Array(buffer);
+  const doc = await pdfjsLib.getDocument({
+    data: uint8Array,
+    useSystemFonts: true,
+  }).promise;
+
+  const pages: string[] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    const text = content.items
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((item: any) => "str" in item)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((item: any) => item.str)
+      .join(" ");
+    pages.push(text);
+  }
+
+  return pages.join("\n");
+}
+
+/* ─── Route handler ────────────────────────────────────────── */
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -50,10 +79,7 @@ export async function POST(request: Request) {
 
   try {
     if (ext === "pdf") {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const pdfParse = require("pdf-parse");
-      const data = await pdfParse(buffer);
-      texto = data.text || "";
+      texto = await extractPdfText(buffer);
     } else if (ext === "docx") {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const mammoth = require("mammoth");

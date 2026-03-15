@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
     >
       <form action={formAction} className="space-y-4">
         {state?.error && (
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+          <div className="rounded-[3px] border border-gz-burgundy/20 bg-gz-burgundy/[0.06] p-3 font-archivo text-[13px] text-gz-burgundy">
             {state.error}
           </div>
         )}

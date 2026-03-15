@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { updateAyudantiaStreak } from "@/lib/ayudantia-streak";
+import { getUserTutorStats } from "@/lib/sala-utils";
 
 // ─── POST: Crear ayudantía ────────────────────────────────
 
@@ -26,6 +27,8 @@ export async function POST(request: Request) {
     orientadaA: string[];
     contactMethod: string;
     contactValue: string;
+    titulo?: string;
+    disponibilidad?: string;
   };
 
   try {
@@ -45,6 +48,8 @@ export async function POST(request: Request) {
     orientadaA,
     contactMethod,
     contactValue,
+    titulo,
+    disponibilidad,
   } = body;
 
   // Validaciones
@@ -96,6 +101,8 @@ export async function POST(request: Request) {
       orientadaA: orientadaA ?? [],
       contactMethod: contactMethod as "WHATSAPP" | "EMAIL" | "OTRO",
       contactValue,
+      titulo: titulo?.trim() || "",
+      disponibilidad: disponibilidad?.trim() || null,
     },
   });
 
@@ -121,7 +128,7 @@ export async function GET(request: Request) {
   const priceType = searchParams.get("priceType");
   const universidad = searchParams.get("universidad");
 
-  const where: Record<string, unknown> = { isActive: true };
+  const where: Record<string, unknown> = { isActive: true, isHidden: false };
 
   if (type) where.type = type;
   if (materia) where.materia = materia;
@@ -139,6 +146,7 @@ export async function GET(request: Request) {
           id: true,
           firstName: true,
           lastName: true,
+          avatarUrl: true,
           universidad: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
@@ -147,6 +155,11 @@ export async function GET(request: Request) {
               league: { select: { tier: true } },
             },
           },
+        },
+      },
+      _count: {
+        select: {
+          sesiones: { where: { status: "completada" } },
         },
       },
     },
@@ -159,6 +172,15 @@ export async function GET(request: Request) {
   });
   const streakMap = Object.fromEntries(
     streaks.map((s) => [s.userId, s])
+  );
+
+  // Fetch rating stats for all users in the results
+  const userStatsMap = new Map<string, Awaited<ReturnType<typeof getUserTutorStats>>>();
+  await Promise.all(
+    userIds.map(async (uid) => {
+      const stats = await getUserTutorStats(uid);
+      userStatsMap.set(uid, stats);
+    })
   );
 
   const serialized = ayudantias.map((a) => ({
@@ -174,11 +196,15 @@ export async function GET(request: Request) {
     contactMethod: a.contactMethod,
     contactValue: a.contactValue,
     createdAt: a.createdAt.toISOString(),
+    sesionesCompletadas: a._count.sesiones,
     user: {
       id: a.user.id,
       firstName: a.user.firstName,
       lastName: a.user.lastName,
+      avatarUrl: a.user.avatarUrl,
+      universidad: a.user.universidad,
       tier: a.user.leagueMembers[0]?.league.tier ?? null,
+      stats: userStatsMap.get(a.userId) ?? null,
     },
     streak: streakMap[a.userId]
       ? {

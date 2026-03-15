@@ -56,8 +56,18 @@ export default async function MCQPage({
   }));
 
   return (
-    <main className="min-h-screen bg-paper">
-      <div className="mx-auto max-w-3xl px-6 py-8">
+    <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+        {/* Gazette page header */}
+        <div className="mb-6">
+          <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
+            Selecci&oacute;n M&uacute;ltiple &middot; XP
+          </span>
+          <h1 className="font-cormorant text-[28px] lg:text-[32px] !font-bold text-gz-ink mb-3">
+            Preguntas MCQ
+          </h1>
+          <div className="h-[2px] bg-gz-rule-dark" />
+        </div>
         <MCQViewer
           mcqs={mcqs}
           attemptsToday={attemptsToday}

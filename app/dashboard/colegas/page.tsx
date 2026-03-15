@@ -20,10 +20,21 @@ export default async function ColegasPage() {
   ]);
 
   return (
-    <ColegasClient
-      colegas={colegas}
-      pendingReceived={pendingReceived}
-      pendingSent={pendingSent}
-    />
+    <div className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+        <div className="mb-6">
+          <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
+            Red de Estudio &middot; Colegas
+          </span>
+          <h1 className="font-cormorant text-[28px] lg:text-[32px] !font-bold text-gz-ink mb-3">Colegas</h1>
+          <div className="h-[2px] bg-gz-rule-dark" />
+        </div>
+        <ColegasClient
+          colegas={colegas}
+          pendingReceived={pendingReceived}
+          pendingSent={pendingSent}
+        />
+      </div>
+    </div>
   );
 }

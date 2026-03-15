@@ -42,11 +42,25 @@ export default async function SimulacroPage() {
   });
 
   return (
-    <SimulacroHub
-      userId={user.id}
-      userName={user.firstName}
-      avatarUrl={user.avatarUrl}
-      sesionesRecientes={JSON.parse(JSON.stringify(sesionesRecientes))}
-    />
+    <div className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
+        {/* Gazette page header */}
+        <div className="mb-6">
+          <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
+            Simulacro Oral &middot; IA &middot; TTS
+          </span>
+          <h1 className="font-cormorant text-[28px] lg:text-[32px] !font-bold text-gz-ink mb-3">
+            Simulacro Oral
+          </h1>
+          <div className="h-[2px] bg-gz-rule-dark" />
+        </div>
+        <SimulacroHub
+          userId={user.id}
+          userName={user.firstName}
+          avatarUrl={user.avatarUrl}
+          sesionesRecientes={JSON.parse(JSON.stringify(sesionesRecientes))}
+        />
+      </div>
+    </div>
   );
 }

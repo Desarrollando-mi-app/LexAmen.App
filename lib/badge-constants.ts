@@ -6,7 +6,10 @@ export type BadgeSlug =
   | "ABOGADO_LITIGANTE"
   | "PENALISTA_EN_SERIE"
   | "JURISCONSULTO_SEMANA"
-  | "SOCIEDAD_DE_HECHO";
+  | "SOCIEDAD_DE_HECHO"
+  | "VOZ_DEL_FORO"
+  | "DOCTRINARIO"
+  | "CONTROVERSIA";
 
 export interface BadgeRule {
   slug: BadgeSlug;
@@ -58,6 +61,27 @@ export const BADGE_RULES: BadgeRule[] = [
     emoji: "🤝",
     tier: "bronze",
     description: "Próximamente...",
+  },
+  {
+    slug: "VOZ_DEL_FORO",
+    label: "Voz del Foro",
+    emoji: "🗣️",
+    tier: "bronze",
+    description: "Tu primer Obiter fue citado",
+  },
+  {
+    slug: "DOCTRINARIO",
+    label: "Doctrinario",
+    emoji: "📜",
+    tier: "silver",
+    description: "10 de tus Obiters fueron citados",
+  },
+  {
+    slug: "CONTROVERSIA",
+    label: "Controversia",
+    emoji: "⚡",
+    tier: "gold",
+    description: "Un Obiter tuyo generó más de 5 citas",
   },
 ];
 

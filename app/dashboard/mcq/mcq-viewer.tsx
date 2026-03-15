@@ -244,29 +244,29 @@ export function MCQViewer({
   // ─── Option styles ────────────────────────────────────────
 
   function getOptionClasses(option: string): string {
-    const base = "w-full rounded-xl border p-4 text-left transition-all text-sm";
+    const base = "w-full rounded-[4px] border p-4 text-left transition-all font-archivo text-[14px]";
     if (feedback) {
       if (option === feedback.correctOption)
-        return `${base} border-green-400 bg-green-500/10 ring-2 ring-green-400/20`;
+        return `${base} border-gz-sage bg-gz-sage/[0.06] ring-2 ring-gz-sage/20`;
       if (option === selectedOption && !feedback.isCorrect)
-        return `${base} border-red-400 bg-red-500/10 ring-2 ring-red-400/20`;
-      return `${base} border-border bg-white opacity-50`;
+        return `${base} border-gz-burgundy bg-gz-burgundy/[0.06] ring-2 ring-gz-burgundy/20`;
+      return `${base} border-gz-rule bg-white opacity-50`;
     }
     if (option === selectedOption)
-      return `${base} border-gold bg-gold/5 ring-2 ring-gold/20 cursor-pointer`;
-    return `${base} border-border bg-white hover:border-gold/50 cursor-pointer`;
+      return `${base} border-gz-gold bg-gz-gold/[0.06] ring-2 ring-gz-gold/20 cursor-pointer`;
+    return `${base} border-gz-rule bg-white hover:border-gz-gold hover:bg-gz-gold/[0.04] cursor-pointer`;
   }
 
   function getOptionIcon(option: string): React.ReactNode {
     if (feedback) {
       if (option === feedback.correctOption)
-        return <span className="flex h-7 w-7 items-center justify-center rounded-full bg-green-500 text-xs font-bold text-white">&#10003;</span>;
+        return <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gz-sage text-xs font-bold text-white">&#10003;</span>;
       if (option === selectedOption && !feedback.isCorrect)
-        return <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">&#10007;</span>;
+        return <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gz-burgundy text-xs font-bold text-white">&#10007;</span>;
     }
     if (option === selectedOption && !feedback)
-      return <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gold text-xs font-bold text-white">{option}</span>;
-    return <span className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-white text-xs font-semibold text-navy/60">{option}</span>;
+      return <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gz-gold text-xs font-bold text-white">{option}</span>;
+    return <span className="flex h-7 w-7 items-center justify-center rounded-full border border-gz-rule bg-white text-xs font-semibold text-gz-ink-mid">{option}</span>;
   }
 
   // ─── Filters UI ──────────────────────────────────────────
@@ -274,22 +274,22 @@ export function MCQViewer({
   function FiltersUI() {
     return (
       <div className="mb-6 flex flex-wrap gap-3">
-        <select value={selectedRama} onChange={(e) => handleRamaChange(e.target.value)} className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold">
+        <select value={selectedRama} onChange={(e) => handleRamaChange(e.target.value)} className="rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors">
           <option value="ALL">Todas las ramas</option>
           {availableRamas.map((r) => <option key={r} value={r}>{RAMA_LABELS[r] ?? r}</option>)}
         </select>
-        <select value={selectedLibro} onChange={(e) => handleLibroChange(e.target.value)} className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold">
+        <select value={selectedLibro} onChange={(e) => handleLibroChange(e.target.value)} className="rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors">
           <option value="ALL">Todos los libros</option>
           {availableLibros.map((l) => <option key={l} value={l}>{LIBRO_LABELS[l] ?? l}</option>)}
         </select>
         {availableTitulos.length > 0 && (
-          <select value={selectedTitulo} onChange={(e) => handleTituloChange(e.target.value)} className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold">
+          <select value={selectedTitulo} onChange={(e) => handleTituloChange(e.target.value)} className="rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors">
             <option value="ALL">Todos los titulos</option>
             {availableTitulos.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         )}
         {availableDificultades.length > 1 && (
-          <select value={selectedDificultad} onChange={(e) => handleDificultadChange(e.target.value)} className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold">
+          <select value={selectedDificultad} onChange={(e) => handleDificultadChange(e.target.value)} className="rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors">
             <option value="ALL">Toda dificultad</option>
             {availableDificultades.map((d) => <option key={d} value={d}>{DIFICULTAD_LABELS[d] ?? d}</option>)}
           </select>
@@ -303,12 +303,12 @@ export function MCQViewer({
   if (limitReached && !isPremium) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gold/10">
-          <svg className="h-10 w-10 text-gold" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gz-gold/10">
+          <svg className="h-10 w-10 text-gz-gold" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
         </div>
-        <h2 className="mt-6 text-2xl font-bold text-navy">Limite diario alcanzado</h2>
-        <p className="mt-2 text-navy/60">Has completado {dailyLimit} preguntas hoy. Actualiza a Premium para acceso ilimitado.</p>
-        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-medium text-paper hover:bg-navy/90">Volver al Dashboard</Link>
+        <h2 className="mt-6 font-cormorant text-[28px] !font-bold text-gz-ink">Limite diario alcanzado</h2>
+        <p className="mt-2 font-archivo text-[14px] text-gz-ink-mid">Has completado {dailyLimit} preguntas hoy. Actualiza a Premium para acceso ilimitado.</p>
+        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
       </div>
     );
   }
@@ -316,16 +316,16 @@ export function MCQViewer({
   if (completed) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10">
-          <svg className="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gz-sage/10">
+          <svg className="h-10 w-10 text-gz-sage" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </div>
-        <h2 className="mt-6 text-2xl font-bold text-navy">Sesion completada!</h2>
+        <h2 className="mt-6 font-cormorant text-[28px] !font-bold text-gz-ink">Sesion completada!</h2>
         <div className="mt-6 grid grid-cols-3 gap-6 text-center">
-          <div><p className="text-2xl font-bold text-gold">{sessionCorrect}/{totalCards}</p><p className="text-sm text-navy/50">Correctas</p></div>
-          <div><p className="text-2xl font-bold text-gold">+{sessionXP}</p><p className="text-sm text-navy/50">XP Ganados</p></div>
-          <div><p className="text-2xl font-bold text-gold">{bestStreak}</p><p className="text-sm text-navy/50">Mejor Racha</p></div>
+          <div><p className="font-cormorant text-[36px] !font-bold text-gz-gold">{sessionCorrect}/{totalCards}</p><p className="font-ibm-mono text-[11px] text-gz-ink-light uppercase tracking-[1px]">Correctas</p></div>
+          <div><p className="font-cormorant text-[36px] !font-bold text-gz-gold">+{sessionXP}</p><p className="font-ibm-mono text-[11px] text-gz-ink-light uppercase tracking-[1px]">XP Ganados</p></div>
+          <div><p className="font-cormorant text-[36px] !font-bold text-gz-gold">{bestStreak}</p><p className="font-ibm-mono text-[11px] text-gz-ink-light uppercase tracking-[1px]">Mejor Racha</p></div>
         </div>
-        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-medium text-paper hover:bg-navy/90">Volver al Dashboard</Link>
+        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
       </div>
     );
   }
@@ -334,8 +334,8 @@ export function MCQViewer({
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <FiltersUI />
-        <p className="text-lg text-navy/60">No hay preguntas disponibles para estos filtros.</p>
-        <Link href="/dashboard" className="mt-6 inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-medium text-paper hover:bg-navy/90">Volver al Dashboard</Link>
+        <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">No hay preguntas disponibles para estos filtros.</p>
+        <Link href="/dashboard" className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
       </div>
     );
   }
@@ -343,19 +343,19 @@ export function MCQViewer({
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <Link href="/dashboard" className="text-sm font-medium text-navy/60 hover:text-navy">Volver</Link>
-        <span className="text-sm font-medium text-navy/60">Pregunta {currentIndex + 1} de {totalCards}</span>
+        <Link href="/dashboard" className="font-archivo text-[13px] font-medium text-gz-ink-mid hover:text-gz-ink transition-colors">Volver</Link>
+        <span className="font-ibm-mono text-[12px] text-gz-ink-light">Pregunta {currentIndex + 1} de {totalCards}</span>
       </div>
 
       <FiltersUI />
 
-      <div className="rounded-xl border border-border bg-white p-6 sm:p-8">
+      <div className="rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8">
         <div className="mb-6 flex items-center justify-between text-sm">
-          <span className="font-medium text-navy/60">Racha: <span className="font-bold text-orange-500">{streak}</span></span>
-          <span className="font-medium text-navy/60">XP Sesion: <span className="font-bold text-gold">+{sessionXP}</span></span>
+          <span className="font-ibm-mono text-[12px] text-gz-ink-mid">Racha: <span className="font-bold text-gz-gold">{streak}</span></span>
+          <span className="font-ibm-mono text-[12px] text-gz-ink-mid">XP Sesion: <span className="font-bold text-gz-gold">+{sessionXP}</span></span>
         </div>
 
-        <h3 className="mb-6 text-lg font-semibold leading-relaxed text-navy">{currentMCQ.question}</h3>
+        <h3 className="mb-6 font-cormorant text-[20px] lg:text-[22px] font-semibold text-gz-ink leading-relaxed">{currentMCQ.question}</h3>
 
         <div className="space-y-3">
           {OPTION_KEYS.map((key) => {
@@ -364,7 +364,7 @@ export function MCQViewer({
               <button key={key} onClick={() => handleSelectOption(key)} disabled={!!feedback || isSubmitting} className={getOptionClasses(key)}>
                 <div className="flex items-start gap-3">
                   {getOptionIcon(key)}
-                  <span className="mt-0.5 leading-relaxed text-navy">{optionText}</span>
+                  <span className="mt-0.5 leading-relaxed text-gz-ink">{optionText}</span>
                 </div>
               </button>
             );
@@ -372,29 +372,29 @@ export function MCQViewer({
         </div>
 
         {feedback && (
-          <div className={`mt-6 rounded-lg p-4 ${feedback.isCorrect ? "border border-green-200 bg-green-50" : "border border-red-200 bg-red-50"}`}>
+          <div className={`mt-6 ${feedback.isCorrect ? "border-l-[3px] border-gz-sage bg-gz-sage/[0.06] rounded-[3px] p-4" : "border-l-[3px] border-gz-burgundy bg-gz-burgundy/[0.06] rounded-[3px] p-4"}`}>
             <div className="flex items-center gap-2">
               <span className="text-lg">{feedback.isCorrect ? "&#10003;" : "&#10007;"}</span>
-              <span className={`font-semibold ${feedback.isCorrect ? "text-green-700" : "text-red-700"}`}>{feedback.isCorrect ? "Correcto!" : "Incorrecto"}</span>
-              <span className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-bold ${feedback.isCorrect ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>+{feedback.xpGained} XP</span>
-              {feedback.streakBonus > 0 && <span className="ml-1 rounded-full bg-gold/15 px-2.5 py-0.5 text-xs font-bold text-gold">+{feedback.streakBonus} Bonus Racha</span>}
+              <span className={`font-semibold ${feedback.isCorrect ? "text-gz-sage" : "text-gz-burgundy"}`}>{feedback.isCorrect ? "Correcto!" : "Incorrecto"}</span>
+              <span className={`ml-auto rounded-full px-2.5 py-0.5 font-bold ${feedback.isCorrect ? "bg-gz-sage/[0.15] text-gz-sage font-ibm-mono text-[11px]" : "bg-gz-burgundy/[0.15] text-gz-burgundy font-ibm-mono text-[11px]"}`}>+{feedback.xpGained} XP</span>
+              {feedback.streakBonus > 0 && <span className="ml-1 rounded-full bg-gz-gold/15 px-2.5 py-0.5 font-bold text-gz-gold font-ibm-mono text-[11px]">+{feedback.streakBonus} Bonus Racha</span>}
             </div>
-            {!feedback.isCorrect && <p className="mt-2 text-sm text-red-600">La respuesta correcta es: <span className="font-semibold">{feedback.correctOption}</span></p>}
-            {feedback.explanation && <p className="mt-3 text-sm leading-relaxed text-navy/70">{feedback.explanation}</p>}
+            {!feedback.isCorrect && <p className="mt-2 font-archivo text-[13px] text-gz-burgundy">La respuesta correcta es: <span className="font-semibold">{feedback.correctOption}</span></p>}
+            {feedback.explanation && <p className="font-cormorant text-[15px] leading-[1.65] text-gz-ink-mid mt-3">{feedback.explanation}</p>}
             <ReportButton contentType="MCQ" contentId={currentMCQ.id} />
           </div>
         )}
 
         <div className="mt-6 flex justify-center">
           {!feedback ? (
-            <button onClick={handleConfirm} disabled={!selectedOption || isSubmitting} className="rounded-lg bg-navy px-8 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-navy/90 disabled:opacity-50">{isSubmitting ? "Verificando..." : "Confirmar"}</button>
+            <button onClick={handleConfirm} disabled={!selectedOption || isSubmitting} className="rounded-[3px] bg-gz-navy px-8 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50">{isSubmitting ? "Verificando..." : "Confirmar"}</button>
           ) : (
-            <button onClick={handleNext} className="rounded-lg bg-navy px-8 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-navy/90">{currentIndex + 1 >= totalCards ? "Ver resultados" : "Siguiente"}</button>
+            <button onClick={handleNext} className="rounded-[3px] bg-gz-navy px-8 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">{currentIndex + 1 >= totalCards ? "Ver resultados" : "Siguiente"}</button>
           )}
         </div>
       </div>
 
-      {!isPremium && <p className="mt-4 text-center text-xs text-navy/40">Hoy: {attemptsCount} / {dailyLimit} preguntas</p>}
+      {!isPremium && <p className="mt-4 text-center font-ibm-mono text-[11px] text-gz-ink-light">Hoy: {attemptsCount} / {dailyLimit} preguntas</p>}
     </div>
   );
 }

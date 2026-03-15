@@ -57,6 +57,10 @@ export async function evaluateBadges(userId: string): Promise<BadgeSlug[]> {
   // JURISCONSULTO_SEMANA: se evalúa en el cron de liga, no aquí
   // SOCIEDAD_DE_HECHO: futuro — se omite
 
+  // ── Badges de Obiter Dictum ──────────────────────────────
+  const obiterBadges = await evaluateObiterBadgesInternal(userId);
+  newBadges.push(...obiterBadges);
+
   // Enviar notificación por cada badge nuevo
   for (const slug of newBadges) {
     const badge = BADGE_MAP[slug];
@@ -68,6 +72,71 @@ export async function evaluateBadges(userId: string): Promise<BadgeSlug[]> {
       metadata: { badgeSlug: slug },
       sendEmail: false,
     }).catch(() => {});
+  }
+
+  return newBadges;
+}
+
+/**
+ * Evalúa solo badges de Obiter Dictum para un usuario.
+ * Llamar después de que un obiter del usuario es citado.
+ * Incluye envío de notificaciones para badges nuevos.
+ */
+export async function evaluateObiterBadges(
+  userId: string
+): Promise<BadgeSlug[]> {
+  const newBadges = await evaluateObiterBadgesInternal(userId);
+
+  // Enviar notificación por cada badge nuevo
+  for (const slug of newBadges) {
+    const badge = BADGE_MAP[slug];
+    sendNotification({
+      type: "BADGE_EARNED",
+      title: "¡Nueva insignia!",
+      body: `Has ganado la insignia ${badge.label} ${badge.emoji}`,
+      targetUserId: userId,
+      metadata: { badgeSlug: slug },
+      sendEmail: false,
+    }).catch(() => {});
+  }
+
+  return newBadges;
+}
+
+/**
+ * Internal: evalúa badges de Obiter sin enviar notificaciones.
+ * Las notificaciones se envían desde evaluateBadges o evaluateObiterBadges.
+ */
+async function evaluateObiterBadgesInternal(
+  userId: string
+): Promise<BadgeSlug[]> {
+  const newBadges: BadgeSlug[] = [];
+
+  // Contar obiters del usuario que han sido citados (citasCount >= 1)
+  const citedCount = await prisma.obiterDictum.count({
+    where: { userId, citasCount: { gte: 1 } },
+  });
+
+  // VOZ_DEL_FORO: primer obiter citado
+  if (citedCount >= 1) {
+    const earned = await upsertBadge(userId, "VOZ_DEL_FORO");
+    if (earned) newBadges.push("VOZ_DEL_FORO");
+  }
+
+  // DOCTRINARIO: 10 obiters citados
+  if (citedCount >= 10) {
+    const earned = await upsertBadge(userId, "DOCTRINARIO");
+    if (earned) newBadges.push("DOCTRINARIO");
+  }
+
+  // CONTROVERSIA: un obiter con 5+ citas
+  const controversial = await prisma.obiterDictum.findFirst({
+    where: { userId, citasCount: { gte: 5 } },
+    select: { id: true },
+  });
+  if (controversial) {
+    const earned = await upsertBadge(userId, "CONTROVERSIA");
+    if (earned) newBadges.push("CONTROVERSIA");
   }
 
   return newBadges;

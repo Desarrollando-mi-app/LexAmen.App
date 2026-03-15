@@ -6,6 +6,9 @@ import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
 import { Toaster } from "sonner";
 import { DashboardHeader } from "./components/dashboard-header";
 import { MobileNav } from "./components/mobile-nav";
+import { PomodoroPill } from "./components/pomodoro-pill";
+import { DiarioFab } from "./components/diario-fab";
+import { PomodoroProvider } from "./components/pomodoro-context";
 
 export default async function DashboardLayout({
   children,
@@ -25,7 +28,7 @@ export default async function DashboardLayout({
   const [dbUser, membership] = await Promise.all([
     prisma.user.findUnique({
       where: { id: authUser.id },
-      select: { firstName: true, isAdmin: true, avatarUrl: true },
+      select: { firstName: true, isAdmin: true, avatarUrl: true, examDate: true },
     }),
     ensureLeagueMembership(authUser.id),
   ]);
@@ -37,20 +40,26 @@ export default async function DashboardLayout({
   const tierLabel =
     TIER_LABELS[membership.league.tier] ?? membership.league.tier;
   const tierEmoji = TIER_EMOJIS[membership.league.tier] ?? "";
+  const examDateStr = dbUser.examDate?.toISOString() ?? null;
 
   return (
-    <>
+    <PomodoroProvider>
       <Toaster position="bottom-right" richColors />
-      <DashboardHeader
-        userName={dbUser.firstName}
-        userId={authUser.id}
-        avatarUrl={dbUser.avatarUrl ?? null}
-        userTier={tierLabel}
-        tierEmoji={tierEmoji}
-        isAdmin={dbUser.isAdmin}
-      />
-      <div className="pb-16 lg:pb-0">{children}</div>
+      <div id="dashboard-standard-header">
+        <DashboardHeader
+          userName={dbUser.firstName}
+          userId={authUser.id}
+          avatarUrl={dbUser.avatarUrl ?? null}
+          userTier={tierLabel}
+          tierEmoji={tierEmoji}
+          isAdmin={dbUser.isAdmin}
+          examDate={examDateStr}
+        />
+      </div>
+      <div className="pb-16 lg:pb-0" style={{ backgroundColor: "var(--gz-cream)" }}>{children}</div>
       <MobileNav />
-    </>
+      <PomodoroPill />
+      <DiarioFab />
+    </PomodoroProvider>
   );
 }

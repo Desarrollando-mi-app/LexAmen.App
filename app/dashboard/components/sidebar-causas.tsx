@@ -88,13 +88,13 @@ export function SidebarCausas({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-white p-4">
+    <div className="rounded-[4px] border border-gz-rule bg-white p-4">
       {/* ── Entrenamiento ────────────────────────────── */}
       <h3 className="text-sm font-bold text-navy">📚 Entrenamiento</h3>
       <div className="mt-2.5 space-y-1.5">
         <Link
           href="/dashboard/flashcards"
-          className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
+          className="flex items-center justify-between rounded-[3px] px-2.5 py-2 transition-colors hover:bg-gz-cream-dark"
         >
           <span className="flex items-center gap-2 text-xs font-medium text-navy">
             <span>📇</span> Flashcards
@@ -107,7 +107,7 @@ export function SidebarCausas({
         </Link>
         <Link
           href="/dashboard/mcq"
-          className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
+          className="flex items-center justify-between rounded-[3px] px-2.5 py-2 transition-colors hover:bg-gz-cream-dark"
         >
           <span className="flex items-center gap-2 text-xs font-medium text-navy">
             <span>✅</span> Selección Múltiple
@@ -120,7 +120,7 @@ export function SidebarCausas({
         </Link>
         <Link
           href="/dashboard/truefalse"
-          className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
+          className="flex items-center justify-between rounded-[3px] px-2.5 py-2 transition-colors hover:bg-gz-cream-dark"
         >
           <span className="flex items-center gap-2 text-xs font-medium text-navy">
             <span>⚖️</span> Verdadero / Falso
@@ -134,13 +134,13 @@ export function SidebarCausas({
       </div>
 
       {/* ── Separador ────────────────────────────────── */}
-      <div className="my-4 border-t border-border" />
+      <div className="my-4 border-t border-gz-rule" />
 
       {/* ── Causas ───────────────────────────────────── */}
       <div className="flex items-center gap-2">
         <h3 className="text-sm font-bold text-navy">⚔️ Causas</h3>
         {pending.length > 0 && (
-          <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+          <span className="rounded-full bg-gz-burgundy px-1.5 py-0.5 text-[10px] font-bold text-white">
             {pending.length}
           </span>
         )}
@@ -152,7 +152,7 @@ export function SidebarCausas({
           <p className="text-xs text-navy/50">No tienes causas activas</p>
           <Link
             href="/dashboard/causas"
-            className="mt-2 inline-block rounded-lg bg-navy px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy/90 transition-colors"
+            className="mt-2 inline-block rounded-[3px] bg-navy px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy/90 transition-colors"
           >
             Reta a alguien
           </Link>
@@ -169,7 +169,7 @@ export function SidebarCausas({
             {pending.map((c) => (
               <div
                 key={c.id}
-                className="rounded-lg border border-border bg-paper p-2.5"
+                className="rounded-[3px] border border-gz-rule p-2.5" style={{ backgroundColor: "var(--gz-cream)" }}
               >
                 <p className="text-xs font-medium text-navy truncate">
                   {c.challengerName}
@@ -178,14 +178,14 @@ export function SidebarCausas({
                   <button
                     onClick={() => handleAccept(c.id)}
                     disabled={actionLoading === c.id}
-                    className="flex-1 rounded bg-green-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-green-700 disabled:opacity-50 transition-colors"
+                    className="flex-1 rounded bg-gz-sage px-2 py-1 text-[10px] font-semibold text-white hover:bg-gz-sage/90 disabled:opacity-50 transition-colors"
                   >
                     Aceptar
                   </button>
                   <button
                     onClick={() => handleReject(c.id)}
                     disabled={actionLoading === c.id}
-                    className="flex-1 rounded bg-red-100 px-2 py-1 text-[10px] font-semibold text-red-600 hover:bg-red-200 disabled:opacity-50 transition-colors"
+                    className="flex-1 rounded bg-gz-burgundy/10 px-2 py-1 text-[10px] font-semibold text-gz-burgundy hover:bg-gz-burgundy/20 disabled:opacity-50 transition-colors"
                   >
                     Rechazar
                   </button>
@@ -201,7 +201,7 @@ export function SidebarCausas({
         <div
           className={`${
             pending.length > 0
-              ? "mt-3 border-t border-border pt-3"
+              ? "mt-3 border-t border-gz-rule pt-3"
               : "mt-3"
           }`}
         >
@@ -213,7 +213,7 @@ export function SidebarCausas({
               <Link
                 key={c.id}
                 href={`/dashboard/causas/${c.id}`}
-                className="flex items-center justify-between rounded-lg border border-gold/30 bg-gold/5 px-2.5 py-2 transition-colors hover:bg-gold/10"
+                className="flex items-center justify-between rounded-[3px] border border-gold/30 bg-gold/5 px-2.5 py-2 transition-colors hover:bg-gold/10"
               >
                 <span className="text-xs font-medium text-navy truncate">
                   vs {c.opponentName}
@@ -232,7 +232,7 @@ export function SidebarCausas({
         <div
           className={`${
             pending.length > 0 || active.length > 0
-              ? "mt-3 border-t border-border pt-3"
+              ? "mt-3 border-t border-gz-rule pt-3"
               : "mt-3"
           }`}
         >
@@ -244,7 +244,7 @@ export function SidebarCausas({
               <Link
                 key={c.id}
                 href={`/dashboard/causas/${c.id}`}
-                className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs hover:bg-paper transition-colors"
+                className="flex items-center justify-between rounded-[3px] px-2.5 py-1.5 text-xs hover:bg-gz-cream-dark transition-colors"
               >
                 <span className="text-navy/70 truncate">
                   vs {c.opponentName}
@@ -253,16 +253,16 @@ export function SidebarCausas({
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                       c.won
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-gz-sage/10 text-gz-sage"
                         : c.lost
-                        ? "bg-red-100 text-red-600"
-                        : "bg-gray-100 text-gray-600"
+                        ? "bg-gz-burgundy/10 text-gz-burgundy"
+                        : "bg-gz-cream-dark text-gz-ink-mid"
                     }`}
                   >
                     {c.won ? "W" : c.lost ? "L" : "="}
                   </span>
                 ) : (
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
+                  <span className="rounded-full bg-gz-cream-dark px-2 py-0.5 text-[10px] font-semibold text-gz-ink-light">
                     ✗
                   </span>
                 )}
@@ -277,13 +277,13 @@ export function SidebarCausas({
         <div
           className={`${
             pending.length > 0 || active.length > 0 || history.length > 0
-              ? "mt-3 border-t border-border pt-3"
+              ? "mt-3 border-t border-gz-rule pt-3"
               : "mt-3"
           }`}
         >
           <Link
             href="/dashboard/causas"
-            className="flex items-center justify-between rounded-lg border border-gold/30 bg-gold/5 px-2.5 py-2 transition-colors hover:bg-gold/10"
+            className="flex items-center justify-between rounded-[3px] border border-gold/30 bg-gold/5 px-2.5 py-2 transition-colors hover:bg-gold/10"
           >
             <span className="flex items-center gap-2 text-xs font-medium text-navy">
               <span>🏟️</span> Salas Grupales
@@ -297,7 +297,7 @@ export function SidebarCausas({
 
       {/* Footer causas */}
       {!causasEmpty && (
-        <div className="mt-3 border-t border-border pt-3">
+        <div className="mt-3 border-t border-gz-rule pt-3">
           <Link
             href="/dashboard/causas"
             className="block text-center text-xs font-semibold text-gold hover:text-gold/80 transition-colors"
@@ -308,14 +308,14 @@ export function SidebarCausas({
       )}
 
       {/* ── Separador ────────────────────────────────── */}
-      <div className="my-4 border-t border-border" />
+      <div className="my-4 border-t border-gz-rule" />
 
       {/* ── La Sala ────────────────────────────────────── */}
       <h3 className="text-sm font-bold text-navy">🏛️ La Sala</h3>
       <div className="mt-2.5">
         <Link
           href="/dashboard/sala"
-          className="flex items-center justify-between rounded-lg px-2.5 py-2 transition-colors hover:bg-paper"
+          className="flex items-center justify-between rounded-[3px] px-2.5 py-2 transition-colors hover:bg-gz-cream-dark"
         >
           <span className="flex items-center gap-2 text-xs font-medium text-navy">
             <span>📋</span> Ayudantias
@@ -327,12 +327,12 @@ export function SidebarCausas({
       </div>
 
       {/* ── Separador ────────────────────────────────── */}
-      <div className="my-4 border-t border-border" />
+      <div className="my-4 border-t border-gz-rule" />
 
       {/* ── Calendario ─────────────────────────────────── */}
       <Link
         href="/dashboard/calendario"
-        className="flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-navy transition-colors hover:bg-paper"
+        className="flex items-center gap-2 rounded-[3px] px-2.5 py-2 text-xs font-medium text-navy transition-colors hover:bg-gz-cream-dark"
       >
         <span>📅</span> Calendario
       </Link>

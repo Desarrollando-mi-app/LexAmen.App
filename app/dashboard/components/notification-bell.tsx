@@ -36,7 +36,7 @@ export function NotificationBell() {
       <button
         ref={bellRef}
         onClick={() => setOpen(!open)}
-        className="relative rounded-lg p-1.5 text-navy/60 hover:bg-navy/5 hover:text-navy transition-colors"
+        className="relative rounded-[3px] p-1.5 text-navy/60 hover:bg-navy/5 hover:text-navy transition-colors"
         aria-label="Notificaciones"
       >
         {/* Bell SVG */}

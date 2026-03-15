@@ -37,7 +37,7 @@ function PasswordStrength({ password }: { password: string }) {
         <span
           key={item.label}
           className={`text-[11px] font-medium flex items-center gap-1 ${
-            item.ok ? "text-green-600" : "text-navy/40"
+            item.ok ? "text-gz-sage" : "text-gz-ink-light"
           }`}
         >
           {item.ok ? "✓" : "○"} {item.label}
@@ -103,7 +103,7 @@ export default function RegisterPage() {
     >
       <form action={formAction} className="space-y-4">
         {state?.error && (
-          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+          <div className="rounded-[3px] border border-gz-burgundy/20 bg-gz-burgundy/[0.06] p-3 font-archivo text-[13px] text-gz-burgundy">
             {state.error}
           </div>
         )}
@@ -157,7 +157,7 @@ export default function RegisterPage() {
             type="checkbox"
             name="acceptTerms"
             required
-            className="mt-1 h-4 w-4 rounded border-border accent-gold"
+            className="mt-1 h-4 w-4 rounded-sm border-gz-rule accent-[var(--gz-gold)]"
           />
           <span className="text-xs leading-relaxed text-navy/70">
             Acepto los{" "}

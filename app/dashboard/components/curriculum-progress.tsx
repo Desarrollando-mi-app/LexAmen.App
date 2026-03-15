@@ -6,6 +6,10 @@ import {
   RAMA_LABELS,
   type SeccionNode,
 } from "@/lib/curriculum-data";
+import { progressKey } from "@/lib/progress-utils";
+
+// Re-export for any other client imports
+export { progressKey };
 
 // ─── Tipos ──────────────────────────────────────────────────
 
@@ -21,12 +25,6 @@ export type TituloProgress = {
 };
 
 export type ProgressData = Record<string, TituloProgress>;
-
-// ─── Helpers ────────────────────────────────────────────────
-
-function progressKey(rama: string, libro: string, tituloId: string): string {
-  return `${rama}|${libro}|${tituloId}`;
-}
 
 function getFlashcardPercent(p: TituloProgress | undefined): number {
   if (!p || p.flashcardTotal === 0) return 0;
@@ -131,7 +129,7 @@ function ProgressBar({
     <div className={`${h} w-full overflow-hidden rounded-full bg-border/30`}>
       <div
         className={`${h} rounded-full transition-all duration-500 ${
-          percent >= 100 ? "bg-green-500" : "bg-gold"
+          percent >= 100 ? "bg-gz-sage" : "bg-gold"
         }`}
         style={{ width: `${Math.min(percent, 100)}%` }}
       />
@@ -154,12 +152,12 @@ function ProgressPills({ progress }: { progress: TituloProgress | undefined }) {
         </span>
       )}
       {mcqTotal > 0 && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-800">
+        <span className="inline-flex items-center gap-1 rounded-full bg-gz-sage/20 px-2 py-0.5 text-[10px] font-medium text-gz-sage">
           MCQ {getMcqPercent(progress)}%
         </span>
       )}
       {tfTotal > 0 && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-800">
+        <span className="inline-flex items-center gap-1 rounded-full bg-gz-navy/10 px-2 py-0.5 text-[10px] font-medium text-gz-navy">
           V/F {getTfPercent(progress)}%
         </span>
       )}
@@ -182,7 +180,7 @@ function VueltaBadge({ completions }: { completions: number }) {
 
 function StatusIcon({ percent }: { percent: number }) {
   if (percent >= 100) {
-    return <span className="text-green-500 text-sm shrink-0">&#10003;</span>;
+    return <span className="text-gz-sage text-sm shrink-0">&#10003;</span>;
   }
   if (percent > 0) {
     return <span className="text-gold text-sm shrink-0">&#9679;</span>;
@@ -191,8 +189,6 @@ function StatusIcon({ percent }: { percent: number }) {
 }
 
 // ─── Componente principal ──────────────────────────────────
-
-export { progressKey };
 
 export function CurriculumProgress({
   progressData,
@@ -215,12 +211,12 @@ export function CurriculumProgress({
         return (
           <div
             key={ramaKey}
-            className="overflow-hidden rounded-xl border border-border bg-white"
+            className="overflow-hidden rounded-[4px] border border-gz-rule bg-white"
           >
             {/* Header rama */}
             <button
               onClick={() => setOpenRama(isRamaOpen ? null : ramaKey)}
-              className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-paper/50"
+              className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-gz-cream-dark/50"
             >
               <Chevron open={isRamaOpen} />
               <div className="min-w-0 flex-1">
@@ -242,7 +238,7 @@ export function CurriculumProgress({
 
             {/* Contenido rama — libros */}
             {isRamaOpen && (
-              <div className="border-t border-border/50 px-5 pb-4">
+              <div className="border-t border-gz-rule/50 px-5 pb-4">
                 <div className="mt-2 space-y-2">
                   {rama.secciones.map((seccion) => {
                     const libroKey = `${ramaKey}:${seccion.libro}`;
@@ -264,14 +260,14 @@ export function CurriculumProgress({
                     return (
                       <div
                         key={libroKey}
-                        className="rounded-lg border border-border/40 bg-paper/30"
+                        className="rounded-[4px] border border-gz-rule/40 bg-gz-cream-dark/30"
                       >
                         {/* Header libro */}
                         <button
                           onClick={() =>
                             setOpenLibro(isLibroOpen ? null : libroKey)
                           }
-                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-paper/60"
+                          className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-gz-cream-dark/60"
                         >
                           <Chevron open={isLibroOpen} />
                           <div className="min-w-0 flex-1">
@@ -292,7 +288,7 @@ export function CurriculumProgress({
 
                         {/* Contenido libro — titulos */}
                         {isLibroOpen && (
-                          <div className="border-t border-border/30 px-4 pb-3">
+                          <div className="border-t border-gz-rule/30 px-4 pb-3">
                             <div className="mt-2 space-y-1.5">
                               {seccion.titulos.map((titulo) => {
                                 const tKey = `${libroKey}:${titulo.id}`;
@@ -316,7 +312,7 @@ export function CurriculumProgress({
                                 return (
                                   <div
                                     key={tKey}
-                                    className="rounded-md border border-border/20 bg-white/60"
+                                    className="rounded-md border border-gz-rule/20 bg-white/60"
                                   >
                                     <button
                                       onClick={() =>
@@ -328,7 +324,7 @@ export function CurriculumProgress({
                                       }
                                       className={`flex w-full items-center gap-2 px-3 py-2 text-left ${
                                         hasParrafos
-                                          ? "cursor-pointer hover:bg-paper/40"
+                                          ? "cursor-pointer hover:bg-gz-cream-dark/40"
                                           : "cursor-default"
                                       } transition-colors`}
                                     >
@@ -342,7 +338,7 @@ export function CurriculumProgress({
                                             className={`text-xs font-medium ${
                                               hasContent
                                                 ? overallPct >= 100
-                                                  ? "text-green-700"
+                                                  ? "text-gz-sage"
                                                   : "text-navy/70"
                                                 : "text-navy/35"
                                             }`}
@@ -376,7 +372,7 @@ export function CurriculumProgress({
                                     {isTituloOpen &&
                                       hasParrafos &&
                                       titulo.parrafos && (
-                                        <div className="border-t border-border/15 px-3 pb-2">
+                                        <div className="border-t border-gz-rule/15 px-3 pb-2">
                                           <div className="mt-1.5 space-y-1 pl-6">
                                             {titulo.parrafos.map((par) => (
                                               <div

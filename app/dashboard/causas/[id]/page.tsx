@@ -97,17 +97,21 @@ export default async function CausaPage({
   const opponentScore = opponentAnswers.reduce((sum, a) => sum + a.score, 0);
 
   return (
-    <CausaViewer
-      causaId={causa.id}
-      status={causa.status}
-      opponentName={`${opponentUser.firstName} ${opponentUser.lastName}`}
-      totalQuestions={CAUSA_QUESTIONS}
-      myAnswers={myAnswers}
-      opponentAnswers={causa.status === "COMPLETED" ? opponentAnswers : []}
-      myScore={myScore}
-      opponentScore={causa.status === "COMPLETED" ? opponentScore : 0}
-      winnerId={causa.winner?.id ?? null}
-      userId={authUser.id}
-    />
+    <div className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+        <CausaViewer
+          causaId={causa.id}
+          status={causa.status}
+          opponentName={`${opponentUser.firstName} ${opponentUser.lastName}`}
+          totalQuestions={CAUSA_QUESTIONS}
+          myAnswers={myAnswers}
+          opponentAnswers={causa.status === "COMPLETED" ? opponentAnswers : []}
+          myScore={myScore}
+          opponentScore={causa.status === "COMPLETED" ? opponentScore : 0}
+          winnerId={causa.winner?.id ?? null}
+          userId={authUser.id}
+        />
+      </div>
+    </div>
   );
 }

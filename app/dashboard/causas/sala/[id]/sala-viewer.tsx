@@ -360,23 +360,23 @@ export function SalaViewer({
 
   if (status === "lobby") {
     return (
-      <main className="min-h-screen bg-paper">
+      <main className="min-h-screen">
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Code */}
-          <div className="rounded-2xl border-2 border-dashed border-gold/40 bg-gold/5 p-8 text-center">
-            <p className="text-sm font-medium text-navy/60">
+          <div className="rounded-[4px] border-2 border-dashed border-gz-gold/40 bg-gz-gold/[0.06] p-8 text-center">
+            <p className="font-archivo text-[13px] text-gz-ink-mid">
               Comparte este codigo
             </p>
             <button
               onClick={handleCopyCode}
-              className="mt-2 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-3xl font-bold tracking-widest text-navy shadow-sm transition-shadow hover:shadow-md"
+              className="mt-2 inline-flex items-center gap-2 rounded-[4px] bg-white px-6 py-3 font-ibm-mono text-[28px] font-bold tracking-widest text-gz-ink shadow-sm transition-shadow hover:shadow-sm"
             >
               {code}
-              <span className="text-sm font-normal text-navy/40">
+              <span className="font-archivo text-[13px] font-normal text-gz-ink-light">
                 {copied ? "Copiado!" : "Copiar"}
               </span>
             </button>
-            <p className="mt-3 text-xs text-navy/40">
+            <p className="mt-3 font-ibm-mono text-[11px] text-gz-ink-light">
               Creado por {creatorName}
             </p>
           </div>
@@ -384,8 +384,8 @@ export function SalaViewer({
           {/* Participants */}
           <div className="mt-8">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-navy">Jugadores</h2>
-              <span className="text-sm text-navy/50">
+              <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Jugadores</h2>
+              <span className="font-ibm-mono text-[12px] text-gz-ink-light">
                 {participants.length}/{maxPlayers}
               </span>
             </div>
@@ -394,18 +394,18 @@ export function SalaViewer({
               {participants.map((p, idx) => (
                 <div
                   key={p.userId}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-white px-4 py-3"
+                  className="flex items-center gap-3 rounded-[4px] border border-gz-rule bg-white px-4 py-3"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-navy/10 text-sm font-bold text-navy">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gz-navy/10 font-ibm-mono text-[12px] font-bold text-gz-ink">
                     {idx + 1}
                   </span>
-                  <span className="flex-1 font-medium text-navy">
+                  <span className="font-archivo text-[14px] font-medium text-gz-ink">
                     {p.name}
                     {p.userId === createdById && (
-                      <span className="ml-2 text-xs text-gold">(Host)</span>
+                      <span className="ml-2 font-ibm-mono text-[8px] uppercase tracking-[1px] bg-gz-gold/[0.12] text-gz-gold px-2 py-0.5 rounded-sm">(Host)</span>
                     )}
                     {p.userId === userId && (
-                      <span className="ml-1 text-xs text-navy/40">(Tu)</span>
+                      <span className="ml-1 font-ibm-mono text-[10px] text-gz-ink-light">(Tu)</span>
                     )}
                   </span>
                 </div>
@@ -417,12 +417,12 @@ export function SalaViewer({
               }).map((_, i) => (
                 <div
                   key={`empty-${i}`}
-                  className="flex items-center gap-3 rounded-xl border border-dashed border-border/50 px-4 py-3"
+                  className="flex items-center gap-3 rounded-[4px] border border-dashed border-gz-rule px-4 py-3"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-border/20 text-sm text-navy/30">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-gz-cream-dark font-ibm-mono text-[12px] text-gz-ink-light">
                     {participants.length + i + 1}
                   </span>
-                  <span className="text-sm text-navy/30">
+                  <span className="font-archivo text-[13px] text-gz-ink-light">
                     Esperando jugador...
                   </span>
                 </div>
@@ -436,7 +436,7 @@ export function SalaViewer({
               <button
                 onClick={handleStart}
                 disabled={starting || participants.length < 2}
-                className="rounded-xl bg-navy px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+                className="rounded-[4px] bg-gz-navy px-8 py-3 font-archivo text-[14px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"
               >
                 {starting
                   ? "Iniciando..."
@@ -449,8 +449,8 @@ export function SalaViewer({
 
           {!isCreator && (
             <div className="mt-8 text-center">
-              <div className="inline-flex items-center gap-2 rounded-xl bg-paper px-6 py-3 text-sm text-navy/60">
-                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-gold" />
+              <div className="inline-flex items-center gap-2 rounded-[4px] px-6 py-3 font-archivo text-[13px] text-gz-ink-mid" style={{ backgroundColor: "var(--gz-cream)" }}>
+                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-gz-gold" />
                 Esperando a que el host inicie...
               </div>
             </div>
@@ -471,7 +471,7 @@ export function SalaViewer({
     ];
 
     return (
-      <main className="min-h-screen bg-paper">
+      <main className="min-h-screen">
         <div className="mx-auto flex max-w-4xl gap-6 px-6 py-8">
           {/* Main game area */}
           <div className="min-w-0 flex-1">
@@ -483,14 +483,14 @@ export function SalaViewer({
                 return (
                   <div
                     key={i}
-                    className={`h-2 flex-1 rounded-full ${
+                    className={`h-2 flex-1 rounded-sm ${
                       i === currentIdx
-                        ? "bg-gold"
+                        ? "bg-gz-gold"
                         : isAnswered
                         ? ans.isCorrect
-                          ? "bg-green-400"
-                          : "bg-red-400"
-                        : "bg-border"
+                          ? "bg-gz-sage"
+                          : "bg-gz-burgundy"
+                        : "bg-gz-cream-dark"
                     }`}
                   />
                 );
@@ -500,27 +500,27 @@ export function SalaViewer({
             {/* Timer */}
             <div className="mb-6">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-navy/50">Tiempo</span>
+                <span className="font-ibm-mono text-[12px] text-gz-ink-light">Tiempo</span>
                 <span
-                  className={`font-mono font-bold ${
+                  className={`font-ibm-mono font-bold ${
                     timerMs < 5000
-                      ? "text-red-500"
+                      ? "text-gz-burgundy"
                       : timerMs < 10000
-                      ? "text-orange-500"
-                      : "text-navy"
+                      ? "text-gz-gold"
+                      : "text-gz-ink"
                   }`}
                 >
                   {timerSeconds}s
                 </span>
               </div>
-              <div className="mt-1 h-2 overflow-hidden rounded-full bg-border">
+              <div className="mt-1 h-2 overflow-hidden rounded-sm bg-gz-cream-dark">
                 <div
-                  className={`h-full rounded-full transition-all ${
+                  className={`h-full rounded-sm transition-all ${
                     timerMs < 5000
-                      ? "bg-red-500"
+                      ? "bg-gz-burgundy"
                       : timerMs < 10000
-                      ? "bg-orange-500"
-                      : "bg-gold"
+                      ? "bg-gz-gold"
+                      : "bg-gz-gold"
                   }`}
                   style={{ width: `${timerPercent}%` }}
                 />
@@ -529,41 +529,41 @@ export function SalaViewer({
 
             {/* Score */}
             <div className="mb-4 text-center">
-              <span className="rounded-full bg-gold/15 px-3 py-1 text-sm font-semibold text-gold">
+              <span className="rounded-sm bg-gz-gold/15 px-3 py-1 font-ibm-mono text-[12px] font-semibold text-gz-gold">
                 {myTotalScore} pts
               </span>
             </div>
 
             {/* Question */}
-            <div className="rounded-xl border border-border bg-white p-6">
-              <p className="text-xs text-navy/50 mb-2">
+            <div className="rounded-[4px] border border-gz-rule bg-white p-6">
+              <p className="font-ibm-mono text-[10px] text-gz-ink-light uppercase mb-2">
                 Pregunta {currentIdx + 1} de {totalQuestions}
               </p>
-              <p className="text-lg font-medium text-navy">
+              <p className="font-cormorant text-[20px] font-semibold text-gz-ink">
                 {currentQuestion.mcq.question}
               </p>
 
               <div className="mt-6 space-y-3">
                 {options.map((opt) => {
                   let style =
-                    "border-border bg-paper text-navy hover:border-gold/50";
+                    "border-gz-rule text-gz-ink hover:border-gz-gold font-archivo text-[14px]";
 
                   if (feedback) {
                     if (opt.key === feedback.correctOption) {
                       style =
-                        "border-green-500 bg-green-50 text-green-700 ring-2 ring-green-200";
+                        "border-gz-sage bg-gz-sage/[0.06] text-gz-sage ring-1 ring-gz-sage/30 font-archivo text-[14px]";
                     } else if (
                       opt.key === selected &&
                       !feedback.isCorrect
                     ) {
                       style =
-                        "border-red-500 bg-red-50 text-red-600 ring-2 ring-red-200";
+                        "border-gz-burgundy bg-gz-burgundy/[0.06] text-gz-burgundy ring-1 ring-gz-burgundy/30 font-archivo text-[14px]";
                     } else {
-                      style = "border-border bg-paper/50 text-navy/40";
+                      style = "border-gz-rule text-gz-ink-light font-archivo text-[14px]";
                     }
                   } else if (selected === opt.key) {
                     style =
-                      "border-gold bg-gold/10 text-navy ring-2 ring-gold/30";
+                      "border-gz-gold bg-gz-gold/[0.06] text-gz-ink ring-1 ring-gz-gold/20 font-archivo text-[14px]";
                   }
 
                   return (
@@ -575,7 +575,7 @@ export function SalaViewer({
                         }
                       }}
                       disabled={!!feedback || submitting}
-                      className={`w-full rounded-lg border px-4 py-3 text-left text-sm transition-all ${style}`}
+                      className={`w-full rounded-[3px] border px-4 py-3 text-left transition-all ${style}`}
                     >
                       <span className="font-semibold">{opt.key}.</span>{" "}
                       {opt.text}
@@ -587,10 +587,10 @@ export function SalaViewer({
               {/* Feedback */}
               {feedback && (
                 <div
-                  className={`mt-4 rounded-lg p-3 text-sm font-medium ${
+                  className={`mt-4 rounded-[3px] border-l-[3px] p-3 font-archivo text-[13px] font-medium ${
                     feedback.isCorrect
-                      ? "bg-green-50 text-green-700"
-                      : "bg-red-50 text-red-600"
+                      ? "border-gz-sage bg-gz-sage/[0.06] text-gz-sage"
+                      : "border-gz-burgundy bg-gz-burgundy/[0.06] text-gz-burgundy"
                   }`}
                 >
                   {feedback.isCorrect ? "Correcto!" : "Incorrecto"} — +
@@ -604,14 +604,14 @@ export function SalaViewer({
                   <button
                     onClick={() => handleSubmit(selected)}
                     disabled={!selected || submitting}
-                    className="rounded-lg bg-navy px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90 disabled:opacity-50"
+                    className="rounded-[4px] bg-gz-navy px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"
                   >
                     {submitting ? "Enviando..." : "Confirmar"}
                   </button>
                 ) : (
                   <button
                     onClick={handleNext}
-                    className="rounded-lg bg-gold px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-gold/90"
+                    className="rounded-[4px] bg-gz-gold px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold/90"
                   >
                     {answeredCount >= totalQuestions
                       ? "Ver resultado"
@@ -624,8 +624,8 @@ export function SalaViewer({
 
           {/* Leaderboard sidebar */}
           <aside className="hidden w-[240px] shrink-0 lg:block">
-            <div className="sticky top-4 rounded-xl border border-border bg-white p-4">
-              <h3 className="text-sm font-bold text-navy">Tabla en Vivo</h3>
+            <div className="sticky top-4 rounded-[4px] border border-gz-rule bg-white p-4">
+              <h3 className="font-ibm-mono text-[11px] uppercase tracking-[1.5px] text-gz-ink-light">Tabla en Vivo</h3>
               <div className="mt-3 space-y-2">
                 {(participantScores.length > 0
                   ? [...participantScores].sort(
@@ -642,20 +642,20 @@ export function SalaViewer({
                 ).map((p, idx) => (
                   <div
                     key={p.userId}
-                    className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs ${
+                    className={`flex items-center gap-2 px-2.5 py-2 ${
                       p.userId === userId
-                        ? "bg-gold/10 font-semibold"
-                        : "bg-paper"
+                        ? "bg-gz-gold/10 font-semibold rounded-[3px]"
+                        : ""
                     }`}
                   >
-                    <span className="w-5 text-center font-bold text-navy/50">
+                    <span className="font-ibm-mono text-[12px] font-bold text-gz-ink-light w-5 text-center">
                       {idx + 1}
                     </span>
-                    <span className="flex-1 truncate text-navy">
+                    <span className="flex-1 truncate font-archivo text-[12px] text-gz-ink">
                       {p.name}
                       {p.userId === userId && " (Tu)"}
                     </span>
-                    <span className="font-mono font-semibold text-gold">
+                    <span className="font-ibm-mono text-[12px] font-bold text-gz-gold">
                       {p.score}
                     </span>
                   </div>
@@ -672,21 +672,21 @@ export function SalaViewer({
 
   if (status === "active" && currentIdx === null) {
     return (
-      <main className="min-h-screen bg-paper">
+      <main className="min-h-screen">
         <div className="mx-auto max-w-3xl px-6 py-16 text-center">
           <p className="text-5xl">&#x231B;</p>
-          <h2 className="mt-4 text-xl font-bold text-navy">
+          <h2 className="mt-4 font-cormorant text-[22px] !font-bold text-gz-ink">
             Has completado tus respuestas!
           </h2>
-          <p className="mt-2 text-navy/60">
+          <p className="mt-2 font-archivo text-[13px] text-gz-ink-mid">
             Tu puntaje:{" "}
-            <span className="font-bold text-gold">{myTotalScore}</span> pts
+            <span className="font-cormorant text-[20px] !font-bold text-gz-gold">{myTotalScore}</span> pts
           </p>
 
           {/* Progress otros */}
           {participantScores.length > 0 && (
             <div className="mx-auto mt-8 max-w-sm space-y-2">
-              <p className="text-sm font-medium text-navy/60">
+              <p className="font-archivo text-[13px] font-medium text-gz-ink-mid">
                 Progreso de los demas
               </p>
               {participantScores
@@ -694,15 +694,15 @@ export function SalaViewer({
                 .map((p) => (
                   <div
                     key={p.userId}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-white px-4 py-2"
+                    className="flex items-center gap-3 rounded-[3px] border border-gz-rule bg-white px-4 py-2"
                   >
-                    <span className="flex-1 text-sm text-navy">{p.name}</span>
-                    <span className="text-xs text-navy/50">
+                    <span className="flex-1 font-archivo text-[13px] text-gz-ink">{p.name}</span>
+                    <span className="font-ibm-mono text-[12px] text-gz-ink-light">
                       {p.answeredCount}/{totalQuestions}
                     </span>
-                    <div className="h-2 w-20 overflow-hidden rounded-full bg-border">
+                    <div className="h-2 w-20 overflow-hidden rounded-sm bg-gz-cream-dark">
                       <div
-                        className="h-full rounded-full bg-gold transition-all"
+                        className="h-full rounded-sm bg-gz-gold transition-all"
                         style={{
                           width: `${
                             (p.answeredCount / totalQuestions) * 100
@@ -715,8 +715,8 @@ export function SalaViewer({
             </div>
           )}
 
-          <p className="mt-8 text-sm text-navy/40">
-            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-gold" />{" "}
+          <p className="mt-8 font-archivo text-[13px] text-gz-ink-light">
+            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-gz-gold" />{" "}
             Esperando a que los demas terminen...
           </p>
         </div>
@@ -737,16 +737,16 @@ export function SalaViewer({
     const myPosition = myParticipant?.position ?? 0;
 
     return (
-      <main className="min-h-screen bg-paper">
+      <main className="min-h-screen">
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Podium */}
           <div
-            className={`rounded-2xl border-2 p-8 text-center ${
+            className={`rounded-[4px] border-2 p-8 text-center ${
               myPosition === 1
-                ? "border-green-300 bg-green-50"
+                ? "border-gz-sage bg-gz-sage/[0.06]"
                 : myPosition <= 3
-                ? "border-yellow-300 bg-yellow-50"
-                : "border-border bg-white"
+                ? "border-gz-gold bg-gz-gold/[0.06]"
+                : "border-gz-rule bg-white"
             }`}
           >
             <p className="text-5xl">
@@ -759,47 +759,47 @@ export function SalaViewer({
                 : "🎯"}
             </p>
             <h2
-              className={`mt-4 text-2xl font-bold ${
+              className={`mt-4 font-cormorant text-[28px] !font-bold ${
                 myPosition === 1
-                  ? "text-green-700"
+                  ? "text-gz-sage"
                   : myPosition <= 3
-                  ? "text-yellow-700"
-                  : "text-navy"
+                  ? "text-gz-gold"
+                  : "text-gz-ink"
               }`}
             >
               {myPosition === 1
                 ? "Victoria!"
                 : `${myPosition}° Lugar`}
             </h2>
-            <p className="mt-1 text-navy/60">
+            <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
               {myTotalScore} puntos
             </p>
           </div>
 
           {/* Rankings */}
           <div className="mt-8">
-            <h3 className="text-lg font-semibold text-navy">
+            <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">
               Clasificacion Final
             </h3>
             <div className="mt-4 space-y-2">
               {sortedParticipants.map((p) => (
                 <div
                   key={p.userId}
-                  className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
+                  className={`flex items-center gap-3 rounded-[4px] border px-4 py-3 ${
                     p.userId === userId
-                      ? "border-gold/30 bg-gold/5"
-                      : "border-border bg-white"
+                      ? "border-gz-gold/30 bg-gz-gold/[0.06]"
+                      : "border-gz-rule bg-white"
                   }`}
                 >
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
+                    className={`flex h-8 w-8 items-center justify-center rounded-full font-ibm-mono text-[12px] font-bold ${
                       p.position === 1
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-gz-sage/[0.15] text-gz-sage"
                         : p.position === 2
-                        ? "bg-blue-100 text-blue-700"
+                        ? "bg-gz-navy/[0.15] text-gz-navy"
                         : p.position === 3
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-border/30 text-navy/50"
+                        ? "bg-gz-gold/[0.15] text-gz-gold"
+                        : "bg-gz-cream-dark text-gz-ink-light"
                     }`}
                   >
                     {p.position === 1
@@ -810,13 +810,13 @@ export function SalaViewer({
                       ? "🥉"
                       : `${p.position}`}
                   </span>
-                  <span className="flex-1 font-medium text-navy">
+                  <span className="flex-1 font-archivo text-[14px] font-medium text-gz-ink">
                     {p.name}
                     {p.userId === userId && (
-                      <span className="ml-1 text-xs text-navy/40">(Tu)</span>
+                      <span className="ml-1 font-ibm-mono text-[10px] text-gz-ink-light">(Tu)</span>
                     )}
                   </span>
-                  <span className="font-mono font-bold text-gold">
+                  <span className="font-ibm-mono text-[13px] font-bold text-gz-gold">
                     {p.score} pts
                   </span>
                 </div>
@@ -827,7 +827,7 @@ export function SalaViewer({
           {/* Badges */}
           {Object.keys(badgesByUser).length > 0 && (
             <div className="mt-8">
-              <h3 className="text-lg font-semibold text-navy">
+              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">
                 Insignias Obtenidas
               </h3>
               <div className="mt-4 space-y-2">
@@ -838,9 +838,9 @@ export function SalaViewer({
                   return (
                     <div
                       key={uid}
-                      className="rounded-xl border border-border bg-white p-4"
+                      className="rounded-[4px] border border-gz-rule bg-white p-4"
                     >
-                      <p className="text-sm font-medium text-navy">
+                      <p className="font-archivo text-[13px] font-medium text-gz-ink">
                         {pName}
                         {uid === userId && " (Tu)"}
                       </p>
@@ -855,7 +855,7 @@ export function SalaViewer({
                               title={badge.description}
                             >
                               <span className="text-2xl">{badge.emoji}</span>
-                              <p className="text-[10px] font-medium text-navy">
+                              <p className="text-[10px] font-medium text-gz-ink">
                                 {badge.label}
                               </p>
                             </div>
@@ -872,7 +872,7 @@ export function SalaViewer({
           {/* Detalle preguntas */}
           {questions.length > 0 && questions[0].mcq.correctOption && (
             <div className="mt-8">
-              <h3 className="text-lg font-semibold text-navy">
+              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">
                 Detalle de Respuestas
               </h3>
               <div className="mt-4 space-y-3">
@@ -883,29 +883,29 @@ export function SalaViewer({
                   return (
                     <div
                       key={q.questionIndex}
-                      className="rounded-lg border border-border bg-white p-4"
+                      className="rounded-[4px] border border-gz-rule bg-white p-4"
                     >
-                      <p className="text-sm font-medium text-navy">
+                      <p className="font-archivo text-[13px] font-medium text-gz-ink">
                         {q.questionIndex + 1}. {q.mcq.question}
                       </p>
-                      <div className="mt-2 flex items-center gap-4 text-xs">
+                      <div className="mt-2 flex items-center gap-4 font-ibm-mono text-[12px]">
                         <span
                           className={
                             myAns?.isCorrect
-                              ? "text-green-600"
-                              : "text-red-500"
+                              ? "text-gz-sage"
+                              : "text-gz-burgundy"
                           }
                         >
                           Tu: {myAns?.selectedOption || "Sin respuesta"}{" "}
                           {myAns?.isCorrect ? "✓" : "✗"} (+{myAns?.score ?? 0}{" "}
                           pts)
                         </span>
-                        <span className="text-navy/40">
+                        <span className="text-gz-ink-light">
                           Correcta: {q.mcq.correctOption}
                         </span>
                       </div>
                       {q.mcq.explanation && (
-                        <p className="mt-2 text-xs text-navy/50 italic">
+                        <p className="mt-2 font-cormorant italic text-[14px] text-gz-ink-mid">
                           {q.mcq.explanation}
                         </p>
                       )}
@@ -920,7 +920,7 @@ export function SalaViewer({
           <div className="mt-8 text-center">
             <Link
               href="/dashboard/causas"
-              className="inline-block rounded-xl bg-navy px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+              className="inline-block rounded-[4px] bg-gz-navy px-6 py-3 font-archivo text-[14px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
             >
               Volver a Causas
             </Link>
@@ -933,15 +933,15 @@ export function SalaViewer({
   // ─── Fallback ───────────────────────────────────────────
 
   return (
-    <main className="min-h-screen bg-paper">
+    <main className="min-h-screen">
       <div className="mx-auto max-w-3xl px-6 py-16 text-center">
         <p className="text-5xl">📋</p>
-        <h2 className="mt-4 text-xl font-bold text-navy">
+        <h2 className="mt-4 font-cormorant text-[22px] !font-bold text-gz-ink">
           Estado: {status}
         </h2>
         <Link
           href="/dashboard/causas"
-          className="mt-6 inline-block rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-navy/90"
+          className="mt-6 inline-block rounded-[4px] bg-gz-navy px-5 py-2.5 font-archivo text-[14px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
           Volver
         </Link>

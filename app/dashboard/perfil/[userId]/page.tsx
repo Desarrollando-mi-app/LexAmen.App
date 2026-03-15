@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getColegaStatus, getColegas, getColegaCount } from "@/lib/colegas";
+import { getUserTutorStats } from "@/lib/sala-utils";
 import { PerfilPublico } from "./perfil-publico";
 
 interface Props {
@@ -24,7 +25,7 @@ export default async function PerfilPage({ params }: Props) {
   }
 
   // Buscar usuario
-  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest, diarioPostCount] =
+  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest, diarioPostCount, obiterStats, tutorStats, recentEvaluations] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: params.userId },
@@ -76,6 +77,25 @@ export default async function PerfilPage({ params }: Props) {
       prisma.diarioPost.count({
         where: { userId: params.userId },
       }),
+      // Obiter Dictum stats: count, total citas received, total apoyos received
+      prisma.obiterDictum.aggregate({
+        where: { userId: params.userId },
+        _count: { id: true },
+        _sum: { citasCount: true, apoyosCount: true },
+      }),
+      // Ayudantía/tutor stats
+      getUserTutorStats(params.userId),
+      // Recent evaluations received
+      prisma.ayudantiaEvaluacion.findMany({
+        where: { evaluadoId: params.userId, comentario: { not: null } },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        select: {
+          rating: true,
+          comentario: true,
+          evaluador: { select: { firstName: true } },
+        },
+      }),
     ]);
 
   if (!targetUser) {
@@ -118,6 +138,15 @@ export default async function PerfilPage({ params }: Props) {
       colegasPreview={targetColegas.slice(0, 6)}
       cvRequestStatus={cvRequest?.status ?? null}
       diarioPostCount={diarioPostCount}
+      obiterCount={obiterStats._count.id}
+      obiterCitasReceived={obiterStats._sum.citasCount ?? 0}
+      obiterApoyosReceived={obiterStats._sum.apoyosCount ?? 0}
+      tutorStats={tutorStats}
+      recentEvaluations={recentEvaluations.map((e) => ({
+        rating: e.rating,
+        comentario: e.comentario!,
+        evaluadorNombre: e.evaluador.firstName,
+      }))}
     />
   );
 }

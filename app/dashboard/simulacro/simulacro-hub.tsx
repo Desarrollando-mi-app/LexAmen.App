@@ -77,12 +77,12 @@ function AvatarInterrogador({
   };
 
   const borderColor = resultColor === "green"
-    ? "ring-green-500"
+    ? "ring-gz-sage"
     : resultColor === "red"
-    ? "ring-red-500"
+    ? "ring-gz-burgundy"
     : animando
-    ? "ring-gold animate-pulse"
-    : "ring-gray-300";
+    ? "ring-gz-gold animate-pulse"
+    : "ring-gz-rule";
 
   return (
     <div
@@ -98,9 +98,9 @@ function AvatarInterrogador({
 
 function NivelBadge({ nivel }: { nivel: string }) {
   const colors: Record<string, string> = {
-    BASICO: "bg-emerald-100 text-emerald-800",
-    INTERMEDIO: "bg-amber-100 text-amber-800",
-    AVANZADO: "bg-red-100 text-red-800",
+    BASICO: "bg-gz-sage/[0.15] text-gz-sage",
+    INTERMEDIO: "bg-gz-gold/[0.15] text-gz-gold",
+    AVANZADO: "bg-gz-burgundy/[0.15] text-gz-burgundy",
   };
   const labels: Record<string, string> = {
     BASICO: "Básico",
@@ -108,7 +108,7 @@ function NivelBadge({ nivel }: { nivel: string }) {
     AVANZADO: "Avanzado",
   };
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${colors[nivel] || "bg-gray-100 text-gray-700"}`}>
+    <span className={`inline-flex rounded-sm px-2.5 py-0.5 font-ibm-mono text-[9px] uppercase tracking-[1px] font-semibold ${colors[nivel] || "bg-gz-rule/30 text-gz-ink-mid"}`}>
       {labels[nivel] || nivel}
     </span>
   );
@@ -386,17 +386,17 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
       <div className="mx-auto max-w-5xl space-y-8 pb-24">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-navy font-display">
-            🎙️ Simulacro de Interrogación
+          <h1 className="font-cormorant text-[24px] !font-bold text-gz-ink">
+            Simulacro de Interrogación
           </h1>
-          <p className="mt-1 text-sm text-navy/60">
+          <p className="mt-1 font-archivo text-[14px] text-gz-ink-mid">
             Practica con un interrogador IA antes de tu examen de grado
           </p>
         </div>
 
         {/* Paso A: Elegir interrogador */}
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-navy">
+          <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
             1. Elige tu interrogador
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -406,10 +406,10 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
               return (
                 <div
                   key={int.id}
-                  className={`rounded-xl border-2 transition-all ${
+                  className={`rounded-[4px] transition-all ${
                     selected
-                      ? "border-gold bg-gold/5 shadow-md"
-                      : "border-border bg-white hover:border-gold/40"
+                      ? "border-2 border-gz-gold bg-gz-gold/[0.04]"
+                      : "border border-gz-rule bg-white hover:border-gz-gold hover:shadow-sm"
                   }`}
                 >
                   <button
@@ -418,29 +418,29 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   >
                     <AvatarInterrogador interrogador={int} size="md" />
                     <div className="min-w-0 flex-1">
-                      <span className="text-sm font-semibold text-navy block">
+                      <span className="font-cormorant text-[16px] font-bold text-gz-ink block">
                         {int.nombre}
                       </span>
-                      <span className="text-[11px] italic text-navy/50 block mt-0.5">
+                      <span className="font-cormorant text-[13px] italic text-gz-ink-mid block mt-0.5">
                         {int.tagline}
                       </span>
-                      <span className="text-[11px] text-navy/60 block mt-1 leading-tight">
+                      <span className="font-archivo text-[12px] text-gz-ink-mid leading-relaxed block mt-1">
                         {int.descripcion}
                       </span>
                     </div>
                     {selected && (
-                      <span className="shrink-0 text-gold text-lg">✓</span>
+                      <span className="shrink-0 text-gz-gold text-lg">✓</span>
                     )}
                   </button>
 
                   {/* Conocer más / Biografía */}
-                  <div className="border-t border-border/50">
+                  <div className="border-t border-gz-rule">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setBioExpandida(bioOpen ? null : int.id);
                       }}
-                      className="w-full px-4 py-2 text-[11px] font-medium text-navy/40 hover:text-navy/70 transition-colors flex items-center justify-center gap-1"
+                      className="w-full px-4 py-2 text-[11px] font-medium text-gz-ink-light hover:text-gz-ink-mid transition-colors flex items-center justify-center gap-1"
                     >
                       {bioOpen ? "Cerrar ↑" : "Conocer más ↓"}
                     </button>
@@ -453,7 +453,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                       }}
                     >
                       <div className="px-4 pb-4 max-h-[160px] overflow-y-auto">
-                        <p className="text-[12px] leading-relaxed text-navy/70">
+                        <p className="font-archivo text-[12px] leading-relaxed text-gz-ink-mid">
                           {int.biografia}
                         </p>
                       </div>
@@ -468,7 +468,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
         {/* Paso B: Elegir fuente */}
         {interrogadorSeleccionado && (
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-navy">
+            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
               2. Elige la fuente de preguntas
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -479,15 +479,15 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   setApuntesTexto("");
                   setApuntesNombre("");
                 }}
-                className={`flex flex-col items-start gap-2 rounded-xl border-2 p-5 text-left transition-all ${
+                className={`flex flex-col items-start gap-2 rounded-[4px] p-5 text-left transition-all ${
                   fuente === "INDICE_MAESTRO"
-                    ? "border-gold bg-gold/5"
-                    : "border-border bg-white hover:border-gold/40"
+                    ? "border-2 border-gz-gold bg-gz-gold/[0.04]"
+                    : "border border-gz-rule bg-white hover:border-gz-gold"
                 }`}
               >
                 <span className="text-3xl">📚</span>
-                <span className="font-semibold text-navy">Índice Maestro</span>
-                <span className="text-sm text-navy/60">
+                <span className="font-cormorant text-[16px] font-bold text-gz-ink">Índice Maestro</span>
+                <span className="font-archivo text-[13px] text-gz-ink-mid">
                   Preguntas desde el Código Civil y Procesal Civil
                 </span>
               </button>
@@ -500,15 +500,15 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   setLibro("");
                   setTitulo("");
                 }}
-                className={`flex flex-col items-start gap-2 rounded-xl border-2 p-5 text-left transition-all ${
+                className={`flex flex-col items-start gap-2 rounded-[4px] p-5 text-left transition-all ${
                   fuente === "APUNTES_PROPIOS"
-                    ? "border-gold bg-gold/5"
-                    : "border-border bg-white hover:border-gold/40"
+                    ? "border-2 border-gz-gold bg-gz-gold/[0.04]"
+                    : "border border-gz-rule bg-white hover:border-gz-gold"
                 }`}
               >
                 <span className="text-3xl">📄</span>
-                <span className="font-semibold text-navy">Mis Apuntes</span>
-                <span className="text-sm text-navy/60">
+                <span className="font-cormorant text-[16px] font-bold text-gz-ink">Mis Apuntes</span>
+                <span className="font-archivo text-[13px] text-gz-ink-mid">
                   Sube tus propios apuntes (PDF o DOCX)
                 </span>
               </button>
@@ -516,9 +516,9 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
 
             {/* Selectores del Índice Maestro */}
             {fuente === "INDICE_MAESTRO" && (
-              <div className="grid gap-3 sm:grid-cols-3 rounded-xl border border-border bg-paper p-4">
+              <div className="grid gap-3 sm:grid-cols-3 rounded-[4px] border border-gz-rule p-4" style={{ backgroundColor: "var(--gz-cream)" }}>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-navy/60">
+                  <label className="mb-1.5 block font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                     Rama
                   </label>
                   <select
@@ -528,7 +528,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                       setLibro("");
                       setTitulo("");
                     }}
-                    className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy"
+                    className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink"
                   >
                     <option value="">Todas</option>
                     {ramaKeys.map((key) => (
@@ -539,7 +539,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-navy/60">
+                  <label className="mb-1.5 block font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                     Libro
                   </label>
                   <select
@@ -549,7 +549,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                       setTitulo("");
                     }}
                     disabled={!rama}
-                    className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy disabled:opacity-50"
+                    className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink disabled:opacity-50"
                   >
                     <option value="">Todos</option>
                     {seccionesDisponibles.map((s) => (
@@ -560,14 +560,14 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-navy/60">
+                  <label className="mb-1.5 block font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                     Título
                   </label>
                   <select
                     value={titulo}
                     onChange={(e) => setTitulo(e.target.value)}
                     disabled={!libro}
-                    className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy disabled:opacity-50"
+                    className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink disabled:opacity-50"
                   >
                     <option value="">Todos</option>
                     {titulosDisponibles.map((t) => (
@@ -582,7 +582,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
 
             {/* Upload de apuntes */}
             {fuente === "APUNTES_PROPIOS" && (
-              <div className="rounded-xl border border-border bg-paper p-4 space-y-3">
+              <div className="rounded-[4px] border border-gz-rule p-4 space-y-3" style={{ backgroundColor: "var(--gz-cream)" }}>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -605,34 +605,34 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                     const f = e.dataTransfer.files[0];
                     if (f) handleUploadApuntes(f);
                   }}
-                  className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-gold/40 p-8 text-center hover:border-gold hover:bg-gold/5 transition-colors"
+                  className="flex cursor-pointer flex-col items-center gap-2 rounded-[4px] border-2 border-dashed border-gz-gold/40 p-8 text-center hover:border-gz-gold hover:bg-gz-gold/[0.04] transition-colors"
                 >
                   {uploadingApuntes ? (
                     <div className="animate-spin text-2xl">⏳</div>
                   ) : (
                     <>
                       <span className="text-3xl">📤</span>
-                      <span className="text-sm font-medium text-navy">
+                      <span className="font-archivo text-[14px] font-medium text-gz-ink">
                         Arrastra tu archivo aquí o haz clic
                       </span>
-                      <span className="text-xs text-navy/50">
+                      <span className="font-ibm-mono text-[10px] text-gz-ink-light">
                         PDF o DOCX — máx 10MB
                       </span>
                     </>
                   )}
                 </div>
                 {apuntesNombre && (
-                  <div className="rounded-lg bg-white p-3 border border-border">
+                  <div className="rounded-[4px] bg-white p-3 border border-gz-rule">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">📎</span>
-                      <span className="text-sm font-medium text-navy">
+                      <span className="font-archivo text-[14px] font-medium text-gz-ink">
                         {apuntesNombre}
                       </span>
-                      <span className="text-xs text-navy/50">
+                      <span className="font-ibm-mono text-[10px] text-gz-ink-light">
                         ({apuntesTexto.length.toLocaleString()} chars)
                       </span>
                     </div>
-                    <p className="mt-2 text-xs text-navy/60 line-clamp-3">
+                    <p className="mt-2 font-archivo text-[12px] text-gz-ink-mid line-clamp-3">
                       {apuntesTexto.slice(0, 200)}...
                     </p>
                   </div>
@@ -645,7 +645,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
         {/* Paso C: Duración */}
         {interrogadorSeleccionado && fuente && (
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-navy">
+            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
               3. Número de preguntas
             </h2>
             <div className="flex gap-3">
@@ -653,10 +653,10 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                 <button
                   key={n}
                   onClick={() => setTotalPreguntas(n)}
-                  className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+                  className={`rounded-full px-5 py-2 font-archivo text-[13px] font-semibold transition-all ${
                     totalPreguntas === n
-                      ? "bg-gold text-white shadow"
-                      : "bg-white border border-border text-navy hover:border-gold/40"
+                      ? "border border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                      : "bg-white border border-gz-rule text-gz-ink-mid hover:border-gz-gold"
                   }`}
                 >
                   {n} preguntas
@@ -673,16 +673,16 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
             <button
               onClick={iniciarSesion}
               disabled={creandoSesion}
-              className="w-full rounded-xl bg-navy py-4 text-lg font-bold text-white shadow-lg hover:bg-navy/90 transition-colors disabled:opacity-50"
+              className="w-full rounded-[4px] bg-gz-navy py-4 font-archivo text-[16px] font-bold text-white shadow-sm hover:bg-gz-gold hover:text-gz-navy transition-colors disabled:opacity-50"
             >
-              {creandoSesion ? "Preparando sesión..." : "🎙️ Iniciar Simulacro"}
+              {creandoSesion ? "Preparando sesión..." : "Iniciar Simulacro"}
             </button>
           )}
 
         {/* Sesiones recientes */}
         {sesionesRecientes.length > 0 && (
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-navy">
+            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
               Sesiones recientes
             </h2>
             <div className="space-y-2">
@@ -691,24 +691,24 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                 return (
                   <div
                     key={s.id}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-white p-3"
+                    className="flex items-center gap-3 rounded-[4px] border border-gz-rule bg-white p-3"
                   >
                     {int && <AvatarInterrogador interrogador={int} size="sm" />}
                     <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium text-navy">
+                      <span className="font-archivo text-[13px] font-medium text-gz-ink">
                         {int?.nombre || s.interrogadorId}
                       </span>
-                      <div className="flex items-center gap-2 text-xs text-navy/50">
+                      <div className="flex items-center gap-2 font-ibm-mono text-[10px] text-gz-ink-light">
                         <span>
-                          ✅ {s.correctas}/{s.totalPreguntas}
+                          {s.correctas}/{s.totalPreguntas}
                         </span>
                         <NivelBadge nivel={s.nivelActual} />
                         {!s.completada && (
-                          <span className="text-amber-600">En curso</span>
+                          <span className="text-gz-gold">En curso</span>
                         )}
                       </div>
                     </div>
-                    <span className="text-xs text-navy/40">
+                    <span className="font-ibm-mono text-[10px] text-gz-ink-light">
                       {new Date(s.createdAt).toLocaleDateString("es-CL")}
                     </span>
                   </div>
@@ -735,12 +735,12 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
           <div className="flex items-center gap-3">
             <AvatarInterrogador interrogador={interrogadorActivo} size="sm" />
             <div>
-              <h2 className="text-lg font-bold text-navy">
+              <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
                 {interrogadorActivo.nombre}
               </h2>
               {preguntaActiva && (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-navy/60">
+                  <span className="font-ibm-mono text-[12px] text-gz-ink-mid">
                     Pregunta {preguntaActiva.numero}/{preguntaActiva.totalPreguntas}
                   </span>
                   <NivelBadge nivel={preguntaActiva.nivel} />
@@ -751,24 +751,24 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setReporteOpen(true)}
-              className="text-sm text-navy/40 hover:text-amber-600 transition-colors"
+              className="font-archivo text-[13px] text-gz-ink-light hover:text-gz-gold transition-colors"
               title="Reportar problema"
             >
               ⚑
             </button>
             <button
               onClick={() => nuevaSesion()}
-              className="text-sm text-navy/50 hover:text-red-600 transition-colors"
+              className="font-archivo text-[13px] text-gz-ink-light hover:text-gz-burgundy transition-colors"
             >
-              ✕ Salir
+              Salir
             </button>
           </div>
         </div>
 
         {/* Barra de progreso */}
-        <div className="mb-6 h-1.5 w-full rounded-full bg-gray-200 overflow-hidden">
+        <div className="mb-6 h-1 w-full rounded-sm bg-gz-cream-dark overflow-hidden">
           <div
-            className="h-full rounded-full bg-gold transition-all duration-500"
+            className="h-full rounded-sm bg-gz-gold transition-all duration-500"
             style={{ width: `${progreso}%` }}
           />
         </div>
@@ -785,14 +785,14 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                     animando
                   />
                 </div>
-                <p className="text-navy/60 animate-pulse">
+                <p className="font-archivo text-[14px] text-gz-ink-mid animate-pulse">
                   Formulando pregunta...
                 </p>
               </div>
             ) : preguntaActiva ? (
               <div className="space-y-4">
                 {/* Avatar + pregunta */}
-                <div className="flex flex-col items-center space-y-4 rounded-2xl border border-border bg-white p-6 shadow-sm">
+                <div className="flex flex-col items-center space-y-4 rounded-[4px] border border-gz-rule bg-white p-6 shadow-sm">
                   <AvatarInterrogador
                     interrogador={interrogadorActivo}
                     size="xl"
@@ -807,7 +807,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   />
 
                   {/* Texto de la pregunta */}
-                  <p className="text-center text-lg font-medium text-navy leading-relaxed max-w-2xl">
+                  <p className="text-center font-cormorant text-[18px] lg:text-[20px] text-gz-ink leading-relaxed max-w-2xl">
                     {preguntaActiva.preguntaTexto}
                   </p>
 
@@ -815,19 +815,19 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   {preguntaActiva.audioUrl && (
                     <button
                       onClick={() => reproducirAudio(preguntaActiva.audioUrl!)}
-                      className="flex items-center gap-1.5 rounded-full bg-navy/10 px-4 py-1.5 text-sm text-navy hover:bg-navy/20 transition-colors"
+                      className="flex items-center gap-1.5 rounded-full bg-gz-navy/10 px-4 py-1.5 font-archivo text-[13px] text-gz-ink hover:bg-gz-navy/20 transition-colors"
                     >
-                      {audioPlaying ? "🔊 Reproduciendo..." : "🔊 Escuchar"}
+                      {audioPlaying ? "Reproduciendo..." : "Escuchar"}
                     </button>
                   )}
 
                   {/* Feedback del interrogador */}
                   {evaluacion && (
                     <div
-                      className={`w-full rounded-xl p-4 ${
+                      className={`w-full rounded-[4px] p-4 ${
                         evaluacion.correcta
-                          ? "bg-green-50 border border-green-200"
-                          : "bg-red-50 border border-red-200"
+                          ? "bg-gz-sage/[0.06] border-l-[3px] border-gz-sage"
+                          : "bg-gz-burgundy/[0.06] border-l-[3px] border-gz-burgundy"
                       }`}
                     >
                       <div className="flex items-start gap-2">
@@ -835,10 +835,10 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                           {evaluacion.correcta ? "✅" : "❌"}
                         </span>
                         <div>
-                          <p className="text-sm text-navy leading-relaxed">
+                          <p className="font-cormorant text-[15px] text-gz-ink leading-[1.65]">
                             {evaluacion.feedback}
                           </p>
-                          <p className="mt-1 text-xs text-navy/50">
+                          <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light">
                             Concepto: {evaluacion.conceptoClave}
                           </p>
                         </div>
@@ -848,9 +848,9 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                           onClick={() =>
                             reproducirAudio(evaluacion.feedbackAudioUrl!)
                           }
-                          className="mt-2 text-xs text-navy/60 hover:text-navy transition-colors"
+                          className="mt-2 font-ibm-mono text-[10px] text-gz-ink-light hover:text-gz-ink transition-colors"
                         >
-                          🔊 Escuchar feedback
+                          Escuchar feedback
                         </button>
                       )}
                     </div>
@@ -866,14 +866,14 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                       placeholder={interrogadorActivo.placeholder}
                       rows={4}
                       disabled={enviandoRespuesta}
-                      className="w-full rounded-xl border border-border bg-white p-4 text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold disabled:opacity-50 resize-none"
+                      className="w-full rounded-[4px] border border-gz-rule bg-white p-4 font-archivo text-[14px] text-gz-ink placeholder:text-gz-ink-light/50 focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 disabled:opacity-50 resize-none"
                     />
                     <button
                       onClick={enviarRespuesta}
                       disabled={
                         enviandoRespuesta || !respuestaTexto.trim()
                       }
-                      className="w-full rounded-xl bg-gold py-3 text-base font-bold text-white shadow hover:bg-gold/90 transition-colors disabled:opacity-50"
+                      className="w-full rounded-[4px] bg-gz-gold py-3 font-archivo text-[14px] font-bold text-white shadow hover:bg-gz-gold/90 transition-colors disabled:opacity-50"
                     >
                       {enviandoRespuesta ? "Evaluando..." : "Responder"}
                     </button>
@@ -887,10 +887,10 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                         pedirPregunta();
                       }
                     }}
-                    className="w-full rounded-xl bg-navy py-3 text-base font-bold text-white shadow hover:bg-navy/90 transition-colors"
+                    className="w-full rounded-[4px] bg-gz-navy py-3 font-archivo text-[14px] font-bold text-white shadow hover:bg-gz-gold hover:text-gz-navy transition-colors"
                   >
                     {evaluacion.sesionCompletada
-                      ? "📊 Ver resultados"
+                      ? "Ver resultados"
                       : "Siguiente pregunta →"}
                   </button>
                 )}
@@ -901,40 +901,40 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
           {/* Sidebar */}
           <div className="hidden lg:flex w-56 flex-col gap-4">
             {/* Mini avatar usuario */}
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-white p-4">
+            <div className="flex flex-col items-center gap-2 rounded-[4px] border border-gz-rule bg-white p-4">
               {avatarUrl ? (
                 <img
                   src={avatarUrl}
                   alt={userName}
-                  className="h-16 w-16 rounded-full object-cover ring-2 ring-border"
+                  className="h-16 w-16 rounded-full object-cover ring-2 ring-gz-rule"
                 />
               ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-navy/10 text-xl font-bold text-navy">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gz-navy/10 text-xl font-bold text-gz-ink">
                   {userName.charAt(0)}
                 </div>
               )}
-              <span className="text-sm font-medium text-navy">{userName}</span>
+              <span className="font-archivo text-[13px] font-medium text-gz-ink">{userName}</span>
             </div>
 
             {/* Stats */}
-            <div className="rounded-xl border border-border bg-white p-4 space-y-3">
-              <h3 className="text-xs font-semibold text-navy/50 uppercase tracking-wider">
+            <div className="rounded-[4px] border border-gz-rule bg-white p-4 space-y-3">
+              <h3 className="font-ibm-mono text-[10px] text-gz-ink-light uppercase tracking-[1.5px]">
                 Progreso
               </h3>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-navy/70">✅ Correctas</span>
-                <span className="text-lg font-bold text-green-600">
+                <span className="font-archivo text-[13px] text-gz-ink-mid">Correctas</span>
+                <span className="font-cormorant text-[20px] !font-bold text-gz-sage">
                   {statsActivas.correctas}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-navy/70">❌ Incorrectas</span>
-                <span className="text-lg font-bold text-red-500">
+                <span className="font-archivo text-[13px] text-gz-ink-mid">Incorrectas</span>
+                <span className="font-cormorant text-[20px] !font-bold text-gz-burgundy">
                   {statsActivas.incorrectas}
                 </span>
               </div>
-              <div className="pt-2 border-t border-border">
-                <span className="text-xs text-navy/50">Nivel actual</span>
+              <div className="pt-2 border-t border-gz-rule">
+                <span className="font-ibm-mono text-[10px] text-gz-ink-light">Nivel actual</span>
                 <div className="mt-1">
                   <NivelBadge
                     nivel={
@@ -950,7 +950,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
         </div>
 
         {/* Mobile stats bar */}
-        <div className="fixed bottom-16 left-0 right-0 z-30 border-t border-border bg-white px-4 py-2 lg:hidden">
+        <div className="fixed bottom-16 left-0 right-0 z-30 border-t border-gz-rule px-4 py-2 lg:hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
           <div className="mx-auto flex max-w-lg items-center justify-between">
             <span className="text-sm">
               ✅ {statsActivas.correctas} | ❌ {statsActivas.incorrectas}
@@ -966,19 +966,19 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
         {/* Modal Reportar problema */}
         {reporteOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-              <h3 className="text-lg font-bold text-navy">⚑ Reportar problema</h3>
-              <p className="mt-1 text-xs text-navy/50">
+            <div className="w-full max-w-md rounded-[4px] bg-white p-6 shadow-xl">
+              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">Reportar problema</h3>
+              <p className="mt-1 font-archivo text-[12px] text-gz-ink-light">
                 Ayúdanos a mejorar. Describe qué salió mal.
               </p>
 
               <div className="mt-4 space-y-3">
                 <div>
-                  <label className="text-xs font-semibold text-navy/60">Tipo</label>
+                  <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">Tipo</label>
                   <select
                     value={reporteTipo}
                     onChange={(e) => setReporteTipo(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy"
+                    className="mt-1 w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink"
                   >
                     <option value="sistema">Problema del sistema (error, lentitud)</option>
                     <option value="contenido">Contenido incorrecto (pregunta o evaluación errada)</option>
@@ -987,7 +987,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-navy/60">
+                  <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                     Descripción (opcional)
                   </label>
                   <textarea
@@ -996,9 +996,9 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                     placeholder="Describe brevemente el problema..."
                     rows={3}
                     maxLength={500}
-                    className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-navy placeholder:text-navy/30 focus:border-gold focus:outline-none resize-none"
+                    className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[14px] text-gz-ink placeholder:text-gz-ink-light/50 focus:border-gz-gold focus:outline-none resize-none"
                   />
-                  <p className="mt-0.5 text-right text-[10px] text-navy/30">
+                  <p className="mt-0.5 text-right font-ibm-mono text-[10px] text-gz-ink-light">
                     {reporteDesc.length}/500
                   </p>
                 </div>
@@ -1010,14 +1010,14 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                     setReporteOpen(false);
                     setReporteDesc("");
                   }}
-                  className="flex-1 rounded-lg border border-border py-2 text-sm font-medium text-navy/60 hover:bg-navy/5 transition-colors"
+                  className="flex-1 rounded-[3px] border border-gz-rule py-2 font-archivo text-[13px] font-medium text-gz-ink-mid hover:bg-gz-ink/5 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={enviarReporte}
                   disabled={enviandoReporte}
-                  className="flex-1 rounded-lg bg-amber-500 py-2 text-sm font-bold text-white hover:bg-amber-600 transition-colors disabled:opacity-50"
+                  className="flex-1 rounded-[3px] bg-gz-gold py-2 font-archivo text-[13px] font-bold text-white hover:bg-gz-gold/90 transition-colors disabled:opacity-50"
                 >
                   {enviandoReporte ? "Enviando..." : "Enviar reporte"}
                 </button>
@@ -1041,33 +1041,33 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
     return (
       <div className="mx-auto max-w-3xl space-y-6 pb-24">
         {/* Header resultado */}
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-white p-8 text-center shadow-sm">
+        <div className="flex flex-col items-center gap-4 rounded-[4px] border border-gz-rule bg-white p-8 text-center shadow-sm">
           <AvatarInterrogador interrogador={interrogadorActivo} size="lg" />
-          <h2 className="text-xl font-bold text-navy">Sesión completada</h2>
+          <h2 className="font-cormorant text-[24px] !font-bold text-gz-ink">Sesión completada</h2>
 
           {r && (
             <>
               {/* Score */}
               <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-bold text-navy">
+                <span className="font-cormorant text-[48px] !font-bold text-gz-ink">
                   {r.correctas}
                 </span>
-                <span className="text-2xl text-navy/40">/ {r.total}</span>
+                <span className="font-cormorant text-[24px] text-gz-ink-light">/ {r.total}</span>
               </div>
-              <div className="text-lg text-navy/60">{porcentaje}% correcto</div>
+              <div className="font-ibm-mono text-[14px] text-gz-ink-mid uppercase tracking-[1px]">{porcentaje}% correcto</div>
 
               {/* Nivel + XP */}
               <div className="flex items-center gap-4">
                 <div className="text-center">
-                  <span className="text-xs text-navy/50">Nivel final</span>
+                  <span className="font-ibm-mono text-[10px] text-gz-ink-light">Nivel final</span>
                   <div className="mt-1">
                     <NivelBadge nivel={r.nivelFinal} />
                   </div>
                 </div>
-                <div className="h-8 w-px bg-border" />
+                <div className="h-8 w-px bg-gz-rule" />
                 <div className="text-center">
-                  <span className="text-xs text-navy/50">XP ganado</span>
-                  <div className="mt-1 text-lg font-bold text-gold">
+                  <span className="font-ibm-mono text-[10px] text-gz-ink-light">XP ganado</span>
+                  <div className="mt-1 font-cormorant text-[20px] !font-bold text-gz-gold">
                     +{xpGanado}
                   </div>
                 </div>
@@ -1079,13 +1079,13 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   <div
                     key={i}
                     className={`h-8 flex-1 rounded-sm transition-colors ${
-                      p.correcta ? "bg-green-400" : "bg-red-400"
+                      p.correcta ? "bg-gz-sage" : "bg-gz-burgundy"
                     }`}
                     title={`P${i + 1}: ${p.correcta ? "Correcta" : "Incorrecta"}`}
                   />
                 ))}
               </div>
-              <p className="text-xs text-navy/40">
+              <p className="font-ibm-mono text-[10px] text-gz-ink-light">
                 Verde = correcta · Rojo = incorrecta
               </p>
             </>
@@ -1095,51 +1095,51 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
         {/* Detalle por pregunta */}
         {r && (
           <section className="space-y-3">
-            <h3 className="text-lg font-semibold text-navy">
+            <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">
               Detalle por pregunta
             </h3>
             {r.preguntas.map((p, i) => (
               <details
                 key={i}
-                className="group rounded-xl border border-border bg-white overflow-hidden"
+                className="group rounded-[4px] border border-gz-rule bg-white overflow-hidden"
               >
-                <summary className="flex cursor-pointer items-center gap-3 p-4 hover:bg-paper transition-colors">
+                <summary className="flex cursor-pointer items-center gap-3 p-4 hover:bg-gz-cream-dark transition-colors">
                   <span className="text-lg">
                     {p.correcta ? "✅" : "❌"}
                   </span>
-                  <span className="flex-1 text-sm font-medium text-navy line-clamp-1">
+                  <span className="flex-1 font-archivo text-[13px] font-medium text-gz-ink line-clamp-1">
                     P{i + 1}. {p.preguntaTexto}
                   </span>
                   <NivelBadge nivel={p.nivel} />
-                  <span className="text-navy/30 group-open:rotate-180 transition-transform">
+                  <span className="text-gz-ink-light group-open:rotate-180 transition-transform">
                     ▼
                   </span>
                 </summary>
-                <div className="border-t border-border p-4 space-y-3 bg-paper/50">
+                <div className="border-t border-gz-rule p-4 space-y-3" style={{ backgroundColor: "var(--gz-cream)" }}>
                   <div>
-                    <span className="text-xs font-semibold text-navy/50 uppercase">
+                    <span className="font-ibm-mono text-[10px] text-gz-ink-light uppercase tracking-[1.5px]">
                       Pregunta
                     </span>
-                    <p className="mt-1 text-sm text-navy">
+                    <p className="mt-1 font-archivo text-[13px] text-gz-ink">
                       {p.preguntaTexto}
                     </p>
                   </div>
                   {p.respuestaUser && (
                     <div>
-                      <span className="text-xs font-semibold text-navy/50 uppercase">
+                      <span className="font-ibm-mono text-[10px] text-gz-ink-light uppercase tracking-[1.5px]">
                         Tu respuesta
                       </span>
-                      <p className="mt-1 text-sm text-navy/80">
+                      <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
                         {p.respuestaUser}
                       </p>
                     </div>
                   )}
                   {p.evaluacion && (
                     <div>
-                      <span className="text-xs font-semibold text-navy/50 uppercase">
+                      <span className="font-ibm-mono text-[10px] text-gz-ink-light uppercase tracking-[1.5px]">
                         Feedback
                       </span>
-                      <p className="mt-1 text-sm text-navy/80">
+                      <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
                         {p.evaluacion}
                       </p>
                     </div>
@@ -1154,20 +1154,20 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
         <div className="flex flex-col gap-3 sm:flex-row">
           <button
             onClick={() => nuevaSesion(true)}
-            className="flex-1 rounded-xl bg-gold py-3 text-center font-bold text-white shadow hover:bg-gold/90 transition-colors"
+            className="flex-1 rounded-[4px] bg-gz-gold py-3 text-center font-archivo font-bold text-white shadow hover:bg-gz-gold/90 transition-colors"
           >
-            🎙️ Nueva sesión con {interrogadorActivo.nombre}
+            Nueva sesión con {interrogadorActivo.nombre}
           </button>
           <button
             onClick={() => nuevaSesion(false)}
-            className="flex-1 rounded-xl border-2 border-navy bg-white py-3 text-center font-bold text-navy hover:bg-navy/5 transition-colors"
+            className="flex-1 rounded-[4px] border border-gz-rule bg-white py-3 text-center font-archivo font-bold text-gz-ink hover:border-gz-gold hover:text-gz-gold transition-colors"
           >
-            🔄 Cambiar interrogador
+            Cambiar interrogador
           </button>
         </div>
         <a
           href="/dashboard"
-          className="block text-center text-sm text-navy/50 hover:text-navy transition-colors"
+          className="block text-center font-archivo text-[13px] text-gz-ink-light hover:text-gz-ink transition-colors"
         >
           ← Volver al dashboard
         </a>

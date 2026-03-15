@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Iuris Studio — Aprende Derecho Civil y Procesal Civil";
+export const alt = "Studio Iuris — Aprende Derecho Civil y Procesal Civil";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -20,7 +20,6 @@ export default async function Image() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ fontSize: "72px" }}>⚖️</span>
           <span
             style={{
               fontSize: "80px",
@@ -29,7 +28,17 @@ export default async function Image() {
               fontFamily: "serif",
             }}
           >
-            Iuris Studio
+            Studio
+          </span>
+          <span
+            style={{
+              fontSize: "80px",
+              fontWeight: 700,
+              color: "#c41a1a",
+              fontFamily: "serif",
+            }}
+          >
+            Iuris
           </span>
         </div>
         <p

@@ -99,7 +99,7 @@ function RichText({ text }: { text: string }) {
             <Link
               key={i}
               href={`/dashboard/diario?hashtag=${tag}`}
-              className="font-semibold text-gold hover:underline"
+              className="font-semibold text-gz-gold hover:underline"
             >
               {part}
             </Link>
@@ -130,7 +130,7 @@ function RichText({ text }: { text: string }) {
               href={norma.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
+              className="text-gz-gold hover:underline font-ibm-mono text-[13px]"
               title={`${norma.codigo} — Art. ${norma.articulo}`}
             >
               {norma.original}
@@ -163,7 +163,7 @@ function PostCard({
   const initials = `${post.user.firstName[0]}${post.user.lastName[0]}`.toUpperCase();
 
   return (
-    <article className="rounded-xl border border-border bg-white p-5 transition-shadow hover:shadow-md">
+    <article className="rounded-[4px] border border-gz-rule bg-white p-5 hover:border-gz-gold transition-colors">
       {/* Header */}
       <div className="mb-3 flex items-start gap-3">
         <Link href={`/dashboard/perfil/${post.user.id}`}>
@@ -174,7 +174,7 @@ function PostCard({
               className="h-10 w-10 rounded-full object-cover"
             />
           ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold/20 text-xs font-bold text-gold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gz-navy/10 font-ibm-mono text-[10px] font-bold text-gz-gold">
               {initials}
             </div>
           )}
@@ -183,30 +183,30 @@ function PostCard({
           <div className="flex items-center gap-2 flex-wrap">
             <Link
               href={`/dashboard/perfil/${post.user.id}`}
-              className="text-sm font-semibold text-navy hover:underline"
+              className="font-archivo text-[13px] font-semibold text-gz-ink hover:underline"
             >
               {post.user.firstName} {post.user.lastName}
             </Link>
             {post.user.universidad && (
-              <span className="text-xs text-navy/50">{post.user.universidad}</span>
+              <span className="font-ibm-mono text-[10px] text-gz-ink-light">{post.user.universidad}</span>
             )}
-            <span className="text-xs text-navy/40">{timeAgo(post.createdAt)}</span>
+            <span className="font-ibm-mono text-[11px] text-gz-ink-light">{timeAgo(post.createdAt)}</span>
           </div>
           <div className="mt-0.5 flex items-center gap-2">
             <span
-              className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+              className={`inline-flex rounded-sm px-2.5 py-0.5 font-ibm-mono text-[9px] uppercase tracking-[0.5px] font-medium ${
                 post.formato === "OBITER_DICTUM"
-                  ? "bg-gold/15 text-gold"
-                  : "bg-navy/10 text-navy"
+                  ? "bg-gz-gold/[0.1] text-gz-gold"
+                  : "bg-gz-navy/[0.1] text-gz-navy"
               }`}
             >
               {FORMATO_LABELS[post.formato] ?? post.formato}
             </span>
             {post.visibilidad === "COLEGAS" && (
-              <span className="text-[10px] text-navy/40">🔒 Colegas</span>
+              <span className="font-ibm-mono text-[9px] text-gz-ink-light">🔒 Colegas</span>
             )}
             {post.materia && (
-              <span className="text-[10px] text-navy/40">{post.materia}</span>
+              <span className="font-ibm-mono text-[9px] text-gz-ink-light">{post.materia}</span>
             )}
           </div>
         </div>
@@ -214,14 +214,14 @@ function PostCard({
 
       {/* Title */}
       <Link href={`/dashboard/diario/${post.id}`}>
-        <h3 className="mb-2 text-base font-bold text-navy hover:text-gold transition-colors font-display">
+        <h3 className="mb-2 font-cormorant text-[20px] !font-bold text-gz-ink hover:text-gz-gold transition-colors leading-tight">
           {post.titulo}
         </h3>
       </Link>
 
       {/* Body */}
       {post.formato === "OBITER_DICTUM" && post.contenido && (
-        <div className="mb-3 text-sm text-navy/80 leading-relaxed line-clamp-4">
+        <div className="mb-3 font-cormorant text-[15px] text-gz-ink-mid leading-relaxed line-clamp-4">
           <RichText text={post.contenido} />
         </div>
       )}
@@ -230,22 +230,22 @@ function PostCard({
         <div className="mb-3 space-y-2 text-sm">
           {post.tribunal && (
             <div>
-              <span className="font-semibold text-navy/60">Tribunal: </span>
-              <span className="text-navy/80">{post.tribunal}</span>
+              <span className="font-archivo text-[12px] font-semibold text-gz-ink-light">Tribunal: </span>
+              <span className="text-gz-ink-mid">{post.tribunal}</span>
             </div>
           )}
           {post.ratio && (
             <div>
-              <span className="font-semibold text-navy/60">Ratio Decidendi: </span>
-              <span className="text-navy/80 line-clamp-2">
+              <span className="font-archivo text-[12px] font-semibold text-gz-ink-light">Ratio Decidendi: </span>
+              <span className="text-gz-ink-mid line-clamp-2">
                 <RichText text={post.ratio} />
               </span>
             </div>
           )}
           {post.opinion && (
             <div>
-              <span className="font-semibold text-navy/60">Opinión: </span>
-              <span className="text-navy/80 line-clamp-2">
+              <span className="font-archivo text-[12px] font-semibold text-gz-ink-light">Opinión: </span>
+              <span className="text-gz-ink-mid line-clamp-2">
                 <RichText text={post.opinion} />
               </span>
             </div>
@@ -260,7 +260,7 @@ function PostCard({
             <Link
               key={h.id}
               href={`/dashboard/diario?hashtag=${h.tag}`}
-              className="rounded-full bg-gold/10 px-2 py-0.5 text-[11px] font-medium text-gold hover:bg-gold/20 transition-colors"
+              className="rounded-sm bg-gz-gold/[0.08] px-2 py-0.5 font-ibm-mono text-[10px] font-medium text-gz-gold hover:bg-gz-gold/[0.15] transition-colors"
             >
               #{h.tag}
             </Link>
@@ -269,23 +269,25 @@ function PostCard({
       )}
 
       {/* Footer */}
-      <div className="flex items-center gap-4 border-t border-border/50 pt-3 text-xs text-navy/50">
-        <span title="Citas">💬 {post.citasCount}</span>
+      <div className="flex items-center gap-4 border-t border-gz-rule pt-3 font-ibm-mono text-[11px] text-gz-ink-light">
+        <span title="Citas">Citar {post.citasCount}</span>
+        <span className="text-gz-ink-light/30">·</span>
         <button
           onClick={(e) => {
             e.preventDefault();
             onToggleGuardar(post.id);
           }}
-          className={`flex items-center gap-1 transition-colors ${
+          className={`transition-colors ${
             post.isGuardado
-              ? "text-gold font-semibold"
-              : "hover:text-gold"
+              ? "text-gz-gold font-semibold"
+              : "hover:text-gz-gold"
           }`}
           title={post.isGuardado ? "Quitar de guardados" : "Guardar"}
         >
-          {post.isGuardado ? "🔖" : "📑"} {post.guardadosCount}
+          {post.isGuardado ? "Guardado" : "Guardar"} {post.guardadosCount}
         </button>
-        <span title="Vistas">👁 {post.views}</span>
+        <span className="text-gz-ink-light/30">·</span>
+        <span title="Vistas">{post.views} vistas</span>
       </div>
     </article>
   );
@@ -384,10 +386,10 @@ function PublishModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-lg rounded-[4px] shadow-sm max-h-[90vh] overflow-y-auto" style={{ backgroundColor: "var(--gz-cream)" }}>
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="text-lg font-bold text-navy font-display">
+        <div className="flex items-center justify-between border-b border-gz-rule px-6 py-4">
+          <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
             {step === 1
               ? "Nueva publicación"
               : step === 2
@@ -396,7 +398,7 @@ function PublishModal({
           </h2>
           <button
             onClick={onClose}
-            className="text-navy/40 hover:text-navy transition-colors text-xl"
+            className="text-gz-ink-light hover:text-gz-ink transition-colors text-xl"
           >
             ✕
           </button>
@@ -406,7 +408,7 @@ function PublishModal({
           {/* Step 1: Elegir formato */}
           {step === 1 && (
             <div className="space-y-3">
-              <p className="text-sm text-navy/60 mb-4">
+              <p className="font-archivo text-[13px] text-gz-ink-mid mb-4">
                 Elige el tipo de publicación:
               </p>
               <button
@@ -414,12 +416,12 @@ function PublishModal({
                   setFormato("OBITER_DICTUM");
                   setStep(2);
                 }}
-                className="w-full rounded-xl border-2 border-border p-4 text-left hover:border-gold transition-colors"
+                className="w-full rounded-[4px] border-2 border-gz-rule p-4 text-left hover:border-gz-gold transition-colors"
               >
-                <div className="text-base font-bold text-navy font-display">
+                <div className="font-cormorant text-[18px] !font-bold text-gz-ink">
                   Obiter Dictum
                 </div>
-                <p className="mt-1 text-sm text-navy/60">
+                <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
                   Reflexión jurídica breve (máx. {OBITER_MAX_WORDS} palabras)
                 </p>
               </button>
@@ -428,12 +430,12 @@ function PublishModal({
                   setFormato("ANALISIS_FALLOS");
                   setStep(2);
                 }}
-                className="w-full rounded-xl border-2 border-border p-4 text-left hover:border-gold transition-colors"
+                className="w-full rounded-[4px] border-2 border-gz-rule p-4 text-left hover:border-gz-gold transition-colors"
               >
-                <div className="text-base font-bold text-navy font-display">
+                <div className="font-cormorant text-[18px] !font-bold text-gz-ink">
                   Análisis de Fallos
                 </div>
-                <p className="mt-1 text-sm text-navy/60">
+                <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
                   Análisis estructurado de una sentencia o resolución judicial
                 </p>
               </button>
@@ -445,27 +447,27 @@ function PublishModal({
             <div className="space-y-4">
               {/* Título */}
               <div>
-                <label className="mb-1 block text-xs font-semibold text-navy/70">
+                <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                   Título *
                 </label>
                 <input
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
                   placeholder="Título de tu publicación"
-                  className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/30"
+                  className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                 />
               </div>
 
               {/* Materia + Visibilidad */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-navy/70">
+                  <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                     Materia
                   </label>
                   <select
                     value={materia}
                     onChange={(e) => setMateria(e.target.value)}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none"
+                    className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                   >
                     <option value="">Seleccionar...</option>
                     {MATERIAS_DIARIO.map((m) => (
@@ -476,13 +478,13 @@ function PublishModal({
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-navy/70">
+                  <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                     Visibilidad
                   </label>
                   <select
                     value={visibilidad}
                     onChange={(e) => setVisibilidad(e.target.value)}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none"
+                    className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                   >
                     {Object.entries(VISIBILIDAD_LABELS).map(([k, v]) => (
                       <option key={k} value={k}>
@@ -496,13 +498,13 @@ function PublishModal({
               {/* Obiter Dictum fields */}
               {formato === "OBITER_DICTUM" && (
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-navy/70">
+                  <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                     Contenido *{" "}
                     <span
                       className={`ml-1 ${
                         wordCount(contenido) > OBITER_MAX_WORDS
-                          ? "text-red-500"
-                          : "text-navy/40"
+                          ? "text-gz-burgundy"
+                          : "text-gz-ink-light"
                       }`}
                     >
                       ({wordCount(contenido)}/{OBITER_MAX_WORDS} palabras)
@@ -513,7 +515,7 @@ function PublishModal({
                     onChange={(e) => setContenido(e.target.value)}
                     placeholder="Escribe tu reflexión jurídica... Usa #hashtags para categorizar y Art. 1445 CC para referenciar normas."
                     rows={6}
-                    className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold/30 resize-none"
+                    className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] focus:border-gz-gold focus:outline-none resize-none" style={{ backgroundColor: "var(--gz-cream)" }}
                   />
                 </div>
               )}
@@ -523,54 +525,54 @@ function PublishModal({
                 <>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-xs font-semibold text-navy/70">
+                      <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                         Rol
                       </label>
                       <input
                         value={rol}
                         onChange={(e) => setRol(e.target.value)}
                         placeholder="Ej: Rol C-1234-2024"
-                        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none"
+                        className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-semibold text-navy/70">
+                      <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                         Tribunal
                       </label>
                       <input
                         value={tribunal}
                         onChange={(e) => setTribunal(e.target.value)}
                         placeholder="Ej: Corte Suprema"
-                        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none"
+                        className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-1 block text-xs font-semibold text-navy/70">
+                      <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                         Fecha del fallo
                       </label>
                       <input
                         value={fecha}
                         onChange={(e) => setFecha(e.target.value)}
                         placeholder="Ej: 15/03/2025"
-                        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none"
+                        className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-semibold text-navy/70">
+                      <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                         Partes
                       </label>
                       <input
                         value={partes}
                         onChange={(e) => setPartes(e.target.value)}
                         placeholder="Ej: Pérez con González"
-                        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none"
+                        className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-navy/70">
+                    <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                       Hechos relevantes *
                     </label>
                     <textarea
@@ -578,11 +580,11 @@ function PublishModal({
                       onChange={(e) => setHechos(e.target.value)}
                       placeholder="Describe los hechos relevantes del caso..."
                       rows={3}
-                      className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none resize-none"
+                      className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none resize-none" style={{ backgroundColor: "var(--gz-cream)" }}
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-navy/70">
+                    <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                       Ratio Decidendi *
                     </label>
                     <textarea
@@ -590,22 +592,22 @@ function PublishModal({
                       onChange={(e) => setRatio(e.target.value)}
                       placeholder="La razón de la decisión del tribunal..."
                       rows={3}
-                      className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none resize-none"
+                      className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none resize-none" style={{ backgroundColor: "var(--gz-cream)" }}
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-navy/70">
+                    <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                       Normas aplicadas
                     </label>
                     <input
                       value={norma}
                       onChange={(e) => setNorma(e.target.value)}
                       placeholder="Ej: Art. 1545 CC, Art. 1546 CC"
-                      className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none"
+                      className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-navy/70">
+                    <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                       Tu opinión / análisis *
                     </label>
                     <textarea
@@ -613,26 +615,26 @@ function PublishModal({
                       onChange={(e) => setOpinion(e.target.value)}
                       placeholder="Tu análisis del fallo... Usa #hashtags para categorizar."
                       rows={4}
-                      className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none resize-none"
+                      className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none resize-none" style={{ backgroundColor: "var(--gz-cream)" }}
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-semibold text-navy/70">
+                    <label className="mb-1 block font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light font-medium">
                       URL del PDF (opcional)
                     </label>
                     <input
                       value={pdfUrl}
                       onChange={(e) => setPdfUrl(e.target.value)}
                       placeholder="https://..."
-                      className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-gold focus:outline-none"
+                      className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] text-gz-ink focus:border-gz-gold focus:outline-none" style={{ backgroundColor: "var(--gz-cream)" }}
                     />
                   </div>
                 </>
               )}
 
               {citadoDeId && (
-                <p className="text-xs text-navy/50">
-                  📎 Esta publicación cita a otra publicación
+                <p className="font-ibm-mono text-[10px] text-gz-ink-light">
+                  Esta publicación cita a otra publicación
                 </p>
               )}
             </div>
@@ -641,29 +643,29 @@ function PublishModal({
           {/* Step 3: Preview */}
           {step === 3 && (
             <div className="space-y-3">
-              <div className="rounded-xl border border-border bg-paper p-4">
+              <div className="rounded-[4px] border border-gz-rule p-4" style={{ backgroundColor: "var(--gz-cream)" }}>
                 <div className="flex items-center gap-2 mb-2">
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                    className={`rounded-sm px-2.5 py-0.5 font-ibm-mono text-[9px] uppercase tracking-[0.5px] font-medium ${
                       formato === "OBITER_DICTUM"
-                        ? "bg-gold/15 text-gold"
-                        : "bg-navy/10 text-navy"
+                        ? "bg-gz-gold/[0.1] text-gz-gold"
+                        : "bg-gz-navy/[0.1] text-gz-navy"
                     }`}
                   >
                     {FORMATO_LABELS[formato]}
                   </span>
-                  <span className="text-[10px] text-navy/40">
+                  <span className="font-ibm-mono text-[9px] text-gz-ink-light">
                     {VISIBILIDAD_LABELS[visibilidad]}
                   </span>
                   {materia && (
-                    <span className="text-[10px] text-navy/40">{materia}</span>
+                    <span className="font-ibm-mono text-[9px] text-gz-ink-light">{materia}</span>
                   )}
                 </div>
-                <h3 className="text-base font-bold text-navy font-display mb-2">
+                <h3 className="font-cormorant text-[18px] !font-bold text-gz-ink mb-2">
                   {titulo}
                 </h3>
                 {formato === "OBITER_DICTUM" && contenido && (
-                  <div className="text-sm text-navy/80 leading-relaxed">
+                  <div className="font-cormorant text-[15px] text-gz-ink-mid leading-relaxed">
                     <RichText text={contenido} />
                   </div>
                 )}
@@ -671,7 +673,7 @@ function PublishModal({
                   <div className="space-y-2 text-sm">
                     {tribunal && (
                       <p>
-                        <span className="font-semibold text-navy/60">
+                        <span className="font-archivo text-[12px] font-semibold text-gz-ink-light">
                           Tribunal:{" "}
                         </span>
                         {tribunal}
@@ -679,7 +681,7 @@ function PublishModal({
                     )}
                     {hechos && (
                       <p>
-                        <span className="font-semibold text-navy/60">
+                        <span className="font-archivo text-[12px] font-semibold text-gz-ink-light">
                           Hechos:{" "}
                         </span>
                         <RichText text={hechos} />
@@ -687,7 +689,7 @@ function PublishModal({
                     )}
                     {ratio && (
                       <p>
-                        <span className="font-semibold text-navy/60">
+                        <span className="font-archivo text-[12px] font-semibold text-gz-ink-light">
                           Ratio:{" "}
                         </span>
                         <RichText text={ratio} />
@@ -695,7 +697,7 @@ function PublishModal({
                     )}
                     {opinion && (
                       <p>
-                        <span className="font-semibold text-navy/60">
+                        <span className="font-archivo text-[12px] font-semibold text-gz-ink-light">
                           Opinión:{" "}
                         </span>
                         <RichText text={opinion} />
@@ -709,12 +711,12 @@ function PublishModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-border px-6 py-4">
+        <div className="flex items-center justify-between border-t border-gz-rule px-6 py-4">
           <div>
             {step > 1 && (
               <button
                 onClick={() => setStep(step - 1)}
-                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-navy/70 hover:bg-navy/5 transition-colors"
+                className="rounded-[3px] border border-gz-rule px-4 py-2 font-archivo text-[13px] font-medium text-gz-ink-mid hover:bg-gz-cream-dark/50 transition-colors"
               >
                 Atrás
               </button>
@@ -725,7 +727,7 @@ function PublishModal({
               <button
                 onClick={() => setStep(3)}
                 disabled={!canPublish}
-                className="rounded-lg bg-navy/10 px-4 py-2 text-sm font-medium text-navy hover:bg-navy/20 transition-colors disabled:opacity-50"
+                className="rounded-[3px] border border-gz-rule px-4 py-2 font-archivo text-[13px] font-medium text-gz-ink hover:bg-gz-cream-dark/50 transition-colors disabled:opacity-50"
               >
                 Vista previa
               </button>
@@ -734,7 +736,7 @@ function PublishModal({
               <button
                 onClick={handlePublish}
                 disabled={!canPublish || submitting}
-                className="rounded-lg bg-gold px-4 py-2 text-sm font-bold text-white hover:bg-gold/90 transition-colors disabled:opacity-50"
+                className="rounded-[3px] bg-gz-navy px-4 py-2 font-archivo text-[13px] font-bold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors disabled:opacity-50"
               >
                 {submitting ? "Publicando..." : "Publicar"}
               </button>
@@ -917,33 +919,20 @@ export function DiarioFeed({
   ];
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+    <div className="py-6">
       <div className="flex gap-6">
         {/* ─── Feed principal ──────────────────────────────── */}
         <div className="min-w-0 flex-1">
-          {/* Header */}
-          <div className="mb-6 flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-navy font-display">
-              📰 El Diario
-            </h1>
-            <button
-              onClick={() => setShowPublishModal(true)}
-              className="rounded-lg bg-gold px-4 py-2 text-sm font-bold text-white hover:bg-gold/90 transition-colors lg:hidden"
-            >
-              + Publicar
-            </button>
-          </div>
-
           {/* Tabs */}
-          <div className="mb-4 flex gap-1 rounded-lg bg-border/20 p-1">
+          <div className="mb-4 flex gap-1 border border-gz-rule rounded-[4px] p-1">
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => handleTabChange(tab.key)}
-                className={`flex-1 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+                className={`flex-1 rounded-[3px] px-3 py-1.5 font-ibm-mono text-[11px] font-semibold transition-colors ${
                   activeTab === tab.key
-                    ? "bg-white text-navy shadow-sm"
-                    : "text-navy/50 hover:text-navy/70"
+                    ? "border border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold"
+                    : "text-gz-ink-mid hover:text-gz-ink"
                 }`}
               >
                 {tab.label}
@@ -953,16 +942,16 @@ export function DiarioFeed({
 
           {/* Active hashtag filter indicator */}
           {activeHashtag && (
-            <div className="mb-4 flex items-center gap-2 rounded-lg bg-gold/10 px-3 py-2">
-              <span className="text-sm text-navy/70">
+            <div className="mb-4 flex items-center gap-2 rounded-[3px] bg-gz-gold/[0.08] px-3 py-2">
+              <span className="font-archivo text-[13px] text-gz-ink-mid">
                 Filtrando por{" "}
-                <span className="font-semibold text-gold">
+                <span className="font-semibold text-gz-gold">
                   #{activeHashtag}
                 </span>
               </span>
               <button
                 onClick={() => handleHashtagFilter(activeHashtag)}
-                className="text-xs text-navy/40 hover:text-navy"
+                className="font-ibm-mono text-[10px] text-gz-ink-light hover:text-gz-ink"
               >
                 ✕ Quitar filtro
               </button>
@@ -980,9 +969,9 @@ export function DiarioFeed({
             ))}
 
             {posts.length === 0 && !loading && (
-              <div className="rounded-xl border border-border bg-white p-12 text-center">
+              <div className="rounded-[4px] border border-gz-rule bg-white p-12 text-center">
                 <p className="text-4xl mb-3">📰</p>
-                <p className="text-sm text-navy/60">
+                <p className="font-cormorant italic text-[17px] text-gz-ink-light">
                   {activeTab === "guardados"
                     ? "No tienes publicaciones guardadas"
                     : activeHashtag
@@ -997,12 +986,12 @@ export function DiarioFeed({
 
             {loading && (
               <div className="flex justify-center py-6">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-gz-gold border-t-transparent" />
               </div>
             )}
 
             {!hasMore && posts.length > 0 && (
-              <p className="py-4 text-center text-xs text-navy/40">
+              <p className="py-4 text-center font-ibm-mono text-[10px] text-gz-ink-light">
                 No hay más publicaciones
               </p>
             )}
@@ -1015,18 +1004,18 @@ export function DiarioFeed({
             {/* Publish button */}
             <button
               onClick={() => setShowPublishModal(true)}
-              className="w-full rounded-xl bg-gold px-4 py-3 text-sm font-bold text-white hover:bg-gold/90 transition-colors"
+              className="w-full rounded-[3px] bg-gz-navy px-4 py-3 font-archivo text-[13px] font-bold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors"
             >
               + Nueva publicación
             </button>
 
             {/* Contingencias Widget */}
-            <div className="rounded-xl border border-border bg-white p-4">
-              <h3 className="mb-3 text-sm font-bold text-navy font-display">
+            <div className="rounded-[4px] border border-gz-rule bg-white p-4">
+              <h3 className="mb-3 font-cormorant text-[16px] !font-bold text-gz-ink">
                 🔥 Contingencias
               </h3>
               {contingencias.length === 0 ? (
-                <p className="text-xs text-navy/50">
+                <p className="font-archivo text-[12px] text-gz-ink-light">
                   Las contingencias aparecen cuando un hashtag es tendencia
                 </p>
               ) : (
@@ -1035,17 +1024,17 @@ export function DiarioFeed({
                     <button
                       key={c.id}
                       onClick={() => handleHashtagFilter(c.tag)}
-                      className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                      className={`flex w-full items-center justify-between rounded-[3px] px-3 py-2 text-left font-archivo text-[13px] transition-colors ${
                         activeHashtag === c.tag
-                          ? "bg-gold/15 text-gold"
-                          : "hover:bg-navy/5 text-navy/70"
+                          ? "bg-gz-gold/[0.1] text-gz-gold"
+                          : "hover:bg-gz-cream-dark/50 text-gz-ink-mid"
                       }`}
                     >
                       <span className="flex items-center gap-1.5">
                         {c.pinned && <span className="text-[10px]">📌</span>}
                         <span className="font-medium">#{c.tag}</span>
                       </span>
-                      <span className="text-xs text-navy/40">
+                      <span className="font-ibm-mono text-[10px] text-gz-ink-light">
                         {c.count} posts
                       </span>
                     </button>
@@ -1055,11 +1044,11 @@ export function DiarioFeed({
             </div>
 
             {/* Info */}
-            <div className="rounded-xl border border-border bg-gold/5 p-4">
-              <p className="text-xs text-navy/60 leading-relaxed">
-                Usa <span className="font-semibold text-gold">#hashtags</span>{" "}
+            <div className="rounded-[4px] border border-gz-rule bg-gz-gold/[0.06] p-4">
+              <p className="font-archivo text-[12px] text-gz-ink-mid leading-relaxed">
+                Usa <span className="font-semibold text-gz-gold">#hashtags</span>{" "}
                 en tus publicaciones para categorizar. Referencia normas con{" "}
-                <span className="font-semibold text-blue-600">
+                <span className="font-semibold text-gz-gold font-ibm-mono">
                   Art. 1445 CC
                 </span>{" "}
                 para generar links automáticos.
@@ -1072,7 +1061,7 @@ export function DiarioFeed({
       {/* Mobile contingencias */}
       {contingencias.length > 0 && (
         <div className="mt-6 lg:hidden">
-          <h3 className="mb-2 text-sm font-bold text-navy font-display">
+          <h3 className="mb-2 font-cormorant text-[16px] !font-bold text-gz-ink">
             🔥 Contingencias
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -1080,10 +1069,10 @@ export function DiarioFeed({
               <button
                 key={c.id}
                 onClick={() => handleHashtagFilter(c.tag)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                className={`rounded-sm px-3 py-1 font-ibm-mono text-[10px] font-medium transition-colors ${
                   activeHashtag === c.tag
-                    ? "bg-gold text-white"
-                    : "bg-gold/10 text-gold hover:bg-gold/20"
+                    ? "bg-gz-gold text-white"
+                    : "bg-gz-gold/[0.08] text-gz-gold hover:bg-gz-gold/[0.15]"
                 }`}
               >
                 #{c.tag} ({c.count})

@@ -1,5 +1,5 @@
 /**
- * Validación de contraseña — Iuris Studio
+ * Validación de contraseña — Studio Iuris
  * Requisitos: mínimo 8 caracteres, al menos 1 mayúscula, al menos 2 números
  */
 

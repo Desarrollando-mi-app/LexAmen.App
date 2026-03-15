@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 interface AdminSidebarProps {
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/admin/ligas", label: "Ligas", icon: "🏆" },
   { href: "/admin/notificaciones", label: "Notificaciones", icon: "🔔" },
   { href: "/admin/reportes", label: "Reportes", icon: "🚩" },
+  { href: "/admin/sala", label: "La Sala", icon: "🏫" },
   { href: "/admin/contingencias", label: "Contingencias", icon: "📰" },
   { href: "/admin/hero-slides", label: "Hero Slides", icon: "🖼️" },
   { href: "/admin/institucional", label: "Institucional", icon: "🏛️" },
@@ -31,9 +33,18 @@ export function AdminSidebar({ adminName }: AdminSidebarProps) {
       <div className="flex h-16 items-center gap-2 border-b border-border px-6">
         <Link
           href="/dashboard"
-          className="text-lg font-bold text-navy font-display hover:text-navy/80 transition-colors"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          ⚖️ Iuris Studio
+          <Image
+            src="/brand/logo-sello.svg"
+            alt="Studio Iuris"
+            width={24}
+            height={24}
+            className="h-[24px] w-[24px]"
+          />
+          <span className="font-cormorant text-[16px] font-bold text-navy">
+            Studio <span className="text-gz-red">Iuris</span>
+          </span>
         </Link>
       </div>
 

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { SalaClient } from "./sala-client";
+import Link from "next/link";
 
 export default async function SalaPage() {
   const supabase = await createClient();
@@ -13,109 +13,118 @@ export default async function SalaPage() {
     redirect("/login");
   }
 
-  // Consultas en paralelo
-  const [ayudantias, misAyudantias, streak] = await Promise.all([
-    // Ayudantías activas (OFREZCO por defecto)
-    prisma.ayudantia.findMany({
-      where: { isActive: true, type: "OFREZCO" },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            leagueMembers: {
-              orderBy: { league: { weekStart: "desc" } },
-              take: 1,
-              include: {
-                league: { select: { tier: true } },
-              },
-            },
-          },
-        },
+  // Fetch 3 most recent active ayudantias for preview
+  const recentAyudantias = await prisma.ayudantia.findMany({
+    where: { isActive: true, isHidden: false },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    include: {
+      user: {
+        select: { firstName: true, lastName: true, universidad: true },
       },
-    }),
-
-    // Mis publicaciones
-    prisma.ayudantia.findMany({
-      where: { userId: authUser.id },
-      orderBy: { createdAt: "desc" },
-    }),
-
-    // Mi streak
-    prisma.ayudantiaStreak.findUnique({
-      where: { userId: authUser.id },
-    }),
-  ]);
-
-  // Fetch streaks para los tutores
-  const userIds = Array.from(new Set(ayudantias.map((a) => a.userId)));
-  const streaks = await prisma.ayudantiaStreak.findMany({
-    where: { userId: { in: userIds } },
-  });
-  const streakMap = Object.fromEntries(
-    streaks.map((s) => [s.userId, s])
-  );
-
-  const serializedAyudantias = ayudantias.map((a) => ({
-    id: a.id,
-    type: a.type as string,
-    materia: a.materia,
-    format: a.format as string,
-    priceType: a.priceType as string,
-    priceAmount: a.priceAmount,
-    description: a.description,
-    universidad: a.universidad,
-    orientadaA: a.orientadaA,
-    contactMethod: a.contactMethod as string,
-    contactValue: a.contactValue,
-    createdAt: a.createdAt.toISOString(),
-    user: {
-      id: a.user.id,
-      firstName: a.user.firstName,
-      lastName: a.user.lastName,
-      tier: (a.user.leagueMembers[0]?.league.tier as string) ?? null,
     },
-    streak: streakMap[a.userId]
-      ? {
-          monthsActive: streakMap[a.userId].monthsActive,
-          longestStreak: streakMap[a.userId].longestStreak,
-        }
-      : null,
-  }));
+  });
 
-  const serializedMis = misAyudantias.map((a) => ({
-    id: a.id,
-    type: a.type as string,
-    materia: a.materia,
-    format: a.format as string,
-    priceType: a.priceType as string,
-    priceAmount: a.priceAmount,
-    description: a.description,
-    universidad: a.universidad,
-    orientadaA: a.orientadaA,
-    contactMethod: a.contactMethod as string,
-    contactValue: a.contactValue,
-    isActive: a.isActive,
-    reportCount: a.reportCount,
-    createdAt: a.createdAt.toISOString(),
-  }));
+  const secciones = [
+    {
+      emoji: "\uD83C\uDF93",
+      nombre: "Ayudant\u00EDas",
+      desc: "Ofrece o busca clases particulares",
+      href: "/dashboard/sala/ayudantias",
+    },
+    {
+      emoji: "\uD83D\uDCBC",
+      nombre: "Pasant\u00EDas",
+      desc: "Oportunidades en estudios jur\u00EDdicos",
+      href: "/dashboard/sala/pasantias",
+    },
+    {
+      emoji: "\uD83D\uDCC5",
+      nombre: "Eventos",
+      desc: "Seminarios y actividades acad\u00E9micas",
+      href: "/dashboard/sala/eventos",
+    },
+    {
+      emoji: "\uD83C\uDFE2",
+      nombre: "Ofertas",
+      desc: "Bolsa de trabajo jur\u00EDdica",
+      href: "/dashboard/sala/ofertas",
+    },
+  ];
 
   return (
-    <SalaClient
-      userId={authUser.id}
-      initialAyudantias={serializedAyudantias}
-      misAyudantias={serializedMis}
-      streak={
-        streak
-          ? {
-              monthsActive: streak.monthsActive,
-              longestStreak: streak.longestStreak,
-            }
-          : null
-      }
-    />
+    <main className="min-h-screen">
+      <div className="mx-auto max-w-5xl px-6 py-8">
+        {/* Header */}
+        <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-1">
+          COMUNIDAD &middot; LA SALA
+        </p>
+        <h1 className="font-cormorant text-[28px] !font-bold text-gz-ink">
+          La Sala
+        </h1>
+        <div className="w-12 h-[2px] bg-gz-gold mt-2 mb-6" />
+
+        {/* Navigation grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {secciones.map((s) => (
+            <Link
+              key={s.href}
+              href={s.href}
+              className="bg-white border border-gz-rule rounded-[4px] p-5 hover:border-gz-gold hover:shadow-sm transition-all cursor-pointer group"
+            >
+              <span className="text-[28px] block mb-3">{s.emoji}</span>
+              <p className="font-cormorant text-[18px] !font-bold text-gz-ink group-hover:text-gz-gold transition-colors">
+                {s.nombre}
+              </p>
+              <p className="font-archivo text-[12px] text-gz-ink-mid mt-1">
+                {s.desc}
+              </p>
+            </Link>
+          ))}
+        </div>
+
+        {/* Recent ayudantias preview */}
+        {recentAyudantias.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
+                Ayudant&iacute;as recientes
+              </h2>
+              <Link
+                href="/dashboard/sala/ayudantias"
+                className="font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-ink transition-colors"
+              >
+                Ver todas &rarr;
+              </Link>
+            </div>
+            <div className="space-y-3">
+              {recentAyudantias.map((a) => (
+                <Link
+                  key={a.id}
+                  href="/dashboard/sala/ayudantias"
+                  className="block bg-white border border-gz-rule rounded-[4px] p-4 hover:border-gz-gold transition-colors"
+                >
+                  <p
+                    className={`font-ibm-mono text-[9px] uppercase tracking-[1.5px] mb-1 ${
+                      a.type === "OFREZCO" ? "text-gz-sage" : "text-gz-burgundy"
+                    }`}
+                  >
+                    {a.type === "OFREZCO" ? "OFREZCO AYUDANT\u00CDA" : "BUSCO AYUDANT\u00CDA"}
+                  </p>
+                  <p className="font-cormorant text-[16px] !font-bold text-gz-ink">
+                    {a.titulo || a.materia}
+                  </p>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5 font-archivo text-[11px] text-gz-ink-light">
+                    <span>{a.user.firstName} {a.user.lastName}</span>
+                    {a.user.universidad && <span>&middot; {a.user.universidad}</span>}
+                    <span>&middot; {a.materia}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

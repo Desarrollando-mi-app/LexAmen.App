@@ -101,7 +101,7 @@ export function HeroCarrusel({ ubicacion }: Props) {
 
   return (
     <div
-      className="relative h-[260px] sm:h-[420px] w-full overflow-hidden rounded-xl"
+      className="relative h-[260px] sm:h-[420px] w-full overflow-hidden rounded-[4px]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >

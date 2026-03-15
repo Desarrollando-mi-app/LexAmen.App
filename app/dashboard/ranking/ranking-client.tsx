@@ -157,7 +157,7 @@ export function RankingClient() {
     <div className="mx-auto max-w-4xl px-4 py-6 pb-24 lg:pb-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-navy font-display">
+        <h1 className="text-2xl font-bold text-navy font-cormorant">
           🏛️ Ranking por Facultad
         </h1>
         <p className="mt-1 text-sm text-navy/60">
@@ -167,14 +167,14 @@ export function RankingClient() {
 
       {/* Mi Posicion Card */}
       {miPosicion && miPosicion.universidad && (
-        <div className="mb-6 rounded-xl border border-gold/30 bg-gold/5 p-4">
+        <div className="mb-6 rounded-[4px] border border-gold/30 bg-gold/5 p-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-gold">
             Tu posicion
           </h3>
           <div className="mt-2 flex flex-wrap gap-4">
             <div>
               <p className="text-sm text-navy/70">{miPosicion.universidad}</p>
-              <p className="text-lg font-bold text-navy font-display">
+              <p className="text-lg font-bold text-navy font-cormorant">
                 #{miPosicion.rankInUniversidad}{" "}
                 <span className="text-sm font-normal text-navy/50">
                   de {miPosicion.totalInUniversidad}
@@ -184,7 +184,7 @@ export function RankingClient() {
             {miPosicion.sede && miPosicion.rankInSede && (
               <div className="border-l border-gold/20 pl-4">
                 <p className="text-sm text-navy/70">Sede {miPosicion.sede}</p>
-                <p className="text-lg font-bold text-navy font-display">
+                <p className="text-lg font-bold text-navy font-cormorant">
                   #{miPosicion.rankInSede}{" "}
                   <span className="text-sm font-normal text-navy/50">
                     de {miPosicion.totalInSede}
@@ -232,7 +232,7 @@ export function RankingClient() {
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
             </div>
           ) : universidades.length === 0 ? (
-            <div className="rounded-xl border border-border bg-white p-8 text-center text-navy/40">
+            <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center text-navy/40">
               No hay datos de universidades aun
             </div>
           ) : (
@@ -240,18 +240,18 @@ export function RankingClient() {
               <button
                 key={u.universidad}
                 onClick={() => handleExpandUniversidad(u.universidad)}
-                className="w-full rounded-xl border border-border bg-white p-4 text-left transition-all hover:border-gold/30 hover:shadow-sm"
+                className="w-full rounded-[4px] border border-gz-rule bg-white p-4 text-left transition-all hover:border-gold/30 hover:shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 min-w-0">
                     {/* Rank medal */}
                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
                       u.rank === 1
-                        ? "bg-yellow-100 text-yellow-600"
+                        ? "bg-gz-gold/20 text-gz-gold"
                         : u.rank === 2
-                        ? "bg-gray-100 text-gray-500"
+                        ? "bg-gz-cream-dark text-gz-ink-light"
                         : u.rank === 3
-                        ? "bg-orange-100 text-orange-600"
+                        ? "bg-gz-gold/15 text-gz-gold"
                         : "bg-navy/5 text-navy/40"
                     }`}>
                       {u.rank <= 3
@@ -302,7 +302,7 @@ export function RankingClient() {
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
             </div>
           ) : sedes.length === 0 ? (
-            <div className="rounded-xl border border-border bg-white p-8 text-center text-navy/40">
+            <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center text-navy/40">
               No hay datos de sedes para esta universidad
             </div>
           ) : (
@@ -312,17 +312,17 @@ export function RankingClient() {
                 onClick={() =>
                   handleClickSede(selectedUniversidad!, s.sede)
                 }
-                className="w-full rounded-xl border border-border bg-white p-4 text-left transition-all hover:border-gold/30 hover:shadow-sm"
+                className="w-full rounded-[4px] border border-gz-rule bg-white p-4 text-left transition-all hover:border-gold/30 hover:shadow-sm"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 min-w-0">
                     <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
                       s.rank === 1
-                        ? "bg-yellow-100 text-yellow-600"
+                        ? "bg-gz-gold/20 text-gz-gold"
                         : s.rank === 2
-                        ? "bg-gray-100 text-gray-500"
+                        ? "bg-gz-cream-dark text-gz-ink-light"
                         : s.rank === 3
-                        ? "bg-orange-100 text-orange-600"
+                        ? "bg-gz-gold/15 text-gz-gold"
                         : "bg-navy/5 text-navy/40"
                     }`}>
                       {s.rank <= 3
@@ -376,7 +376,7 @@ export function RankingClient() {
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
             </div>
           ) : users.length === 0 ? (
-            <div className="rounded-xl border border-border bg-white p-8 text-center text-navy/40">
+            <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center text-navy/40">
               No hay estudiantes registrados en esta sede
             </div>
           ) : (
@@ -390,16 +390,16 @@ export function RankingClient() {
                   <Link
                     key={u.id}
                     href={`/dashboard/perfil/${u.id}`}
-                    className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 transition-all hover:border-gold/30 hover:shadow-sm"
+                    className="flex items-center gap-3 rounded-[4px] border border-gz-rule bg-white p-3 transition-all hover:border-gold/30 hover:shadow-sm"
                   >
                     {/* Rank */}
                     <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
                       u.rank === 1
-                        ? "bg-yellow-100 text-yellow-600"
+                        ? "bg-gz-gold/20 text-gz-gold"
                         : u.rank === 2
-                        ? "bg-gray-100 text-gray-500"
+                        ? "bg-gz-cream-dark text-gz-ink-light"
                         : u.rank === 3
-                        ? "bg-orange-100 text-orange-600"
+                        ? "bg-gz-gold/15 text-gz-gold"
                         : "bg-navy/5 text-navy/40"
                     }`}>
                       {u.rank <= 3
@@ -454,7 +454,7 @@ export function RankingClient() {
               <button
                 onClick={() => fetchUsers(selectedUniversidad!, selectedSede!, page - 1)}
                 disabled={page <= 1}
-                className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-navy/60 transition-colors hover:bg-paper disabled:opacity-30"
+                className="rounded-[3px] border border-gz-rule px-3 py-1.5 text-xs font-semibold text-navy/60 transition-colors hover:bg-gz-cream-dark disabled:opacity-30"
               >
                 Anterior
               </button>
@@ -464,7 +464,7 @@ export function RankingClient() {
               <button
                 onClick={() => fetchUsers(selectedUniversidad!, selectedSede!, page + 1)}
                 disabled={page >= totalPages}
-                className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-navy/60 transition-colors hover:bg-paper disabled:opacity-30"
+                className="rounded-[3px] border border-gz-rule px-3 py-1.5 text-xs font-semibold text-navy/60 transition-colors hover:bg-gz-cream-dark disabled:opacity-30"
               >
                 Siguiente
               </button>
