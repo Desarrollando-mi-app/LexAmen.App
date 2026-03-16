@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ObiterFeed } from "./components/obiter-feed";
 import { ObiterTrending } from "./components/obiter-trending";
@@ -751,9 +752,12 @@ export function DiarioPageClient({
       <div className="mb-6">
         <div className="flex items-center gap-0 overflow-x-auto">
           {/* Title — hidden on mobile (kicker already identifies the page) */}
-          <span className="mr-1 hidden flex-shrink-0 border-r border-gz-rule pr-4 font-cormorant text-[28px] font-bold leading-none text-gz-ink sm:block">
-            El Diario
-          </span>
+          <div className="mr-1 hidden flex-shrink-0 items-center gap-3 border-r border-gz-rule pr-4 sm:flex">
+            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+            <span className="font-cormorant text-[38px] lg:text-[44px] font-bold leading-none text-gz-ink">
+              El Diario
+            </span>
+          </div>
 
           {/* Tabs */}
           {TABS.filter((t) => !t.requiresAuth || userId).map((tab) => (

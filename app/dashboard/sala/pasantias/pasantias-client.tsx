@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 import {
   AREAS_PRACTICA,
@@ -164,9 +165,12 @@ export function PasantiasClient({
             <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-1">
               LA SALA &middot; PASANT&Iacute;AS
             </p>
-            <h1 className="font-cormorant text-[28px] !font-bold text-gz-ink">
-              Pasant&iacute;as
-            </h1>
+            <div className="flex items-center gap-3 mb-1">
+              <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+              <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+                Pasant&iacute;as
+              </h1>
+            </div>
           </div>
           <button
             onClick={() => setShowCreate(true)}

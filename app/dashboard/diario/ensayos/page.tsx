@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -165,9 +166,12 @@ export default function EnsayosListingPage() {
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-1">
         El Diario
       </p>
-      <h1 className="font-cormorant text-[28px] font-bold text-gz-ink leading-none">
-        Ensayos
-      </h1>
+      <div className="flex items-center gap-3 mb-1">
+        <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+        <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-none">
+          Ensayos
+        </h1>
+      </div>
       <div className="mt-3 h-[2px] bg-gz-rule-dark" />
 
       {/* ── Filter bar ──────────────────────────────────────── */}

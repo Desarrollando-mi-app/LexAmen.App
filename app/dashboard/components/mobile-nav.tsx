@@ -34,6 +34,11 @@ const NAV_ITEMS: MobileNavItem[] = [
     ],
   },
   {
+    href: "/dashboard/indice-maestro",
+    icon: "📂",
+    label: "Materias",
+  },
+  {
     href: "/dashboard/estudios",
     icon: "📚",
     label: "Estudios",
@@ -95,6 +100,9 @@ function isItemActive(item: MobileNavItem, pathname: string): boolean {
       pathname === "/dashboard/calendario" ||
       pathname === "/dashboard/estadisticas"
     );
+  }
+  if (item.href === "/dashboard/indice-maestro") {
+    return pathname.startsWith("/dashboard/indice-maestro");
   }
   if (item.href === "/dashboard/estudios") {
     return (

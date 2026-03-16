@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { BloqueResumen } from "./components/bloque-resumen";
 import { BloqueCompetencias } from "./components/bloque-competencias";
 import { BloqueEvolucion } from "./components/bloque-evolucion";
@@ -119,9 +120,12 @@ export function EstadisticasClient() {
           </div>
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
-              <h1 className="font-cormorant text-[36px] lg:text-[42px] !font-bold text-gz-ink leading-none">
-                Mis Estadísticas
-              </h1>
+              <div className="flex items-center gap-3 mb-1">
+                <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+                <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-none">
+                  Mis Estadísticas
+                </h1>
+              </div>
               <p className="font-cormorant text-[16px] italic text-gz-ink-mid mt-1">
                 Análisis detallado de tu rendimiento académico
               </p>

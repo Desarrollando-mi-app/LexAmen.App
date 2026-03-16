@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { ReporteModal } from "../components/reporte-modal";
 
@@ -181,9 +182,12 @@ export function EventosClient({ initialEventos, userId }: EventosClientProps) {
         <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
           La Sala &middot; Eventos Acad&eacute;micos
         </p>
-        <h1 className="font-cormorant text-[28px] sm:text-[34px] !font-bold text-gz-ink leading-tight mt-1">
-          Eventos Acad&eacute;micos
-        </h1>
+        <div className="flex items-center gap-3 mb-1">
+          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-tight">
+            Eventos Acad&eacute;micos
+          </h1>
+        </div>
         <div className="border-b-2 border-gz-rule-dark mt-3 mb-6" />
 
         {/* Tabs + Create button */}

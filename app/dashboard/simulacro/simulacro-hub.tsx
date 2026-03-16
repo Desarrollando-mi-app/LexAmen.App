@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { INTERROGADORES, type InterrogadorData } from "@/lib/interrogadores";
 import { CURRICULUM } from "@/lib/curriculum-data";
@@ -552,9 +553,12 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
       <div className="mx-auto max-w-5xl space-y-8 pb-24">
         {/* Header */}
         <div>
-          <h1 className="font-cormorant text-[24px] !font-bold text-gz-ink">
-            Simulacro de Interrogación
-          </h1>
+          <div className="flex items-center gap-3 mb-1">
+            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+            <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+              Simulacro de Interrogación
+            </h1>
+          </div>
           <p className="mt-1 font-archivo text-[14px] text-gz-ink-mid">
             Practica con un interrogador IA antes de tu examen de grado
           </p>

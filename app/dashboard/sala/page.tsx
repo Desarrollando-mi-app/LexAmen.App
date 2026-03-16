@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 
 export default async function SalaPage() {
   const supabase = await createClient();
@@ -59,9 +60,12 @@ export default async function SalaPage() {
         <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-1">
           COMUNIDAD &middot; LA SALA
         </p>
-        <h1 className="font-cormorant text-[28px] !font-bold text-gz-ink">
-          La Sala
-        </h1>
+        <div className="flex items-center gap-3 mb-1">
+          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+            La Sala
+          </h1>
+        </div>
         <div className="w-12 h-[2px] bg-gz-gold mt-2 mb-6" />
 
         {/* Navigation grid */}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { MiExamenSetup } from "./components/mi-examen-setup";
 import { ProgresoDashboard } from "./components/progreso-dashboard";
 
@@ -86,9 +87,12 @@ export function ProgresoPageClient({
         <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
           Mi Examen &middot; Procesando
         </p>
-        <h1 className="font-cormorant text-[28px] sm:text-[34px] !font-bold text-gz-ink leading-tight mt-2">
-          Analizando tu cedulario
-        </h1>
+        <div className="flex items-center justify-center gap-3 mb-1">
+          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-tight">
+            Analizando tu cedulario
+          </h1>
+        </div>
         <div className="border-b-2 border-gz-rule-dark mt-4 mb-8 mx-auto max-w-xs" />
         <div className="inline-block animate-spin w-8 h-8 border-2 border-gz-gold border-t-transparent rounded-full mb-4" />
         <p className="font-cormorant italic text-[17px] text-gz-ink-mid">

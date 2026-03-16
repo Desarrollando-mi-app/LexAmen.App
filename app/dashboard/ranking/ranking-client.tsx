@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
 
 // ─── Types ────────────────────────────────────────────────
@@ -157,9 +158,12 @@ export function RankingClient() {
     <div className="mx-auto max-w-4xl px-4 py-6 pb-24 lg:pb-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-navy font-cormorant">
-          🏛️ Ranking por Facultad
-        </h1>
+        <div className="flex items-center gap-3 mb-1">
+          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+            Ranking por Facultad
+          </h1>
+        </div>
         <p className="mt-1 text-sm text-navy/60">
           Descubre el ranking de universidades y estudiantes de Derecho
         </p>

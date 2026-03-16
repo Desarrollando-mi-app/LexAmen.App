@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 import {
   MATERIAS_SALA,
@@ -646,9 +647,12 @@ export function AyudantiasClient({
             >
               &larr; La Sala
             </Link>
-            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
-              Ayudant&iacute;as
-            </h2>
+            <div className="flex items-center gap-3 mb-1">
+              <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+              <h2 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+                Ayudant&iacute;as
+              </h2>
+            </div>
             <p className="font-ibm-mono text-[10px] text-gz-ink-light">
               Conecta con tutores y estudiantes de Derecho
             </p>

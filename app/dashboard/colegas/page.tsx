@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getColegas, getPendingRequests, getSentRequests } from "@/lib/colegas";
 import { ColegasClient } from "./colegas-client";
+import Image from "next/image";
 
 export default async function ColegasPage() {
   const supabase = await createClient();
@@ -26,7 +27,10 @@ export default async function ColegasPage() {
           <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
             Red de Estudio &middot; Colegas
           </span>
-          <h1 className="font-cormorant text-[28px] lg:text-[32px] !font-bold text-gz-ink mb-3">Colegas</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+            <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">Colegas</h1>
+          </div>
           <div className="h-[2px] bg-gz-rule-dark" />
         </div>
         <ColegasClient

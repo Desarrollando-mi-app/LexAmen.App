@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { PerfilSettings } from "./perfil-settings";
+import Image from "next/image";
 
 export const metadata = {
   title: "Mi Cuenta — Studio Iuris",
@@ -47,9 +48,12 @@ export default async function PerfilPage() {
         <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
           Configuraci&oacute;n &middot; Perfil
         </p>
-        <h1 className="font-cormorant text-[28px] sm:text-[32px] !font-bold text-gz-ink leading-tight mt-1">
-          Mi Cuenta
-        </h1>
+        <div className="flex items-center gap-3 mb-1">
+          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-tight">
+            Mi Cuenta
+          </h1>
+        </div>
         <div className="border-b-2 border-gz-rule-dark mt-3 mb-6" />
 
         <PerfilSettings

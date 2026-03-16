@@ -29,6 +29,10 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    href: "/dashboard/indice-maestro",
+    label: "Materias",
+  },
+  {
     href: "/dashboard/estudios",
     label: "Estudios",
     children: [
@@ -85,6 +89,11 @@ function isItemActive(item: NavItem, pathname: string): boolean {
       pathname === "/dashboard/calendario" ||
       pathname === "/dashboard/estadisticas"
     );
+  }
+
+  // Materias: exact match
+  if (item.href === "/dashboard/indice-maestro") {
+    return pathname.startsWith("/dashboard/indice-maestro");
   }
 
   // Estudios: match its own route + all study sub-routes

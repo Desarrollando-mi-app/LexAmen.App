@@ -7,7 +7,7 @@ export default function DashboardLoading() {
         <img
           src="/brand/logo-sello.svg"
           alt="Studio Iuris"
-          width={48}
+          width={56}
           height={48}
           className="h-[48px] w-[48px] animate-pulse mb-3"
         />

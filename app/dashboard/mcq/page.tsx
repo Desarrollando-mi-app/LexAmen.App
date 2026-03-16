@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { MCQViewer } from "./mcq-viewer";
+import Image from "next/image";
 
 const DAILY_FREE_LIMIT = 10;
 
@@ -63,9 +64,12 @@ export default async function MCQPage({
           <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
             Selecci&oacute;n M&uacute;ltiple &middot; XP
           </span>
-          <h1 className="font-cormorant text-[28px] lg:text-[32px] !font-bold text-gz-ink mb-3">
-            Preguntas MCQ
-          </h1>
+          <div className="flex items-center gap-3 mb-1">
+            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+            <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+              Preguntas MCQ
+            </h1>
+          </div>
           <div className="h-[2px] bg-gz-rule-dark" />
         </div>
         <MCQViewer
