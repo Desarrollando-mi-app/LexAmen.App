@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: "/admin/usuarios", label: "Usuarios", icon: "👥" },
   { href: "/admin/metricas", label: "Métricas", icon: "📈" },
   { href: "/admin/contenido", label: "Contenido", icon: "📚" },
+  { href: "/admin/definiciones", label: "Definiciones", icon: "📖" },
   { href: "/admin/pagos", label: "Pagos", icon: "💰" },
   { href: "/admin/ligas", label: "Ligas", icon: "🏆" },
   { href: "/admin/notificaciones", label: "Notificaciones", icon: "🔔" },

@@ -269,6 +269,9 @@ model User {
   ensayoApoyos            EnsayoApoyo[]         @relation("EnsayoApoyos")
   ensayoGuardados         EnsayoGuardado[]      @relation("EnsayoGuardados")
   ensayoComuniquese       EnsayoComuniquese[]   @relation("EnsayoComuniquese")
+
+  // Definiciones
+  definicionIntentos      DefinicionIntento[]   @relation("DefinicionIntentos")
 }
 
 model Flashcard {
@@ -1486,4 +1489,50 @@ model ExamenReporte {
 
   @@index([universidad])
   @@index([createdAt(sort: Desc)])
+}
+
+// ─── Definiciones ─────────────────────────────────────────
+
+model Definicion {
+  id            String   @id @default(cuid())
+
+  concepto      String
+  definicion    String
+  rama          Rama
+  libro         String?
+  titulo        String?
+
+  distractor1   String
+  distractor2   String
+  distractor3   String
+
+  explicacion   String?
+  articuloRef   String?
+
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  intentos      DefinicionIntento[]
+
+  @@index([rama])
+  @@index([isActive, rama])
+}
+
+model DefinicionIntento {
+  id            String   @id @default(cuid())
+  definicionId  String
+  definicion    Definicion @relation(fields: [definicionId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation("DefinicionIntentos", fields: [userId], references: [id], onDelete: Cascade)
+
+  respuesta     String
+  correcta      Boolean
+  tiempoMs      Int?
+
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([definicionId])
+  @@index([userId, createdAt(sort: Desc)])
 }

@@ -46,6 +46,7 @@ const NAV_ITEMS: MobileNavItem[] = [
       { href: "/dashboard/flashcards", label: "Flashcards" },
       { href: "/dashboard/mcq", label: "MCQ" },
       { href: "/dashboard/truefalse", label: "Verdadero / Falso" },
+      { href: "/dashboard/definiciones", label: "Definiciones" },
       { href: "/dashboard/simulacro", label: "Simulacro Oral" },
     ],
   },
@@ -110,6 +111,7 @@ function isItemActive(item: MobileNavItem, pathname: string): boolean {
       pathname.startsWith("/dashboard/flashcards") ||
       pathname.startsWith("/dashboard/mcq") ||
       pathname.startsWith("/dashboard/truefalse") ||
+      pathname.startsWith("/dashboard/definiciones") ||
       pathname.startsWith("/dashboard/simulacro")
     );
   }
