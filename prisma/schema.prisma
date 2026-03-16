@@ -1026,6 +1026,7 @@ model SimulacroSesion {
   incorrectas     Int               @default(0)
   nivelActual     NivelDificultad   @default(BASICO)
   completada      Boolean           @default(false)
+  opinionFinal    String?           // Opinión del interrogador al finalizar
   user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   preguntas       SimulacroPregunta[]
   reportes        SimulacroReporte[]
@@ -1049,16 +1050,19 @@ model SimulacroReporte {
 }
 
 model SimulacroPregunta {
-  id            String            @id @default(cuid())
-  sesionId      String
-  numero        Int
-  nivel         NivelDificultad
-  preguntaTexto String
-  respuestaUser String?
-  evaluacion    String?
-  correcta      Boolean?
-  sesion        SimulacroSesion   @relation(fields: [sesionId], references: [id], onDelete: Cascade)
-  createdAt     DateTime          @default(now())
+  id                  String            @id @default(cuid())
+  sesionId            String
+  numero              Int
+  nivel               NivelDificultad
+  preguntaTexto       String
+  respuestaUser       String?
+  evaluacion          String?
+  correcta            Boolean?
+  intercambioTexto    String?           // Texto del intercambio (aclaración o repregunta)
+  respuestaIntercambio String?          // Segunda respuesta del usuario
+  tipoIntercambio     String?           // "aclaracion" | "repregunta" | null
+  sesion              SimulacroSesion   @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  createdAt           DateTime          @default(now())
 }
 
 // ─── Hero Carrusel & Anunciantes ─────────────────────────

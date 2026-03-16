@@ -50,16 +50,15 @@ async function extractTextFromPdf(storagePath: string): Promise<string> {
     throw new Error(`Error al descargar PDF: ${error?.message ?? "no data"}`);
   }
 
-  // Convert Blob to Uint8Array for pdf-parse
+  // Convert Blob to Buffer for pdf-parse
   const arrayBuf = await data.arrayBuffer();
+  const pdfBuffer = Buffer.from(arrayBuf);
 
-  // pdf-parse v2: class-based API
-  const { PDFParse } = await import("pdf-parse");
-  const parser = new PDFParse({ data: new Uint8Array(arrayBuf) });
-  const textResult = await parser.getText();
-  await parser.destroy();
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const pdf = require("pdf-parse/lib/pdf-parse");
+  const pdfData = await pdf(pdfBuffer);
 
-  const text = textResult.text;
+  const text = pdfData.text;
 
   if (!text || text.trim().length < 20) {
     throw new Error(

@@ -4,8 +4,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -16,7 +18,7 @@ export async function GET(
   }
 
   const sesion = await prisma.simulacroSesion.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       preguntas: {
         orderBy: { numero: "asc" },

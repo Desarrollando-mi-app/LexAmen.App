@@ -34,6 +34,7 @@ export async function generarAudioTTS(
     model: "tts-1",
     voice: voz,
     input: texto,
+    speed: 1.5,
   });
 
   const buffer = Buffer.from(await mp3.arrayBuffer());

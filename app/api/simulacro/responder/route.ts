@@ -64,6 +64,47 @@ function obtenerContexto(sesion: {
   return contexto;
 }
 
+/**
+ * Prompt de evaluación con posibilidad de repregunta.
+ * Solo se usa en la primera respuesta si no ha habido intercambio.
+ */
+function construirPromptConRepregunta(
+  systemPrompt: string,
+  pregunta: string,
+  respuesta: string,
+  contexto: string,
+  nivel: string
+): string {
+  return `${systemPrompt}
+
+CONTEXTO DE INTERROGACIÓN:
+${contexto}
+
+NIVEL DE DIFICULTAD: ${nivel}
+
+PREGUNTA FORMULADA:
+${pregunta}
+
+RESPUESTA DEL ESTUDIANTE:
+${respuesta}
+
+Evalúa la respuesta del estudiante manteniéndote en tu personaje.
+${nivel === "BASICO" ? "CRITERIO NIVEL BÁSICO: Sé generoso. Una respuesta que capture la idea central debe considerarse CORRECTA aunque omita detalles secundarios.\n" : ""}
+Si la respuesta es PARCIALMENTE correcta pero le falta un elemento clave importante,
+puedes incluir una "repregunta" breve (máx 30 palabras) para que el estudiante profundice.
+Si la respuesta es claramente correcta o claramente incorrecta, pon repregunta como null.
+
+Responde ÚNICAMENTE en JSON con este formato exacto:
+{
+  "correcta": true,
+  "feedback": "tu evaluación en personaje (máx 3 oraciones)",
+  "conceptoClave": "el concepto jurídico central",
+  "repregunta": "¿Pero qué ocurre con...?" o null
+}
+
+Solo JSON válido, sin texto adicional antes ni después.`;
+}
+
 // XP rewards
 const XP_SESION_COMPLETADA = 5;
 const XP_RESPUESTA_CORRECTA = 2;
@@ -80,7 +121,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { preguntaId, respuesta } = body;
+  const { preguntaId, respuesta, esSegundaRespuesta } = body;
 
   if (!preguntaId || !respuesta) {
     return NextResponse.json(
@@ -102,7 +143,15 @@ export async function POST(request: Request) {
     );
   }
 
-  if (pregunta.respuestaUser) {
+  // Si es segunda respuesta (tras repregunta), verificar que ya hay primera
+  if (esSegundaRespuesta) {
+    if (!pregunta.respuestaUser || pregunta.tipoIntercambio !== "repregunta") {
+      return NextResponse.json(
+        { error: "No hay repregunta pendiente" },
+        { status: 400 }
+      );
+    }
+  } else if (pregunta.respuestaUser) {
     return NextResponse.json(
       { error: "Ya respondiste esta pregunta" },
       { status: 400 }
@@ -118,27 +167,49 @@ export async function POST(request: Request) {
     );
   }
 
-  // Evaluar con Claude
   const contexto = obtenerContexto(sesion);
-  const promptEval = construirPromptEvaluacion(
-    interrogador,
-    pregunta.preguntaTexto,
-    respuesta,
-    contexto,
-    pregunta.nivel as "BASICO" | "INTERMEDIO" | "AVANZADO"
-  );
+  const nivel = pregunta.nivel as "BASICO" | "INTERMEDIO" | "AVANZADO";
 
-  let evaluacion: { correcta: boolean; feedback: string; conceptoClave: string };
+  // Build evaluation text
+  let respuestaEval = respuesta;
+  let preguntaEval = pregunta.preguntaTexto;
+  if (esSegundaRespuesta && pregunta.respuestaUser && pregunta.intercambioTexto) {
+    preguntaEval = `Pregunta original: "${pregunta.preguntaTexto}"\nRepregunta: "${pregunta.intercambioTexto}"`;
+    respuestaEval = `Primera respuesta: "${pregunta.respuestaUser}"\nSegunda respuesta (tras repregunta): "${respuesta}"`;
+  }
+
+  // Decide which prompt to use
+  const puedeRepreguntar = !esSegundaRespuesta && !pregunta.tipoIntercambio;
+
+  const promptEval = puedeRepreguntar
+    ? construirPromptConRepregunta(
+        interrogador.systemPrompt,
+        preguntaEval,
+        respuestaEval,
+        contexto,
+        nivel
+      )
+    : construirPromptEvaluacion(
+        interrogador,
+        preguntaEval,
+        respuestaEval,
+        contexto,
+        nivel
+      );
+
+  let evaluacion: {
+    correcta: boolean;
+    feedback: string;
+    conceptoClave: string;
+    repregunta?: string | null;
+  };
   try {
     const respClaude = await llamarClaude(promptEval);
-
-    // Extraer JSON — puede estar envuelto en markdown
     const jsonMatch = respClaude.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No se pudo parsear JSON de evaluación");
     evaluacion = JSON.parse(jsonMatch[0]);
   } catch (err) {
     console.error("Error evaluando respuesta:", err);
-    // Fallback
     evaluacion = {
       correcta: false,
       feedback: "No fue posible evaluar la respuesta. Intenta nuevamente.",
@@ -146,15 +217,71 @@ export async function POST(request: Request) {
     };
   }
 
-  // Actualizar pregunta
-  await prisma.simulacroPregunta.update({
-    where: { id: preguntaId },
-    data: {
-      respuestaUser: respuesta,
-      evaluacion: evaluacion.feedback,
-      correcta: evaluacion.correcta,
-    },
-  });
+  // Handle repregunta flow
+  const tieneRepregunta =
+    puedeRepreguntar && evaluacion.repregunta && !evaluacion.correcta;
+
+  if (tieneRepregunta) {
+    // Save first response + repregunta, don't mark as final
+    await prisma.simulacroPregunta.update({
+      where: { id: preguntaId },
+      data: {
+        respuestaUser: respuesta,
+        intercambioTexto: evaluacion.repregunta,
+        tipoIntercambio: "repregunta",
+      },
+    });
+
+    // TTS for repregunta
+    let repreguntaAudioUrl: string | null = null;
+    try {
+      repreguntaAudioUrl = await generarAudioTTS(
+        evaluacion.repregunta!,
+        interrogador.voz,
+        sesion.id,
+        `${preguntaId}-repregunta`
+      );
+    } catch (err) {
+      console.error("Error generando TTS repregunta:", err);
+    }
+
+    return NextResponse.json({
+      correcta: null,
+      feedback: evaluacion.feedback,
+      feedbackAudioUrl: null,
+      conceptoClave: evaluacion.conceptoClave,
+      repregunta: evaluacion.repregunta,
+      repreguntaAudioUrl,
+      nivelNuevo: sesion.nivelActual,
+      sesionCompletada: false,
+      stats: {
+        correctas: sesion.correctas,
+        incorrectas: sesion.incorrectas,
+        nivelActual: sesion.nivelActual,
+      },
+    });
+  }
+
+  // Normal flow or second response — final evaluation
+  if (esSegundaRespuesta) {
+    await prisma.simulacroPregunta.update({
+      where: { id: preguntaId },
+      data: {
+        respuestaIntercambio: respuesta,
+        evaluacion: evaluacion.feedback,
+        correcta: evaluacion.correcta,
+      },
+    });
+  } else {
+    await prisma.simulacroPregunta.update({
+      where: { id: preguntaId },
+      data: {
+        respuestaUser: respuesta,
+        evaluacion: evaluacion.feedback,
+        correcta: evaluacion.correcta,
+      },
+    });
+  }
 
   // Actualizar sesión
   const nuevasCorrectas = sesion.correctas + (evaluacion.correcta ? 1 : 0);
@@ -206,6 +333,8 @@ export async function POST(request: Request) {
     feedback: evaluacion.feedback,
     feedbackAudioUrl,
     conceptoClave: evaluacion.conceptoClave,
+    repregunta: null,
+    repreguntaAudioUrl: null,
     nivelNuevo: sesion.nivelActual,
     sesionCompletada,
     stats: {

@@ -65,7 +65,7 @@ export function construirPromptPregunta(
 ): string {
   const instruccionNivel: Record<NivelDificultad, string> = {
     BASICO:
-      "Haz una pregunta básica de definición o enumeración. Ej: ¿Qué es...? ¿Cuáles son los requisitos de...?",
+      "Pregunta sobre UNA definición simple y directa. El estudiante solo necesita recordar UN concepto o definición. NO pidas comparaciones, análisis ni relaciones entre conceptos. Ej: '¿Qué es el acto jurídico?' La respuesta correcta debe poder darse en 2-3 oraciones.",
     INTERMEDIO:
       "Haz una pregunta de comprensión y aplicación. Ej: ¿Qué ocurre si...? ¿Cómo se distingue...? ¿Cuál es el efecto de...?",
     AVANZADO:
@@ -90,7 +90,8 @@ ${historialTexto}
 
 Esta es la pregunta número ${numeroPregunta}.
 Genera UNA sola pregunta. Solo la pregunta, sin explicaciones adicionales.
-La pregunta debe basarse estrictamente en el contexto proporcionado.`;
+La pregunta debe basarse estrictamente en el contexto proporcionado.
+Recuerda: sé conciso. Máximo 80 palabras. Contexto breve + pregunta directa.`;
 }
 
 export function construirPromptEvaluacion(
@@ -114,7 +115,7 @@ RESPUESTA DEL ESTUDIANTE:
 ${respuesta}
 
 Evalúa la respuesta del estudiante manteniéndote en tu personaje.
-Responde ÚNICAMENTE en JSON con este formato exacto:
+${nivel === "BASICO" ? "CRITERIO NIVEL BÁSICO: Sé generoso. Una respuesta que capture la idea central debe considerarse CORRECTA aunque omita detalles secundarios o no use terminología técnica exacta. El objetivo del nivel básico es verificar comprensión general, no precisión doctrinal. Acepta respuestas que demuestren que el estudiante entiende el concepto básico.\n" : ""}Responde ÚNICAMENTE en JSON con este formato exacto:
 {
   "correcta": true,
   "feedback": "tu respuesta en personaje al estudiante (máx 3 oraciones)",

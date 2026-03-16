@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { INTERROGADORES, type InterrogadorData } from "@/lib/interrogadores";
 import { CURRICULUM } from "@/lib/curriculum-data";
+import AudioRecorder from "./components/audio-recorder";
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -30,12 +31,14 @@ interface PreguntaActiva {
 }
 
 interface RespuestaEval {
-  correcta: boolean;
+  correcta: boolean | null;
   feedback: string;
   feedbackAudioUrl: string | null;
   conceptoClave: string;
   nivelNuevo: string;
   sesionCompletada: boolean;
+  repregunta?: string | null;
+  repreguntaAudioUrl?: string | null;
   stats: { correctas: number; incorrectas: number; nivelActual: string };
 }
 
@@ -158,20 +161,61 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
     preguntas: PreguntaHistorial[];
   } | null>(null);
 
+  // ── Suspend + auto-suspend state
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [showSugerenciaSuspension, setShowSugerenciaSuspension] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [incorrectasConsecutivas, setIncorrectasConsecutivas] = useState(0);
+  const [suspendiendo, setSuspendiendo] = useState(false);
+
+  // ── Dialog ida y vuelta state
+  const [yaHuboIntercambio, setYaHuboIntercambio] = useState(false);
+  const [esperandoSegundaRespuesta, setEsperandoSegundaRespuesta] = useState(false);
+  const [repreguntaTexto, setRepreguntaTexto] = useState<string | null>(null);
+  const [pidiendo, setPidiendo] = useState(false); // pedir aclaración loading
+
+  // ── PDF + opinión state
+  const [opinionFinal, setOpinionFinal] = useState<string | null>(null);
+  const [generandoReporte, setGenerandoReporte] = useState(false);
+  const [cargandoOpinion, setCargandoOpinion] = useState(false);
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const autoSubmitRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nextQuestionRef = useRef<Promise<Response> | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
 
   // ── Audio helper
-  const reproducirAudio = useCallback((url: string) => {
+  const reproducirAudio = useCallback((url: string, esFeedback = false) => {
     if (audioRef.current) {
       audioRef.current.pause();
     }
     const audio = new Audio(url);
     audioRef.current = audio;
     setAudioPlaying(true);
-    audio.onended = () => setAudioPlaying(false);
-    audio.onerror = () => setAudioPlaying(false);
-    audio.play().catch(() => setAudioPlaying(false));
+    setStatusMessage(esFeedback ? "Escucha el feedback..." : "Escucha la pregunta...");
+    audio.onended = () => {
+      setAudioPlaying(false);
+      if (!esFeedback) {
+        setStatusMessage("Tu turno — habla o escribe tu respuesta");
+      } else {
+        setStatusMessage(null);
+        // FIX 7: Auto-advance after feedback TTS ends
+        // Click "Siguiente pregunta" automatically
+        setTimeout(() => {
+          document.getElementById("btn-siguiente-pregunta")?.click();
+        }, 500);
+      }
+    };
+    audio.onerror = () => {
+      setAudioPlaying(false);
+      setStatusMessage(null);
+    };
+    audio.play().catch(() => {
+      setAudioPlaying(false);
+      setStatusMessage(null);
+    });
   }, []);
 
   // Cleanup audio on unmount
@@ -278,19 +322,31 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
     }
   };
 
-  // ── Pedir pregunta
+  // ── Pedir pregunta (uses pre-fetched if available)
   const pedirPregunta = async (sid?: string) => {
     const id = sid || sesionId;
     if (!id) return;
     setCargandoPregunta(true);
     setEvaluacion(null);
     setRespuestaTexto("");
+    setStatusMessage(null);
+    // Reset dialog state
+    setYaHuboIntercambio(false);
+    setEsperandoSegundaRespuesta(false);
+    setRepreguntaTexto(null);
     try {
-      const res = await fetch("/api/simulacro/pregunta", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sesionId: id }),
-      });
+      let res: Response;
+      // FIX 7: Use pre-fetched question if available
+      if (nextQuestionRef.current) {
+        res = await nextQuestionRef.current;
+        nextQuestionRef.current = null;
+      } else {
+        res = await fetch("/api/simulacro/pregunta", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sesionId: id }),
+        });
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setPreguntaActiva(data);
@@ -298,6 +354,8 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
       // Reproducir audio automáticamente
       if (data.audioUrl) {
         setTimeout(() => reproducirAudio(data.audioUrl), 500);
+      } else {
+        setStatusMessage("Tu turno — habla o escribe tu respuesta");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al obtener pregunta");
@@ -310,6 +368,11 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
   const enviarRespuesta = async () => {
     if (!preguntaActiva || !respuestaTexto.trim()) return;
     setEnviandoRespuesta(true);
+    setStatusMessage("Enviando respuesta...");
+    if (autoSubmitRef.current) {
+      clearTimeout(autoSubmitRef.current);
+      autoSubmitRef.current = null;
+    }
     try {
       const res = await fetch("/api/simulacro/responder", {
         method: "POST",
@@ -317,19 +380,59 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
         body: JSON.stringify({
           preguntaId: preguntaActiva.preguntaId,
           respuesta: respuestaTexto,
+          esSegundaRespuesta: esperandoSegundaRespuesta,
         }),
       });
       const data: RespuestaEval = await res.json();
       if (!res.ok) throw new Error((data as unknown as { error: string }).error);
-      setEvaluacion(data);
-      setStatsActivas(data.stats);
 
-      // Reproducir audio del feedback
-      if (data.feedbackAudioUrl) {
-        setTimeout(() => reproducirAudio(data.feedbackAudioUrl!), 300);
+      // Handle repregunta flow
+      if (data.repregunta && data.correcta === null) {
+        // Avatar wants to follow up — show repregunta, wait for second answer
+        setRepreguntaTexto(data.repregunta);
+        setEsperandoSegundaRespuesta(true);
+        setYaHuboIntercambio(true);
+        setRespuestaTexto("");
+        setStatusMessage("El interrogador repregunta...");
+
+        if (data.repreguntaAudioUrl) {
+          setTimeout(() => reproducirAudio(data.repreguntaAudioUrl!), 300);
+        }
+        return;
       }
 
-      // Si la sesión terminó, cargar resultados
+      // Final evaluation
+      setEvaluacion(data);
+      setStatsActivas(data.stats);
+      setEsperandoSegundaRespuesta(false);
+      setRepreguntaTexto(null);
+
+      // FIX 6: Track consecutive wrong answers
+      if (data.correcta) {
+        setIncorrectasConsecutivas(0);
+      } else {
+        setIncorrectasConsecutivas((prev) => {
+          const newCount = prev + 1;
+          if (newCount >= 5) {
+            setShowSugerenciaSuspension(true);
+          }
+          return newCount;
+        });
+      }
+
+      // FIX 7: Pre-fetch next question
+      if (!data.sesionCompletada && sesionId) {
+        nextQuestionRef.current = fetch("/api/simulacro/pregunta", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sesionId }),
+        });
+      }
+
+      if (data.feedbackAudioUrl) {
+        setTimeout(() => reproducirAudio(data.feedbackAudioUrl!, true), 300);
+      }
+
       if (data.sesionCompletada) {
         await cargarResultados();
       }
@@ -337,6 +440,64 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
       toast.error(err instanceof Error ? err.message : "Error al evaluar respuesta");
     } finally {
       setEnviandoRespuesta(false);
+    }
+  };
+
+  // ── Pedir aclaración
+  const pedirAclaracion = async () => {
+    if (!preguntaActiva || yaHuboIntercambio) return;
+    setPidiendo(true);
+    setStatusMessage("Pidiendo aclaración...");
+    try {
+      const res = await fetch("/api/simulacro/aclarar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ preguntaId: preguntaActiva.preguntaId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setYaHuboIntercambio(true);
+      // Show clarification as part of the question
+      setPreguntaActiva({
+        ...preguntaActiva,
+        preguntaTexto: `${preguntaActiva.preguntaTexto}\n\n[Aclaración]: ${data.aclaracion}`,
+      });
+
+      if (data.audioUrl) {
+        reproducirAudio(data.audioUrl);
+      } else {
+        setStatusMessage("Tu turno — habla o escribe tu respuesta");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al pedir aclaración");
+      setStatusMessage(null);
+    } finally {
+      setPidiendo(false);
+    }
+  };
+
+  // ── FIX 1: Suspender sesión
+  const handleSuspend = async () => {
+    if (!sesionId) return;
+    setSuspendiendo(true);
+    try {
+      const res = await fetch(`/api/simulacro/sesion/${sesionId}/suspender`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      // Load results for the suspended session
+      await cargarResultados();
+      setShowSuspendModal(false);
+      setShowSugerenciaSuspension(false);
+      setPantalla("resultados");
+      toast.success("Sesión suspendida. Tu progreso se guardó.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al suspender sesión");
+    } finally {
+      setSuspendiendo(false);
     }
   };
 
@@ -374,6 +535,11 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
     setResultados(null);
     setRespuestaTexto("");
     setStatsActivas({ correctas: 0, incorrectas: 0 });
+    setIncorrectasConsecutivas(0);
+    setShowSuspendModal(false);
+    setShowSugerenciaSuspension(false);
+    setStatusMessage(null);
+    nextQuestionRef.current = null;
     if (!mismoInterrogador) {
       setInterrogadorSeleccionado(null);
     }
@@ -426,6 +592,23 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                       </span>
                       <span className="font-archivo text-[12px] text-gz-ink-mid leading-relaxed block mt-1">
                         {int.descripcion}
+                      </span>
+                      <div className="flex gap-4 mt-2">
+                        <span className="font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-ink-light">
+                          Dificultad:{" "}
+                          <span className="text-gz-ink">
+                            {"★".repeat(int.dificultad)}{"☆".repeat(5 - int.dificultad)}
+                          </span>
+                        </span>
+                        <span className="font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-ink-light">
+                          Empatía:{" "}
+                          <span className="text-gz-ink">
+                            {"★".repeat(int.empatia)}{"☆".repeat(5 - int.empatia)}
+                          </span>
+                        </span>
+                      </div>
+                      <span className="font-ibm-mono text-[10px] text-gz-gold mt-1 block">
+                        {int.nivelLabel}
                       </span>
                     </div>
                     {selected && (
@@ -846,7 +1029,7 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                       {evaluacion.feedbackAudioUrl && (
                         <button
                           onClick={() =>
-                            reproducirAudio(evaluacion.feedbackAudioUrl!)
+                            reproducirAudio(evaluacion.feedbackAudioUrl!, true)
                           }
                           className="mt-2 font-ibm-mono text-[10px] text-gz-ink-light hover:text-gz-ink transition-colors"
                         >
@@ -857,41 +1040,121 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                   )}
                 </div>
 
-                {/* Textarea + botón responder */}
+                {/* Textarea + micrófono + botón responder */}
                 {!evaluacion ? (
                   <div className="space-y-3">
+                    {/* Status indicator */}
+                    {statusMessage && (
+                      <div className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
+                        {statusMessage}
+                      </div>
+                    )}
+
+                    {/* Repregunta del interrogador */}
+                    {repreguntaTexto && (
+                      <div className="rounded-[4px] border-l-[3px] border-gz-gold bg-gz-gold/[0.05] p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center text-white font-semibold text-[8px]"
+                            style={{ backgroundColor: interrogadorActivo.color }}
+                          >
+                            {interrogadorActivo.iniciales}
+                          </div>
+                          <span className="font-ibm-mono text-[10px] text-gz-ink-light uppercase tracking-[1px]">
+                            Repregunta
+                          </span>
+                        </div>
+                        <p className="font-cormorant italic text-[15px] text-gz-ink leading-relaxed">
+                          {repreguntaTexto}
+                        </p>
+                      </div>
+                    )}
+
                     <textarea
                       value={respuestaTexto}
-                      onChange={(e) => setRespuestaTexto(e.target.value)}
-                      placeholder={interrogadorActivo.placeholder}
+                      onChange={(e) => {
+                        setRespuestaTexto(e.target.value);
+                        if (autoSubmitRef.current) {
+                          clearTimeout(autoSubmitRef.current);
+                          autoSubmitRef.current = null;
+                        }
+                      }}
+                      placeholder={esperandoSegundaRespuesta ? "Complementa tu respuesta..." : interrogadorActivo.placeholder}
                       rows={4}
                       disabled={enviandoRespuesta}
-                      className="w-full rounded-[4px] border border-gz-rule bg-white p-4 font-archivo text-[14px] text-gz-ink placeholder:text-gz-ink-light/50 focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 disabled:opacity-50 resize-none"
+                      className="w-full rounded-[4px] border border-gz-rule bg-white p-4 font-archivo text-[14px] text-gz-ink placeholder:text-gz-ink-light/50 focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 disabled:opacity-50 resize-none dark:bg-gz-bg"
                     />
-                    <button
-                      onClick={enviarRespuesta}
-                      disabled={
-                        enviandoRespuesta || !respuestaTexto.trim()
-                      }
-                      className="w-full rounded-[4px] bg-gz-gold py-3 font-archivo text-[14px] font-bold text-white shadow hover:bg-gz-gold/90 transition-colors disabled:opacity-50"
-                    >
-                      {enviandoRespuesta ? "Evaluando..." : "Responder"}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <AudioRecorder
+                        onTranscription={(text) => {
+                          setRespuestaTexto((prev) => {
+                            const newText = prev ? `${prev} ${text}` : text;
+                            autoSubmitRef.current = setTimeout(() => {
+                              autoSubmitRef.current = null;
+                              document.getElementById("btn-responder-simulacro")?.click();
+                            }, 1500);
+                            return newText;
+                          });
+                          setStatusMessage("Transcripción lista — enviando en 1.5s...");
+                        }}
+                        onRecordingStart={() => {
+                          setIsRecordingVoice(true);
+                          setStatusMessage("Grabando...");
+                        }}
+                        onRecordingStop={() => {
+                          setIsRecordingVoice(false);
+                        }}
+                        disabled={enviandoRespuesta || !preguntaActiva}
+                      />
+                      {/* Pedir aclaración — solo si no hubo intercambio */}
+                      {!yaHuboIntercambio && !esperandoSegundaRespuesta && (
+                        <button
+                          onClick={pedirAclaracion}
+                          disabled={pidiendo || enviandoRespuesta}
+                          className="font-archivo text-[12px] text-gz-ink-mid border border-gz-rule rounded-[3px] px-3 py-2.5 hover:border-gz-gold hover:text-gz-gold transition-colors disabled:opacity-40 whitespace-nowrap"
+                        >
+                          {pidiendo ? "..." : "Pedir aclaración"}
+                        </button>
+                      )}
+                      <button
+                        id="btn-responder-simulacro"
+                        onClick={enviarRespuesta}
+                        disabled={
+                          enviandoRespuesta || !respuestaTexto.trim() || isRecordingVoice
+                        }
+                        className="flex-1 rounded-[4px] bg-gz-gold py-3 font-archivo text-[14px] font-bold text-white shadow hover:bg-gz-gold/90 transition-colors disabled:opacity-50"
+                      >
+                        {enviandoRespuesta ? "Evaluando..." : "Responder"}
+                      </button>
+                    </div>
                   </div>
                 ) : (
+                  <div className="space-y-3">
+                    <button
+                      id="btn-siguiente-pregunta"
+                      onClick={() => {
+                        if (evaluacion.sesionCompletada) {
+                          setPantalla("resultados");
+                        } else {
+                          pedirPregunta();
+                        }
+                      }}
+                      className="w-full rounded-[4px] bg-gz-navy py-3 font-archivo text-[14px] font-bold text-white shadow hover:bg-gz-gold hover:text-gz-navy transition-colors"
+                    >
+                      {evaluacion.sesionCompletada
+                        ? "Ver resultados"
+                        : "Siguiente pregunta →"}
+                    </button>
+                  </div>
+                )}
+
+                {/* FIX 1: Botón suspender */}
+                {!evaluacion?.sesionCompletada && (
                   <button
-                    onClick={() => {
-                      if (evaluacion.sesionCompletada) {
-                        setPantalla("resultados");
-                      } else {
-                        pedirPregunta();
-                      }
-                    }}
-                    className="w-full rounded-[4px] bg-gz-navy py-3 font-archivo text-[14px] font-bold text-white shadow hover:bg-gz-gold hover:text-gz-navy transition-colors"
+                    onClick={() => setShowSuspendModal(true)}
+                    className="font-ibm-mono text-[11px] text-gz-ink-light hover:text-gz-burgundy transition-colors mt-4"
                   >
-                    {evaluacion.sesionCompletada
-                      ? "Ver resultados"
-                      : "Siguiente pregunta →"}
+                    Suspender sesión
                   </button>
                 )}
               </div>
@@ -1025,6 +1288,74 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
             </div>
           </div>
         )}
+
+        {/* FIX 1: Modal suspender sesión */}
+        {showSuspendModal && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+            <div className="border border-gz-rule rounded-[4px] p-6 max-w-sm mx-4 shadow-xl" style={{ backgroundColor: "var(--gz-cream)" }}>
+              <p className="font-cormorant text-[16px] text-gz-ink mb-4">
+                ¿Seguro que quieres suspender esta sesión? Tu progreso hasta aquí se guardará.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowSuspendModal(false)}
+                  className="flex-1 font-archivo text-[13px] text-gz-ink-mid border border-gz-rule rounded-[3px] py-2 hover:bg-gz-ink/5 transition-colors"
+                >
+                  Continuar
+                </button>
+                <button
+                  onClick={handleSuspend}
+                  disabled={suspendiendo}
+                  className="flex-1 font-archivo text-[13px] text-white bg-gz-burgundy rounded-[3px] py-2 hover:bg-gz-burgundy/90 transition-colors disabled:opacity-50"
+                >
+                  {suspendiendo ? "Guardando..." : "Suspender"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FIX 6: Modal sugerencia suspensión por mal rendimiento */}
+        {showSugerenciaSuspension && interrogadorActivo && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+            <div className="border border-gz-rule rounded-[4px] p-6 max-w-md mx-4 shadow-xl" style={{ backgroundColor: "var(--gz-cream)" }}>
+              <div className="flex items-center gap-3 mb-4">
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-[12px]"
+                  style={{ backgroundColor: interrogadorActivo.color }}
+                >
+                  {interrogadorActivo.iniciales}
+                </div>
+                <span className="font-cormorant text-[16px] font-bold text-gz-ink">
+                  {interrogadorActivo.nombre}
+                </span>
+              </div>
+              <p className="font-cormorant italic text-[15px] text-gz-ink-mid mb-4 leading-relaxed">
+                &ldquo;Creo que sería prudente que revisemos el material antes de continuar.
+                Llevas varias respuestas que necesitan refuerzo. ¿Deseas suspender para repasar,
+                o prefieres continuar?&rdquo;
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowSugerenciaSuspension(false);
+                    setIncorrectasConsecutivas(0);
+                  }}
+                  className="flex-1 font-archivo text-[13px] text-gz-ink-mid border border-gz-rule rounded-[3px] py-2 hover:bg-gz-ink/5 transition-colors"
+                >
+                  Continuar
+                </button>
+                <button
+                  onClick={handleSuspend}
+                  disabled={suspendiendo}
+                  className="flex-1 font-archivo text-[13px] text-white bg-gz-navy rounded-[3px] py-2 hover:bg-gz-navy/90 transition-colors disabled:opacity-50"
+                >
+                  {suspendiendo ? "Guardando..." : "Suspender y repasar"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -1150,6 +1481,46 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
           </section>
         )}
 
+        {/* Opinión del interrogador */}
+        <section className="rounded-[4px] border border-gz-rule bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <AvatarInterrogador interrogador={interrogadorActivo} size="sm" />
+            <h3 className="font-cormorant text-[18px] !font-bold text-gz-ink">
+              Opinión de {interrogadorActivo.nombre}
+            </h3>
+          </div>
+          {opinionFinal ? (
+            <p className="font-archivo text-[13px] text-gz-ink-mid leading-relaxed whitespace-pre-line">
+              {opinionFinal}
+            </p>
+          ) : cargandoOpinion ? (
+            <p className="font-archivo text-[13px] text-gz-ink-light animate-pulse">
+              Generando opinión del interrogador...
+            </p>
+          ) : (
+            <button
+              onClick={async () => {
+                if (!sesionId) return;
+                setCargandoOpinion(true);
+                try {
+                  const res = await fetch("/api/simulacro/opinion-final", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ sesionId }),
+                  });
+                  const data = await res.json();
+                  if (res.ok) setOpinionFinal(data.opinion);
+                } catch { /* ignore */ } finally {
+                  setCargandoOpinion(false);
+                }
+              }}
+              className="font-archivo text-[13px] text-gz-gold hover:text-gz-gold/80 transition-colors"
+            >
+              Cargar opinión del interrogador →
+            </button>
+          )}
+        </section>
+
         {/* Acciones */}
         <div className="flex flex-col gap-3 sm:flex-row">
           <button
@@ -1165,6 +1536,41 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
             Cambiar interrogador
           </button>
         </div>
+
+        {/* Descargar reporte PDF */}
+        <button
+          onClick={async () => {
+            if (!sesionId) return;
+            setGenerandoReporte(true);
+            try {
+              const response = await fetch(`/api/simulacro/reporte-pdf?sesionId=${sesionId}`);
+              if (!response.ok) throw new Error("Error generando reporte");
+              const blob = await response.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `reporte-simulacro-${new Date().toISOString().split("T")[0]}.pdf`;
+              a.click();
+              URL.revokeObjectURL(url);
+            } catch (err) {
+              toast.error(err instanceof Error ? err.message : "Error al descargar reporte");
+            } finally {
+              setGenerandoReporte(false);
+            }
+          }}
+          disabled={generandoReporte}
+          className="flex items-center justify-center gap-2 w-full font-archivo text-[13px] font-semibold border border-gz-rule rounded-[4px] px-5 py-3 hover:border-gz-gold hover:text-gz-gold transition-colors disabled:opacity-50"
+        >
+          {generandoReporte ? (
+            <>
+              <span className="animate-spin w-4 h-4 border-2 border-gz-gold border-t-transparent rounded-full" />
+              Generando reporte...
+            </>
+          ) : (
+            "📄 Descargar reporte completo"
+          )}
+        </button>
+
         <a
           href="/dashboard"
           className="block text-center font-archivo text-[13px] text-gz-ink-light hover:text-gz-ink transition-colors"
