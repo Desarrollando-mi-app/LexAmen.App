@@ -123,7 +123,7 @@ export function DashboardSidebar() {
           <Image
             src="/brand/logo-sello.svg"
             alt="Studio Iuris"
-            width={24}
+            width={100}
             height={24}
             className="h-[24px] w-[24px]"
           />

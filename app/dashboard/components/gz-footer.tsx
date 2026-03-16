@@ -9,7 +9,7 @@ export function GzFooter() {
         <Image
           src="/brand/logo-sello.svg"
           alt="Studio Iuris"
-          width={20}
+          width={100}
           height={20}
           className="h-[20px] w-[20px] opacity-40"
         />

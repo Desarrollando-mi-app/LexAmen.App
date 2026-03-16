@@ -7,9 +7,9 @@ export default function DashboardLoading() {
         <img
           src="/brand/logo-sello.svg"
           alt="Studio Iuris"
-          width={56}
+          width={100}
           height={48}
-          className="h-[48px] w-[48px] animate-pulse mb-3"
+          className="h-[80px] w-[80px] lg:h-[100px] lg:w-[100px] animate-pulse mb-3"
         />
         <span className="font-ibm-mono text-[10px] text-gz-ink-light uppercase tracking-[2px]">
           Cargando...

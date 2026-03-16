@@ -6,11 +6,18 @@ import Link from "next/link";
 
 // ─── Types ──────────────────────────────────────────────────
 
+interface LeyAnexaData {
+  ley: string;
+  label: string;
+  nombreCorto: string | null;
+}
+
 interface TituloData {
   id: string;
   label: string;
   articulosRef: string | null;
   parrafos: string[];
+  leyesAnexas: LeyAnexaData[];
   fcTotal: number;
   fcDom: number;
   mcqTotal: number;
@@ -25,6 +32,7 @@ interface LibroData {
   libro: string;
   label: string;
   titulos: TituloData[];
+  leyesAnexas: LeyAnexaData[];
   fcTotal: number;
   mcqTotal: number;
   tfTotal: number;
@@ -35,6 +43,7 @@ interface MateriaData {
   id: string;
   label: string;
   libros: LibroData[];
+  leyesAnexasRama: LeyAnexaData[];
   fcTotal: number;
   mcqTotal: number;
   tfTotal: number;
@@ -50,6 +59,7 @@ interface Props {
 const MATERIA_META: Record<string, { sigla: string; color: string; icono: string }> = {
   DERECHO_CIVIL: { sigla: "D. Civil", color: "gz-gold", icono: "⚖️" },
   DERECHO_PROCESAL_CIVIL: { sigla: "D. Procesal", color: "gz-navy", icono: "📋" },
+  DERECHO_ORGANICO: { sigla: "D. Orgánico", color: "gz-burgundy", icono: "🏛️" },
 };
 
 const MATERIAS_PROXIMAMENTE = [
@@ -75,6 +85,34 @@ function MiniBar({
         className={`h-full rounded-sm transition-all duration-500 ${color}`}
         style={{ width: `${Math.min(percent, 100)}%` }}
       />
+    </div>
+  );
+}
+
+// ─── Leyes Complementarias Section ──────────────────────────
+
+function LeyesSection({
+  leyes,
+  title = "Leyes Complementarias",
+}: {
+  leyes: LeyAnexaData[];
+  title?: string;
+}) {
+  if (leyes.length === 0) return null;
+
+  return (
+    <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--gz-cream-dark)" }}>
+      <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-burgundy mb-2 flex items-center gap-2">
+        <span>📜</span> {title}
+      </p>
+      <div className="space-y-1">
+        {leyes.map((la, idx) => (
+          <div key={idx} className="pl-6 py-1 font-archivo text-[12px] text-gz-ink-mid" title={`${la.ley}: ${la.label}`}>
+            <span className="text-gz-ink-light mr-1.5">├──</span>
+            {la.nombreCorto ?? `${la.ley}: ${la.label}`}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -230,24 +268,27 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                     const tituloOpen = expandedTitulos.has(titulo.id);
                     const totalContent = titulo.fcTotal + titulo.mcqTotal + titulo.tfTotal;
                     const hasTituloContent = totalContent > 0;
+                    const hasParrafos = titulo.parrafos.length > 0;
+                    const hasLeyesTitulo = titulo.leyesAnexas.length > 0;
+                    const isExpandable = hasTituloContent || hasParrafos || hasLeyesTitulo;
 
                     return (
                       <div key={titulo.id}>
                         {/* Titulo row */}
                         <button
-                          onClick={() => hasTituloContent && toggleTitulo(titulo.id)}
+                          onClick={() => isExpandable && toggleTitulo(titulo.id)}
                           className={`w-full flex items-center gap-2 py-2 pl-4 pr-2 rounded-[3px] transition-colors ${
-                            hasTituloContent
+                            isExpandable
                               ? "hover:bg-[var(--gz-gold)]/[0.04] cursor-pointer"
                               : "opacity-40 cursor-default"
                           }`}
                         >
-                          {hasTituloContent && (
+                          {isExpandable && (
                             <span className="text-gz-ink-light text-[10px] w-3 flex-shrink-0">
                               {tituloOpen ? "▾" : "▸"}
                             </span>
                           )}
-                          {!hasTituloContent && <span className="w-3 flex-shrink-0" />}
+                          {!isExpandable && <span className="w-3 flex-shrink-0" />}
                           <span className="font-archivo text-[13px] text-gz-ink-mid text-left flex-1 min-w-0">
                             {titulo.label}
                           </span>
@@ -261,11 +302,11 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                           )}
                         </button>
 
-                        {/* Parrafos + study buttons (level 3) */}
-                        {tituloOpen && hasTituloContent && (
+                        {/* Parrafos + study buttons + leyes (level 3) */}
+                        {tituloOpen && isExpandable && (
                           <div className="ml-4 border-l-2 pl-0" style={{ borderColor: "var(--gz-cream-dark)" }}>
                             {/* Parrafos */}
-                            {titulo.parrafos.length > 0 && (
+                            {hasParrafos && (
                               <div className="pl-4 py-2 space-y-1">
                                 {titulo.parrafos.map((p, idx) => (
                                   <div key={idx} className="flex items-baseline gap-2">
@@ -283,7 +324,7 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                             )}
 
                             {/* Article ref when no parrafos */}
-                            {titulo.parrafos.length === 0 && titulo.articulosRef && (
+                            {!hasParrafos && titulo.articulosRef && (
                               <div className="pl-4 py-2">
                                 <p className="font-ibm-mono text-[10px] text-gz-ink-light/60">
                                   {titulo.articulosRef}
@@ -292,32 +333,60 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                             )}
 
                             {/* Stats mini */}
-                            <div className="pl-4 pb-1">
-                              <p className="font-ibm-mono text-[9px] text-gz-ink-light">
-                                {titulo.fcDom}/{titulo.fcTotal} flashcards · {titulo.mcqOk}/{titulo.mcqTotal} MCQ · {titulo.tfOk}/{titulo.tfTotal} V/F
-                              </p>
-                            </div>
+                            {hasTituloContent && (
+                              <div className="pl-4 pb-1">
+                                <p className="font-ibm-mono text-[9px] text-gz-ink-light">
+                                  {titulo.fcDom}/{titulo.fcTotal} flashcards · {titulo.mcqOk}/{titulo.mcqTotal} MCQ · {titulo.tfOk}/{titulo.tfTotal} V/F
+                                </p>
+                              </div>
+                            )}
 
                             {/* Study buttons */}
-                            <StudyButtons
-                              rama={materia.id}
-                              libro={libro.libro}
-                              titulo={titulo.id}
-                              fcTotal={titulo.fcTotal}
-                              mcqTotal={titulo.mcqTotal}
-                              tfTotal={titulo.tfTotal}
-                            />
+                            {hasTituloContent && (
+                              <StudyButtons
+                                rama={materia.id}
+                                libro={libro.libro}
+                                titulo={titulo.id}
+                                fcTotal={titulo.fcTotal}
+                                mcqTotal={titulo.mcqTotal}
+                                tfTotal={titulo.tfTotal}
+                              />
+                            )}
+
+                            {/* Leyes complementarias del título */}
+                            {hasLeyesTitulo && (
+                              <div className="pl-4 pb-2">
+                                <LeyesSection leyes={titulo.leyesAnexas} />
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
                     );
                   })}
+
+                  {/* Leyes complementarias del libro */}
+                  {libro.leyesAnexas.length > 0 && (
+                    <div className="pl-4 pb-2">
+                      <LeyesSection leyes={libro.leyesAnexas} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           );
         })}
       </div>
+
+      {/* Leyes complementarias a nivel de rama */}
+      {materia.leyesAnexasRama.length > 0 && (
+        <div className="mt-6 pt-4 border-t" style={{ borderColor: "var(--gz-rule-dark)" }}>
+          <LeyesSection
+            leyes={materia.leyesAnexasRama}
+            title="Leyes y Autos Acordados Complementarios"
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -340,9 +409,9 @@ export function IndiceMaestroClient({ materias }: Props) {
         <Image
           src="/brand/logo-sello.svg"
           alt="Studio Iuris"
-          width={56}
-          height={48}
-          className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]"
+          width={100}
+          height={100}
+          className="h-[80px] w-[80px] lg:h-[100px] lg:w-[100px]"
         />
         <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
           Materias
@@ -390,7 +459,7 @@ export function IndiceMaestroClient({ materias }: Props) {
           {activeMaterias.map((m) => {
             const meta = MATERIA_META[m.id];
             const isSelected = m.id === selectedRama;
-            const barColor = meta?.color === "gz-navy" ? "bg-gz-navy" : "bg-gz-gold";
+            const barColor = meta?.color === "gz-navy" ? "bg-gz-navy" : meta?.color === "gz-burgundy" ? "bg-gz-burgundy" : "bg-gz-gold";
 
             return (
               <button
@@ -403,7 +472,6 @@ export function IndiceMaestroClient({ materias }: Props) {
                 }`}
                 style={{
                   borderBottomColor: "var(--gz-cream-dark)",
-                  ...(isSelected ? {} : {}),
                 }}
               >
                 <span className="text-[18px] block mb-1">{meta?.icono}</span>

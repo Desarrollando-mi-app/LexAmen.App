@@ -43,7 +43,7 @@ export function DashboardHeader({
             <Image
               src="/brand/logo-sello.svg"
               alt="Studio Iuris"
-              width={28}
+              width={100}
               height={28}
               className="h-[28px] w-[28px]"
             />

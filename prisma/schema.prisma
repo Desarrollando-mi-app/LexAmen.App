@@ -21,11 +21,13 @@ enum Plan {
 enum Rama {
   DERECHO_CIVIL
   DERECHO_PROCESAL_CIVIL
+  DERECHO_ORGANICO
 }
 
 enum Codigo {
   CODIGO_CIVIL
   CODIGO_PROCEDIMIENTO_CIVIL
+  CODIGO_ORGANICO_TRIBUNALES
   LEY_ANEXA
 }
 
@@ -41,6 +43,7 @@ enum Libro {
   LIBRO_II_CPC
   LIBRO_III_CPC
   LIBRO_IV_CPC
+  LIBRO_COT
 }
 
 enum SubscriptionStatus {

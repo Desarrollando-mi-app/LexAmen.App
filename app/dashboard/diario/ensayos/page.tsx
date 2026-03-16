@@ -167,7 +167,7 @@ export default function EnsayosListingPage() {
         El Diario
       </p>
       <div className="flex items-center gap-3 mb-1">
-        <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={56} height={56} className="h-[48px] w-[48px] lg:h-[56px] lg:w-[56px]" />
+        <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={100} height={100} className="h-[80px] w-[80px] lg:h-[100px] lg:w-[100px]" />
         <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-none">
           Ensayos
         </h1>
