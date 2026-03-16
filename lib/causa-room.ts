@@ -1,20 +1,26 @@
 // ─── CausaRoom (Causa Grupal) — constantes y helpers ──────────
 import { prisma } from "@/lib/prisma";
 import { calculateCausaScore, CAUSA_QUESTIONS } from "@/lib/causa";
-import { getCurrentWeekBounds } from "@/lib/league";
 import { evaluateBadges } from "@/lib/badges";
 import type { BadgeSlug } from "@/lib/badge-constants";
 import { sendNotification } from "@/lib/notifications";
+import {
+  XP_CAUSA_ROOM_1RO,
+  XP_CAUSA_ROOM_2DO,
+  XP_CAUSA_ROOM_3RO,
+  XP_CAUSA_ROOM_PARTICIPANTE,
+  awardXp,
+} from "@/lib/xp-config";
 
 export const ROOM_QUESTIONS = CAUSA_QUESTIONS; // 10
 export const ROOM_MIN_PLAYERS = 2;
 export const ROOM_MAX_PLAYERS_DEFAULT = 10;
 
-// XP escalonado por posición
-export const ROOM_XP_1ST = 30;
-export const ROOM_XP_2ND = 15;
-export const ROOM_XP_3RD = 10;
-export const ROOM_XP_PARTICIPANT = 5;
+// Re-export for backward compatibility
+export const ROOM_XP_1ST = XP_CAUSA_ROOM_1RO;
+export const ROOM_XP_2ND = XP_CAUSA_ROOM_2DO;
+export const ROOM_XP_3RD = XP_CAUSA_ROOM_3RO;
+export const ROOM_XP_PARTICIPANT = XP_CAUSA_ROOM_PARTICIPANTE;
 
 /**
  * Selecciona N MCQ IDs al azar, con filtro opcional de rama/dificultad.
@@ -108,18 +114,16 @@ export async function finishRoom(roomId: string): Promise<{
     return a.totalTime - b.totalTime;
   });
 
-  const { weekStart } = getCurrentWeekBounds();
-
   // Asignar posiciones y XP
   for (let i = 0; i < playerStats.length; i++) {
     const position = i + 1;
     playerStats[i].position = position;
     const { userId, totalScore } = playerStats[i];
 
-    let xpReward = ROOM_XP_PARTICIPANT;
-    if (position === 1) xpReward = ROOM_XP_1ST;
-    else if (position === 2) xpReward = ROOM_XP_2ND;
-    else if (position === 3) xpReward = ROOM_XP_3RD;
+    let xpReward = XP_CAUSA_ROOM_PARTICIPANTE;
+    if (position === 1) xpReward = XP_CAUSA_ROOM_1RO;
+    else if (position === 2) xpReward = XP_CAUSA_ROOM_2DO;
+    else if (position === 3) xpReward = XP_CAUSA_ROOM_3RO;
 
     // Actualizar posición y score del participante
     await prisma.causaParticipant.update({
@@ -127,19 +131,20 @@ export async function finishRoom(roomId: string): Promise<{
       data: { position, score: totalScore },
     });
 
-    // Incrementar XP del usuario
-    const updateData: { xp: { increment: number }; causasGanadas?: { increment: number } } = {
-      xp: { increment: xpReward },
-    };
+    // Incrementar causasGanadas para el primer lugar
     if (position === 1) {
-      updateData.causasGanadas = { increment: 1 };
+      await prisma.user.update({
+        where: { id: userId },
+        data: { causasGanadas: { increment: 1 } },
+      });
     }
-    await prisma.user.update({ where: { id: userId }, data: updateData });
 
-    // Incrementar league weeklyXp
-    await prisma.leagueMember.updateMany({
-      where: { userId, league: { weekStart } },
-      data: { weeklyXp: { increment: xpReward } },
+    // Award XP via centralized awardXp (user.xp + leagueMember.weeklyXp + XpLog)
+    await awardXp({
+      userId,
+      amount: xpReward,
+      category: "causas",
+      prisma,
     });
   }
 

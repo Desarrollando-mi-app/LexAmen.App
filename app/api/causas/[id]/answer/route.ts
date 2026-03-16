@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { calculateCausaScore, CAUSA_QUESTIONS, CAUSA_WINNER_XP } from "@/lib/causa";
-import { getCurrentWeekBounds } from "@/lib/league";
+import { calculateCausaScore, CAUSA_QUESTIONS } from "@/lib/causa";
+import { XP_CAUSA_1V1_GANADOR, XP_CAUSA_1V1_PERDEDOR, awardXp } from "@/lib/xp-config";
 
 export async function POST(
   request: Request,
@@ -179,27 +179,28 @@ export async function POST(
           ? causa.challengedId
           : causa.challengerId;
 
+      // Winner: XP + causasGanadas
       await prisma.user.update({
         where: { id: winnerId },
-        data: {
-          xp: { increment: CAUSA_WINNER_XP },
-          causasGanadas: { increment: 1 },
-        },
+        data: { causasGanadas: { increment: 1 } },
+      });
+      await awardXp({
+        userId: winnerId,
+        amount: XP_CAUSA_1V1_GANADOR,
+        category: "causas",
+        prisma,
       });
 
+      // Loser: XP + causasPerdidas (antes era 0 XP, ahora 5)
       await prisma.user.update({
         where: { id: loserId },
         data: { causasPerdidas: { increment: 1 } },
       });
-
-      // Incrementar weeklyXp del ganador
-      const { weekStart } = getCurrentWeekBounds();
-      await prisma.leagueMember.updateMany({
-        where: {
-          userId: winnerId,
-          league: { weekStart },
-        },
-        data: { weeklyXp: { increment: CAUSA_WINNER_XP } },
+      await awardXp({
+        userId: loserId,
+        amount: XP_CAUSA_1V1_PERDEDOR,
+        category: "causas",
+        prisma,
       });
     }
 

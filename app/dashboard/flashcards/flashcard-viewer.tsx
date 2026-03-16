@@ -10,6 +10,10 @@ import {
   LIBRO_LABELS,
   DIFICULTAD_LABELS,
 } from "@/lib/curriculum-data";
+import {
+  StudySourceSelector,
+  type SourceSelection,
+} from "@/app/dashboard/components/study-source-selector";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -65,6 +69,10 @@ export function FlashcardViewer({
 }: FlashcardViewerProps) {
   const router = useRouter();
   const pathname = usePathname();
+
+  const [showSelector, setShowSelector] = useState(
+    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo
+  );
 
   const [selectedRama, setSelectedRama] = useState<string>(
     initialFilters?.rama || "ALL"
@@ -423,6 +431,34 @@ export function FlashcardViewer({
           ))}
         </div>
       </>
+    );
+  }
+
+  // ─── Source selector screen ─────────────────────────────
+
+  if (showSelector) {
+    return (
+      <StudySourceSelector
+        items={flashcards}
+        contentType="flashcards"
+        onStart={(sel: SourceSelection) => {
+          setSelectedRama(sel.rama);
+          setSelectedLibro(sel.libro);
+          setSelectedTitulo(sel.titulo);
+          setSelectedDificultad("ALL");
+          resetView();
+          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo });
+          setShowSelector(false);
+        }}
+        onStudyAll={() => {
+          setSelectedRama("ALL");
+          setSelectedLibro("ALL");
+          setSelectedTitulo("ALL");
+          setSelectedDificultad("ALL");
+          resetView();
+          setShowSelector(false);
+        }}
+      />
     );
   }
 

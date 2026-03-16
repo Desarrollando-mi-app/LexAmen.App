@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { progressKey } from "@/lib/progress-utils";
+import { checkStreakPenalty } from "@/lib/xp-config";
 import type { ProgressData } from "./components/curriculum-progress";
 import { RAMA_LABELS, CURRICULUM } from "@/lib/curriculum-data";
 
@@ -112,6 +113,9 @@ export default async function DashboardPage() {
       });
     }
   }
+
+  // ─── Verificar penalización por romper racha ────────────
+  await checkStreakPenalty(authUser.id, prisma);
 
   // ─── Consultas de estadísticas (en paralelo) ──────────────
   const [

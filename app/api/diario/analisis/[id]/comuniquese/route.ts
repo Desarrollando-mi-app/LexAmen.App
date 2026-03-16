@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { sendNotification } from "@/lib/notifications";
+import { awardXp, XP_RECIBIR_COMUNIQUESE_DIARIO } from "@/lib/xp-config";
 
 // ─── POST: Toggle Comuníquese Análisis ─────────────────────
 
@@ -66,11 +67,13 @@ export async function POST(
       data: { comuniqueseCount: { increment: 1 } },
     });
 
-    // XP +3 al autor del análisis (su contenido fue amplificado)
+    // XP al autor del análisis (su contenido fue amplificado)
     if (analisis.userId !== authUser.id) {
-      await prisma.user.update({
-        where: { id: analisis.userId },
-        data: { xp: { increment: 3 } },
+      await awardXp({
+        userId: analisis.userId,
+        amount: XP_RECIBIR_COMUNIQUESE_DIARIO,
+        category: "publicaciones",
+        prisma,
       });
     }
 

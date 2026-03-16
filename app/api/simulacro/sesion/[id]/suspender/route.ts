@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import {
+  XP_SIMULACRO_SUSPENDIDO_BASE,
+  XP_SIMULACRO_SUSPENDIDO_CORRECTA,
+  XP_SIMULACRO_SUSPENDIDO_AVANZADO,
+  awardXp,
+} from "@/lib/xp-config";
 
 export async function POST(
   _request: Request,
@@ -60,15 +66,15 @@ export async function POST(
     },
   });
 
-  // XP parcial
-  const XP_SESION_COMPLETADA = 3; // Menos XP por suspender vs completar
-  const XP_RESPUESTA_CORRECTA = 2;
-  let xpGanado = XP_SESION_COMPLETADA + correctas * XP_RESPUESTA_CORRECTA;
-  if (sesion.nivelActual === "AVANZADO") xpGanado += 3;
+  // XP parcial — via centralized awardXp (user.xp + leagueMember.weeklyXp + XpLog)
+  let xpGanado = XP_SIMULACRO_SUSPENDIDO_BASE + correctas * XP_SIMULACRO_SUSPENDIDO_CORRECTA;
+  if (sesion.nivelActual === "AVANZADO") xpGanado += XP_SIMULACRO_SUSPENDIDO_AVANZADO;
 
-  await prisma.user.update({
-    where: { id: authUser.id },
-    data: { xp: { increment: xpGanado } },
+  await awardXp({
+    userId: authUser.id,
+    amount: xpGanado,
+    category: "simulacro",
+    prisma,
   });
 
   return NextResponse.json({

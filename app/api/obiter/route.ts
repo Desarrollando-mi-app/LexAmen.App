@@ -10,6 +10,7 @@ import {
   OBITER_MAX_WORDS,
   OBITER_MAX_THREAD_PARTS,
 } from "@/lib/obiter-utils";
+import { awardXp, XP_CITADO_OBITER } from "@/lib/xp-config";
 
 // ─── POST: Crear Obiter ─────────────────────────────────────
 
@@ -202,11 +203,13 @@ export async function POST(request: NextRequest) {
       select: { userId: true },
     });
 
-    // XP +10 al autor citado (si no es el mismo usuario)
+    // XP al autor citado (si no es el mismo usuario)
     if (citedObiter.userId !== authUser.id) {
-      await prisma.user.update({
-        where: { id: citedObiter.userId },
-        data: { xp: { increment: 10 } },
+      await awardXp({
+        userId: citedObiter.userId,
+        amount: XP_CITADO_OBITER,
+        category: "publicaciones",
+        prisma,
       });
 
       // Notificación

@@ -5,6 +5,12 @@ import { INTERROGADORES } from "@/lib/interrogadores";
 import { CURRICULUM } from "@/lib/curriculum-data";
 import { construirPromptEvaluacion } from "@/lib/simulacro-adaptativo";
 import { generarAudioTTS } from "@/lib/tts";
+import {
+  XP_SIMULACRO_COMPLETADO_BASE,
+  XP_SIMULACRO_POR_CORRECTA,
+  XP_SIMULACRO_BONUS_AVANZADO,
+  awardXp,
+} from "@/lib/xp-config";
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -105,10 +111,7 @@ Responde ÚNICAMENTE en JSON con este formato exacto:
 Solo JSON válido, sin texto adicional antes ni después.`;
 }
 
-// XP rewards
-const XP_SESION_COMPLETADA = 5;
-const XP_RESPUESTA_CORRECTA = 2;
-const XP_BONUS_AVANZADO = 5;
+// XP rewards — using centralized constants from xp-config
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -302,16 +305,18 @@ export async function POST(request: Request) {
     data: updateData,
   });
 
-  // XP
+  // XP — via centralized awardXp (user.xp + leagueMember.weeklyXp + XpLog)
   if (sesionCompletada) {
-    let xpGanado = XP_SESION_COMPLETADA;
-    xpGanado += nuevasCorrectas * XP_RESPUESTA_CORRECTA;
+    let xpGanado = XP_SIMULACRO_COMPLETADO_BASE;
+    xpGanado += nuevasCorrectas * XP_SIMULACRO_POR_CORRECTA;
     if (sesion.nivelActual === "AVANZADO") {
-      xpGanado += XP_BONUS_AVANZADO;
+      xpGanado += XP_SIMULACRO_BONUS_AVANZADO;
     }
-    await prisma.user.update({
-      where: { id: authUser.id },
-      data: { xp: { increment: xpGanado } },
+    await awardXp({
+      userId: authUser.id,
+      amount: xpGanado,
+      category: "simulacro",
+      prisma,
     });
   }
 

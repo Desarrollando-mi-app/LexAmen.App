@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentWeekBounds } from "@/lib/league";
+import { XP_DEFINICION_CORRECT, awardXp } from "@/lib/xp-config";
 
 const DAILY_FREE_LIMIT = 15;
-const XP_CORRECT = 2;
 
 export async function POST(request: Request) {
   // 1. Auth
@@ -84,7 +83,7 @@ export async function POST(request: Request) {
 
   // 6. Evaluate
   const isCorrect = respuesta === definicion.concepto;
-  const xpGained = isCorrect ? XP_CORRECT : 0;
+  const xpGained = isCorrect ? XP_DEFINICION_CORRECT : 0;
 
   // 7. Save attempt
   await prisma.definicionIntento.create({
@@ -97,25 +96,17 @@ export async function POST(request: Request) {
     },
   });
 
-  // 8. Increment XP if correct
+  // 8. Award XP via centralized awardXp (user.xp + leagueMember.weeklyXp + XpLog)
   if (xpGained > 0) {
-    await prisma.user.update({
-      where: { id: authUser.id },
-      data: { xp: { increment: xpGained } },
-    });
-
-    // 9. Update league weekly XP
-    const { weekStart } = getCurrentWeekBounds();
-    await prisma.leagueMember.updateMany({
-      where: {
-        userId: authUser.id,
-        league: { weekStart },
-      },
-      data: { weeklyXp: { increment: xpGained } },
+    await awardXp({
+      userId: authUser.id,
+      amount: xpGained,
+      category: "estudio",
+      prisma,
     });
   }
 
-  // 10. Return result
+  // 9. Return result
   return NextResponse.json({
     isCorrect,
     correctAnswer: definicion.concepto,

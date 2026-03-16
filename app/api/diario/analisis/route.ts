@@ -7,7 +7,6 @@ import {
   ANALISIS_HECHOS_MAX_CHARS,
   ANALISIS_RATIO_MAX_CHARS,
   ANALISIS_RESUMEN_MAX_CHARS,
-  LONG_PUBLICATION_XP,
 } from "@/lib/diario-utils";
 
 // ─── GET: Feed de Análisis de Sentencia ─────────────────────
@@ -325,11 +324,13 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  // ─── XP al autor ─────────────────────────────────────────
-
-  await prisma.user.update({
-    where: { id: authUser.id },
-    data: { xp: { increment: LONG_PUBLICATION_XP } },
+  // ─── XP al autor (via awardXp centralizado) ─────────────
+  const { awardXp, XP_PUBLICAR_ANALISIS } = await import("@/lib/xp-config");
+  await awardXp({
+    userId: authUser.id,
+    amount: XP_PUBLICAR_ANALISIS,
+    category: "publicaciones",
+    prisma,
   });
 
   return NextResponse.json({ analisis }, { status: 201 });

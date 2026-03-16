@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { calculateXP, calculateStreakBonus } from "@/lib/xp";
-import { getCurrentWeekBounds } from "@/lib/league";
+import { calculateXP, calculateStreakBonus, awardXp } from "@/lib/xp-config";
 
 const DAILY_FREE_LIMIT = 10;
 
@@ -96,7 +95,7 @@ export async function POST(request: Request) {
   const streakBonus = isCorrect ? calculateStreakBonus(streak ?? 0) : 0;
   const xpGained = baseXP + streakBonus;
 
-  // 8. Guardar intento y actualizar XP del usuario
+  // 8. Guardar intento
   await prisma.userMCQAttempt.create({
     data: {
       userId: authUser.id,
@@ -106,20 +105,15 @@ export async function POST(request: Request) {
     },
   });
 
-  await prisma.user.update({
-    where: { id: authUser.id },
-    data: { xp: { increment: xpGained } },
-  });
-
-  // 9. Incrementar weeklyXp en la liga semanal (si tiene membresía)
-  const { weekStart } = getCurrentWeekBounds();
-  await prisma.leagueMember.updateMany({
-    where: {
+  // 9. Otorgar XP via awardXp centralizado (user.xp + leagueMember.weeklyXp + XpLog)
+  if (xpGained > 0) {
+    await awardXp({
       userId: authUser.id,
-      league: { weekStart },
-    },
-    data: { weeklyXp: { increment: xpGained } },
-  });
+      amount: xpGained,
+      category: "estudio",
+      prisma,
+    });
+  }
 
   // 10. Retornar resultado
   return NextResponse.json({

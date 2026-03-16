@@ -272,6 +272,9 @@ model User {
 
   // Definiciones
   definicionIntentos      DefinicionIntento[]   @relation("DefinicionIntentos")
+
+  // XP Log (desglose por categoría)
+  xpLogs                  XpLog[]               @relation("XpLogs")
 }
 
 model Flashcard {
@@ -1534,5 +1537,20 @@ model DefinicionIntento {
 
   @@index([userId])
   @@index([definicionId])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+// ─── XP Log — Desglose por categoría ────────────────────────
+
+model XpLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation("XpLogs", fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int      // Puede ser negativo (penalización)
+  category  String   // "estudio" | "simulacro" | "causas" | "publicaciones" | "bonus"
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, category])
   @@index([userId, createdAt(sort: Desc)])
 }

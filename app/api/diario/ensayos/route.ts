@@ -292,11 +292,13 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  // ─── XP +15 al autor ─────────────────────────────────────
-
-  await prisma.user.update({
-    where: { id: authUser.id },
-    data: { xp: { increment: 15 } },
+  // ─── XP al autor (via awardXp centralizado) ─────────────
+  const { awardXp, XP_PUBLICAR_ENSAYO } = await import("@/lib/xp-config");
+  await awardXp({
+    userId: authUser.id,
+    amount: XP_PUBLICAR_ENSAYO,
+    category: "publicaciones",
+    prisma,
   });
 
   return NextResponse.json({ ensayo }, { status: 201 });

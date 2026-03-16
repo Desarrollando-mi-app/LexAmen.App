@@ -9,6 +9,10 @@ import {
   LIBRO_LABELS,
   DIFICULTAD_LABELS,
 } from "@/lib/curriculum-data";
+import {
+  StudySourceSelector,
+  type SourceSelection,
+} from "@/app/dashboard/components/study-source-selector";
 
 // ─── Tipos ─────────────────────────────────────────────────
 
@@ -55,6 +59,11 @@ export function MCQViewer({
 }: MCQViewerProps) {
   const router = useRouter();
   const pathname = usePathname();
+
+  // Show source selector unless URL has specific filters
+  const [showSelector, setShowSelector] = useState(
+    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo
+  );
 
   const [selectedRama, setSelectedRama] = useState<string>(
     initialFilters?.rama || "ALL"
@@ -295,6 +304,34 @@ export function MCQViewer({
           </select>
         )}
       </div>
+    );
+  }
+
+  // ─── Source selector screen ─────────────────────────────
+
+  if (showSelector) {
+    return (
+      <StudySourceSelector
+        items={mcqs}
+        contentType="mcq"
+        onStart={(sel: SourceSelection) => {
+          setSelectedRama(sel.rama);
+          setSelectedLibro(sel.libro);
+          setSelectedTitulo(sel.titulo);
+          setSelectedDificultad("ALL");
+          resetQuestionState();
+          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo });
+          setShowSelector(false);
+        }}
+        onStudyAll={() => {
+          setSelectedRama("ALL");
+          setSelectedLibro("ALL");
+          setSelectedTitulo("ALL");
+          setSelectedDificultad("ALL");
+          resetQuestionState();
+          setShowSelector(false);
+        }}
+      />
     );
   }
 

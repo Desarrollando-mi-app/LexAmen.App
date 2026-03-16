@@ -2,6 +2,10 @@
 
 import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
+import {
+  StudySourceSelector,
+  type SourceSelection,
+} from "@/app/dashboard/components/study-source-selector";
 
 /* ─── Types ─── */
 
@@ -22,6 +26,11 @@ interface Props {
   attemptsToday: number;
   dailyLimit: number;
   isPremium: boolean;
+  initialFilters?: {
+    rama?: string;
+    libro?: string;
+    titulo?: string;
+  };
 }
 
 type FeedbackState = {
@@ -39,7 +48,23 @@ export function DefinicionesViewer({
   attemptsToday: initialAttempts,
   dailyLimit,
   isPremium,
+  initialFilters,
 }: Props) {
+  // Show source selector unless URL has specific filters
+  const [showSelector, setShowSelector] = useState(
+    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo
+  );
+
+  const [selectedRama, setSelectedRama] = useState<string>(
+    initialFilters?.rama || "ALL"
+  );
+  const [selectedLibro, setSelectedLibro] = useState<string>(
+    initialFilters?.libro || "ALL"
+  );
+  const [selectedTitulo, setSelectedTitulo] = useState<string>(
+    initialFilters?.titulo || "ALL"
+  );
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [loading, setLoading] = useState(false);
@@ -47,19 +72,38 @@ export function DefinicionesViewer({
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [startTime, setStartTime] = useState<number>(Date.now());
 
+  // Filter definitions by selected rama/libro/titulo
+  const filteredDefiniciones = useMemo(() => {
+    let defs = definiciones;
+    if (selectedRama !== "ALL")
+      defs = defs.filter((d) => d.rama === selectedRama);
+    if (selectedLibro !== "ALL")
+      defs = defs.filter((d) => d.libro === selectedLibro);
+    if (selectedTitulo !== "ALL")
+      defs = defs.filter((d) => d.titulo === selectedTitulo);
+    return defs;
+  }, [definiciones, selectedRama, selectedLibro, selectedTitulo]);
+
   // Shuffle order for variety
   const shuffledIndices = useMemo(() => {
-    const indices = definiciones.map((_, i) => i);
+    const indices = filteredDefiniciones.map((_, i) => i);
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
     return indices;
-  }, [definiciones]);
+  }, [filteredDefiniciones]);
 
-  const current = definiciones[shuffledIndices[currentIndex]];
+  const current = filteredDefiniciones[shuffledIndices[currentIndex]];
   const isLimitReached = !isPremium && attempts >= dailyLimit;
   const hasMore = currentIndex < shuffledIndices.length - 1;
+
+  function resetState() {
+    setCurrentIndex(0);
+    setFeedback(null);
+    setScore({ correct: 0, incorrect: 0 });
+    setStartTime(Date.now());
+  }
 
   const handleSelect = useCallback(
     async (selectedOption: string) => {
@@ -121,24 +165,56 @@ export function DefinicionesViewer({
     setStartTime(Date.now());
   }, []);
 
+  /* ─── Source selector ─── */
+  if (showSelector) {
+    return (
+      <StudySourceSelector
+        items={definiciones}
+        contentType="definiciones"
+        onStart={(sel: SourceSelection) => {
+          setSelectedRama(sel.rama);
+          setSelectedLibro(sel.libro);
+          setSelectedTitulo(sel.titulo);
+          resetState();
+          setShowSelector(false);
+        }}
+        onStudyAll={() => {
+          setSelectedRama("ALL");
+          setSelectedLibro("ALL");
+          setSelectedTitulo("ALL");
+          resetState();
+          setShowSelector(false);
+        }}
+      />
+    );
+  }
+
   /* ─── Empty state ─── */
-  if (definiciones.length === 0) {
+  if (filteredDefiniciones.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <span className="text-5xl mb-4">📭</span>
         <h2 className="font-cormorant text-2xl font-bold text-gz-ink mb-2">
-          A&uacute;n no hay definiciones disponibles
+          No hay definiciones disponibles
         </h2>
         <p className="text-sm text-gz-ink-mid max-w-sm">
-          Las definiciones jur&iacute;dicas se agregar&aacute;n pr&oacute;ximamente.
-          Mientras tanto, prueba otros m&oacute;dulos de estudio.
+          No se encontraron definiciones para esta selecci&oacute;n.
+          Prueba con otra materia o estudia todo el contenido.
         </p>
-        <Link
-          href="/dashboard"
-          className="mt-6 inline-block rounded-sm border border-gz-rule px-5 py-2 font-archivo text-sm text-gz-ink-mid hover:bg-gz-cream-dark transition-colors"
-        >
-          Volver al Escritorio
-        </Link>
+        <div className="mt-6 flex gap-3">
+          <button
+            onClick={() => setShowSelector(true)}
+            className="rounded-sm border border-gz-rule px-5 py-2 font-archivo text-sm text-gz-ink-mid hover:bg-gz-cream-dark transition-colors"
+          >
+            Cambiar selecci&oacute;n
+          </button>
+          <Link
+            href="/dashboard"
+            className="rounded-sm border border-gz-rule px-5 py-2 font-archivo text-sm text-gz-ink-mid hover:bg-gz-cream-dark transition-colors"
+          >
+            Volver al Escritorio
+          </Link>
+        </div>
       </div>
     );
   }
@@ -196,8 +272,8 @@ export function DefinicionesViewer({
 
   const totalAnswered = score.correct + score.incorrect;
   const progressPercent =
-    definiciones.length > 0
-      ? Math.round((totalAnswered / definiciones.length) * 100)
+    filteredDefiniciones.length > 0
+      ? Math.round((totalAnswered / filteredDefiniciones.length) * 100)
       : 0;
 
   return (
@@ -205,7 +281,7 @@ export function DefinicionesViewer({
       {/* Progress bar + score */}
       <div className="flex items-center justify-between text-xs text-gz-ink-mid font-ibm-mono">
         <span>
-          {totalAnswered}/{definiciones.length}
+          {totalAnswered}/{filteredDefiniciones.length}
         </span>
         <span>
           {score.correct} ✓ &middot; {score.incorrect} ✗

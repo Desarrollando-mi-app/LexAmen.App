@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { calculateSM2 } from "@/lib/sm2";
+import {
+  XP_FLASHCARD_REVIEW,
+  XP_FLASHCARD_KNEW,
+  XP_FLASHCARD_FIRST_MASTERY,
+  awardXp,
+} from "@/lib/xp-config";
 
 const DAILY_FREE_LIMIT = 30;
 
@@ -83,6 +89,8 @@ export async function POST(request: Request) {
     },
   });
 
+  const previousReps = existingProgress?.repetitions ?? 0;
+
   // 7. Calcular SM-2
   const sm2Result = calculateSM2({
     quality,
@@ -114,7 +122,28 @@ export async function POST(request: Request) {
     },
   });
 
-  // 9. Detectar completación de título
+  // 9. Award XP for flashcard review
+  const xpAmount = quality >= 3 ? XP_FLASHCARD_KNEW : XP_FLASHCARD_REVIEW;
+  await awardXp({
+    userId: authUser.id,
+    amount: xpAmount,
+    category: "estudio",
+    prisma,
+  });
+
+  // 10. First mastery bonus: if flashcard just reached repetitions >= 3
+  let masteryBonus = 0;
+  if (previousReps < 3 && sm2Result.repetitions >= 3) {
+    masteryBonus = XP_FLASHCARD_FIRST_MASTERY;
+    await awardXp({
+      userId: authUser.id,
+      amount: XP_FLASHCARD_FIRST_MASTERY,
+      category: "estudio",
+      prisma,
+    });
+  }
+
+  // 11. Detectar completación de título
   let completedTitulo: string | null = null;
 
   const flashcard = await prisma.flashcard.findUnique({
@@ -189,12 +218,13 @@ export async function POST(request: Request) {
     }
   }
 
-  // 10. Retornar resultado
+  // 12. Retornar resultado
   return NextResponse.json({
     nextReviewAt: sm2Result.nextReviewAt.toISOString(),
     newInterval: sm2Result.interval,
     newEaseFactor: sm2Result.easeFactor,
     reviewsToday: reviewsToday + 1,
+    xpGained: xpAmount + masteryBonus,
     ...(completedTitulo && { completedTitulo }),
   });
 }

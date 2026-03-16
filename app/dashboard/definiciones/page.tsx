@@ -6,7 +6,15 @@ import Image from "next/image";
 
 const DAILY_FREE_LIMIT = 15;
 
-export default async function DefinicionesPage() {
+export default async function DefinicionesPage({
+  searchParams,
+}: {
+  searchParams: {
+    rama?: string;
+    libro?: string;
+    titulo?: string;
+  };
+}) {
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -90,6 +98,11 @@ export default async function DefinicionesPage() {
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_FREE_LIMIT}
           isPremium={dbUser.plan !== "FREE"}
+          initialFilters={{
+            rama: searchParams.rama,
+            libro: searchParams.libro,
+            titulo: searchParams.titulo,
+          }}
         />
       </div>
     </main>
