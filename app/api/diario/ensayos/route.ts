@@ -302,5 +302,9 @@ export async function POST(request: NextRequest) {
     prisma,
   });
 
+  // Badge evaluation
+  const { evaluateBadges } = await import("@/lib/badges");
+  evaluateBadges(authUser.id, "diario").catch(() => {});
+
   return NextResponse.json({ ensayo }, { status: 201 });
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { sendNotification } from "@/lib/notifications";
+import { evaluateBadges } from "@/lib/badges";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -78,6 +79,10 @@ export async function POST(request: Request) {
       targetUserId: colegaRequest.senderId,
       metadata: { requestId },
     }).catch(() => {});
+
+    // Badge evaluation for both colegas
+    evaluateBadges(colegaRequest.senderId, "comunidad").catch(() => {});
+    evaluateBadges(authUser.id, "comunidad").catch(() => {});
   }
 
   return NextResponse.json({ success: true, status: newStatus });

@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma";
 import {
   getPreviousWeekBounds,
   getCurrentWeekBounds,
-  tierUp,
-  tierDown,
+  getGradoMaximoPorXp,
   PROMOTION_SPOTS,
   RELEGATION_SPOTS,
+  MAX_LEAGUE_SIZE,
 } from "@/lib/league";
 import { sendNotification } from "@/lib/notifications";
+import { evaluateBadges } from "@/lib/badges";
 
 export async function POST(request: Request) {
   // 1. Seguridad: verificar CRON_SECRET
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     include: {
       members: {
         orderBy: { weeklyXp: "desc" },
-        include: { user: { select: { id: true } } },
+        include: { user: { select: { id: true, xp: true, grado: true } } },
       },
     },
   });
@@ -46,6 +47,8 @@ export async function POST(request: Request) {
     for (let i = 0; i < total; i++) {
       const member = league.members[i];
       const rank = i + 1;
+      const userXp = member.user.xp;
+      const userGrado = member.user.grado;
 
       // Asignar rank final
       await prisma.leagueMember.update({
@@ -53,38 +56,40 @@ export async function POST(request: Request) {
         data: { rank },
       });
 
-      // Determinar nuevo tier
-      let newTier = league.tier;
+      let newGrado = userGrado;
 
       if (rank <= PROMOTION_SPOTS) {
-        // Top ascienden (si es posible)
-        const up = tierUp(league.tier);
-        if (up) {
-          newTier = up as typeof league.tier;
+        // Top 3: suben 1 grado SI el XP lo permite
+        const gradoMaximo = getGradoMaximoPorXp(userXp);
+        if (userGrado < gradoMaximo.grado) {
+          newGrado = Math.min(33, userGrado + 1);
           promoted++;
           sendNotification({
             type: "LEAGUE_RESULT",
-            title: "¡Ascendiste de liga!",
-            body: `Pasaste de ${league.tier} a ${up}. ¡Sigue así!`,
+            title: "¡Ascendiste de grado!",
+            body: `Subiste al Grado ${newGrado}. ¡Sigue así!`,
             targetUserId: member.userId,
-            metadata: { from: league.tier, to: up, rank },
+            metadata: { from: userGrado, to: newGrado, rank },
             sendEmail: true,
           }).catch(() => {});
         } else {
+          // Already at XP ceiling
           maintained++;
         }
-      } else if (rank > total - RELEGATION_SPOTS) {
-        // Bottom descienden (si es posible)
-        const down = tierDown(league.tier);
-        if (down) {
-          newTier = down as typeof league.tier;
+      } else if (rank > total - RELEGATION_SPOTS && total > RELEGATION_SPOTS) {
+        // Bottom 3: bajan 1 grado (con piso)
+        // Piso = max(1, gradoMaximoPorXp - 2)
+        const gradoMaximo = getGradoMaximoPorXp(userXp);
+        const piso = Math.max(1, gradoMaximo.grado - 2);
+        if (userGrado > piso) {
+          newGrado = Math.max(1, userGrado - 1);
           demoted++;
           sendNotification({
             type: "LEAGUE_RESULT",
-            title: "Descendiste de liga",
-            body: `Bajaste de ${league.tier} a ${down}. ¡La próxima será mejor!`,
+            title: "Descendiste de grado",
+            body: `Bajaste al Grado ${newGrado}. ¡La próxima será mejor!`,
             targetUserId: member.userId,
-            metadata: { from: league.tier, to: down, rank },
+            metadata: { from: userGrado, to: newGrado, rank },
             sendEmail: false,
           }).catch(() => {});
         } else {
@@ -94,19 +99,34 @@ export async function POST(request: Request) {
         maintained++;
       }
 
-      // Crear membresía para nueva semana con tier actualizado
-      // Buscar o crear liga con espacio
+      // Actualizar grado del usuario si cambió
+      if (newGrado !== userGrado) {
+        await prisma.user.update({
+          where: { id: member.userId },
+          data: { grado: newGrado },
+        });
+      }
+
+      // Badge evaluation for grados
+      evaluateBadges(member.userId, "grados").catch(() => {});
+
+      // Crear membresía para nueva semana
+      // Buscar liga con grado cercano y espacio
       const existingLeagues = await prisma.league.findMany({
-        where: { tier: newTier, weekStart: newWeekStart },
+        where: {
+          weekStart: newWeekStart,
+          gradoRef: { gte: Math.max(1, newGrado - 3), lte: Math.min(33, newGrado + 3) },
+        },
         include: { _count: { select: { members: true } } },
       });
 
-      let targetLeague = existingLeagues.find((l) => l._count.members < 30);
+      let targetLeague = existingLeagues.find((l) => l._count.members < MAX_LEAGUE_SIZE);
 
       if (!targetLeague) {
         targetLeague = await prisma.league.create({
           data: {
-            tier: newTier,
+            tier: "CARTON",
+            gradoRef: newGrado,
             weekStart: newWeekStart,
             weekEnd: newWeekEnd,
           },

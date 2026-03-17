@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { calculateXP, calculateStreakBonus, awardXp } from "@/lib/xp-config";
+import { evaluateBadges } from "@/lib/badges";
 
 const DAILY_FREE_LIMIT = 10;
 
@@ -116,6 +117,9 @@ export async function POST(request: Request) {
       prisma,
     });
   }
+
+  // Badge evaluation
+  evaluateBadges(authUser.id, "estudio").catch(() => {});
 
   // 10. Retornar resultado
   return NextResponse.json({

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { evaluateBadges } from "@/lib/badges";
 // GET: List approved events (public)
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -179,6 +180,9 @@ export async function POST(request: Request) {
       sourceEventoId: evento.id,
     },
   }).catch(() => { /* silently ignore if duplicate */ });
+
+  // Badge evaluation
+  evaluateBadges(authUser.id, "comunidad").catch(() => {});
 
   return NextResponse.json({
     evento,

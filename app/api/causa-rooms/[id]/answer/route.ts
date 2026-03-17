@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { calculateCausaScore, ROOM_QUESTIONS, finishRoom } from "@/lib/causa-room";
+import { evaluateBadges } from "@/lib/badges";
 
 export async function POST(
   request: Request,
@@ -121,6 +122,9 @@ export async function POST(
     rankings = result.rankings;
     badgeResults = result.badgeResults;
   }
+
+  // Badge evaluation for causas
+  evaluateBadges(authUser.id, "causas").catch(() => {});
 
   return NextResponse.json({
     isCorrect,

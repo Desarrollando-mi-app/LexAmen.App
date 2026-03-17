@@ -1,10 +1,11 @@
 import Link from "next/link";
 import {
-  TIER_LABELS,
-  TIER_EMOJIS,
+  getGradoInfo,
+  NIVELES,
   PROMOTION_SPOTS,
   RELEGATION_SPOTS,
 } from "@/lib/league";
+import type { NivelLiga } from "@/lib/league";
 
 /* ─── Types ─── */
 
@@ -17,6 +18,7 @@ interface LigaMember {
 
 interface GzLigaResumenProps {
   tier: string;
+  userGrado: number;
   daysRemaining: number;
   userId: string;
   myPosition: number | null;
@@ -28,7 +30,7 @@ interface GzLigaResumenProps {
 /* ─── Component ─── */
 
 export function GzLigaResumen({
-  tier,
+  userGrado,
   daysRemaining,
   userId,
   myPosition,
@@ -36,8 +38,8 @@ export function GzLigaResumen({
   totalMembers,
   topMembers,
 }: GzLigaResumenProps) {
-  const tierLabel = TIER_LABELS[tier] ?? tier;
-  const tierEmoji = TIER_EMOJIS[tier] ?? "";
+  const gradoInfo = getGradoInfo(userGrado);
+  const nivelInfo = NIVELES[gradoInfo.nivel as NivelLiga];
 
   const isPromo = (pos: number) => pos <= PROMOTION_SPOTS;
   const isReleg = (pos: number) => pos > totalMembers - RELEGATION_SPOTS && totalMembers > RELEGATION_SPOTS;
@@ -53,13 +55,13 @@ export function GzLigaResumen({
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gz-rule">
         <div className="flex items-center gap-2">
-          <span className="text-lg">{tierEmoji}</span>
+          <span className="text-lg">{gradoInfo.emoji}</span>
           <div>
             <p className="font-ibm-mono text-[8px] uppercase tracking-[2px] text-gz-ink-light">
-              Liga Semanal
+              Grado {userGrado} · {nivelInfo?.label ?? gradoInfo.nivel}
             </p>
             <p className="font-cormorant text-lg font-bold italic text-gz-ink leading-tight">
-              {tierLabel}
+              {gradoInfo.nombre}
             </p>
           </div>
         </div>

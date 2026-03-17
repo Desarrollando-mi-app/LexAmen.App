@@ -3,9 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { ensureLeagueMembership } from "@/lib/league-assign";
 import { prisma } from "@/lib/prisma";
 import {
-  TIER_LABELS,
-  TIER_EMOJIS,
-  TIER_ORDER,
+  GRADOS,
+  NIVELES,
+  getGradoInfo,
+  getSiguienteGrado,
+  getProgresoGrado,
   getDaysRemaining,
   getCurrentWeekBounds,
   PROMOTION_SPOTS,
@@ -28,8 +30,14 @@ export default async function LigaPage() {
 
   const { weekStart } = getCurrentWeekBounds();
 
-  // Fetch miembros de la liga + desglose + historial en paralelo
-  const [members, xpGrouped, historicalMemberships] = await Promise.all([
+  // Fetch datos del usuario + miembros + desglose + historial en paralelo
+  const [userData, members, xpGrouped, historicalMemberships] = await Promise.all([
+    // User data (grado, xp)
+    prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { xp: true, grado: true, visibleEnLiga: true },
+    }),
+
     // Miembros de la liga actual
     prisma.leagueMember.findMany({
       where: { leagueId: membership.leagueId },
@@ -42,6 +50,7 @@ export default async function LigaPage() {
             lastName: true,
             avatarUrl: true,
             visibleEnLiga: true,
+            grado: true,
           },
         },
       },
@@ -68,7 +77,7 @@ export default async function LigaPage() {
       include: {
         league: {
           select: {
-            tier: true,
+            gradoRef: true,
             weekStart: true,
             weekEnd: true,
           },
@@ -76,6 +85,13 @@ export default async function LigaPage() {
       },
     }),
   ]);
+
+  const userGrado = userData?.grado ?? 1;
+  const userXp = userData?.xp ?? 0;
+  const myVisibleEnLiga = userData?.visibleEnLiga ?? true;
+  const gradoInfo = getGradoInfo(userGrado);
+  const siguienteGrado = getSiguienteGrado(userGrado);
+  const progresoGrado = getProgresoGrado(userXp, userGrado);
 
   // Serializar miembros
   const maxXp = members.length > 0 ? Math.max(...members.map((m) => m.weeklyXp), 1) : 1;
@@ -89,6 +105,7 @@ export default async function LigaPage() {
       lastName: visible ? m.user.lastName : "anónimo",
       avatarUrl: visible ? m.user.avatarUrl : null,
       weeklyXp: m.weeklyXp,
+      grado: m.user.grado,
     };
   });
 
@@ -103,30 +120,54 @@ export default async function LigaPage() {
     totalXpSemanal += amount;
   }
 
-  // Mi posición y visibilidad
+  // Mi posición
   const myPosition = serializedMembers.find((m) => m.userId === authUser.id)?.position ?? null;
-  const myVisibleEnLiga = members.find((m) => m.user.id === authUser.id)?.user.visibleEnLiga ?? true;
 
-  // Tier index para saber si puede subir/bajar
-  const currentTierIndex = TIER_ORDER.indexOf(membership.league.tier as typeof TIER_ORDER[number]);
-
-  // Historial serializado
-  const historial = historicalMemberships.map((hm) => ({
-    tier: hm.league.tier,
-    tierLabel: TIER_LABELS[hm.league.tier] ?? hm.league.tier,
-    tierEmoji: TIER_EMOJIS[hm.league.tier] ?? "",
-    weekStart: hm.league.weekStart.toISOString(),
-    weeklyXp: hm.weeklyXp,
-    rank: hm.rank,
-  }));
+  // Historial serializado con grado info
+  const historial = historicalMemberships.map((hm) => {
+    const g = getGradoInfo(hm.league.gradoRef);
+    return {
+      gradoRef: hm.league.gradoRef,
+      gradoNombre: g.nombre,
+      gradoEmoji: g.emoji,
+      nivelLabel: NIVELES[g.nivel]?.label ?? g.nivel,
+      weekStart: hm.league.weekStart.toISOString(),
+      weeklyXp: hm.weeklyXp,
+      rank: hm.rank,
+    };
+  });
 
   return (
     <LigaViewer
-      tier={membership.league.tier}
-      tierLabel={TIER_LABELS[membership.league.tier] ?? membership.league.tier}
-      tierEmoji={TIER_EMOJIS[membership.league.tier] ?? ""}
-      weekStart={membership.league.weekStart.toISOString()}
-      weekEnd={membership.league.weekEnd.toISOString()}
+      // User grado info
+      userGrado={userGrado}
+      gradoNombre={gradoInfo.nombre}
+      gradoEmoji={gradoInfo.emoji}
+      gradoColor={gradoInfo.color}
+      nivelLabel={NIVELES[gradoInfo.nivel]?.label ?? gradoInfo.nivel}
+      nivelKey={gradoInfo.nivel}
+      userXp={userXp}
+      xpSiguienteGrado={siguienteGrado?.xpMinimo ?? null}
+      xpGradoActual={gradoInfo.xpMinimo}
+      siguienteGradoNombre={siguienteGrado?.nombre ?? null}
+      siguienteGradoNum={siguienteGrado?.grado ?? null}
+      progresoGrado={progresoGrado}
+      // All 33 grados for the visual bar
+      grados={GRADOS.map(g => ({
+        grado: g.grado,
+        nombre: g.nombre,
+        nivel: g.nivel,
+        emoji: g.emoji,
+        color: g.color,
+        xpMinimo: g.xpMinimo,
+      }))}
+      niveles={Object.entries(NIVELES).map(([key, val]) => ({
+        key,
+        label: val.label,
+        grados: val.grados,
+        color: val.color,
+      }))}
+      // Liga semanal
       daysRemaining={getDaysRemaining()}
       userId={authUser.id}
       members={serializedMembers}
@@ -134,8 +175,6 @@ export default async function LigaPage() {
       desglose={desglose}
       totalXpSemanal={totalXpSemanal}
       myPosition={myPosition}
-      currentTierIndex={currentTierIndex}
-      maxTierIndex={TIER_ORDER.length - 1}
       promotionSpots={PROMOTION_SPOTS}
       relegationSpots={RELEGATION_SPOTS}
       historial={historial}

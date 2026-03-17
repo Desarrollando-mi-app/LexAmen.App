@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
-import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
+import { TIER_LABELS, TIER_EMOJIS, getGradoInfo, NIVELES } from "@/lib/league";
+import type { NivelLiga } from "@/lib/league";
 import { UNIVERSIDAD_NOMBRES, getSedesForUniversidad } from "@/lib/universidades";
 import { validatePassword, PASSWORD_ERROR_MESSAGE } from "@/lib/password-validation";
 
@@ -24,6 +25,7 @@ interface ProfileData {
   xp: number;
   causasGanadas: number;
   tier: string | null;
+  grado?: number;
   flashcardsMastered: number;
   badgeCount: number;
   earnedBadges: string[];
@@ -69,10 +71,18 @@ export function ProfileModal({
   }, [onClose]);
 
   const initials = `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
-  const tierLabel = profile.tier
+  // Use grado system if available, fall back to old tier
+  const gradoInfo = profile.grado ? getGradoInfo(profile.grado) : null;
+  const nivelInfo = gradoInfo ? NIVELES[gradoInfo.nivel as NivelLiga] : null;
+  const tierLabel = gradoInfo
+    ? `Grado ${gradoInfo.grado} · ${gradoInfo.nombre}`
+    : profile.tier
     ? TIER_LABELS[profile.tier] ?? profile.tier
     : null;
-  const tierEmoji = profile.tier ? TIER_EMOJIS[profile.tier] ?? "" : "";
+  const tierEmoji = gradoInfo
+    ? gradoInfo.emoji
+    : profile.tier ? TIER_EMOJIS[profile.tier] ?? "" : "";
+  void nivelInfo; // available for future use
 
   // ─── Avatar upload ────────────────────────────────────
 

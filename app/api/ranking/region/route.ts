@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         select: {
           id: true, firstName: true, lastName: true, avatarUrl: true,
-          xp: true, universidad: true,
+          xp: true, grado: true, universidad: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
             take: 1,
@@ -94,6 +94,7 @@ export async function GET(request: NextRequest) {
       xp: u.xp,
       universidad: u.universidad,
       tier: u.leagueMembers[0]?.league.tier ?? null,
+      grado: u.grado,
     }));
 
     let miPosicion: number | null = null;
@@ -126,7 +127,7 @@ export async function GET(request: NextRequest) {
         take: limit,
         select: {
           id: true, firstName: true, lastName: true, avatarUrl: true,
-          xp: true, universidad: true,
+          xp: true, grado: true, universidad: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
             take: 1,
@@ -146,6 +147,7 @@ export async function GET(request: NextRequest) {
       xp: u.xp,
       universidad: u.universidad,
       tier: u.leagueMembers[0]?.league.tier ?? null,
+      grado: u.grado,
     }));
 
     let miPosicion: number | null = null;

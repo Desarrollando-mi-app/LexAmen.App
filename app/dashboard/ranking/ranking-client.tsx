@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
+import { getGradoInfo } from "@/lib/league";
 
 /* ─── Types ─── */
 
@@ -33,6 +33,7 @@ interface UserRank {
   universityYear?: number | null;
   causasGanadas?: number;
   tier: string | null;
+  grado?: number;
   universidad?: string | null;
 }
 
@@ -151,9 +152,16 @@ function UserRow({ user, showUniv = false }: { user: UserRank | MateriaUserRank;
         </p>
         <div className="flex items-center gap-2 text-[10px] text-gz-ink-light">
           {showUniv && user.universidad && <span className="truncate">{user.universidad}</span>}
-          {tier && (
-            <span>{TIER_EMOJIS[tier]} {TIER_LABELS[tier]}</span>
-          )}
+          {(() => {
+            const g = "grado" in user && (user as UserRank).grado
+              ? getGradoInfo((user as UserRank).grado!)
+              : tier
+              ? getGradoInfo(1)
+              : null;
+            return g ? (
+              <span>{g.emoji} Grado {g.grado} · {g.nombre}</span>
+            ) : null;
+          })()}
         </div>
       </div>
 

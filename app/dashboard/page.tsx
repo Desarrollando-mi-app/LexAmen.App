@@ -565,6 +565,7 @@ export default async function DashboardPage() {
           <GzObiterSemana obiter={obiterDeLaSemana} />
           <GzLigaResumen
             tier={ligaMembership.league.tier}
+            userGrado={user.grado}
             daysRemaining={getDaysRemaining()}
             userId={authUser.id}
             myPosition={ligaMyPosition}

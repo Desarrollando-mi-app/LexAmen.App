@@ -8,6 +8,7 @@ import {
   XP_FLASHCARD_FIRST_MASTERY,
   awardXp,
 } from "@/lib/xp-config";
+import { evaluateBadges } from "@/lib/badges";
 
 const DAILY_FREE_LIMIT = 30;
 
@@ -138,6 +139,9 @@ export async function POST(request: Request) {
     materia: flashcard?.rama,
     prisma,
   });
+
+  // Badge evaluation
+  evaluateBadges(authUser.id, "estudio").catch(() => {});
 
   // 11. First mastery bonus: if flashcard just reached repetitions >= 3
   let masteryBonus = 0;

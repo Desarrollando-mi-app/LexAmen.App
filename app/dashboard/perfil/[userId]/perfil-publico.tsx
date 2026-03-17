@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
-import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
+import { TIER_LABELS, TIER_EMOJIS, getGradoInfo, NIVELES } from "@/lib/league";
+import type { NivelLiga } from "@/lib/league";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -25,6 +26,7 @@ interface ProfileUser {
   causasPerdidas: number;
   winRate: number;
   tier: string | null;
+  grado?: number;
   flashcardsStudied: number;
   mcqAttempts: number;
   trueFalseAttempts: number;
@@ -127,8 +129,18 @@ export function PerfilPublico({
   const [cvMessage, setCvMessage] = useState("");
   const [cvLoading, setCvLoading] = useState(false);
 
-  const tierLabel = user.tier ? TIER_LABELS[user.tier] ?? user.tier : null;
-  const tierEmoji = user.tier ? TIER_EMOJIS[user.tier] ?? "" : "";
+  // Use grado system if available, fall back to old tier
+  const gradoInfo = user.grado ? getGradoInfo(user.grado) : null;
+  const nivelInfo = gradoInfo ? NIVELES[gradoInfo.nivel as NivelLiga] : null;
+  const tierLabel = gradoInfo
+    ? `Grado ${gradoInfo.grado} · ${gradoInfo.nombre}`
+    : user.tier
+    ? TIER_LABELS[user.tier] ?? user.tier
+    : null;
+  const tierEmoji = gradoInfo
+    ? gradoInfo.emoji
+    : user.tier ? TIER_EMOJIS[user.tier] ?? "" : "";
+  void nivelInfo; // used implicitly via tierLabel
   const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
 
   // ─── Colega Handlers ──────────────────────────────────

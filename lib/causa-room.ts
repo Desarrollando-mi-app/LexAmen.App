@@ -185,9 +185,9 @@ export async function finishRoom(roomId: string): Promise<{
   // Evaluar badges para todos los participantes
   const badgeResults: Record<string, BadgeSlug[]> = {};
   for (const p of playerStats) {
-    const newBadges = await evaluateBadges(p.userId);
+    const newBadges = await evaluateBadges(p.userId, "causas");
     if (newBadges.length > 0) {
-      badgeResults[p.userId] = newBadges;
+      badgeResults[p.userId] = newBadges as BadgeSlug[];
     }
   }
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { sendNotification } from "@/lib/notifications";
+import { evaluateBadges } from "@/lib/badges";
 
 export async function PATCH(
   request: Request,
@@ -73,6 +74,9 @@ export async function PATCH(
     : sesion.estudiante.firstName;
 
   if (status === "completada") {
+    // Badge evaluation for tutor
+    evaluateBadges(sesion.tutorId, "comunidad").catch(() => {});
+
     // Notify both participants
     for (const uid of [sesion.tutorId, sesion.estudianteId]) {
       await sendNotification({

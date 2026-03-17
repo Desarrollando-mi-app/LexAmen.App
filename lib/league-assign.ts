@@ -1,9 +1,9 @@
 // ─── Asignación lazy de usuario a liga semanal ──────────────
 // Si el usuario no tiene membresía esta semana, se le asigna a
-// una liga de su tier actual (o Cartón si es nuevo).
+// una liga agrupada por grado cercano (±3).
 
 import { prisma } from "@/lib/prisma";
-import { getCurrentWeekBounds } from "@/lib/league";
+import { getCurrentWeekBounds, MAX_LEAGUE_SIZE } from "@/lib/league";
 
 export async function ensureLeagueMembership(userId: string) {
   const { weekStart, weekEnd } = getCurrentWeekBounds();
@@ -19,27 +19,30 @@ export async function ensureLeagueMembership(userId: string) {
 
   if (existing) return existing;
 
-  // 2. Determinar tier: revisar última membresía o default CARTON
-  const lastMembership = await prisma.leagueMember.findFirst({
-    where: { userId },
-    orderBy: { league: { weekStart: "desc" } },
-    include: { league: true },
+  // 2. Determinar grado del usuario
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { grado: true },
   });
+  const grado = user?.grado ?? 1;
 
-  const tier = lastMembership?.league.tier ?? "CARTON";
-
-  // 3. Buscar liga con < 30 miembros para este tier/semana
+  // 3. Buscar liga de esta semana con grados cercanos (±3) y espacio disponible
   const leagues = await prisma.league.findMany({
-    where: { tier, weekStart },
+    where: {
+      weekStart,
+      gradoRef: { gte: Math.max(1, grado - 3), lte: Math.min(33, grado + 3) },
+    },
     include: { _count: { select: { members: true } } },
   });
 
-  let league = leagues.find((l) => l._count.members < 30);
+  // Find one with space, excluding leagues user is already in
+  let league = leagues.find((l) => l._count.members < MAX_LEAGUE_SIZE);
 
   // 4. Si no hay liga con espacio, crear una nueva
   if (!league) {
+    // Need a tier for backward compat - use CARTON as default
     league = await prisma.league.create({
-      data: { tier, weekStart, weekEnd },
+      data: { tier: "CARTON", gradoRef: grado, weekStart, weekEnd },
       include: { _count: { select: { members: true } } },
     });
   }

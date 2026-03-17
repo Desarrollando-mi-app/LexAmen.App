@@ -56,6 +56,9 @@ interface RankingEntry {
   avatarUrl: string | null;
   weeklyXp: number;
   universidad: string | null;
+  grado?: number;
+  gradoEmoji?: string;
+  gradoNombre?: string;
 }
 
 interface Evento {
@@ -357,9 +360,12 @@ export function PortadaClient({ data }: { data: PortadaData }) {
                       <p className="font-archivo text-[13px] font-medium text-gz-ink truncate">
                         {entry.firstName} {entry.lastName.charAt(0)}.
                       </p>
-                      {entry.universidad && (
-                        <p className="font-ibm-mono text-[9px] text-gz-ink-light truncate">{entry.universidad}</p>
-                      )}
+                      <p className="font-ibm-mono text-[9px] text-gz-ink-light truncate">
+                        {entry.gradoEmoji && entry.gradoNombre && (
+                          <span>{entry.gradoEmoji} Grado {entry.grado}{entry.universidad ? " · " : ""}</span>
+                        )}
+                        {entry.universidad ?? ""}
+                      </p>
                     </div>
                     <span className="font-ibm-mono text-[11px] font-medium text-gz-gold shrink-0">
                       {entry.weeklyXp} XP

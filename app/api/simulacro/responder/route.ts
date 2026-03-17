@@ -11,6 +11,7 @@ import {
   XP_SIMULACRO_BONUS_AVANZADO,
   awardXp,
 } from "@/lib/xp-config";
+import { evaluateBadges } from "@/lib/badges";
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -320,6 +321,11 @@ export async function POST(request: Request) {
       materia: sesion.rama ?? undefined,
       prisma,
     });
+  }
+
+  // Badge evaluation on session completion
+  if (sesionCompletada) {
+    evaluateBadges(authUser.id, "simulacro").catch(() => {});
   }
 
   // Generar audio TTS del feedback

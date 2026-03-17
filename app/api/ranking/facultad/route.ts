@@ -144,6 +144,7 @@ export async function GET(request: Request) {
           lastName: true,
           avatarUrl: true,
           xp: true,
+          grado: true,
           universityYear: true,
           causasGanadas: true,
           leagueMembers: {
@@ -173,6 +174,7 @@ export async function GET(request: Request) {
       universityYear: u.universityYear,
       causasGanadas: u.causasGanadas,
       tier: u.leagueMembers[0]?.league.tier ?? null,
+      grado: u.grado,
     }));
 
     return NextResponse.json({

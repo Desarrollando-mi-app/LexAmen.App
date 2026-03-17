@@ -27,6 +27,7 @@ export async function GET() {
         universityYear: true,
         cvAvailable: true,
         xp: true,
+        grado: true,
         causasGanadas: true,
       },
     }),

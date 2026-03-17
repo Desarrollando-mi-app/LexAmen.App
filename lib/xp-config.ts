@@ -162,6 +162,31 @@ export async function awardXp(params: {
     },
   });
 
+  // ─── Update grado and evaluate XP badges ───
+  if (amount > 0) {
+    const { updateUserGrado, evaluateBadges } = await import("@/lib/badges");
+
+    // Auto-promote grados 1-3 (La Escuela) immediately by XP
+    // For grados 4+, the liga semanal handles promotion/demotion
+    const { getGradoMaximoPorXp } = await import("@/lib/league");
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { xp: true, grado: true },
+    });
+    if (updatedUser && updatedUser.grado <= 3) {
+      const gradoMaximo = getGradoMaximoPorXp(updatedUser.xp);
+      if (gradoMaximo.grado > updatedUser.grado && gradoMaximo.grado <= 3) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { grado: gradoMaximo.grado },
+        });
+      }
+    }
+
+    updateUserGrado(userId).catch(() => {});
+    evaluateBadges(userId, "xp").catch(() => {});
+  }
+
   // ─── Daily streak bonus: +5 XP for first study/simulacro of the day ───
   if (amount > 0 && (category === "estudio" || category === "simulacro")) {
     const today = new Date();

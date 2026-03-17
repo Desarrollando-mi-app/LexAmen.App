@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { evaluateBadges } from "@/lib/badges";
 
 export async function GET() {
   const supabase = await createClient();
@@ -79,6 +80,9 @@ export async function POST(req: Request) {
       modoGeneracion: modo,
     },
   });
+
+  // Badge evaluation
+  evaluateBadges(user.id, "plan_estudios").catch(() => {});
 
   // Sync UserCountdown for exam date
   const existing = await prisma.userCountdown.findFirst({

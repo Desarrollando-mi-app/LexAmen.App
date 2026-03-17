@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentWeekBounds } from "@/lib/league";
+import { getCurrentWeekBounds, getGradoInfo } from "@/lib/league";
 
 export const revalidate = 60;
 
@@ -86,7 +86,7 @@ export async function GET() {
       take: 5,
       include: {
         user: {
-          select: { id: true, firstName: true, lastName: true, avatarUrl: true, universidad: true },
+          select: { id: true, firstName: true, lastName: true, avatarUrl: true, universidad: true, grado: true },
         },
       },
     }),
@@ -132,14 +132,20 @@ export async function GET() {
 
   // Build ranking with user position if logged in
   const ranking = {
-    top: rankingMembers.map((m) => ({
-      userId: m.user.id,
-      firstName: m.user.firstName,
-      lastName: m.user.lastName,
-      avatarUrl: m.user.avatarUrl,
-      weeklyXp: m.weeklyXp,
-      universidad: m.user.universidad,
-    })),
+    top: rankingMembers.map((m) => {
+      const gi = getGradoInfo(m.user.grado);
+      return {
+        userId: m.user.id,
+        firstName: m.user.firstName,
+        lastName: m.user.lastName,
+        avatarUrl: m.user.avatarUrl,
+        weeklyXp: m.weeklyXp,
+        universidad: m.user.universidad,
+        grado: m.user.grado,
+        gradoEmoji: gi.emoji,
+        gradoNombre: gi.nombre,
+      };
+    }),
     miPosicion: undefined as number | undefined,
     miXp: undefined as number | undefined,
   };
