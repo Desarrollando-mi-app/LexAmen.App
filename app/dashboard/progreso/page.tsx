@@ -4,11 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { ProgresoPageClient } from "./progreso-page-client";
 
 export const metadata = {
-  title: "Mi Examen — Studio Iuris",
+  title: "Plan de Estudios — Studio Iuris",
 };
 
 export default async function ProgresoPage() {
-  // 1. Auth
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -18,23 +17,63 @@ export default async function ProgresoPage() {
     redirect("/login");
   }
 
-  // 2. Get ExamenConfig with temas
-  const config = await prisma.examenConfig.findUnique({
-    where: { userId: authUser.id },
-    include: {
-      temas: {
-        orderBy: { orden: "asc" },
+  // Fetch plan + old config + user info in parallel
+  const [plan, config, dbUser] = await Promise.all([
+    prisma.planEstudio.findUnique({
+      where: { userId: authUser.id },
+      include: {
+        temas: { orderBy: { prioridad: "asc" } },
+        sesiones: { orderBy: { fecha: "asc" } },
       },
-    },
-  });
+    }),
+    prisma.examenConfig.findUnique({
+      where: { userId: authUser.id },
+      include: { temas: { orderBy: { orden: "asc" } } },
+    }),
+    prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { universidad: true, sede: true, examDate: true },
+    }),
+  ]);
 
-  // 3. Get user info for initial setup
-  const dbUser = await prisma.user.findUnique({
-    where: { id: authUser.id },
-    select: { universidad: true, sede: true, examDate: true },
-  });
+  // Serialize plan
+  const serializedPlan = plan
+    ? {
+        id: plan.id,
+        fechaExamen: plan.fechaExamen.toISOString(),
+        horasEstudioDia: plan.horasEstudioDia,
+        diasDescanso: JSON.parse(plan.diasDescanso) as string[],
+        modoGeneracion: plan.modoGeneracion,
+        estado: plan.estado,
+        pdf1Nombre: plan.pdf1Nombre,
+        pdf2Nombre: plan.pdf2Nombre,
+        pdf3Nombre: plan.pdf3Nombre,
+        hasPdf1: !!plan.pdf1Texto,
+        hasPdf2: !!plan.pdf2Texto,
+        hasPdf3: !!plan.pdf3Texto,
+        temas: plan.temas.map((t) => ({
+          id: t.id,
+          rama: t.rama,
+          libro: t.libro,
+          titulo: t.titulo,
+          parrafo: t.parrafo,
+          nombre: t.nombre,
+          prioridad: t.prioridad,
+          estimacionHoras: t.estimacionHoras,
+          completado: t.completado,
+          porcentaje: t.porcentaje,
+        })),
+        sesiones: plan.sesiones.map((s) => ({
+          id: s.id,
+          fecha: s.fecha.toISOString(),
+          actividades: JSON.parse(s.actividades),
+          completada: s.completada,
+          xpGanado: s.xpGanado,
+        })),
+      }
+    : null;
 
-  // Serialize dates
+  // Serialize old config for migration offer
   const serializedConfig = config
     ? {
         id: config.id,
@@ -42,26 +81,14 @@ export default async function ProgresoPage() {
         sede: config.sede,
         fechaExamen: config.fechaExamen?.toISOString() ?? null,
         parseStatus: config.parseStatus,
-        parseError: config.parseError,
-        parsedAt: config.parsedAt?.toISOString() ?? null,
         temas: config.temas.map((t) => ({
           id: t.id,
           nombre: t.nombre,
-          descripcion: t.descripcion,
-          categoriaOriginal: t.categoriaOriginal,
           materiaMapping: t.materiaMapping,
           libroMapping: t.libroMapping,
           tituloMapping: t.tituloMapping,
           tieneContenido: t.tieneContenido,
-          flashcardsDisponibles: t.flashcardsDisponibles,
-          mcqDisponibles: t.mcqDisponibles,
-          vfDisponibles: t.vfDisponibles,
-          flashcardsDominadas: t.flashcardsDominadas,
-          mcqCorrectas: t.mcqCorrectas,
-          vfCorrectas: t.vfCorrectas,
           porcentajeAvance: t.porcentajeAvance,
-          peso: t.peso,
-          orden: t.orden,
         })),
       }
     : null;
@@ -69,7 +96,8 @@ export default async function ProgresoPage() {
   return (
     <main className="gz-page min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
       <ProgresoPageClient
-        config={serializedConfig}
+        plan={serializedPlan}
+        oldConfig={serializedConfig}
         initialUniversidad={dbUser?.universidad ?? null}
         initialSede={dbUser?.sede ?? null}
         initialFechaExamen={dbUser?.examDate?.toISOString() ?? null}

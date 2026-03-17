@@ -263,6 +263,7 @@ model User {
   obiterGuardados     ObiterGuardado[]
   examenConfig        ExamenConfig?
   examenReportes      ExamenReporte[]
+  planEstudio         PlanEstudio?      @relation("PlanEstudio")
   obiterComuniquese   ObiterComuniquese[]
 
   // El Diario — Análisis y Ensayos
@@ -1602,4 +1603,83 @@ model SponsorBanner {
 
   @@index([activo, posicion])
   @@index([fechaInicio, fechaFin])
+}
+
+// ─── Plan de Estudios ──────────────────────────────────────
+
+model PlanEstudio {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation("PlanEstudio", fields: [userId], references: [id])
+
+  // PDFs subidos (hasta 3)
+  pdf1Url         String?
+  pdf1Nombre      String?
+  pdf1Texto       String?
+  pdf2Url         String?
+  pdf2Nombre      String?
+  pdf2Texto       String?
+  pdf3Url         String?
+  pdf3Nombre      String?
+  pdf3Texto       String?
+
+  // Configuración
+  fechaExamen     DateTime
+  horasEstudioDia Int      @default(3)
+  diasDescanso    String   @default("[]")       // JSON: ["domingo"]
+  modoGeneracion  String   @default("automatico") // "automatico" | "manual"
+
+  // Estado
+  estado          String   @default("configurando") // configurando | generando | activo | completado
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  temas           PlanTema[]
+  sesiones        PlanSesionDiaria[]
+}
+
+model PlanTema {
+  id              String      @id @default(uuid())
+  planId          String
+  plan            PlanEstudio @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  // Vinculación al Índice Maestro
+  rama            String      // "DERECHO_CIVIL" | "DERECHO_PROCESAL_CIVIL" | "DERECHO_ORGANICO"
+  libro           String?
+  titulo          String
+  parrafo         String?
+
+  // Metadata
+  nombre          String
+  prioridad       Int         @default(2) // 1=alta, 2=media, 3=baja
+  estimacionHoras Float       @default(1)
+
+  // Progreso
+  completado      Boolean     @default(false)
+  porcentaje      Float       @default(0) // 0-100
+
+  createdAt       DateTime    @default(now())
+
+  @@index([planId])
+  @@index([planId, rama])
+}
+
+model PlanSesionDiaria {
+  id              String      @id @default(uuid())
+  planId          String
+  plan            PlanEstudio @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  fecha           DateTime
+  actividades     String      @default("[]") // JSON: [{ temaId, temaNombre, actividad, duracionMin }]
+
+  completada      Boolean     @default(false)
+  xpGanado        Int         @default(0)
+
+  calendarEventId String?
+
+  createdAt       DateTime    @default(now())
+
+  @@index([planId, fecha])
+  @@unique([planId, fecha])
 }
