@@ -58,7 +58,7 @@ export function GzUserBar({
 
       {/* Right: stats */}
       <div className="hidden sm:flex items-center gap-5">
-        <div className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">
+        <div data-streak-indicator className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">
           🔥 <strong className="text-gz-ink text-[13px]">{streak}</strong> días de racha
         </div>
         <div className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">

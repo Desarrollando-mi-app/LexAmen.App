@@ -3,6 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import {
+  getAudioEnabled,
+  setAudioEnabled,
+  getAnimationsEnabled,
+  setAnimationsEnabled,
+} from "@/lib/sounds";
+import {
   UNIVERSIDAD_NOMBRES,
   getSedesForUniversidad,
 } from "@/lib/universidades";
@@ -779,11 +785,15 @@ function TabPreferencias({
   const [visibleEnRanking, setVisibleEnRanking] = useState(user.visibleEnRanking);
   const [visibleEnLiga, setVisibleEnLiga] = useState(user.visibleEnLiga);
   const [savingVisibility, setSavingVisibility] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const [animationsOn, setAnimationsOn] = useState(true);
 
   useEffect(() => {
     setMounted(true);
     const stored = localStorage.getItem("theme") || "dark";
     setTheme(stored);
+    setSoundOn(getAudioEnabled());
+    setAnimationsOn(getAnimationsEnabled());
   }, []);
 
   function toggleTheme() {
@@ -846,6 +856,76 @@ function TabPreferencias({
           <span
             className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
               theme === "dark" ? "translate-x-5" : "translate-x-0.5"
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Sound & Animations section */}
+      <div className="pt-2">
+        <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
+          Sonido y animaciones
+        </p>
+        <div className="border-b border-gz-rule mt-2" />
+      </div>
+
+      {/* Sound toggle */}
+      <div className="flex items-center justify-between p-4 border border-gz-rule rounded-[4px]">
+        <div>
+          <p className="font-archivo text-[14px] font-medium text-gz-ink">
+            Sonidos activados
+          </p>
+          <p className="font-archivo text-[12px] text-gz-ink-light mt-0.5">
+            Efectos de sonido al responder, ganar XP, subir de grado, etc.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !soundOn;
+            setSoundOn(next);
+            setAudioEnabled(next);
+            toast.success(next ? "Sonidos activados" : "Sonidos desactivados");
+          }}
+          className={`relative w-11 h-6 rounded-full transition-colors ${
+            soundOn ? "bg-gz-gold" : "bg-gz-cream-dark"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+              soundOn ? "translate-x-5" : "translate-x-0.5"
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Animations toggle */}
+      <div className="flex items-center justify-between p-4 border border-gz-rule rounded-[4px]">
+        <div>
+          <p className="font-archivo text-[14px] font-medium text-gz-ink">
+            Animaciones activadas
+          </p>
+          <p className="font-archivo text-[12px] text-gz-ink-light mt-0.5">
+            Confetti, efectos visuales en logros y respuestas
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !animationsOn;
+            setAnimationsOn(next);
+            setAnimationsEnabled(next);
+            toast.success(
+              next ? "Animaciones activadas" : "Animaciones desactivadas"
+            );
+          }}
+          className={`relative w-11 h-6 rounded-full transition-colors ${
+            animationsOn ? "bg-gz-gold" : "bg-gz-cream-dark"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+              animationsOn ? "translate-x-5" : "translate-x-0.5"
             }`}
           />
         </button>

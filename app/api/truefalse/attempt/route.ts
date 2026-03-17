@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { calculateXP, calculateStreakBonus, awardXp } from "@/lib/xp-config";
 import { evaluateBadges } from "@/lib/badges";
+import { BADGE_MAP } from "@/lib/badge-constants";
 
 const DAILY_FREE_LIMIT = 20;
 
@@ -118,8 +119,14 @@ export async function POST(request: Request) {
     });
   }
 
-  // Badge evaluation
-  evaluateBadges(authUser.id, "estudio").catch(() => {});
+  // Badge evaluation (await to return newly earned badges)
+  const newBadgeSlugs = await evaluateBadges(authUser.id, "estudio").catch(() => [] as string[]);
+  const newBadges = newBadgeSlugs
+    .map((slug) => {
+      const b = BADGE_MAP[slug];
+      return b ? { slug: b.slug, label: b.label, emoji: b.emoji, description: b.description, tier: b.tier } : null;
+    })
+    .filter(Boolean);
 
   // 10. Retornar resultado
   return NextResponse.json({
@@ -129,5 +136,6 @@ export async function POST(request: Request) {
     xpGained,
     streakBonus,
     attemptsToday: attemptsToday + 1,
+    newBadges,
   });
 }

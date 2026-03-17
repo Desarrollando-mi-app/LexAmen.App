@@ -9,6 +9,9 @@ import { MobileNav } from "./components/mobile-nav";
 import { PomodoroPill } from "./components/pomodoro-pill";
 import { DiarioFab } from "./components/diario-fab";
 import { PomodoroProvider } from "./components/pomodoro-context";
+import { XpFloatProvider } from "./components/xp-float-provider";
+import { BadgeModalProvider } from "./components/badge-modal-provider";
+import { GradoChangeDetector } from "./components/grado-change-detector";
 
 export default async function DashboardLayout({
   children,
@@ -28,7 +31,7 @@ export default async function DashboardLayout({
   const [dbUser, membership] = await Promise.all([
     prisma.user.findUnique({
       where: { id: authUser.id },
-      select: { firstName: true, isAdmin: true, avatarUrl: true, examDate: true },
+      select: { firstName: true, isAdmin: true, avatarUrl: true, examDate: true, grado: true },
     }),
     ensureLeagueMembership(authUser.id),
   ]);
@@ -44,22 +47,27 @@ export default async function DashboardLayout({
 
   return (
     <PomodoroProvider>
-      <Toaster position="bottom-right" richColors />
-      <div id="dashboard-standard-header">
-        <DashboardHeader
-          userName={dbUser.firstName}
-          userId={authUser.id}
-          avatarUrl={dbUser.avatarUrl ?? null}
-          userTier={tierLabel}
-          tierEmoji={tierEmoji}
-          isAdmin={dbUser.isAdmin}
-          examDate={examDateStr}
-        />
-      </div>
-      <div className="pb-16 lg:pb-0" style={{ backgroundColor: "var(--gz-cream)" }}>{children}</div>
-      <MobileNav />
-      <PomodoroPill />
-      <DiarioFab />
+      <XpFloatProvider>
+        <BadgeModalProvider>
+          <Toaster position="bottom-right" richColors />
+          <div id="dashboard-standard-header">
+            <DashboardHeader
+              userName={dbUser.firstName}
+              userId={authUser.id}
+              avatarUrl={dbUser.avatarUrl ?? null}
+              userTier={tierLabel}
+              tierEmoji={tierEmoji}
+              isAdmin={dbUser.isAdmin}
+              examDate={examDateStr}
+            />
+          </div>
+          <div className="pb-16 lg:pb-0" style={{ backgroundColor: "var(--gz-cream)" }}>{children}</div>
+          <MobileNav />
+          <PomodoroPill />
+          <DiarioFab />
+          <GradoChangeDetector userGrado={dbUser.grado} />
+        </BadgeModalProvider>
+      </XpFloatProvider>
     </PomodoroProvider>
   );
 }

@@ -17,6 +17,7 @@ import { GzMiExamenResumen } from "./components/gz-mi-examen-resumen";
 import { GzFooter } from "./components/gz-footer";
 import { GzLigaResumen } from "./components/gz-liga-resumen";
 import { OnboardingCard } from "./components/onboarding-card";
+import { StreakDetector } from "./components/streak-detector";
 import { ensureLeagueMembership } from "@/lib/league-assign";
 import { getDaysRemaining } from "@/lib/league";
 
@@ -397,6 +398,12 @@ export default async function DashboardPage() {
     activityDays.push({ date: key, count: activityMap[key] ?? 0 });
   }
 
+  // ─── Detectar actividad de ayer (para streak detector) ────
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayKey = yesterday.toISOString().slice(0, 10);
+  const hadActivityYesterday = (activityMap[yesterdayKey] ?? 0) > 0;
+
   // ─── Serializar datos gazette ─────────────────────────────
   const mcqPercent =
     mcqTotal > 0 ? Math.round((mcqCorrect / mcqTotal) * 100) : 0;
@@ -530,6 +537,8 @@ export default async function DashboardPage() {
         causasGanadas={user.causasGanadas}
         tasaAcierto={mcqPercent}
       />
+
+      <StreakDetector streak={streak} hadActivityYesterday={hadActivityYesterday} />
 
       <div className="mx-auto max-w-[1280px] px-4 lg:px-10 py-6 pb-20">
         {/* Onboarding for new users */}

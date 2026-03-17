@@ -6,6 +6,9 @@ import {
   StudySourceSelector,
   type SourceSelection,
 } from "@/app/dashboard/components/study-source-selector";
+import { playCorrect, playIncorrect, playXpGained, getAnimationsEnabled } from "@/lib/sounds";
+import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
+import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 
 /* ─── Types ─── */
 
@@ -71,6 +74,10 @@ export function DefinicionesViewer({
   const [attempts, setAttempts] = useState(initialAttempts);
   const [score, setScore] = useState({ correct: 0, incorrect: 0 });
   const [startTime, setStartTime] = useState<number>(Date.now());
+  const [shakeSelected, setShakeSelected] = useState<string | null>(null);
+  const [scaleCorrectOpt, setScaleCorrectOpt] = useState<string | null>(null);
+  const { showXpFloat } = useXpFloat();
+  const { showBadgeModal } = useBadgeModal();
 
   // Filter definitions by selected rama/libro/titulo
   const filteredDefiniciones = useMemo(() => {
@@ -150,17 +157,46 @@ export function DefinicionesViewer({
           correct: prev.correct + (data.isCorrect ? 1 : 0),
           incorrect: prev.incorrect + (data.isCorrect ? 0 : 1),
         }));
+
+        // Sound & animation effects
+        if (data.isCorrect) {
+          playCorrect();
+          if (getAnimationsEnabled()) setScaleCorrectOpt(data.correctAnswer);
+          if (data.xpGained > 0) {
+            setTimeout(() => {
+              playXpGained();
+              showXpFloat(data.xpGained);
+            }, 300);
+          }
+        } else {
+          playIncorrect();
+          if (getAnimationsEnabled()) {
+            setShakeSelected(selectedOption);
+            setTimeout(() => setShakeSelected(null), 500);
+          }
+        }
+
+        // Show badge modal if new badges earned
+        if (data.newBadges?.length > 0) {
+          setTimeout(() => {
+            for (const badge of data.newBadges) {
+              showBadgeModal(badge);
+            }
+          }, 1500);
+        }
       } catch {
         // Network error — allow retry
       } finally {
         setLoading(false);
       }
     },
-    [feedback, loading, current, startTime]
+    [feedback, loading, current, startTime, showBadgeModal]
   );
 
   const handleNext = useCallback(() => {
     setFeedback(null);
+    setScaleCorrectOpt(null);
+    setShakeSelected(null);
     setCurrentIndex((prev) => prev + 1);
     setStartTime(Date.now());
   }, []);
@@ -351,6 +387,8 @@ export function DefinicionesViewer({
                   transition-all duration-200
                   ${btnClass}
                   ${loading ? "opacity-60 cursor-wait" : ""}
+                  ${scaleCorrectOpt === option ? "animate-scale-correct" : ""}
+                  ${shakeSelected === option ? "animate-shake" : ""}
                 `}
               >
                 <span className="font-ibm-mono text-xs font-medium text-gz-ink-light mt-0.5 shrink-0">

@@ -275,3 +275,64 @@ textarea:focus {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+
+/* ─── Sound & animation system ─────────────────── */
+
+@keyframes xpFloat {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-40px); }
+}
+
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes scaleCorrect {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes fireGlow {
+  0%, 100% { text-shadow: 0 0 4px rgba(220, 38, 38, 0.4); }
+  50% { text-shadow: 0 0 12px rgba(220, 38, 38, 0.8), 0 0 20px rgba(255, 215, 0, 0.4); }
+}
+
+@keyframes goldenGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(154, 114, 48, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(154, 114, 48, 0.6), 0 0 40px rgba(196, 154, 80, 0.3); }
+}
+
+@keyframes scaleBounce {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  80% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes fadeSlideUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bellPulse {
+  0% { transform: rotate(0deg); }
+  15% { transform: rotate(12deg); }
+  30% { transform: rotate(-10deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-6deg); }
+  75% { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.animate-defeat {
+  filter: grayscale(0.3);
+  transition: filter 0.5s ease;
+}

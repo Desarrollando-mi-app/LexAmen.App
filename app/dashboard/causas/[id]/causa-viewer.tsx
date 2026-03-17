@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CAUSA_TIME_LIMIT_MS } from "@/lib/causa";
+import { playCorrect, playIncorrect, playVictory, playDefeat, getAnimationsEnabled } from "@/lib/sounds";
+import { Confetti } from "@/app/dashboard/components/confetti";
 
 interface MCQ {
   id: string;
@@ -69,6 +71,8 @@ export function CausaViewer({
   } | null>(null);
   const [timerMs, setTimerMs] = useState(CAUSA_TIME_LIMIT_MS);
   const [submitting, setSubmitting] = useState(false);
+  const [showVictoryConfetti, setShowVictoryConfetti] = useState(false);
+  const [shakeCard, setShakeCard] = useState(false);
 
   const startTimeRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -136,6 +140,17 @@ export function CausaViewer({
             score: data.score,
           });
 
+          // Sound effects
+          if (data.isCorrect) {
+            playCorrect();
+          } else {
+            playIncorrect();
+            if (getAnimationsEnabled()) {
+              setShakeCard(true);
+              setTimeout(() => setShakeCard(false), 500);
+            }
+          }
+
           // Actualizar mi score
           setMyScore((prev) => prev + data.score);
 
@@ -156,7 +171,7 @@ export function CausaViewer({
 
           if (data.causaComplete) {
             setStatus("COMPLETED");
-            // Refresh para obtener resultados completos
+            // Victory/defeat sound will play when COMPLETED screen renders
             setTimeout(() => router.refresh(), 1500);
           }
         }
@@ -197,13 +212,28 @@ export function CausaViewer({
   const timerSeconds = (timerMs / 1000).toFixed(1);
   const timerPercent = (timerMs / CAUSA_TIME_LIMIT_MS) * 100;
 
+  // Play victory/defeat sound on completed status
+  useEffect(() => {
+    if (status === "COMPLETED") {
+      const won = winnerId === userId;
+      const draw = winnerId === null;
+      if (!draw && won) {
+        playVictory();
+        setShowVictoryConfetti(true);
+      } else if (!draw && !won) {
+        playDefeat();
+      }
+    }
+  }, [status, winnerId, userId]);
+
   // ─── COMPLETED ───────────────────────────────────────
   if (status === "COMPLETED") {
     const won = winnerId === userId;
     const draw = winnerId === null;
 
     return (
-      <main className="min-h-screen">
+      <main className={`min-h-screen${!draw && !won ? " animate-defeat" : ""}`}>
+        <Confetti active={showVictoryConfetti} color="multi" duration={3000} />
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Resultado */}
           <div
@@ -379,7 +409,7 @@ export function CausaViewer({
           </div>
 
           {/* Pregunta */}
-          <div className="rounded-[4px] border border-gz-rule p-6" style={{ backgroundColor: "var(--gz-cream)" }}>
+          <div className={`rounded-[4px] border border-gz-rule p-6${shakeCard ? " animate-shake" : ""}`} style={{ backgroundColor: "var(--gz-cream)" }}>
             <p className="font-ibm-mono text-[10px] text-gz-ink-light uppercase mb-2">
               Pregunta {currentIdx + 1} de {totalQuestions}
             </p>

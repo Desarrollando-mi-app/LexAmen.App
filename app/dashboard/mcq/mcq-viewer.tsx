@@ -13,6 +13,10 @@ import {
   StudySourceSelector,
   type SourceSelection,
 } from "@/app/dashboard/components/study-source-selector";
+import { playCorrect, playIncorrect, playXpGained, playStreakBonus, getAnimationsEnabled } from "@/lib/sounds";
+import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
+import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
+import { Confetti } from "@/app/dashboard/components/confetti";
 
 // ─── Tipos ─────────────────────────────────────────────────
 
@@ -104,6 +108,11 @@ export function MCQViewer({
   const [bestStreak, setBestStreak] = useState(0);
   const [sessionXP, setSessionXP] = useState(0);
   const [sessionCorrect, setSessionCorrect] = useState(0);
+  const [shakeCard, setShakeCard] = useState(false);
+  const [scaleCorrectOption, setScaleCorrectOption] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const { showXpFloat } = useXpFloat();
+  const { showBadgeModal } = useBadgeModal();
 
   // ─── Derived filter options ────────────────────────────
 
@@ -236,6 +245,41 @@ export function MCQViewer({
         xpGained: data.xpGained,
         streakBonus: data.streakBonus ?? 0,
       });
+
+      // Sound & animation effects
+      if (data.isCorrect) {
+        playCorrect();
+        if (getAnimationsEnabled()) setScaleCorrectOption(data.correctOption);
+        if (data.xpGained > 0) {
+          setTimeout(() => {
+            playXpGained();
+            showXpFloat(data.xpGained + (data.streakBonus ?? 0));
+          }, 300);
+        }
+        const newStreak = streak + 1;
+        if (newStreak >= 5 && newStreak % 5 === 0) {
+          setTimeout(() => {
+            playStreakBonus();
+            setShowConfetti(true);
+            setTimeout(() => setShowConfetti(false), 2500);
+          }, 500);
+        }
+      } else {
+        playIncorrect();
+        if (getAnimationsEnabled()) {
+          setShakeCard(true);
+          setTimeout(() => setShakeCard(false), 500);
+        }
+      }
+
+      // Show badge modal if new badges earned
+      if (data.newBadges?.length > 0) {
+        setTimeout(() => {
+          for (const badge of data.newBadges) {
+            showBadgeModal(badge);
+          }
+        }, 1500);
+      }
     } catch {
       // Error de red
     } finally {
@@ -246,6 +290,7 @@ export function MCQViewer({
   function handleNext() {
     setSelectedOption(null);
     setFeedback(null);
+    setScaleCorrectOption(null);
     if (currentIndex + 1 >= totalCards) setCompleted(true);
     else setCurrentIndex((prev) => prev + 1);
   }
@@ -386,7 +431,9 @@ export function MCQViewer({
 
       <FiltersUI />
 
-      <div className="rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8">
+      <Confetti active={showConfetti} color="gold" />
+
+      <div className={`rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${shakeCard ? " animate-shake" : ""}`}>
         <div className="mb-6 flex items-center justify-between text-sm">
           <span className="font-ibm-mono text-[12px] text-gz-ink-mid">Racha: <span className="font-bold text-gz-gold">{streak}</span></span>
           <span className="font-ibm-mono text-[12px] text-gz-ink-mid">XP Sesion: <span className="font-bold text-gz-gold">+{sessionXP}</span></span>
@@ -398,7 +445,7 @@ export function MCQViewer({
           {OPTION_KEYS.map((key) => {
             const optionText = currentMCQ[`option${key}` as keyof MCQData] as string;
             return (
-              <button key={key} onClick={() => handleSelectOption(key)} disabled={!!feedback || isSubmitting} className={getOptionClasses(key)}>
+              <button key={key} onClick={() => handleSelectOption(key)} disabled={!!feedback || isSubmitting} className={`${getOptionClasses(key)}${scaleCorrectOption === key ? " animate-scale-correct" : ""}`}>
                 <div className="flex items-start gap-3">
                   {getOptionIcon(key)}
                   <span className="mt-0.5 leading-relaxed text-gz-ink">{optionText}</span>

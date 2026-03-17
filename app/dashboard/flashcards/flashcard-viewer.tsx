@@ -14,6 +14,7 @@ import {
   StudySourceSelector,
   type SourceSelection,
 } from "@/app/dashboard/components/study-source-selector";
+import { playFlip } from "@/lib/sounds";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -539,7 +540,7 @@ export function FlashcardViewer({
 
       {/* Tarjeta flip */}
       <div className="relative">
-        <div className="perspective cursor-pointer" onClick={() => !isSubmitting && setIsFlipped((prev) => !prev)}>
+        <div className="perspective cursor-pointer" onClick={() => { if (!isSubmitting) { setIsFlipped((prev) => !prev); playFlip(); } }}>
           <div className={`flip-card-inner min-h-[300px] sm:min-h-[350px] ${isFlipped ? "flipped" : ""}`}>
             <div className="flip-card-front flex flex-col items-center justify-center rounded-[4px] border border-gz-rule bg-white p-8 shadow-sm">
               <div className="mb-4 font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-gold">{cardLabel}</div>

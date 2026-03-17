@@ -2,18 +2,30 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { NotificationDrawer } from "./notification-drawer";
+import { playNotification } from "@/lib/sounds";
 
 export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
+  const [bellAnimate, setBellAnimate] = useState(false);
   const bellRef = useRef<HTMLButtonElement>(null);
+  const prevCountRef = useRef(0);
 
   const fetchCount = useCallback(async () => {
     try {
       const res = await fetch("/api/notifications?limit=1");
       if (!res.ok) return;
       const data = await res.json();
-      setUnreadCount(data.unreadCount ?? 0);
+      const newCount = data.unreadCount ?? 0;
+
+      // Play sound + animate if count increased
+      if (newCount > prevCountRef.current && prevCountRef.current > 0) {
+        playNotification();
+        setBellAnimate(true);
+        setTimeout(() => setBellAnimate(false), 600);
+      }
+      prevCountRef.current = newCount;
+      setUnreadCount(newCount);
     } catch {
       // silently fail
     }
@@ -43,6 +55,7 @@ export function NotificationBell() {
         <svg
           width="20"
           height="20"
+          className={bellAnimate ? "animate-bell-pulse" : ""}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

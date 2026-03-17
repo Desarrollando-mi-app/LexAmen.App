@@ -42,6 +42,15 @@ const config: Config = {
       animation: {
         "gz-slide-up": "gz-slideUp 0.6s ease both",
         "gz-blink": "gz-blink 1.5s infinite",
+        "xp-float": "xpFloat 1.2s ease-out forwards",
+        shake: "shakeX 0.5s ease-in-out",
+        "scale-correct": "scaleCorrect 0.3s ease-in-out",
+        "confetti-fall": "confettiFall 2s ease-in forwards",
+        fire: "fireGlow 1.5s ease-in-out infinite",
+        "golden-glow": "goldenGlow 2s ease-in-out infinite",
+        "scale-bounce": "scaleBounce 0.6s ease-out",
+        "fade-slide-up": "fadeSlideUp 0.5s ease-out",
+        "bell-pulse": "bellPulse 0.6s ease-in-out",
       },
       keyframes: {
         "gz-slideUp": {
@@ -51,6 +60,57 @@ const config: Config = {
         "gz-blink": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.3" },
+        },
+        xpFloat: {
+          "0%": { opacity: "1", transform: "translateY(0)" },
+          "100%": { opacity: "0", transform: "translateY(-40px)" },
+        },
+        shakeX: {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-4px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateX(4px)" },
+        },
+        scaleCorrect: {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.08)" },
+          "100%": { transform: "scale(1)" },
+        },
+        confettiFall: {
+          "0%": { transform: "translateY(-10vh) rotate(0deg)", opacity: "1" },
+          "100%": { transform: "translateY(100vh) rotate(720deg)", opacity: "0" },
+        },
+        fireGlow: {
+          "0%, 100%": { textShadow: "0 0 4px rgba(220, 38, 38, 0.4)" },
+          "50%": {
+            textShadow:
+              "0 0 12px rgba(220, 38, 38, 0.8), 0 0 20px rgba(255, 215, 0, 0.4)",
+          },
+        },
+        goldenGlow: {
+          "0%, 100%": { boxShadow: "0 0 8px rgba(154, 114, 48, 0.3)" },
+          "50%": {
+            boxShadow:
+              "0 0 20px rgba(154, 114, 48, 0.6), 0 0 40px rgba(196, 154, 80, 0.3)",
+          },
+        },
+        scaleBounce: {
+          "0%": { transform: "scale(0)" },
+          "60%": { transform: "scale(1.2)" },
+          "80%": { transform: "scale(0.95)" },
+          "100%": { transform: "scale(1)" },
+        },
+        fadeSlideUp: {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        bellPulse: {
+          "0%": { transform: "rotate(0deg)" },
+          "15%": { transform: "rotate(12deg)" },
+          "30%": { transform: "rotate(-10deg)" },
+          "45%": { transform: "rotate(8deg)" },
+          "60%": { transform: "rotate(-6deg)" },
+          "75%": { transform: "rotate(3deg)" },
+          "100%": { transform: "rotate(0deg)" },
         },
       },
     },

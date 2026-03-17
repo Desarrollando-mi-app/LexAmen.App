@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BADGE_MAP } from "@/lib/badge-constants";
+import { playCorrect, playIncorrect, playVictory, playDefeat, playCausaStart, getAnimationsEnabled } from "@/lib/sounds";
+import { Confetti } from "@/app/dashboard/components/confetti";
 
 // ─── Types ────────────────────────────────────────────────
 
@@ -107,6 +109,7 @@ export function SalaViewer({
   const [badgesByUser, setBadgesByUser] = useState<Record<string, string[]>>(
     {}
   );
+  const [showVictoryConfetti, setShowVictoryConfetti] = useState(false);
 
   const startTimeRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -135,6 +138,7 @@ export function SalaViewer({
           setStatus(data.status);
 
           if (data.status === "active" && data.questions) {
+            playCausaStart();
             setQuestions(data.questions);
             if (data.myAnswers) {
               setMyAnswers(data.myAnswers);
@@ -248,6 +252,13 @@ export function SalaViewer({
             score: data.score,
           });
 
+          // Sound effects
+          if (data.isCorrect) {
+            playCorrect();
+          } else {
+            playIncorrect();
+          }
+
           setMyTotalScore((prev) => prev + data.score);
 
           setMyAnswers((prev) => [
@@ -265,22 +276,33 @@ export function SalaViewer({
             setTimeout(() => {
               setStatus("finished");
               if (data.rankings) {
-                setParticipants(
-                  data.rankings.map(
-                    (r: {
-                      userId: string;
-                      totalScore: number;
-                      position: number;
-                    }) => ({
-                      userId: r.userId,
-                      name:
-                        participants.find((p) => p.userId === r.userId)?.name ??
-                        "Jugador",
-                      score: r.totalScore,
-                      position: r.position,
-                    })
-                  )
+                const rankings = data.rankings.map(
+                  (r: {
+                    userId: string;
+                    totalScore: number;
+                    position: number;
+                  }) => ({
+                    userId: r.userId,
+                    name:
+                      participants.find((p) => p.userId === r.userId)?.name ??
+                      "Jugador",
+                    score: r.totalScore,
+                    position: r.position,
+                  })
                 );
+                setParticipants(rankings);
+
+                // Victory/defeat sounds
+                const myRanking = rankings.find((r: { userId: string }) => r.userId === userId);
+                if (myRanking?.position === 1) {
+                  playVictory();
+                  if (getAnimationsEnabled()) {
+                    setShowVictoryConfetti(true);
+                    setTimeout(() => setShowVictoryConfetti(false), 3000);
+                  }
+                } else {
+                  playDefeat();
+                }
               }
               if (data.badgeResults) {
                 setBadgesByUser(data.badgeResults);
@@ -737,7 +759,8 @@ export function SalaViewer({
     const myPosition = myParticipant?.position ?? 0;
 
     return (
-      <main className="min-h-screen">
+      <main className={`min-h-screen${myPosition > 3 ? " animate-defeat" : ""}`}>
+        <Confetti active={showVictoryConfetti} color="gold" duration={3000} />
         <div className="mx-auto max-w-3xl px-6 py-8">
           {/* Podium */}
           <div
