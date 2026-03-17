@@ -79,7 +79,7 @@ export async function POST(request: Request) {
   // 6. Buscar TrueFalse (incluyendo dificultad para cálculo de XP)
   const tf = await prisma.trueFalse.findUnique({
     where: { id: trueFalseId },
-    select: { isTrue: true, explanation: true, dificultad: true },
+    select: { isTrue: true, explanation: true, dificultad: true, rama: true },
   });
 
   if (!tf) {
@@ -111,6 +111,8 @@ export async function POST(request: Request) {
       userId: authUser.id,
       amount: xpGained,
       category: "estudio",
+      detalle: "Verdadero/Falso",
+      materia: tf.rama,
       prisma,
     });
   }

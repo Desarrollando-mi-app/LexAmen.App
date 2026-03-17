@@ -42,37 +42,69 @@ export function PomodoroPill() {
       )}
 
       {/* ── Pill ──────────────────────────────────── */}
-      <div className="flex items-center rounded-full border border-gz-rule bg-white shadow-sm overflow-hidden">
-        {/* Clickable area → toggle popover */}
+      <div
+        className={`flex items-center rounded-full border shadow-sm overflow-hidden transition-colors ${
+          pomo.isAlerting
+            ? "border-red-400 bg-red-50 animate-pulse"
+            : "border-gz-rule bg-white"
+        }`}
+      >
+        {/* Clickable area → toggle popover / dismiss alert */}
         <button
-          onClick={() => setPopoverOpen(!popoverOpen)}
-          className="flex items-center gap-2 px-4 py-2.5 transition-colors hover:bg-navy/5"
+          onClick={() => {
+            if (pomo.isAlerting) {
+              pomo.dismissAlert();
+            }
+            setPopoverOpen(!popoverOpen);
+          }}
+          className={`flex items-center gap-2 px-4 py-2.5 transition-colors ${
+            pomo.isAlerting ? "hover:bg-red-100" : "hover:bg-navy/5"
+          }`}
         >
-          <span className="text-sm">🍅</span>
-          <span className="font-mono text-sm font-bold text-navy">
-            {mins}:{secs}
-          </span>
-          <span className="text-[10px] text-navy/40">·</span>
-          <span className="text-[10px] font-medium text-navy/50">
-            {FASE_LABELS[pomo.fase]}
-          </span>
-          <span className="text-[10px] text-navy/40">·</span>
-          <span className="text-[10px] text-navy/40">
-            Sesión {pomo.sesionActual}/{pomo.config.sesionesAntes}
-          </span>
+          {pomo.isAlerting ? (
+            <>
+              <span className="text-sm">⏰</span>
+              <span className="font-mono text-sm font-bold text-red-600">
+                ¡Tiempo!
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-sm">🍅</span>
+              <span className="font-mono text-sm font-bold text-navy">
+                {mins}:{secs}
+              </span>
+              <span className="text-[10px] text-navy/40">·</span>
+              <span className="text-[10px] font-medium text-navy/50">
+                {FASE_LABELS[pomo.fase]}
+              </span>
+              <span className="text-[10px] text-navy/40">·</span>
+              <span className="text-[10px] text-navy/40">
+                Sesión {pomo.sesionActual}/{pomo.config.sesionesAntes}
+              </span>
+            </>
+          )}
         </button>
 
         {/* Play/Pause button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
+            if (pomo.isAlerting) {
+              pomo.dismissAlert();
+              return;
+            }
             if (pomo.running) { pomo.pausar(); } else { pomo.iniciar(); }
           }}
-          className="flex items-center justify-center h-full px-3 py-2.5 border-l border-gz-rule transition-colors hover:bg-navy/5"
-          title={pomo.running ? "Pausar" : "Iniciar"}
+          className={`flex items-center justify-center h-full px-3 py-2.5 border-l transition-colors ${
+            pomo.isAlerting
+              ? "border-red-300 hover:bg-red-100"
+              : "border-gz-rule hover:bg-navy/5"
+          }`}
+          title={pomo.isAlerting ? "Continuar" : pomo.running ? "Pausar" : "Iniciar"}
         >
           <span className="text-sm">
-            {pomo.running ? "⏸" : "▶"}
+            {pomo.isAlerting ? "▶" : pomo.running ? "⏸" : "▶"}
           </span>
         </button>
       </div>

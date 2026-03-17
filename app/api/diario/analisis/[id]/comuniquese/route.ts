@@ -73,6 +73,7 @@ export async function POST(
         userId: analisis.userId,
         amount: XP_RECIBIR_COMUNIQUESE_DIARIO,
         category: "publicaciones",
+        detalle: "Comuníquese",
         prisma,
       });
     }

@@ -68,7 +68,7 @@ export async function POST(
       },
     },
     include: {
-      mcq: { select: { correctOption: true } },
+      mcq: { select: { correctOption: true, rama: true } },
     },
   });
 
@@ -188,6 +188,8 @@ export async function POST(
         userId: winnerId,
         amount: XP_CAUSA_1V1_GANADOR,
         category: "causas",
+        detalle: "Causa",
+        materia: answerRecord.mcq.rama,
         prisma,
       });
 
@@ -200,6 +202,8 @@ export async function POST(
         userId: loserId,
         amount: XP_CAUSA_1V1_PERDEDOR,
         category: "causas",
+        detalle: "Causa",
+        materia: answerRecord.mcq.rama,
         prisma,
       });
     }

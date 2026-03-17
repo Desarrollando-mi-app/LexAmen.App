@@ -157,7 +157,7 @@ export function OfertasClient({ userId, initialOfertas }: OfertasClientProps) {
               LA SALA &middot; OFERTAS DE TRABAJO
             </p>
             <div className="flex items-center gap-3 mb-1">
-              <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={100} height={100} className="h-[80px] w-[80px] lg:h-[100px] lg:w-[100px]" />
+              <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
               <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
                 Ofertas de Trabajo
               </h1>

@@ -45,14 +45,26 @@ export default async function EventosPage() {
   });
 
   // Check which events the user marked interest in
-  const userInteres = await prisma.eventoInteres.findMany({
-    where: {
-      userId: authUser.id,
-      eventoId: { in: eventosRaw.map((e) => e.id) },
-    },
-    select: { eventoId: true },
-  });
+  const [userInteres, calendarSourceEvents] = await Promise.all([
+    prisma.eventoInteres.findMany({
+      where: {
+        userId: authUser.id,
+        eventoId: { in: eventosRaw.map((e) => e.id) },
+      },
+      select: { eventoId: true },
+    }),
+    prisma.calendarEvent.findMany({
+      where: {
+        userId: authUser.id,
+        sourceEventoId: { not: null },
+      },
+      select: { sourceEventoId: true },
+    }),
+  ]);
   const userInteresIds = new Set(userInteres.map((i) => i.eventoId));
+  const calendarSourceIds = calendarSourceEvents
+    .map((e) => e.sourceEventoId)
+    .filter((id): id is string => id !== null);
 
   const eventos = eventosRaw.map((e) => ({
     id: e.id,
@@ -82,5 +94,5 @@ export default async function EventosPage() {
     },
   }));
 
-  return <EventosClient initialEventos={eventos} userId={authUser.id} />;
+  return <EventosClient initialEventos={eventos} userId={authUser.id} initialCalendarSourceIds={calendarSourceIds} />;
 }

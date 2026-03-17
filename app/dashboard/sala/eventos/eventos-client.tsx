@@ -38,6 +38,7 @@ interface EventoItem {
 interface EventosClientProps {
   initialEventos: EventoItem[];
   userId: string;
+  initialCalendarSourceIds?: string[];
 }
 
 // ─── Constants ──────────────────────────────────────────
@@ -58,7 +59,7 @@ const FORMATO_COLORS: Record<string, string> = {
 
 // ─── Component ─────────────────────────────────────────
 
-export function EventosClient({ initialEventos, userId }: EventosClientProps) {
+export function EventosClient({ initialEventos, userId, initialCalendarSourceIds = [] }: EventosClientProps) {
   const [tab, setTab] = useState<"proximos" | "pasados" | "mis">("proximos");
   const [eventos, setEventos] = useState<EventoItem[]>(initialEventos);
   const [misEventos, setMisEventos] = useState<EventoItem[]>([]);
@@ -67,6 +68,39 @@ export function EventosClient({ initialEventos, userId }: EventosClientProps) {
   const [showCreate, setShowCreate] = useState(false);
   const [selectedEvento, setSelectedEvento] = useState<EventoItem | null>(null);
   const [reportingId, setReportingId] = useState<string | null>(null);
+  const [calendarIds, setCalendarIds] = useState<Set<string>>(new Set(initialCalendarSourceIds));
+  const [addingToCalId, setAddingToCalId] = useState<string | null>(null);
+
+  async function handleAddToCalendar(evento: EventoItem) {
+    if (calendarIds.has(evento.id)) return;
+    setAddingToCalId(evento.id);
+    try {
+      const res = await fetch("/api/calendar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: evento.titulo,
+          description: `${evento.organizador} · ${evento.descripcion.slice(0, 200)}`,
+          eventType: "seminario",
+          startDate: evento.fecha,
+          endDate: evento.fechaFin || undefined,
+          allDay: !evento.hora,
+          color: "#1e4080",
+          sourceEventoId: evento.id,
+        }),
+      });
+      if (res.ok || res.status === 409) {
+        setCalendarIds((prev) => new Set(prev).add(evento.id));
+        toast.success("Evento agregado a tu calendario");
+      } else {
+        toast.error("Error al agregar al calendario");
+      }
+    } catch {
+      toast.error("Error al agregar al calendario");
+    } finally {
+      setAddingToCalId(null);
+    }
+  }
 
   // Fetch events when tab changes
   const fetchEventos = useCallback(async (periodo: string) => {
@@ -183,7 +217,7 @@ export function EventosClient({ initialEventos, userId }: EventosClientProps) {
           La Sala &middot; Eventos Acad&eacute;micos
         </p>
         <div className="flex items-center gap-3 mb-1">
-          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={100} height={100} className="h-[80px] w-[80px] lg:h-[100px] lg:w-[100px]" />
+          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
           <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-tight">
             Eventos Acad&eacute;micos
           </h1>
@@ -266,6 +300,9 @@ export function EventosClient({ initialEventos, userId }: EventosClientProps) {
                 onSelect={() => setSelectedEvento(e)}
                 onReport={() => setReportingId(e.id)}
                 onDelete={() => handleDelete(e.id)}
+                inCalendar={calendarIds.has(e.id)}
+                addingToCal={addingToCalId === e.id}
+                onAddToCalendar={() => handleAddToCalendar(e)}
               />
             ))}
           </div>
@@ -283,6 +320,9 @@ export function EventosClient({ initialEventos, userId }: EventosClientProps) {
             setSelectedEvento(null);
             setReportingId(selectedEvento.id);
           }}
+          inCalendar={calendarIds.has(selectedEvento.id)}
+          addingToCal={addingToCalId === selectedEvento.id}
+          onAddToCalendar={() => handleAddToCalendar(selectedEvento)}
         />
       )}
 
@@ -319,6 +359,9 @@ function EventoCard({
   onSelect,
   onReport,
   onDelete,
+  inCalendar,
+  addingToCal,
+  onAddToCalendar,
 }: {
   evento: EventoItem;
   isMine: boolean;
@@ -327,6 +370,9 @@ function EventoCard({
   onSelect: () => void;
   onReport: () => void;
   onDelete: () => void;
+  inCalendar: boolean;
+  addingToCal: boolean;
+  onAddToCalendar: () => void;
 }) {
   const fecha = new Date(evento.fecha);
   const mes = MESES_CORTOS[fecha.getMonth()];
@@ -413,6 +459,20 @@ function EventoCard({
               </button>
             )}
 
+            {evento.approvalStatus === "aprobado" && (
+              <button
+                onClick={onAddToCalendar}
+                disabled={inCalendar || addingToCal}
+                className={`border rounded-[3px] px-4 py-1.5 font-archivo text-[12px] font-semibold transition-colors ${
+                  inCalendar
+                    ? "border-gz-sage/30 bg-gz-sage/[0.08] text-gz-sage cursor-default"
+                    : "border-gz-rule text-gz-ink-mid hover:border-gz-navy hover:text-gz-navy"
+                }`}
+              >
+                {addingToCal ? "..." : inCalendar ? "✓ En calendario" : "📅 Mi calendario"}
+              </button>
+            )}
+
             {!isMine && evento.approvalStatus === "aprobado" && (
               <button
                 onClick={onReport}
@@ -445,12 +505,18 @@ function EventoDetailModal({
   onClose,
   onToggleInteres,
   onReport,
+  inCalendar,
+  addingToCal,
+  onAddToCalendar,
 }: {
   evento: EventoItem;
   isMine: boolean;
   onClose: () => void;
   onToggleInteres: () => void;
   onReport: () => void;
+  inCalendar: boolean;
+  addingToCal: boolean;
+  onAddToCalendar: () => void;
 }) {
   const fecha = new Date(evento.fecha);
   const fechaStr = fecha.toLocaleDateString("es-CL", {
@@ -598,6 +664,20 @@ function EventoDetailModal({
                 }`}
               >
                 {evento.hasInteres ? "✓ Me interesa" : "Me interesa"}
+              </button>
+            )}
+
+            {evento.approvalStatus === "aprobado" && (
+              <button
+                onClick={onAddToCalendar}
+                disabled={inCalendar || addingToCal}
+                className={`border rounded-[3px] px-5 py-2 font-archivo text-[13px] font-semibold transition-colors ${
+                  inCalendar
+                    ? "border-gz-sage/30 bg-gz-sage/[0.08] text-gz-sage cursor-default"
+                    : "border-gz-rule text-gz-ink-mid hover:border-gz-navy hover:text-gz-navy"
+                }`}
+              >
+                {addingToCal ? "..." : inCalendar ? "✓ En calendario" : "📅 Mi calendario"}
               </button>
             )}
 

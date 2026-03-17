@@ -71,6 +71,7 @@ export async function POST(
         userId: ensayo.userId,
         amount: XP_RECIBIR_COMUNIQUESE_DIARIO,
         category: "publicaciones",
+        detalle: "Comuníquese",
         prisma,
       });
     }

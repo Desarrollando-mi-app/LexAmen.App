@@ -298,6 +298,7 @@ export async function POST(request: NextRequest) {
     userId: authUser.id,
     amount: XP_PUBLICAR_ENSAYO,
     category: "publicaciones",
+    detalle: "Ensayo",
     prisma,
   });
 

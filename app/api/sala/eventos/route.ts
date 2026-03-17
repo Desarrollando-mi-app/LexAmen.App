@@ -165,6 +165,21 @@ export async function POST(request: Request) {
     },
   });
 
+  // Auto-agregar al calendario del creador
+  await prisma.calendarEvent.create({
+    data: {
+      userId: authUser.id,
+      title: titulo.trim(),
+      description: `${organizador.trim()} · ${descripcion.trim().slice(0, 200)}`,
+      eventType: "seminario",
+      startDate: parsedFecha,
+      endDate: parsedFechaFin,
+      allDay: !hora,
+      color: "#1e4080",
+      sourceEventoId: evento.id,
+    },
+  }).catch(() => { /* silently ignore if duplicate */ });
+
   return NextResponse.json({
     evento,
     message: "Tu evento ha sido publicado exitosamente.",

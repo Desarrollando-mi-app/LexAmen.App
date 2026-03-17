@@ -122,16 +122,24 @@ export async function POST(request: Request) {
     },
   });
 
-  // 9. Award XP for flashcard review
+  // 9. Fetch flashcard data (needed for XP materia + título detection)
+  const flashcard = await prisma.flashcard.findUnique({
+    where: { id: flashcardId },
+    select: { rama: true, libro: true, titulo: true },
+  });
+
+  // 10. Award XP for flashcard review
   const xpAmount = quality >= 3 ? XP_FLASHCARD_KNEW : XP_FLASHCARD_REVIEW;
   await awardXp({
     userId: authUser.id,
     amount: xpAmount,
     category: "estudio",
+    detalle: "Flashcards",
+    materia: flashcard?.rama,
     prisma,
   });
 
-  // 10. First mastery bonus: if flashcard just reached repetitions >= 3
+  // 11. First mastery bonus: if flashcard just reached repetitions >= 3
   let masteryBonus = 0;
   if (previousReps < 3 && sm2Result.repetitions >= 3) {
     masteryBonus = XP_FLASHCARD_FIRST_MASTERY;
@@ -139,17 +147,14 @@ export async function POST(request: Request) {
       userId: authUser.id,
       amount: XP_FLASHCARD_FIRST_MASTERY,
       category: "estudio",
+      detalle: "Flashcards",
+      materia: flashcard?.rama,
       prisma,
     });
   }
 
-  // 11. Detectar completación de título
+  // 12. Detectar completación de título
   let completedTitulo: string | null = null;
-
-  const flashcard = await prisma.flashcard.findUnique({
-    where: { id: flashcardId },
-    select: { rama: true, libro: true, titulo: true },
-  });
 
   if (flashcard && sm2Result.repetitions >= 3) {
     const totalInTitulo = await prisma.flashcard.count({

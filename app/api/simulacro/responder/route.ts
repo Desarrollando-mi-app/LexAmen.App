@@ -316,6 +316,8 @@ export async function POST(request: Request) {
       userId: authUser.id,
       amount: xpGanado,
       category: "simulacro",
+      detalle: "Simulacro Oral",
+      materia: sesion.rama ?? undefined,
       prisma,
     });
   }

@@ -86,7 +86,7 @@ export async function finishRoom(roomId: string): Promise<{
   // Verificar que el room no esté ya finished (idempotencia)
   const room = await prisma.causaRoom.findUnique({
     where: { id: roomId },
-    select: { status: true },
+    select: { status: true, rama: true },
   });
   if (!room || room.status !== "active") {
     return { rankings: [], badgeResults: {} };
@@ -144,6 +144,8 @@ export async function finishRoom(roomId: string): Promise<{
       userId,
       amount: xpReward,
       category: "causas",
+      detalle: "Causa",
+      materia: room.rama ?? undefined,
       prisma,
     });
   }

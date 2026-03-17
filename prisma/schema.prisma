@@ -245,6 +245,7 @@ model User {
   colegasSent         ColegaRequest[] @relation("ColegasSent")
   colegasReceived     ColegaRequest[] @relation("ColegasReceived")
   calendarEvents      CalendarEvent[]
+  countdowns          UserCountdown[]    @relation("UserCountdowns")
   cvRequestsSent      CvRequest[]     @relation("CvRequestsSent")
   cvRequestsReceived  CvRequest[]     @relation("CvRequestsReceived")
   adminLogs           AdminLog[]
@@ -883,21 +884,42 @@ model ColegaRequest {
 // ─── Calendario Personal ──────────────────────────────────
 
 model CalendarEvent {
-  id          String   @id @default(cuid())
-  userId      String
-  title       String
-  description String?
-  eventType   String   @default("personal")
-  startDate   DateTime
-  endDate     DateTime?
-  allDay      Boolean  @default(false)
-  color       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  userId          String
+  title           String
+  description     String?
+  eventType       String   @default("personal")
+  startDate       DateTime
+  endDate         DateTime?
+  allDay          Boolean  @default(false)
+  color           String?
+  sourceEventoId  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, sourceEventoId])
   @@index([userId, startDate])
+}
+
+// ─── Countdowns Personales ───────────────────────────────
+
+model UserCountdown {
+  id      String   @id @default(cuid())
+  userId  String
+  titulo  String
+  fecha   DateTime
+  color   String
+  isGrado Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation("UserCountdowns", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // ─── Solicitudes de CV ─────────────────────────────────
@@ -1548,6 +1570,8 @@ model XpLog {
   user      User     @relation("XpLogs", fields: [userId], references: [id], onDelete: Cascade)
   amount    Int      // Puede ser negativo (penalización)
   category  String   // "estudio" | "simulacro" | "causas" | "publicaciones" | "bonus"
+  detalle   String?  // "MCQ", "Flashcards", "V/F", "Definiciones", "Simulacro Oral", etc.
+  materia   String?  // "Derecho Civil", "Procesal Civil", etc. (si aplica)
   createdAt DateTime @default(now())
 
   @@index([userId])

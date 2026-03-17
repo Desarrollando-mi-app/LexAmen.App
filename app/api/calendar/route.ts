@@ -57,6 +57,7 @@ export async function POST(request: Request) {
     endDate?: string;
     allDay?: boolean;
     color?: string;
+    sourceEventoId?: string;
   };
 
   try {
@@ -72,6 +73,24 @@ export async function POST(request: Request) {
     );
   }
 
+  // Prevenir duplicados de eventos de La Sala
+  if (body.sourceEventoId) {
+    const existing = await prisma.calendarEvent.findUnique({
+      where: {
+        userId_sourceEventoId: {
+          userId: authUser.id,
+          sourceEventoId: body.sourceEventoId,
+        },
+      },
+    });
+    if (existing) {
+      return NextResponse.json(
+        { error: "Este evento ya está en tu calendario", existing: true },
+        { status: 409 }
+      );
+    }
+  }
+
   const event = await prisma.calendarEvent.create({
     data: {
       userId: authUser.id,
@@ -82,6 +101,7 @@ export async function POST(request: Request) {
       endDate: body.endDate ? new Date(body.endDate) : null,
       allDay: body.allDay ?? false,
       color: body.color ?? null,
+      sourceEventoId: body.sourceEventoId ?? null,
     },
   });
 

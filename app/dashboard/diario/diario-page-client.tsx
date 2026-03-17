@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ObiterFeed } from "./components/obiter-feed";
 import { ObiterTrending } from "./components/obiter-trending";
+import { ContactSuggestions } from "./components/contact-suggestions";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -753,7 +754,7 @@ export function DiarioPageClient({
         <div className="flex items-center gap-0 overflow-x-auto">
           {/* Title — hidden on mobile (kicker already identifies the page) */}
           <div className="mr-1 hidden flex-shrink-0 items-center gap-3 border-r border-gz-rule pr-4 sm:flex">
-            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={100} height={100} className="h-[80px] w-[80px] lg:h-[100px] lg:w-[100px]" />
+            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
             <span className="font-cormorant text-[38px] lg:text-[44px] font-bold leading-none text-gz-ink">
               El Diario
             </span>
@@ -786,9 +787,9 @@ export function DiarioPageClient({
 
       {/* ── Tab content ──────────────────────────────────────── */}
       {activeMainTab === "feed" && (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-[240px_1fr] lg:grid-cols-[240px_1fr_240px]">
           {/* Contingencia sidebar — left, hidden on mobile */}
-          <aside className="hidden lg:block">
+          <aside className="hidden md:block">
             <div className="sticky top-[72px]">
               <ObiterTrending />
             </div>
@@ -802,6 +803,15 @@ export function DiarioPageClient({
               userAvatarUrl={userAvatarUrl}
             />
           </div>
+
+          {/* Sugerencias sidebar — right, hidden on tablet and mobile */}
+          {userId && (
+            <aside className="hidden lg:block">
+              <div className="sticky top-[72px]">
+                <ContactSuggestions />
+              </div>
+            </aside>
+          )}
         </div>
       )}
 

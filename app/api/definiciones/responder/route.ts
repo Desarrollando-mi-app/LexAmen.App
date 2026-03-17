@@ -71,7 +71,7 @@ export async function POST(request: Request) {
   // 5. Get definition
   const definicion = await prisma.definicion.findUnique({
     where: { id: definicionId },
-    select: { concepto: true, explicacion: true },
+    select: { concepto: true, explicacion: true, rama: true },
   });
 
   if (!definicion) {
@@ -102,6 +102,8 @@ export async function POST(request: Request) {
       userId: authUser.id,
       amount: xpGained,
       category: "estudio",
+      detalle: "Definiciones",
+      materia: definicion.rama,
       prisma,
     });
   }

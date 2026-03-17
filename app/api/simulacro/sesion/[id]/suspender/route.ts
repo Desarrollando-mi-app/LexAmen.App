@@ -74,6 +74,8 @@ export async function POST(
     userId: authUser.id,
     amount: xpGanado,
     category: "simulacro",
+    detalle: "Simulacro Oral",
+    materia: sesion.rama ?? undefined,
     prisma,
   });
 

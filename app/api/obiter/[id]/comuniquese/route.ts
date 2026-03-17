@@ -72,6 +72,7 @@ export async function POST(
         userId: obiter.userId,
         amount: XP_RECIBIR_COMUNIQUESE_OBITER,
         category: "publicaciones",
+        detalle: "Comuníquese",
         prisma,
       });
     }

@@ -209,6 +209,7 @@ export async function POST(request: NextRequest) {
         userId: citedObiter.userId,
         amount: XP_CITADO_OBITER,
         category: "publicaciones",
+        detalle: "Obiter Dictum",
         prisma,
       });
 

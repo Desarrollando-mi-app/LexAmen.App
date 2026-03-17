@@ -114,8 +114,10 @@ export async function awardXp(params: {
   category: XpCategory;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prisma: any;
+  detalle?: string;
+  materia?: string;
 }): Promise<void> {
-  const { userId, amount, category, prisma } = params;
+  const { userId, amount, category, prisma, detalle, materia } = params;
 
   if (amount === 0) return;
 
@@ -155,6 +157,8 @@ export async function awardXp(params: {
       userId,
       amount,
       category,
+      detalle,
+      materia,
     },
   });
 
@@ -189,7 +193,7 @@ export async function awardXp(params: {
       });
 
       await prisma.xpLog.create({
-        data: { userId, amount: XP_RACHA_DIARIA, category: "bonus" },
+        data: { userId, amount: XP_RACHA_DIARIA, category: "bonus", detalle: "Racha diaria" },
       });
     }
   }
@@ -243,6 +247,7 @@ export async function checkStreakPenalty(
         amount: XP_PENALIZACION_ROMPER_RACHA, // -10
         category: "bonus",
         prisma,
+        detalle: "Racha rota",
       });
     }
   }

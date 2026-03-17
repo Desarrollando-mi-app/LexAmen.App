@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
@@ -100,6 +100,24 @@ export function PerfilPublico({
   const [diarioPosts, setDiarioPosts] = useState<DiarioPostPreview[]>([]);
   const [diarioLoaded, setDiarioLoaded] = useState(false);
   const [diarioLoading, setDiarioLoading] = useState(false);
+
+  // Mutual colegas state
+  const [mutualColegas, setMutualColegas] = useState<
+    { id: string; firstName: string; lastName: string; avatarUrl: string | null }[]
+  >([]);
+  const [mutualCount, setMutualCount] = useState(0);
+
+  useEffect(() => {
+    fetch(`/api/user/${user.id}/colegas-comun`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.count > 0) {
+          setMutualColegas(data.colegas);
+          setMutualCount(data.count);
+        }
+      })
+      .catch(() => {});
+  }, [user.id]);
 
   // CV request state
   const [cvStatus, setCvStatus] = useState(initialCvStatus);
@@ -309,6 +327,50 @@ export function PerfilPublico({
             <p className="mt-4 text-sm text-navy/70 leading-relaxed">
               {user.bio}
             </p>
+          )}
+
+          {/* Colegas en común */}
+          {mutualCount > 0 && (
+            <div className="mt-4 flex items-center gap-2">
+              <div className="flex -space-x-2">
+                {mutualColegas.slice(0, 5).map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/dashboard/perfil/${c.id}`}
+                    title={`${c.firstName} ${c.lastName}`}
+                  >
+                    {c.avatarUrl ? (
+                      <img
+                        src={c.avatarUrl}
+                        alt={`${c.firstName} ${c.lastName}`}
+                        className="h-7 w-7 rounded-full border-2 border-[var(--gz-cream)] object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-[var(--gz-cream)] bg-gz-navy font-ibm-mono text-[9px] font-semibold text-gz-gold-bright">
+                        {c.firstName[0]}{c.lastName[0]}
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+              <span className="ml-1 font-archivo text-[12px] text-gz-ink-mid">
+                {mutualCount === 1
+                  ? `${mutualColegas[0]?.firstName} ${mutualColegas[0]?.lastName.charAt(0)}.`
+                  : mutualCount <= 5
+                    ? mutualColegas
+                        .map((c) => `${c.firstName} ${c.lastName.charAt(0)}.`)
+                        .join(", ")
+                    : `${mutualColegas
+                        .slice(0, 3)
+                        .map((c) => `${c.firstName} ${c.lastName.charAt(0)}.`)
+                        .join(", ")} y +${mutualCount - 3} más`}
+                {" "}
+                &middot;{" "}
+                <span className="font-semibold">
+                  {mutualCount} {mutualCount === 1 ? "colega" : "colegas"} en com&uacute;n
+                </span>
+              </span>
+            </div>
           )}
 
           {/* Action buttons */}

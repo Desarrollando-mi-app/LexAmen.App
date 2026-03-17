@@ -79,7 +79,7 @@ export async function POST(request: Request) {
   // 6. Buscar MCQ (incluyendo dificultad para cálculo de XP)
   const mcq = await prisma.mCQ.findUnique({
     where: { id: mcqId },
-    select: { correctOption: true, explanation: true, dificultad: true },
+    select: { correctOption: true, explanation: true, dificultad: true, rama: true },
   });
 
   if (!mcq) {
@@ -111,6 +111,8 @@ export async function POST(request: Request) {
       userId: authUser.id,
       amount: xpGained,
       category: "estudio",
+      detalle: "MCQ",
+      materia: mcq.rama,
       prisma,
     });
   }

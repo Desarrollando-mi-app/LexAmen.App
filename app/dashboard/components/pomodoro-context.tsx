@@ -36,12 +36,14 @@ interface PomodoroContextValue {
   fase: PomodoroFase;
   sesionActual: number;
   showSettings: boolean;
+  isAlerting: boolean;
   // Actions
   iniciar: () => void;
   pausar: () => void;
   reset: () => void;
   setShowSettings: (v: boolean) => void;
   updateConfig: (c: PomodoroConfig) => void;
+  dismissAlert: () => void;
 }
 
 // ─── Defaults ───────────────────────────────────────────────
@@ -105,29 +107,41 @@ const FASE_LABELS: Record<PomodoroFase, string> = {
   descanso_largo: "Descanso largo",
 };
 
-function playCompletionTone() {
+function playAlertSound() {
   try {
     const AudioCtx =
       window.AudioContext ||
       (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioCtx) return;
+
+    const beep = (ctx: AudioContext, freq: number, delay: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = "sine";
+      gain.gain.value = 0.3;
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.3);
+    };
+
     const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 880;
-    osc.type = "sine";
-    gain.gain.value = 0.3;
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
+    beep(ctx, 880, 0);
+    beep(ctx, 880, 0.5);
+    beep(ctx, 1100, 1.0);
   } catch { /* */ }
 }
 
-function sendNotification(title: string, body: string) {
-  if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-    new Notification(title, { body });
-  }
+function sendPomodoroNotification(fase: PomodoroFase) {
+  if (typeof window === "undefined" || !("Notification" in window) || Notification.permission !== "granted") return;
+  new Notification("Studio Iuris — Pomodoro", {
+    body: fase === "trabajo"
+      ? "¡Sesión de trabajo terminada! Toma un descanso."
+      : "¡Descanso terminado! Hora de volver al estudio.",
+    icon: "/brand/logo-sello.svg",
+    tag: "pomodoro",
+  });
 }
 
 // ─── Context ────────────────────────────────────────────────
@@ -151,6 +165,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
   const [fase, setFase] = useState<PomodoroFase>("trabajo");
   const [sesionActual, setSesionActual] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
+  const [isAlerting, setIsAlerting] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -180,7 +195,9 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
 
   // ─── Handle phase completion ─────────────────────────────
   const handlePhaseComplete = useCallback(() => {
-    playCompletionTone();
+    playAlertSound();
+    sendPomodoroNotification(fase);
+    setIsAlerting(true);
 
     if (fase === "trabajo") {
       const newSesion = sesionActual + 1;
@@ -189,11 +206,9 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
       setSesionActual(newSesion);
       setFase(nextFase);
       setSegundosRestantes(getTotalSeconds(nextFase));
-      sendNotification("Pomodoro completado", `Sesión ${sesionActual} terminada. ${FASE_LABELS[nextFase]}.`);
     } else {
       setFase("trabajo");
       setSegundosRestantes(getTotalSeconds("trabajo"));
-      sendNotification("Descanso terminado", "Vamos con otra sesión de trabajo.");
     }
   }, [fase, sesionActual, config.sesionesAntes, getTotalSeconds]);
 
@@ -268,6 +283,8 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     setSegundosRestantes(getTotalSeconds(fase));
   }, [fase, getTotalSeconds]);
 
+  const dismissAlert = useCallback(() => setIsAlerting(false), []);
+
   const updateConfig = useCallback(
     (c: PomodoroConfig) => {
       setConfig(c);
@@ -288,11 +305,13 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
         fase,
         sesionActual,
         showSettings,
+        isAlerting,
         iniciar,
         pausar,
         reset,
         setShowSettings,
         updateConfig,
+        dismissAlert,
       }}
     >
       {children}
