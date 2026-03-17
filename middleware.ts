@@ -18,11 +18,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Si hay sesión y la ruta es de auth → redirigir a dashboard
+  // Si hay sesión y la ruta es de auth → redirigir a portada
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
   if (isAuthRoute && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/portada";
     return NextResponse.redirect(url);
   }
 

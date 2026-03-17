@@ -20,6 +20,10 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
+    href: "/portada",
+    label: "Portada",
+  },
+  {
     href: "/dashboard",
     label: "Escritorio",
     children: [
@@ -82,6 +86,9 @@ const NAV_ITEMS: NavItem[] = [
 /* ─── Active detection ─── */
 
 function isItemActive(item: NavItem, pathname: string): boolean {
+  // Portada: exact match
+  if (item.href === "/portada") return pathname === "/portada";
+
   // Exact match for dashboard home
   if (item.href === "/dashboard") {
     return (

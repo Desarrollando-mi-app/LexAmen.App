@@ -1578,3 +1578,24 @@ model XpLog {
   @@index([userId, category])
   @@index([userId, createdAt(sort: Desc)])
 }
+
+// ═══ SPONSORS ════════════════════════════════════════════════════
+
+model SponsorBanner {
+  id          String    @id @default(uuid())
+  nombre      String                         // Nombre del sponsor (interno)
+  titulo      String?                        // Texto principal del banner
+  descripcion String?                        // Texto secundario
+  imagenUrl   String?                        // URL de la imagen del banner
+  linkUrl     String?                        // URL destino al hacer click
+  posicion    String    @default("lateral")  // "principal" | "lateral" | "footer"
+  activo      Boolean   @default(true)
+  fechaInicio DateTime  @default(now())
+  fechaFin    DateTime?                      // null = indefinido
+  clicks      Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([activo, posicion])
+  @@index([fechaInicio, fechaFin])
+}
