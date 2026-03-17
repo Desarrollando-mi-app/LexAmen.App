@@ -88,12 +88,24 @@ function AvatarInterrogador({
     ? "ring-gz-gold animate-pulse"
     : "ring-gz-rule";
 
+  const pixelSize = { sm: 40, md: 64, lg: 96, xl: 128 }[size];
+
   return (
     <div
-      className={`${sizeClasses[size]} rounded-full ring-4 ${borderColor} flex items-center justify-center font-bold text-white transition-all duration-300`}
+      className={`${sizeClasses[size]} rounded-full ring-4 ${borderColor} overflow-hidden flex items-center justify-center font-bold text-white transition-all duration-300`}
       style={{ backgroundColor: interrogador.color }}
     >
-      {interrogador.iniciales}
+      {interrogador.imagenUrl ? (
+        <Image
+          src={interrogador.imagenUrl}
+          alt={interrogador.nombre}
+          width={pixelSize}
+          height={pixelSize}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        interrogador.iniciales
+      )}
     </div>
   );
 }
@@ -566,6 +578,25 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
 
         {/* Paso A: Elegir interrogador */}
         <section className="space-y-3">
+          {/* Banner grupal */}
+          <div className="relative w-full h-[200px] rounded-[4px] overflow-hidden mb-6 border border-gz-rule">
+            <Image
+              src="/interrogadores/equipo-interrogadores.png"
+              alt="Equipo de interrogadores de Studio Iuris"
+              fill
+              className="object-cover object-top"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+            <div className="absolute bottom-4 left-5">
+              <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold-bright">
+                SIMULACRO DE INTERROGACI&Oacute;N
+              </p>
+              <p className="font-cormorant text-[22px] font-bold text-white">
+                Elige a tu interrogador
+              </p>
+            </div>
+          </div>
+
           <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">
             1. Elige tu interrogador
           </h2>
@@ -1059,10 +1090,14 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
                       <div className="rounded-[4px] border-l-[3px] border-gz-gold bg-gz-gold/[0.05] p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center text-white font-semibold text-[8px]"
+                            className="w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-white font-semibold text-[8px]"
                             style={{ backgroundColor: interrogadorActivo.color }}
                           >
-                            {interrogadorActivo.iniciales}
+                            {interrogadorActivo.imagenUrl ? (
+                              <Image src={interrogadorActivo.imagenUrl} alt={interrogadorActivo.nombre} width={24} height={24} className="w-full h-full object-cover" />
+                            ) : (
+                              interrogadorActivo.iniciales
+                            )}
                           </div>
                           <span className="font-ibm-mono text-[10px] text-gz-ink-light uppercase tracking-[1px]">
                             Repregunta
@@ -1325,10 +1360,14 @@ export function SimulacroHub({ userName, avatarUrl, sesionesRecientes }: Props) 
             <div className="border border-gz-rule rounded-[4px] p-6 max-w-md mx-4 shadow-xl" style={{ backgroundColor: "var(--gz-cream)" }}>
               <div className="flex items-center gap-3 mb-4">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-[12px]"
+                  className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-white font-semibold text-[12px]"
                   style={{ backgroundColor: interrogadorActivo.color }}
                 >
-                  {interrogadorActivo.iniciales}
+                  {interrogadorActivo.imagenUrl ? (
+                    <Image src={interrogadorActivo.imagenUrl} alt={interrogadorActivo.nombre} width={40} height={40} className="w-full h-full object-cover" />
+                  ) : (
+                    interrogadorActivo.iniciales
+                  )}
                 </div>
                 <span className="font-cormorant text-[16px] font-bold text-gz-ink">
                   {interrogadorActivo.nombre}

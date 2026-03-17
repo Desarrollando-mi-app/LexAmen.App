@@ -18,6 +18,7 @@ export interface InterrogadorData {
   dificultad: number; // 1-5 (5 = más difícil)
   empatia: number; // 1-5 (5 = más empático)
   nivelLabel: string; // etiqueta visible en la card
+  imagenUrl?: string; // ruta a avatar fotorealista en /public
 }
 
 const REGLA_CONCISION = `\nIMPORTANTE SOBRE CONCISIÓN: Formula tus preguntas de manera directa y concisa. Puedes incluir un breve contexto de 1-2 oraciones máximo antes de la pregunta, pero evita preámbulos largos o discursos extensos. Ve al grano. La pregunta en sí debe ser clara y precisa. NO excedas las 80 palabras en total (contexto + pregunta).`;
@@ -34,6 +35,7 @@ export const INTERROGADORES: Record<string, InterrogadorData> = {
     voz: "onyx",
     color: "#4A3728",
     iniciales: "DA",
+    imagenUrl: "/interrogadores/don-augusto.png",
     placeholder: "Responda con precisión...",
     dificultad: 5,
     empatia: 1,
@@ -51,6 +53,7 @@ export const INTERROGADORES: Record<string, InterrogadorData> = {
     voz: "nova",
     color: "#1E3A5F",
     iniciales: "PV",
+    imagenUrl: "/interrogadores/profesora-valeria.png",
     placeholder: "Desarrolle su argumento...",
     dificultad: 3,
     empatia: 5,
@@ -68,6 +71,7 @@ export const INTERROGADORES: Record<string, InterrogadorData> = {
     voz: "echo",
     color: "#1C1C1C",
     iniciales: "MG",
+    imagenUrl: "/interrogadores/ministro-guzman.png",
     placeholder: "Su respuesta:",
     dificultad: 5,
     empatia: 2,
@@ -85,6 +89,7 @@ export const INTERROGADORES: Record<string, InterrogadorData> = {
     voz: "fable",
     color: "#2D5A27",
     iniciales: "PR",
+    imagenUrl: "/interrogadores/profesor-roman.png",
     placeholder: "Dale, ¿qué dirías tú?",
     dificultad: 3,
     empatia: 4,
@@ -102,6 +107,7 @@ export const INTERROGADORES: Record<string, InterrogadorData> = {
     voz: "shimmer",
     color: "#6B3A8C",
     iniciales: "CC",
+    imagenUrl: "/interrogadores/compañero-clases.png",
     placeholder: "¿Cómo lo explicarías?",
     dificultad: 2,
     empatia: 5,
