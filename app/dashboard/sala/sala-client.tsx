@@ -494,7 +494,7 @@ export function SalaClient({
 
                 <div>
                   <label className="font-ibm-mono text-[10px] text-gz-ink-light">
-                    Universidad
+                    Facultad
                   </label>
                   <select
                     value={filterUni}
@@ -795,7 +795,7 @@ export function SalaClient({
                   {/* Universidad */}
                   <div>
                     <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
-                      Tu universidad *
+                      Tu facultad *
                     </label>
                     <select
                       value={pubUni}
@@ -818,7 +818,7 @@ export function SalaClient({
                       {/* Orientada a */}
                       <div>
                         <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
-                          Orientada a (max 5 universidades)
+                          Orientada a (max 5 facultades)
                         </label>
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           {UNIVERSIDADES_CHILE.filter(u => u !== "Otra").map((u) => (

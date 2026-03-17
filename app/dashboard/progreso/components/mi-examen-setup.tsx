@@ -57,7 +57,7 @@ export function MiExamenSetup({
   async function handleStep1Submit() {
     const uni = universidad === "otra" ? otraUniversidad.trim() : universidad;
     if (!uni) {
-      toast.error("Selecciona tu universidad");
+      toast.error("Selecciona tu facultad");
       return;
     }
 
@@ -251,20 +251,20 @@ export function MiExamenSetup({
         ))}
       </div>
 
-      {/* ─── STEP 1: Universidad y fecha ─────────────────── */}
+      {/* ─── STEP 1: Facultad y fecha ─────────────────── */}
       {step === 1 && (
         <div className="rounded-[4px] border border-gz-rule bg-white p-6 space-y-5">
           {/* Universidad */}
           <div>
             <label className="block font-archivo text-[13px] font-semibold text-gz-ink mb-1.5">
-              &iquest;En qu&eacute; universidad estudias?
+              &iquest;En qu&eacute; facultad estudias?
             </label>
             <select
               value={universidad}
               onChange={(e) => setUniversidad(e.target.value)}
               className="w-full border border-gz-rule rounded-[4px] px-3 py-2.5 font-archivo text-[14px] text-gz-ink bg-white focus:border-gz-gold focus:outline-none transition-colors"
             >
-              <option value="">Selecciona tu universidad</option>
+              <option value="">Selecciona tu facultad</option>
               {UNIVERSIDADES_CHILE.map((u) => (
                 <option key={u.value} value={u.value}>
                   {u.label}
@@ -277,7 +277,7 @@ export function MiExamenSetup({
                 type="text"
                 value={otraUniversidad}
                 onChange={(e) => setOtraUniversidad(e.target.value)}
-                placeholder="Nombre de tu universidad"
+                placeholder="Nombre de tu facultad"
                 className="mt-2 w-full border border-gz-rule rounded-[4px] px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none"
               />
             )}

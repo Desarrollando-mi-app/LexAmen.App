@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { TIER_LABELS, TIER_EMOJIS } from "@/lib/league";
 
-// ─── Types ────────────────────────────────────────────────
+/* ─── Types ─── */
 
 interface UniversidadRank {
   rank: number;
   universidad: string;
   studentCount: number;
+  sedeCount: number;
   totalXp: number;
   avgXp: number;
 }
@@ -30,9 +30,36 @@ interface UserRank {
   lastName: string;
   avatarUrl: string | null;
   xp: number;
-  universityYear: number | null;
-  causasGanadas: number;
+  universityYear?: number | null;
+  causasGanadas?: number;
   tier: string | null;
+  universidad?: string | null;
+}
+
+interface RegionRank {
+  rank: number;
+  region: string;
+  totalUsuarios: number;
+  totalXp: number;
+  promedioXp: number;
+}
+
+interface CorteRank {
+  rank: number;
+  corte: string;
+  totalUsuarios: number;
+  totalXp: number;
+  promedioXp: number;
+}
+
+interface MateriaUserRank {
+  rank: number;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+  universidad: string | null;
+  xpMateria: number;
 }
 
 interface MiPosicion {
@@ -44,438 +71,683 @@ interface MiPosicion {
   totalInSede: number;
 }
 
-// ─── Component ────────────────────────────────────────────
+/* ─── Ramas for materia tab ─── */
+const RAMAS = [
+  { key: "DERECHO_CIVIL", label: "Derecho Civil" },
+  { key: "DERECHO_PROCESAL", label: "Derecho Procesal" },
+  { key: "COT", label: "Código Orgánico de Tribunales" },
+];
 
-export function RankingClient() {
-  const [view, setView] = useState<"nacional" | "universidad" | "sede">("nacional");
-  const [universidades, setUniversidades] = useState<UniversidadRank[]>([]);
-  const [sedes, setSedes] = useState<SedeRank[]>([]);
-  const [users, setUsers] = useState<UserRank[]>([]);
-  const [miPosicion, setMiPosicion] = useState<MiPosicion | null>(null);
-  const [selectedUniversidad, setSelectedUniversidad] = useState<string | null>(null);
-  const [selectedSede, setSelectedSede] = useState<string | null>(null);
-  const [expandedUniversidad, setExpandedUniversidad] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [sedeLoading, setSedeLoading] = useState(false);
-  const [usersLoading, setUsersLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [total, setTotal] = useState(0);
+type TabId = "nacional" | "region" | "universidad" | "materia";
 
-  // Fetch mi posicion
-  useEffect(() => {
-    fetch("/api/ranking/facultad/mi-posicion")
-      .then((r) => r.json())
-      .then((data) => setMiPosicion(data))
-      .catch(() => {});
-  }, []);
+const TABS: { id: TabId; label: string }[] = [
+  { id: "nacional", label: "Nacional" },
+  { id: "region", label: "Por Región" },
+  { id: "universidad", label: "Por Facultad" },
+  { id: "materia", label: "Por Materia" },
+];
 
-  // Fetch nacional
-  useEffect(() => {
-    setLoading(true);
-    fetch("/api/ranking/facultad?view=nacional")
-      .then((r) => r.json())
-      .then((data) => {
-        setUniversidades(data.items ?? []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+/* ─── Helpers ─── */
 
-  // Fetch sedes for a university
-  const fetchSedes = useCallback(async (universidad: string) => {
-    setSedeLoading(true);
-    try {
-      const res = await fetch(
-        `/api/ranking/facultad?view=universidad&u=${encodeURIComponent(universidad)}`
-      );
-      const data = await res.json();
-      setSedes(data.items ?? []);
-    } catch {
-      setSedes([]);
-    } finally {
-      setSedeLoading(false);
-    }
-  }, []);
+function getInitials(first: string, last: string): string {
+  return `${first?.[0] ?? ""}${last?.[0] ?? ""}`.toUpperCase();
+}
 
-  // Fetch users for a sede
-  const fetchUsers = useCallback(async (universidad: string, sede: string, p = 1) => {
-    setUsersLoading(true);
-    try {
-      const res = await fetch(
-        `/api/ranking/facultad?view=sede&u=${encodeURIComponent(universidad)}&s=${encodeURIComponent(sede)}&page=${p}`
-      );
-      const data = await res.json();
-      setUsers(data.items ?? []);
-      setTotalPages(data.totalPages ?? 1);
-      setTotal(data.total ?? 0);
-      setPage(p);
-    } catch {
-      setUsers([]);
-    } finally {
-      setUsersLoading(false);
-    }
-  }, []);
+function Spinner() {
+  return (
+    <div className="flex items-center justify-center py-16">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-gz-gold border-t-transparent" />
+    </div>
+  );
+}
 
-  // Handle expand universidad
-  function handleExpandUniversidad(universidad: string) {
-    if (expandedUniversidad === universidad) {
-      setExpandedUniversidad(null);
-      setView("nacional");
-      return;
-    }
-    setExpandedUniversidad(universidad);
-    setSelectedUniversidad(universidad);
-    setView("universidad");
-    fetchSedes(universidad);
+function EmptyState({ text }: { text: string }) {
+  return (
+    <div className="border border-gz-rule rounded-sm p-8 text-center font-archivo text-[13px] text-gz-ink-light italic" style={{ backgroundColor: "var(--gz-cream)" }}>
+      {text}
+    </div>
+  );
+}
+
+/* ─── Rank Badge ─── */
+function RankBadge({ rank }: { rank: number }) {
+  if (rank <= 3) {
+    const medals = ["🥇", "🥈", "🥉"];
+    return <span className="text-base">{medals[rank - 1]}</span>;
   }
+  return (
+    <span className="font-ibm-mono text-[11px] text-gz-ink-light tabular-nums">
+      #{rank}
+    </span>
+  );
+}
 
-  // Handle click sede
-  function handleClickSede(universidad: string, sede: string) {
-    setSelectedUniversidad(universidad);
-    setSelectedSede(sede);
-    setView("sede");
-    fetchUsers(universidad, sede, 1);
-  }
-
-  // Back navigation
-  function handleBackToNacional() {
-    setView("nacional");
-    setExpandedUniversidad(null);
-    setSelectedUniversidad(null);
-    setSelectedSede(null);
-  }
-
-  function handleBackToUniversidad() {
-    if (selectedUniversidad) {
-      setView("universidad");
-      setSelectedSede(null);
-      fetchSedes(selectedUniversidad);
-    }
-  }
+/* ─── User Row ─── */
+function UserRow({ user, showUniv = false }: { user: UserRank | MateriaUserRank; showUniv?: boolean }) {
+  const id = "id" in user ? user.id : (user as MateriaUserRank).userId;
+  const xp = "xp" in user ? user.xp : (user as MateriaUserRank).xpMateria;
+  const tier = "tier" in user ? (user as UserRank).tier : null;
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 pb-24 lg:pb-6">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-1">
-          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
-          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
-            Ranking por Facultad
-          </h1>
+    <Link
+      href={`/dashboard/perfil/${id}`}
+      className="flex items-center gap-3 px-4 py-3 border-b border-gz-rule/50 transition-colors hover:bg-gz-gold/[0.04]"
+    >
+      <span className="w-8 text-center">
+        <RankBadge rank={user.rank} />
+      </span>
+
+      {user.avatarUrl ? (
+        <img src={user.avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover border border-gz-rule flex-shrink-0" />
+      ) : (
+        <span className="h-8 w-8 rounded-full bg-gz-cream-dark flex items-center justify-center text-[10px] font-bold text-gz-ink-light flex-shrink-0">
+          {getInitials(user.firstName, user.lastName)}
+        </span>
+      )}
+
+      <div className="flex-1 min-w-0">
+        <p className="font-archivo text-[13px] font-medium text-gz-ink truncate">
+          {user.firstName} {user.lastName}
+        </p>
+        <div className="flex items-center gap-2 text-[10px] text-gz-ink-light">
+          {showUniv && user.universidad && <span className="truncate">{user.universidad}</span>}
+          {tier && (
+            <span>{TIER_EMOJIS[tier]} {TIER_LABELS[tier]}</span>
+          )}
         </div>
-        <p className="mt-1 text-sm text-navy/60">
-          Descubre el ranking de universidades y estudiantes de Derecho
+      </div>
+
+      <div className="text-right flex-shrink-0">
+        <p className="font-ibm-mono text-[12px] font-medium text-gz-ink tabular-nums">
+          {xp.toLocaleString()}
+        </p>
+        <p className="font-ibm-mono text-[8px] uppercase tracking-[1px] text-gz-ink-light">XP</p>
+      </div>
+    </Link>
+  );
+}
+
+/* ─── Group Row (Universidad / Region / Corte / Sede) ─── */
+function GroupRow({
+  rank,
+  label,
+  count,
+  totalXp,
+  avgXp,
+  onClick,
+  subtitle,
+}: {
+  rank: number;
+  label: string;
+  count: number;
+  totalXp: number;
+  avgXp: number;
+  onClick: () => void;
+  subtitle?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full flex items-center gap-3 px-4 py-3.5 border-b border-gz-rule/50 text-left transition-colors hover:bg-gz-gold/[0.04]"
+    >
+      <span className="w-8 text-center">
+        <RankBadge rank={rank} />
+      </span>
+
+      <div className="flex-1 min-w-0">
+        <p className="font-archivo text-[13px] font-semibold text-gz-ink truncate">
+          {label}
+        </p>
+        <p className="font-ibm-mono text-[10px] text-gz-ink-light">
+          {count} {count === 1 ? "estudiante" : "estudiantes"}
+          {subtitle && <span className="ml-2 text-gz-ink-light/60">· {subtitle}</span>}
         </p>
       </div>
 
-      {/* Mi Posicion Card */}
-      {miPosicion && miPosicion.universidad && (
-        <div className="mb-6 rounded-[4px] border border-gold/30 bg-gold/5 p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-gold">
-            Tu posicion
-          </h3>
-          <div className="mt-2 flex flex-wrap gap-4">
-            <div>
-              <p className="text-sm text-navy/70">{miPosicion.universidad}</p>
-              <p className="text-lg font-bold text-navy font-cormorant">
-                #{miPosicion.rankInUniversidad}{" "}
-                <span className="text-sm font-normal text-navy/50">
-                  de {miPosicion.totalInUniversidad}
-                </span>
-              </p>
+      <div className="text-right flex-shrink-0 hidden sm:block">
+        <p className="font-ibm-mono text-[12px] font-medium text-gz-ink tabular-nums">
+          {totalXp.toLocaleString()} XP
+        </p>
+        <p className="font-ibm-mono text-[9px] text-gz-ink-light">
+          Prom: {avgXp.toLocaleString()}
+        </p>
+      </div>
+
+      <span className="text-gz-ink-light text-[10px] ml-1">›</span>
+    </button>
+  );
+}
+
+/* ─── Pagination ─── */
+function Pagination({
+  page,
+  totalPages,
+  onPageChange,
+}: {
+  page: number;
+  totalPages: number;
+  onPageChange: (p: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+  return (
+    <div className="mt-4 flex items-center justify-center gap-3">
+      <button
+        onClick={() => onPageChange(page - 1)}
+        disabled={page <= 1}
+        className="rounded-sm border border-gz-rule px-3 py-1.5 font-archivo text-[11px] text-gz-ink-mid transition-colors hover:bg-gz-cream-dark disabled:opacity-30"
+      >
+        Anterior
+      </button>
+      <span className="font-ibm-mono text-[10px] text-gz-ink-light">
+        {page} / {totalPages}
+      </span>
+      <button
+        onClick={() => onPageChange(page + 1)}
+        disabled={page >= totalPages}
+        className="rounded-sm border border-gz-rule px-3 py-1.5 font-archivo text-[11px] text-gz-ink-mid transition-colors hover:bg-gz-cream-dark disabled:opacity-30"
+      >
+        Siguiente
+      </button>
+    </div>
+  );
+}
+
+/* ═══ MAIN COMPONENT ═══ */
+
+export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean }) {
+  const [activeTab, setActiveTab] = useState<TabId>("nacional");
+
+  // ─── Nacional state ───
+  const [nacLoading, setNacLoading] = useState(false);
+  const [nacUsers, setNacUsers] = useState<UserRank[]>([]);
+  const [nacPage, setNacPage] = useState(1);
+  const [nacTotalPages, setNacTotalPages] = useState(1);
+  const [nacMiPos, setNacMiPos] = useState<number | null>(null);
+
+  // ─── Region state ───
+  const [regLoading, setRegLoading] = useState(false);
+  const [regiones, setRegiones] = useState<RegionRank[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [cortes, setCortes] = useState<CorteRank[]>([]);
+  const [corteLoading, setCorteLoading] = useState(false);
+  const [selectedCorte, setSelectedCorte] = useState<string | null>(null);
+  const [corteUsers, setCorteUsers] = useState<UserRank[]>([]);
+  const [corteUsersLoading, setCorteUsersLoading] = useState(false);
+  const [corteUsersPage, setCorteUsersPage] = useState(1);
+  const [corteUsersTotalPages, setCorteUsersTotalPages] = useState(1);
+  const [corteMiPos, setCorteMiPos] = useState<number | null>(null);
+
+  // ─── Universidad state ───
+  const [univLoading, setUnivLoading] = useState(false);
+  const [universidades, setUniversidades] = useState<UniversidadRank[]>([]);
+  const [selectedUniv, setSelectedUniv] = useState<string | null>(null);
+  const [sedes, setSedes] = useState<SedeRank[]>([]);
+  const [sedeLoading, setSedeLoading] = useState(false);
+  const [selectedSede, setSelectedSede] = useState<string | null>(null);
+  const [sedeUsers, setSedeUsers] = useState<UserRank[]>([]);
+  const [sedeUsersLoading, setSedeUsersLoading] = useState(false);
+  const [sedeUsersPage, setSedeUsersPage] = useState(1);
+  const [sedeUsersTotalPages, setSedeUsersTotalPages] = useState(1);
+  const [miPosicion, setMiPosicion] = useState<MiPosicion | null>(null);
+
+  // ─── Materia state ───
+  const [selectedRama, setSelectedRama] = useState<string | null>(null);
+  const [matLoading, setMatLoading] = useState(false);
+  const [matUsers, setMatUsers] = useState<MateriaUserRank[]>([]);
+  const [matPage, setMatPage] = useState(1);
+  const [matTotalPages, setMatTotalPages] = useState(1);
+  const [matMiPos, setMatMiPos] = useState<number | null>(null);
+
+  // ─── Fetch functions ───
+
+  const fetchNacional = useCallback(async (p = 1) => {
+    setNacLoading(true);
+    try {
+      const res = await fetch(`/api/ranking/region?vista=usuarios&page=${p}`);
+      const data = await res.json();
+      setNacUsers(data.items ?? []);
+      setNacPage(data.page ?? 1);
+      setNacTotalPages(data.totalPages ?? 1);
+      setNacMiPos(data.miPosicion ?? null);
+    } catch { /* */ }
+    setNacLoading(false);
+  }, []);
+
+  const fetchRegiones = useCallback(async () => {
+    setRegLoading(true);
+    try {
+      const res = await fetch("/api/ranking/region?vista=nacional");
+      const data = await res.json();
+      setRegiones(data.items ?? []);
+    } catch { /* */ }
+    setRegLoading(false);
+  }, []);
+
+  const fetchCortes = useCallback(async (region: string) => {
+    setCorteLoading(true);
+    try {
+      const res = await fetch(`/api/ranking/region?vista=region&region=${encodeURIComponent(region)}`);
+      const data = await res.json();
+      setCortes(data.items ?? []);
+    } catch { /* */ }
+    setCorteLoading(false);
+  }, []);
+
+  const fetchCorteUsers = useCallback(async (corte: string, p = 1) => {
+    setCorteUsersLoading(true);
+    try {
+      const res = await fetch(`/api/ranking/region?vista=corte&corte=${encodeURIComponent(corte)}&page=${p}`);
+      const data = await res.json();
+      setCorteUsers(data.items ?? []);
+      setCorteUsersPage(data.page ?? 1);
+      setCorteUsersTotalPages(data.totalPages ?? 1);
+      setCorteMiPos(data.miPosicion ?? null);
+    } catch { /* */ }
+    setCorteUsersLoading(false);
+  }, []);
+
+  const fetchUniversidades = useCallback(async () => {
+    setUnivLoading(true);
+    try {
+      const res = await fetch("/api/ranking/facultad?view=nacional");
+      const data = await res.json();
+      setUniversidades(data.items ?? []);
+    } catch { /* */ }
+    setUnivLoading(false);
+  }, []);
+
+  const fetchSedes = useCallback(async (univ: string) => {
+    setSedeLoading(true);
+    try {
+      const res = await fetch(`/api/ranking/facultad?view=universidad&u=${encodeURIComponent(univ)}`);
+      const data = await res.json();
+      setSedes(data.items ?? []);
+    } catch { /* */ }
+    setSedeLoading(false);
+  }, []);
+
+  const fetchSedeUsers = useCallback(async (univ: string, sede: string, p = 1) => {
+    setSedeUsersLoading(true);
+    try {
+      const res = await fetch(`/api/ranking/facultad?view=sede&u=${encodeURIComponent(univ)}&s=${encodeURIComponent(sede)}&page=${p}`);
+      const data = await res.json();
+      setSedeUsers(data.items ?? []);
+      setSedeUsersPage(data.page ?? 1);
+      setSedeUsersTotalPages(data.totalPages ?? 1);
+    } catch { /* */ }
+    setSedeUsersLoading(false);
+  }, []);
+
+  const fetchMateria = useCallback(async (rama: string, p = 1) => {
+    setMatLoading(true);
+    try {
+      const res = await fetch(`/api/ranking/materia?rama=${encodeURIComponent(rama)}&page=${p}`);
+      const data = await res.json();
+      setMatUsers(data.ranking ?? []);
+      setMatPage(data.page ?? 1);
+      setMatTotalPages(data.totalPages ?? 1);
+      setMatMiPos(data.miPosicion ?? null);
+    } catch { /* */ }
+    setMatLoading(false);
+  }, []);
+
+  // ─── Auto-fetch on tab change ───
+
+  useEffect(() => {
+    if (activeTab === "nacional" && nacUsers.length === 0) fetchNacional();
+  }, [activeTab, nacUsers.length, fetchNacional]);
+
+  useEffect(() => {
+    if (activeTab === "region" && regiones.length === 0) fetchRegiones();
+  }, [activeTab, regiones.length, fetchRegiones]);
+
+  useEffect(() => {
+    if (activeTab === "universidad" && universidades.length === 0) {
+      fetchUniversidades();
+      fetch("/api/ranking/facultad/mi-posicion")
+        .then((r) => r.json())
+        .then((data) => setMiPosicion(data))
+        .catch(() => {});
+    }
+  }, [activeTab, universidades.length, fetchUniversidades]);
+
+  // ─── Tab change reset ───
+  function handleTabChange(tab: TabId) {
+    setActiveTab(tab);
+    // Reset drill-down states
+    if (tab !== "region") {
+      setSelectedRegion(null);
+      setSelectedCorte(null);
+    }
+    if (tab !== "universidad") {
+      setSelectedUniv(null);
+      setSelectedSede(null);
+    }
+  }
+
+  // ─── Breadcrumb ───
+  function renderBreadcrumb() {
+    const crumbs: { label: string; onClick?: () => void }[] = [];
+
+    if (activeTab === "region") {
+      if (selectedRegion) {
+        crumbs.push({ label: "Regiones", onClick: () => { setSelectedRegion(null); setSelectedCorte(null); } });
+        if (selectedCorte) {
+          crumbs.push({ label: selectedRegion, onClick: () => { setSelectedCorte(null); } });
+          crumbs.push({ label: `Corte de ${selectedCorte}` });
+        } else {
+          crumbs.push({ label: selectedRegion });
+        }
+      }
+    }
+
+    if (activeTab === "universidad") {
+      if (selectedUniv) {
+        crumbs.push({ label: "Facultades", onClick: () => { setSelectedUniv(null); setSelectedSede(null); } });
+        if (selectedSede) {
+          crumbs.push({ label: selectedUniv, onClick: () => { setSelectedSede(null); fetchSedes(selectedUniv); } });
+          crumbs.push({ label: `Sede ${selectedSede}` });
+        } else {
+          crumbs.push({ label: selectedUniv });
+        }
+      }
+    }
+
+    if (crumbs.length === 0) return null;
+
+    return (
+      <div className="flex items-center gap-1.5 mb-4 font-archivo text-[11px] text-gz-ink-light">
+        {crumbs.map((c, i) => (
+          <span key={i} className="flex items-center gap-1.5">
+            {i > 0 && <span className="text-gz-rule">/</span>}
+            {c.onClick ? (
+              <button onClick={c.onClick} className="hover:text-gz-gold transition-colors">
+                {c.label}
+              </button>
+            ) : (
+              <span className="text-gz-ink font-medium">{c.label}</span>
+            )}
+          </span>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen pb-24" style={{ backgroundColor: "var(--gz-cream)" }}>
+      <div className="mx-auto max-w-4xl px-4 lg:px-10 py-8">
+
+        {/* ═══ HEADER ═══ */}
+        <div className="text-center mb-6">
+          <p className="font-ibm-mono text-[9px] uppercase tracking-[3px] text-gz-ink-light mb-1">
+            Clasificación General
+          </p>
+          <h1 className="font-cormorant text-4xl lg:text-5xl font-bold italic text-gz-ink">
+            Ranking
+          </h1>
+          <div className="relative mt-4 mb-2">
+            <div className="border-t-2 border-gz-rule" />
+            <div className="border-t border-gz-rule mt-[3px]" />
+          </div>
+        </div>
+
+        {/* Visibility notice */}
+        {!visibleEnRanking && (
+          <div className="mb-4 flex items-center gap-2 rounded-sm border border-gz-gold/30 bg-gz-gold/[0.06] px-4 py-2.5">
+            <span className="text-sm">👁️‍🗨️</span>
+            <p className="font-archivo text-[12px] text-gz-ink-mid">
+              No apareces en el ranking.{" "}
+              <Link href="/dashboard/perfil" className="text-gz-gold underline underline-offset-2 hover:text-gz-gold-bright">
+                Cambiar en Preferencias
+              </Link>
+            </p>
+          </div>
+        )}
+
+        {/* ═══ TABS ═══ */}
+        <div className="flex items-center justify-center gap-0 mb-6 border-b border-gz-rule">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`
+                px-4 lg:px-6 py-2.5 font-archivo text-[11px] uppercase tracking-[1.5px] font-medium
+                transition-colors border-b-2 -mb-[1px]
+                ${activeTab === tab.id
+                  ? "border-gz-gold text-gz-gold"
+                  : "border-transparent text-gz-ink-light hover:text-gz-ink-mid"
+                }
+              `}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ═══ BREADCRUMB ═══ */}
+        {renderBreadcrumb()}
+
+        {/* ═══ TAB: NACIONAL ═══ */}
+        {activeTab === "nacional" && (
+          <div>
+            {nacMiPos && (
+              <div className="mb-4 px-4 py-3 rounded-sm border border-gz-gold/30" style={{ backgroundColor: "color-mix(in srgb, var(--gz-gold) 8%, var(--gz-cream))" }}>
+                <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-gold mb-1">Tu Posición Nacional</p>
+                <p className="font-cormorant text-2xl font-bold text-gz-ink">#{nacMiPos}</p>
+              </div>
+            )}
+
+            <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+              {nacLoading ? <Spinner /> : nacUsers.length === 0 ? (
+                <EmptyState text="No hay datos aún" />
+              ) : (
+                nacUsers.map((u) => <UserRow key={u.id} user={u} showUniv />)
+              )}
             </div>
-            {miPosicion.sede && miPosicion.rankInSede && (
-              <div className="border-l border-gold/20 pl-4">
-                <p className="text-sm text-navy/70">Sede {miPosicion.sede}</p>
-                <p className="text-lg font-bold text-navy font-cormorant">
-                  #{miPosicion.rankInSede}{" "}
-                  <span className="text-sm font-normal text-navy/50">
-                    de {miPosicion.totalInSede}
-                  </span>
-                </p>
+            <Pagination page={nacPage} totalPages={nacTotalPages} onPageChange={(p) => fetchNacional(p)} />
+          </div>
+        )}
+
+        {/* ═══ TAB: POR REGIÓN ═══ */}
+        {activeTab === "region" && (
+          <div>
+            {!selectedRegion ? (
+              // ─ Lista de regiones ─
+              <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+                {regLoading ? <Spinner /> : regiones.length === 0 ? (
+                  <EmptyState text="No hay datos regionales aún. Los usuarios deben configurar su región en el perfil." />
+                ) : (
+                  regiones.map((r) => (
+                    <GroupRow
+                      key={r.region}
+                      rank={r.rank}
+                      label={r.region}
+                      count={r.totalUsuarios}
+                      totalXp={r.totalXp}
+                      avgXp={r.promedioXp}
+                      onClick={() => { setSelectedRegion(r.region); fetchCortes(r.region); }}
+                    />
+                  ))
+                )}
+              </div>
+            ) : !selectedCorte ? (
+              // ─ Cortes de la región ─
+              <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+                {corteLoading ? <Spinner /> : cortes.length === 0 ? (
+                  <EmptyState text="No hay datos de cortes para esta región" />
+                ) : (
+                  cortes.map((c) => (
+                    <GroupRow
+                      key={c.corte}
+                      rank={c.rank}
+                      label={`Corte de ${c.corte}`}
+                      count={c.totalUsuarios}
+                      totalXp={c.totalXp}
+                      avgXp={c.promedioXp}
+                      onClick={() => { setSelectedCorte(c.corte); fetchCorteUsers(c.corte); }}
+                    />
+                  ))
+                )}
+              </div>
+            ) : (
+              // ─ Usuarios de la corte ─
+              <div>
+                {corteMiPos && (
+                  <div className="mb-4 px-4 py-3 rounded-sm border border-gz-gold/30" style={{ backgroundColor: "color-mix(in srgb, var(--gz-gold) 8%, var(--gz-cream))" }}>
+                    <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-gold mb-1">Tu Posición en Corte de {selectedCorte}</p>
+                    <p className="font-cormorant text-2xl font-bold text-gz-ink">#{corteMiPos}</p>
+                  </div>
+                )}
+                <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+                  {corteUsersLoading ? <Spinner /> : corteUsers.length === 0 ? (
+                    <EmptyState text="No hay estudiantes en esta corte" />
+                  ) : (
+                    corteUsers.map((u) => <UserRow key={u.id} user={u} showUniv />)
+                  )}
+                </div>
+                <Pagination page={corteUsersPage} totalPages={corteUsersTotalPages} onPageChange={(p) => fetchCorteUsers(selectedCorte!, p)} />
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Breadcrumb */}
-      {view !== "nacional" && (
-        <div className="mb-4 flex items-center gap-2 text-sm text-navy/60">
-          <button
-            onClick={handleBackToNacional}
-            className="hover:text-navy transition-colors"
-          >
-            Nacional
-          </button>
-          <span>/</span>
-          {view === "universidad" && (
-            <span className="text-navy font-medium">{selectedUniversidad}</span>
-          )}
-          {view === "sede" && (
-            <>
-              <button
-                onClick={handleBackToUniversidad}
-                className="hover:text-navy transition-colors"
-              >
-                {selectedUniversidad}
-              </button>
-              <span>/</span>
-              <span className="text-navy font-medium">{selectedSede}</span>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* ─── Vista Nacional ──────────────────────────────── */}
-      {view === "nacional" && (
-        <div className="space-y-3">
-          {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
-            </div>
-          ) : universidades.length === 0 ? (
-            <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center text-navy/40">
-              No hay datos de universidades aun
-            </div>
-          ) : (
-            universidades.map((u) => (
-              <button
-                key={u.universidad}
-                onClick={() => handleExpandUniversidad(u.universidad)}
-                className="w-full rounded-[4px] border border-gz-rule bg-white p-4 text-left transition-all hover:border-gold/30 hover:shadow-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 min-w-0">
-                    {/* Rank medal */}
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
-                      u.rank === 1
-                        ? "bg-gz-gold/20 text-gz-gold"
-                        : u.rank === 2
-                        ? "bg-gz-cream-dark text-gz-ink-light"
-                        : u.rank === 3
-                        ? "bg-gz-gold/15 text-gz-gold"
-                        : "bg-navy/5 text-navy/40"
-                    }`}>
-                      {u.rank <= 3
-                        ? ["🥇", "🥈", "🥉"][u.rank - 1]
-                        : `#${u.rank}`}
-                    </div>
-
-                    <div className="min-w-0">
-                      <p className="font-semibold text-navy truncate">
-                        {u.universidad}
-                      </p>
-                      <p className="text-xs text-navy/50">
-                        {u.studentCount} {u.studentCount === 1 ? "estudiante" : "estudiantes"}
-                      </p>
-                    </div>
+        {/* ═══ TAB: POR UNIVERSIDAD ═══ */}
+        {activeTab === "universidad" && (
+          <div>
+            {/* Mi Posición card */}
+            {miPosicion && miPosicion.universidad && !selectedUniv && (
+              <div className="mb-4 px-4 py-3 rounded-sm border border-gz-gold/30" style={{ backgroundColor: "color-mix(in srgb, var(--gz-gold) 8%, var(--gz-cream))" }}>
+                <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-gold mb-1">Tu Posición</p>
+                <div className="flex flex-wrap gap-4">
+                  <div>
+                    <p className="font-archivo text-[11px] text-gz-ink-mid">{miPosicion.universidad}</p>
+                    <p className="font-cormorant text-xl font-bold text-gz-ink">
+                      #{miPosicion.rankInUniversidad}{" "}
+                      <span className="font-archivo text-[11px] font-normal text-gz-ink-light">de {miPosicion.totalInUniversidad}</span>
+                    </p>
                   </div>
-
-                  <div className="flex items-center gap-4 shrink-0">
-                    <div className="text-right hidden sm:block">
-                      <p className="text-sm font-bold text-navy">
-                        {u.totalXp.toLocaleString()} XP
-                      </p>
-                      <p className="text-[11px] text-navy/40">
-                        Promedio: {u.avgXp.toLocaleString()} XP
+                  {miPosicion.sede && miPosicion.rankInSede && (
+                    <div className="border-l border-gz-gold/30 pl-4">
+                      <p className="font-archivo text-[11px] text-gz-ink-mid">Sede {miPosicion.sede}</p>
+                      <p className="font-cormorant text-xl font-bold text-gz-ink">
+                        #{miPosicion.rankInSede}{" "}
+                        <span className="font-archivo text-[11px] font-normal text-gz-ink-light">de {miPosicion.totalInSede}</span>
                       </p>
                     </div>
-                    <svg
-                      className={`h-5 w-5 text-navy/30 transition-transform ${
-                        expandedUniversidad === u.universidad ? "rotate-90" : ""
-                      }`}
-                      fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
+                  )}
                 </div>
-              </button>
-            ))
-          )}
-        </div>
-      )}
+              </div>
+            )}
 
-      {/* ─── Vista Universidad (sedes) ───────────────────── */}
-      {view === "universidad" && (
-        <div className="space-y-3">
-          {sedeLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
-            </div>
-          ) : sedes.length === 0 ? (
-            <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center text-navy/40">
-              No hay datos de sedes para esta universidad
-            </div>
-          ) : (
-            sedes.map((s) => (
-              <button
-                key={s.sede}
-                onClick={() =>
-                  handleClickSede(selectedUniversidad!, s.sede)
-                }
-                className="w-full rounded-[4px] border border-gz-rule bg-white p-4 text-left transition-all hover:border-gold/30 hover:shadow-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold ${
-                      s.rank === 1
-                        ? "bg-gz-gold/20 text-gz-gold"
-                        : s.rank === 2
-                        ? "bg-gz-cream-dark text-gz-ink-light"
-                        : s.rank === 3
-                        ? "bg-gz-gold/15 text-gz-gold"
-                        : "bg-navy/5 text-navy/40"
-                    }`}>
-                      {s.rank <= 3
-                        ? ["🥇", "🥈", "🥉"][s.rank - 1]
-                        : `#${s.rank}`}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-semibold text-navy">
-                        Sede {s.sede}
-                      </p>
-                      <p className="text-xs text-navy/50">
-                        {s.studentCount} {s.studentCount === 1 ? "estudiante" : "estudiantes"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 shrink-0">
-                    <div className="text-right hidden sm:block">
-                      <p className="text-sm font-bold text-navy">
-                        {s.totalXp.toLocaleString()} XP
-                      </p>
-                      <p className="text-[11px] text-navy/40">
-                        Promedio: {s.avgXp.toLocaleString()} XP
-                      </p>
-                    </div>
-                    <svg
-                      className="h-5 w-5 text-navy/30"
-                      fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
+            {!selectedUniv ? (
+              // ─ Lista de universidades ─
+              <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+                {univLoading ? <Spinner /> : universidades.length === 0 ? (
+                  <EmptyState text="No hay datos de facultades aún" />
+                ) : (
+                  universidades.map((u) => (
+                    <GroupRow
+                      key={u.universidad}
+                      rank={u.rank}
+                      label={u.universidad}
+                      count={u.studentCount}
+                      totalXp={u.totalXp}
+                      avgXp={u.avgXp}
+                      onClick={() => { setSelectedUniv(u.universidad); fetchSedes(u.universidad); }}
+                      subtitle={u.sedeCount > 0 ? `${u.sedeCount} sede${u.sedeCount !== 1 ? "s" : ""}` : undefined}
+                    />
+                  ))
+                )}
+              </div>
+            ) : !selectedSede ? (
+              // ─ Sedes ─
+              <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+                {sedeLoading ? <Spinner /> : sedes.length === 0 ? (
+                  <EmptyState text="No hay datos de sedes" />
+                ) : (
+                  sedes.map((s) => (
+                    <GroupRow
+                      key={s.sede}
+                      rank={s.rank}
+                      label={`Sede ${s.sede}`}
+                      count={s.studentCount}
+                      totalXp={s.totalXp}
+                      avgXp={s.avgXp}
+                      onClick={() => { setSelectedSede(s.sede); fetchSedeUsers(selectedUniv!, s.sede); }}
+                    />
+                  ))
+                )}
+              </div>
+            ) : (
+              // ─ Usuarios de la sede ─
+              <div>
+                <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+                  {sedeUsersLoading ? <Spinner /> : sedeUsers.length === 0 ? (
+                    <EmptyState text="No hay estudiantes en esta sede" />
+                  ) : (
+                    sedeUsers.map((u) => <UserRow key={u.id} user={u} />)
+                  )}
                 </div>
-              </button>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* ─── Vista Sede (usuarios) ───────────────────────── */}
-      {view === "sede" && (
-        <div>
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm text-navy/60">
-              {total} {total === 1 ? "estudiante" : "estudiantes"}
-            </p>
+                <Pagination page={sedeUsersPage} totalPages={sedeUsersTotalPages} onPageChange={(p) => fetchSedeUsers(selectedUniv!, selectedSede!, p)} />
+              </div>
+            )}
           </div>
+        )}
 
-          {usersLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gold border-t-transparent" />
+        {/* ═══ TAB: POR MATERIA ═══ */}
+        {activeTab === "materia" && (
+          <div>
+            {/* Rama selector */}
+            <div className="flex flex-wrap gap-2 mb-5">
+              {RAMAS.map((r) => (
+                <button
+                  key={r.key}
+                  onClick={() => { setSelectedRama(r.key); fetchMateria(r.key); }}
+                  className={`
+                    px-4 py-2 rounded-sm border font-archivo text-[12px] transition-colors
+                    ${selectedRama === r.key
+                      ? "border-gz-gold bg-gz-gold/10 text-gz-gold font-semibold"
+                      : "border-gz-rule text-gz-ink-mid hover:border-gz-gold/30 hover:text-gz-ink"
+                    }
+                  `}
+                >
+                  {r.label}
+                </button>
+              ))}
             </div>
-          ) : users.length === 0 ? (
-            <div className="rounded-[4px] border border-gz-rule bg-white p-8 text-center text-navy/40">
-              No hay estudiantes registrados en esta sede
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {users.map((u) => {
-                const initials = `${u.firstName[0]}${u.lastName[0]}`.toUpperCase();
-                const tierLabel = u.tier ? TIER_LABELS[u.tier] : null;
-                const tierEmoji = u.tier ? TIER_EMOJIS[u.tier] : null;
 
-                return (
-                  <Link
-                    key={u.id}
-                    href={`/dashboard/perfil/${u.id}`}
-                    className="flex items-center gap-3 rounded-[4px] border border-gz-rule bg-white p-3 transition-all hover:border-gold/30 hover:shadow-sm"
-                  >
-                    {/* Rank */}
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
-                      u.rank === 1
-                        ? "bg-gz-gold/20 text-gz-gold"
-                        : u.rank === 2
-                        ? "bg-gz-cream-dark text-gz-ink-light"
-                        : u.rank === 3
-                        ? "bg-gz-gold/15 text-gz-gold"
-                        : "bg-navy/5 text-navy/40"
-                    }`}>
-                      {u.rank <= 3
-                        ? ["🥇", "🥈", "🥉"][u.rank - 1]
-                        : `#${u.rank}`}
-                    </div>
+            {!selectedRama ? (
+              <EmptyState text="Selecciona una materia para ver el ranking" />
+            ) : (
+              <div>
+                {matMiPos && (
+                  <div className="mb-4 px-4 py-3 rounded-sm border border-gz-gold/30" style={{ backgroundColor: "color-mix(in srgb, var(--gz-gold) 8%, var(--gz-cream))" }}>
+                    <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-gold mb-1">Tu Posición en {RAMAS.find((r) => r.key === selectedRama)?.label}</p>
+                    <p className="font-cormorant text-2xl font-bold text-gz-ink">#{matMiPos}</p>
+                  </div>
+                )}
+                <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+                  {matLoading ? <Spinner /> : matUsers.length === 0 ? (
+                    <EmptyState text="No hay datos para esta materia aún" />
+                  ) : (
+                    matUsers.map((u) => <UserRow key={u.userId} user={u} showUniv />)
+                  )}
+                </div>
+                <Pagination page={matPage} totalPages={matTotalPages} onPageChange={(p) => fetchMateria(selectedRama!, p)} />
+              </div>
+            )}
+          </div>
+        )}
 
-                    {/* Avatar */}
-                    {u.avatarUrl ? (
-                      <img
-                        src={u.avatarUrl}
-                        alt={`${u.firstName} ${u.lastName}`}
-                        className="h-9 w-9 shrink-0 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy/10 text-xs font-bold text-navy">
-                        {initials}
-                      </div>
-                    )}
-
-                    {/* Info */}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-navy truncate">
-                        {u.firstName} {u.lastName}
-                      </p>
-                      <div className="flex items-center gap-2 text-[11px] text-navy/50">
-                        {u.universityYear && (
-                          <span>{u.universityYear}° año</span>
-                        )}
-                        {tierLabel && (
-                          <span>{tierEmoji} {tierLabel}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* XP */}
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-bold text-navy">
-                        {u.xp.toLocaleString()}
-                      </p>
-                      <p className="text-[10px] text-navy/40">XP</p>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-2">
-              <button
-                onClick={() => fetchUsers(selectedUniversidad!, selectedSede!, page - 1)}
-                disabled={page <= 1}
-                className="rounded-[3px] border border-gz-rule px-3 py-1.5 text-xs font-semibold text-navy/60 transition-colors hover:bg-gz-cream-dark disabled:opacity-30"
-              >
-                Anterior
-              </button>
-              <span className="text-xs text-navy/50">
-                Pagina {page} de {totalPages}
-              </span>
-              <button
-                onClick={() => fetchUsers(selectedUniversidad!, selectedSede!, page + 1)}
-                disabled={page >= totalPages}
-                className="rounded-[3px] border border-gz-rule px-3 py-1.5 text-xs font-semibold text-navy/60 transition-colors hover:bg-gz-cream-dark disabled:opacity-30"
-              >
-                Siguiente
-              </button>
-            </div>
-          )}
+        {/* ═══ FOOTER ═══ */}
+        <div className="mt-10 relative">
+          <div className="border-t-2 border-gz-rule" />
+          <div className="border-t border-gz-rule mt-[3px]" />
+          <p className="text-center mt-3 font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light">
+            Tu Causa · Ranking · {new Date().getFullYear()}
+          </p>
         </div>
-      )}
-    </div>
+      </div>
+    </main>
   );
 }

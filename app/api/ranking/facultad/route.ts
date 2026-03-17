@@ -25,18 +25,40 @@ export async function GET(request: Request) {
 
   // ─── Vista Nacional: ranking de universidades ───────────
   if (view === "nacional") {
-    const universidades = await prisma.user.groupBy({
-      by: ["universidad"],
-      where: {
-        universidad: { not: null },
-        deletedAt: null,
-        suspended: false,
-      },
-      _count: { id: true },
-      _sum: { xp: true },
-      _avg: { xp: true },
-      orderBy: { _sum: { xp: "desc" } },
-    });
+    const [universidades, sedeGroups] = await Promise.all([
+      prisma.user.groupBy({
+        by: ["universidad"],
+        where: {
+          universidad: { not: null },
+          deletedAt: null,
+          suspended: false,
+          visibleEnRanking: true,
+        },
+        _count: { id: true },
+        _sum: { xp: true },
+        _avg: { xp: true },
+        orderBy: { _sum: { xp: "desc" } },
+      }),
+      // Count distinct sedes per university
+      prisma.user.groupBy({
+        by: ["universidad", "sede"],
+        where: {
+          universidad: { not: null },
+          sede: { not: null },
+          deletedAt: null,
+          suspended: false,
+          visibleEnRanking: true,
+        },
+      }),
+    ]);
+
+    // Build sede count map
+    const sedeCountMap = new Map<string, number>();
+    for (const sg of sedeGroups) {
+      if (sg.universidad) {
+        sedeCountMap.set(sg.universidad, (sedeCountMap.get(sg.universidad) ?? 0) + 1);
+      }
+    }
 
     const items = universidades
       .filter((u) => u.universidad !== null)
@@ -44,6 +66,7 @@ export async function GET(request: Request) {
         rank: i + 1,
         universidad: u.universidad!,
         studentCount: u._count.id,
+        sedeCount: sedeCountMap.get(u.universidad!) ?? 0,
         totalXp: u._sum.xp ?? 0,
         avgXp: Math.round(u._avg.xp ?? 0),
       }));
@@ -68,6 +91,7 @@ export async function GET(request: Request) {
         sede: { not: null },
         deletedAt: null,
         suspended: false,
+        visibleEnRanking: true,
       },
       _count: { id: true },
       _sum: { xp: true },

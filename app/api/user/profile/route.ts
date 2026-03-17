@@ -13,7 +13,7 @@ export async function PATCH(request: Request) {
   }
 
   const body = await request.json();
-  const { firstName, lastName, bio, universidad, sede, universityYear, cvAvailable } = body;
+  const { firstName, lastName, bio, universidad, sede, universityYear, cvAvailable, region, corte, visibleEnRanking, visibleEnLiga } = body;
 
   // Build update data (only provided fields)
   const data: Record<string, unknown> = {};
@@ -27,6 +27,10 @@ export async function PATCH(request: Request) {
     data.universityYear = universityYear;
   }
   if (typeof cvAvailable === "boolean") data.cvAvailable = cvAvailable;
+  if (typeof region === "string" || region === null) data.region = region;
+  if (typeof corte === "string" || corte === null) data.corte = corte;
+  if (typeof visibleEnRanking === "boolean") data.visibleEnRanking = visibleEnRanking;
+  if (typeof visibleEnLiga === "boolean") data.visibleEnLiga = visibleEnLiga;
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "No hay campos para actualizar" }, { status: 400 });
@@ -44,6 +48,10 @@ export async function PATCH(request: Request) {
       sede: true,
       universityYear: true,
       cvAvailable: true,
+      region: true,
+      corte: true,
+      visibleEnRanking: true,
+      visibleEnLiga: true,
       avatarUrl: true,
     },
   });

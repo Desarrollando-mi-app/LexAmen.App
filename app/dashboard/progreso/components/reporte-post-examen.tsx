@@ -123,14 +123,14 @@ export function ReportePostExamen({
               &iexcl;Gracias por tu reporte!
             </p>
             <p className="font-archivo text-[13px] text-gz-ink-mid mt-2">
-              Tu experiencia ayudar&aacute; a futuros estudiantes de tu universidad
+              Tu experiencia ayudar&aacute; a futuros estudiantes de tu facultad
               a prepararse mejor.
             </p>
           </div>
         ) : (
           <div className="p-6 space-y-5">
             <p className="font-archivo text-[13px] text-gz-ink-mid">
-              Tu experiencia ayuda a futuros estudiantes de tu universidad a prepararse mejor.
+              Tu experiencia ayuda a futuros estudiantes de tu facultad a prepararse mejor.
             </p>
 
             {/* Fecha */}

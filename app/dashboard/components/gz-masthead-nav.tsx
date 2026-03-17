@@ -48,6 +48,14 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    href: "/dashboard/liga",
+    label: "Liga",
+  },
+  {
+    href: "/dashboard/ranking",
+    label: "Ranking",
+  },
+  {
     href: "/dashboard/causas",
     label: "Causas",
     children: [

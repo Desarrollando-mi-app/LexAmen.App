@@ -51,6 +51,16 @@ const NAV_ITEMS: MobileNavItem[] = [
     ],
   },
   {
+    href: "/dashboard/liga",
+    icon: "🏆",
+    label: "Liga",
+  },
+  {
+    href: "/dashboard/ranking",
+    icon: "📊",
+    label: "Ranking",
+  },
+  {
     href: "/dashboard/causas",
     icon: "⚔️",
     label: "Causas",

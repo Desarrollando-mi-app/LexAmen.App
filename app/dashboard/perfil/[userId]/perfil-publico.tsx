@@ -18,6 +18,8 @@ interface ProfileUser {
   avatarUrl: string | null;
   bio: string | null;
   cvAvailable: boolean;
+  region: string | null;
+  corte: string | null;
   xp: number;
   causasGanadas: number;
   causasPerdidas: number;
@@ -314,6 +316,12 @@ export function PerfilPublico({
                   </span>
                 )}
               </div>
+              {(user.region || user.corte) && (
+                <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-navy/50">
+                  {user.region && <span>{user.region}</span>}
+                  {user.corte && <span>· Corte de {user.corte}</span>}
+                </div>
+              )}
               {tierLabel && (
                 <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
                   {tierEmoji} {tierLabel}

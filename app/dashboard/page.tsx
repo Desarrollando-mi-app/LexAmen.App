@@ -15,7 +15,10 @@ import { GzCommunity } from "./components/gz-community";
 import { GzObiterSemana } from "./components/gz-obiter-semana";
 import { GzMiExamenResumen } from "./components/gz-mi-examen-resumen";
 import { GzFooter } from "./components/gz-footer";
+import { GzLigaResumen } from "./components/gz-liga-resumen";
 import { OnboardingCard } from "./components/onboarding-card";
+import { ensureLeagueMembership } from "@/lib/league-assign";
+import { getDaysRemaining } from "@/lib/league";
 
 // ─── Cálculo de racha ────────────────────────────────────
 
@@ -490,6 +493,23 @@ export default async function DashboardPage() {
     ayudantiasActivas: ayudantiasActivasCount,
   };
 
+  // ─── Liga resumen ──────────────────────────────────────────
+  const ligaMembership = await ensureLeagueMembership(authUser.id);
+  const ligaMembers = await prisma.leagueMember.findMany({
+    where: { leagueId: ligaMembership.leagueId },
+    orderBy: { weeklyXp: "desc" },
+    include: { user: { select: { id: true, firstName: true } } },
+  });
+
+  const ligaMyPosition = ligaMembers.findIndex((m) => m.user.id === authUser.id) + 1 || null;
+  const ligaMyXp = ligaMembers.find((m) => m.user.id === authUser.id)?.weeklyXp ?? 0;
+  const ligaTopMembers = ligaMembers.slice(0, 5).map((m, i) => ({
+    position: i + 1,
+    userId: m.user.id,
+    firstName: m.user.firstName,
+    weeklyXp: m.weeklyXp,
+  }));
+
   // ─── Render ───────────────────────────────────────────────
 
   return (
@@ -541,7 +561,18 @@ export default async function DashboardPage() {
           mcqPercent={mcqPercent}
         />
 
-        <GzObiterSemana obiter={obiterDeLaSemana} />
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
+          <GzObiterSemana obiter={obiterDeLaSemana} />
+          <GzLigaResumen
+            tier={ligaMembership.league.tier}
+            daysRemaining={getDaysRemaining()}
+            userId={authUser.id}
+            myPosition={ligaMyPosition}
+            myWeeklyXp={ligaMyXp}
+            totalMembers={ligaMembers.length}
+            topMembers={ligaTopMembers}
+          />
+        </div>
 
         <GzCommunity
           badges={serializedBadges}

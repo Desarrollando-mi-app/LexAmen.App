@@ -205,6 +205,10 @@ model User {
   bio             String?
   avatarUrl       String?
   cvAvailable     Boolean   @default(false)
+  region          String?   // "Región Metropolitana de Santiago", etc.
+  corte           String?   // "Santiago", "Valparaíso", etc. (comuna sede de Corte)
+  visibleEnRanking Boolean  @default(true)
+  visibleEnLiga    Boolean  @default(true)
   deletedAt       DateTime?
   xp              Int       @default(0)
   causasGanadas   Int       @default(0)

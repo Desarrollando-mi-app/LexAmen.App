@@ -401,7 +401,7 @@ export function UsuariosClient() {
                 </p>
               </div>
               <div className="rounded-lg bg-navy/[0.03] p-3">
-                <p className="text-xs text-navy/50">Universidad</p>
+                <p className="text-xs text-navy/50">Facultad</p>
                 <p className="font-bold text-navy text-xs">
                   {selectedUser.universidad ?? "No especificada"}
                   {selectedUser.sede && ` · ${selectedUser.sede}`}

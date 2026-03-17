@@ -31,6 +31,10 @@ export default async function PerfilPage() {
       sede: true,
       universityYear: true,
       cvAvailable: true,
+      region: true,
+      corte: true,
+      visibleEnRanking: true,
+      visibleEnLiga: true,
     },
   });
 
@@ -68,6 +72,10 @@ export default async function PerfilPage() {
             sede: user.sede,
             universityYear: user.universityYear,
             cvAvailable: user.cvAvailable,
+            region: user.region,
+            corte: user.corte,
+            visibleEnRanking: user.visibleEnRanking,
+            visibleEnLiga: user.visibleEnLiga,
           }}
         />
       </div>

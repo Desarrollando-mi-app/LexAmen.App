@@ -444,16 +444,16 @@ function TabPerfil({
       </div>
 
       <div>
-        <label className="text-xs font-semibold text-navy/60">Universidad</label>
+        <label className="text-xs font-semibold text-navy/60">Facultad</label>
         <select
           value={universidad}
           onChange={(e) => {
             setUniversidad(e.target.value);
-            setSede(""); // reset sede al cambiar universidad
+            setSede(""); // reset sede al cambiar facultad
           }}
           className="mt-1 w-full rounded-[3px] border border-gz-rule px-3 py-2 text-sm text-navy focus:border-gold/50 focus:outline-none"
         >
-          <option value="">Selecciona una universidad</option>
+          <option value="">Selecciona una facultad</option>
           {UNIVERSIDAD_NOMBRES.map((u) => (
             <option key={u} value={u}>{u}</option>
           ))}

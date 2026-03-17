@@ -7,6 +7,10 @@ import {
   getSedesForUniversidad,
 } from "@/lib/universidades";
 import {
+  REGIONES_CHILE,
+  getCortesForRegion,
+} from "@/lib/regiones-chile";
+import {
   validatePassword,
   PASSWORD_ERROR_MESSAGE,
 } from "@/lib/password-validation";
@@ -24,6 +28,10 @@ interface UserData {
   sede: string | null;
   universityYear: number | null;
   cvAvailable: boolean;
+  region: string | null;
+  corte: string | null;
+  visibleEnRanking: boolean;
+  visibleEnLiga: boolean;
 }
 
 interface PerfilSettingsProps {
@@ -89,7 +97,12 @@ export function PerfilSettings({ user: initialUser }: PerfilSettingsProps) {
         )}
         {tab === "seguridad" && <TabSeguridad />}
         {tab === "datos" && <TabDatos onGoToProfile={() => setTab("perfil")} />}
-        {tab === "preferencias" && <TabPreferencias />}
+        {tab === "preferencias" && (
+          <TabPreferencias
+            user={user}
+            onUpdate={(updates) => setUser((u) => ({ ...u, ...updates }))}
+          />
+        )}
       </div>
     </div>
   );
@@ -113,6 +126,8 @@ function TabPerfil({
     user.universityYear ?? 1
   );
   const [cvAvailable, setCvAvailable] = useState(user.cvAvailable);
+  const [region, setRegion] = useState(user.region ?? "");
+  const [corte, setCorte] = useState(user.corte ?? "");
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -121,6 +136,9 @@ function TabPerfil({
 
   const sedesDisponibles = universidad
     ? getSedesForUniversidad(universidad)
+    : [];
+  const cortesDisponibles = region
+    ? getCortesForRegion(region)
     : [];
   const initials = `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
 
@@ -172,6 +190,8 @@ function TabPerfil({
           sede: sede || null,
           universityYear,
           cvAvailable,
+          region: region || null,
+          corte: corte || null,
         }),
       });
       const data = await res.json();
@@ -188,6 +208,8 @@ function TabPerfil({
         sede: sede || null,
         universityYear,
         cvAvailable,
+        region: region || null,
+        corte: corte || null,
       });
       toast.success("Perfil actualizado");
     } catch {
@@ -294,9 +316,9 @@ function TabPerfil({
         </p>
       </div>
 
-      {/* Universidad */}
+      {/* Facultad */}
       <div>
-        <label className={LABEL}>Universidad</label>
+        <label className={LABEL}>Facultad</label>
         <select
           value={universidad}
           onChange={(e) => {
@@ -305,7 +327,7 @@ function TabPerfil({
           }}
           className={INPUT}
         >
-          <option value="">Selecciona una universidad</option>
+          <option value="">Selecciona una facultad</option>
           {UNIVERSIDAD_NOMBRES.map((u) => (
             <option key={u} value={u}>
               {u}
@@ -327,6 +349,45 @@ function TabPerfil({
             {sedesDisponibles.map((s) => (
               <option key={s} value={s}>
                 {s}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {/* Region */}
+      <div>
+        <label className={LABEL}>Regi&oacute;n</label>
+        <select
+          value={region}
+          onChange={(e) => {
+            setRegion(e.target.value);
+            setCorte("");
+          }}
+          className={INPUT}
+        >
+          <option value="">Selecciona una regi&oacute;n</option>
+          {REGIONES_CHILE.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Corte de Apelaciones */}
+      {cortesDisponibles.length > 0 && (
+        <div>
+          <label className={LABEL}>Corte de Apelaciones</label>
+          <select
+            value={corte}
+            onChange={(e) => setCorte(e.target.value)}
+            className={INPUT}
+          >
+            <option value="">Selecciona una corte</option>
+            {cortesDisponibles.map((c) => (
+              <option key={c} value={c}>
+                Corte de {c}
               </option>
             ))}
           </select>
@@ -626,7 +687,7 @@ function TabDatos({ onGoToProfile }: { onGoToProfile: () => void }) {
                 Modificar mis datos
               </p>
               <p className="font-archivo text-[12px] text-gz-ink-light mt-0.5">
-                Edita tu nombre, universidad y m&aacute;s
+                Edita tu nombre, facultad y m&aacute;s
               </p>
             </div>
             <span className="text-lg">✏️</span>
@@ -706,9 +767,18 @@ function TabDatos({ onGoToProfile }: { onGoToProfile: () => void }) {
 
 // ─── Tab 4: Preferencias ────────────────────────────────
 
-function TabPreferencias() {
+function TabPreferencias({
+  user,
+  onUpdate,
+}: {
+  user: UserData;
+  onUpdate: (updates: Partial<UserData>) => void;
+}) {
   const [theme, setTheme] = useState<string>("dark");
   const [mounted, setMounted] = useState(false);
+  const [visibleEnRanking, setVisibleEnRanking] = useState(user.visibleEnRanking);
+  const [visibleEnLiga, setVisibleEnLiga] = useState(user.visibleEnLiga);
+  const [savingVisibility, setSavingVisibility] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -723,6 +793,35 @@ function TabPreferencias() {
     document.documentElement.setAttribute("data-theme", next);
   }
 
+  async function handleToggleVisibility(field: "visibleEnRanking" | "visibleEnLiga", value: boolean) {
+    if (field === "visibleEnRanking") setVisibleEnRanking(value);
+    else setVisibleEnLiga(value);
+
+    setSavingVisibility(true);
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: value }),
+      });
+      if (!res.ok) {
+        // Revert on error
+        if (field === "visibleEnRanking") setVisibleEnRanking(!value);
+        else setVisibleEnLiga(!value);
+        toast.error("Error al actualizar visibilidad");
+        return;
+      }
+      onUpdate({ [field]: value });
+      toast.success(value ? "Ahora eres visible" : "Ahora eres invisible");
+    } catch {
+      if (field === "visibleEnRanking") setVisibleEnRanking(!value);
+      else setVisibleEnLiga(!value);
+      toast.error("Error de conexión");
+    } finally {
+      setSavingVisibility(false);
+    }
+  }
+
   if (!mounted) return null;
 
   return (
@@ -734,7 +833,7 @@ function TabPreferencias() {
             Tema visual
           </p>
           <p className="font-archivo text-[12px] text-gz-ink-light mt-0.5">
-            {theme === "dark" ? "Arca Romana (noche)" : "Papel & Tinta (d\u00eda)"}
+            {theme === "dark" ? "Arca Romana (noche)" : "Papel & Tinta (día)"}
           </p>
         </div>
         <button
@@ -752,6 +851,66 @@ function TabPreferencias() {
         </button>
       </div>
 
+      {/* Privacy section header */}
+      <div className="pt-2">
+        <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
+          Privacidad
+        </p>
+        <div className="border-b border-gz-rule mt-2" />
+      </div>
+
+      {/* Visible en Ranking */}
+      <div className="flex items-center justify-between p-4 border border-gz-rule rounded-[4px]">
+        <div>
+          <p className="font-archivo text-[14px] font-medium text-gz-ink">
+            Aparecer en el Ranking
+          </p>
+          <p className="font-archivo text-[12px] text-gz-ink-light mt-0.5">
+            Tu nombre aparecerá en las tablas de ranking público
+          </p>
+        </div>
+        <button
+          type="button"
+          disabled={savingVisibility}
+          onClick={() => handleToggleVisibility("visibleEnRanking", !visibleEnRanking)}
+          className={`relative w-11 h-6 rounded-full transition-colors ${
+            visibleEnRanking ? "bg-gz-gold" : "bg-gz-cream-dark"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+              visibleEnRanking ? "translate-x-5" : "translate-x-0.5"
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Visible en Liga */}
+      <div className="flex items-center justify-between p-4 border border-gz-rule rounded-[4px]">
+        <div>
+          <p className="font-archivo text-[14px] font-medium text-gz-ink">
+            Mostrar identidad en la Liga
+          </p>
+          <p className="font-archivo text-[12px] text-gz-ink-light mt-0.5">
+            Si desactivas, aparecerás como &quot;Estudiante anónimo&quot; para otros
+          </p>
+        </div>
+        <button
+          type="button"
+          disabled={savingVisibility}
+          onClick={() => handleToggleVisibility("visibleEnLiga", !visibleEnLiga)}
+          className={`relative w-11 h-6 rounded-full transition-colors ${
+            visibleEnLiga ? "bg-gz-gold" : "bg-gz-cream-dark"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
+              visibleEnLiga ? "translate-x-5" : "translate-x-0.5"
+            }`}
+          />
+        </button>
+      </div>
+
       {/* Email notifications — placeholder */}
       <div className="flex items-center justify-between p-4 border border-gz-rule rounded-[4px] opacity-60">
         <div>
@@ -759,7 +918,7 @@ function TabPreferencias() {
             Notificaciones por email
           </p>
           <p className="font-archivo text-[12px] text-gz-ink-light mt-0.5">
-            Pr&oacute;ximamente
+            Próximamente
           </p>
         </div>
         <div className="relative w-11 h-6 rounded-full bg-gz-cream-dark cursor-not-allowed">
