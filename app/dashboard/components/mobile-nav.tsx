@@ -49,6 +49,8 @@ const NAV_ITEMS: MobileNavItem[] = [
       { href: "/dashboard/definiciones", label: "Definiciones" },
       { href: "/dashboard/completar-espacios", label: "Completar Espacios" },
       { href: "/dashboard/identificar-errores", label: "Identificar Errores" },
+      { href: "/dashboard/ordenar-secuencias", label: "Ordenar Secuencias" },
+      { href: "/dashboard/relacionar-columnas", label: "Relacionar Columnas" },
       { href: "/dashboard/simulacro", label: "Simulacro Oral" },
     ],
   },

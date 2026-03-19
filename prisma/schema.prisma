@@ -393,6 +393,12 @@ model User {
   // Identificar Errores
   errorIdAttempts         ErrorIdentificationAttempt[] @relation("ErrorIdAttempts")
 
+  // Ordenar Secuencias
+  orderSequenceAttempts   OrderSequenceAttempt[] @relation("OrderSequenceAttempts")
+
+  // Relacionar Columnas
+  matchColumnsAttempts    MatchColumnsAttempt[]  @relation("MatchColumnsAttempts")
+
   // XP Log (desglose por categoría)
   xpLogs                  XpLog[]               @relation("XpLogs")
 }
@@ -1874,6 +1880,90 @@ model ErrorIdentificationAttempt {
   fallosPositivos       Int
 
   createdAt             DateTime            @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ─── Ordenar Secuencias ───────────────────────────────────
+
+model OrderSequence {
+  id             String   @id @default(cuid())
+
+  titulo         String
+  instruccion    String?
+  items          String   // JSON: [{ id: 1, texto: "...", orden: 1 }, ...]
+  explicacion    String?
+
+  rama           String
+  libro          String?
+  tituloMateria  String?
+  materia        String?
+  dificultad     Int      @default(2)
+
+  activo         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  attempts       OrderSequenceAttempt[]
+
+  @@index([rama, activo])
+}
+
+model OrderSequenceAttempt {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation("OrderSequenceAttempts", fields: [userId], references: [id], onDelete: Cascade)
+  orderSequenceId String
+  orderSequence   OrderSequence @relation(fields: [orderSequenceId], references: [id], onDelete: Cascade)
+
+  ordenUsuario    String        // JSON: [{ itemId: 1, posicion: 1 }, ...]
+  correctos       Int
+  totalItems      Int
+  perfecto        Boolean
+
+  createdAt       DateTime      @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ─── Relacionar Columnas ──────────────────────────────────
+
+model MatchColumns {
+  id              String   @id @default(cuid())
+
+  titulo          String
+  instruccion     String?
+  pares           String   // JSON: [{ id: 1, izquierda: "...", derecha: "..." }, ...]
+  columnaIzqLabel String   @default("Concepto")
+  columnaDerLabel String   @default("Definición")
+  explicacion     String?
+
+  rama            String
+  libro           String?
+  tituloMateria   String?
+  materia         String?
+  dificultad      Int      @default(2)
+
+  activo          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  attempts        MatchColumnsAttempt[]
+
+  @@index([rama, activo])
+}
+
+model MatchColumnsAttempt {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation("MatchColumnsAttempts", fields: [userId], references: [id], onDelete: Cascade)
+  matchColumnsId  String
+  matchColumns    MatchColumns @relation(fields: [matchColumnsId], references: [id], onDelete: Cascade)
+
+  conexiones      String       // JSON: [{ izquierdaId: 1, derechaId: 3 }, ...]
+  correctas       Int
+  totalPares      Int
+  perfecto        Boolean
+
+  createdAt       DateTime     @default(now())
 
   @@index([userId, createdAt])
 }
