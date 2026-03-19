@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { progressKey } from "@/lib/progress-utils";
@@ -147,6 +148,8 @@ export default async function DashboardPage() {
     ayudantiasActivasCount,
     // Expediente Abierto
     expedienteActivoRaw,
+    // Noticias jurídicas
+    noticiasJuridicasRaw,
   ] = await Promise.all([
     prisma.userFlashcardProgress.count({
       where: { userId: authUser.id, repetitions: { gte: 3 } },
@@ -331,6 +334,21 @@ export default async function DashboardPage() {
         titulo: true,
         fechaCierre: true,
         _count: { select: { argumentos: true } },
+      },
+    }),
+
+    // Noticias jurídicas recientes
+    prisma.noticiaJuridica.findMany({
+      where: { estado: "aprobada" },
+      orderBy: { fechaAprobacion: "desc" },
+      take: 3,
+      select: {
+        id: true,
+        titulo: true,
+        fuente: true,
+        fuenteNombre: true,
+        urlFuente: true,
+        fechaAprobacion: true,
       },
     }),
   ]);
@@ -526,6 +544,16 @@ export default async function DashboardPage() {
       }
     : null;
 
+  // ─── Noticias jurídicas ─────────────────────────────────────
+  const noticiasJuridicas = noticiasJuridicasRaw.map((n) => ({
+    id: n.id,
+    titulo: n.titulo,
+    fuente: n.fuente,
+    fuenteNombre: n.fuenteNombre,
+    urlFuente: n.urlFuente,
+    fechaAprobacion: n.fechaAprobacion?.toISOString() ?? null,
+  }));
+
   // ─── Liga resumen ──────────────────────────────────────────
   const ligaMembership = await ensureLeagueMembership(authUser.id);
   const ligaMembers = await prisma.leagueMember.findMany({
@@ -618,6 +646,55 @@ export default async function DashboardPage() {
           salaResumen={salaResumen}
           expedienteActivo={expedienteActivo}
         />
+
+        {/* ─── Noticias Jurídicas mini-widget ─── */}
+        {noticiasJuridicas.length > 0 && (
+          <div className="mt-6">
+            <div className="flex items-center gap-3 mb-4">
+              <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light whitespace-nowrap">
+                Noticias Jur&iacute;dicas
+              </p>
+              <div className="flex-1 h-px bg-gz-rule" />
+            </div>
+
+            <div className="divide-y divide-gz-rule">
+              {noticiasJuridicas.map((n) => (
+                <div key={n.id} className="py-3 first:pt-0 flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-cormorant text-[16px] font-bold text-gz-ink leading-snug mb-1 line-clamp-2">
+                      {n.titulo}
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <span className="font-ibm-mono text-[9px] text-gz-ink-light">
+                        {n.fuenteNombre}
+                      </span>
+                      {n.fechaAprobacion && (
+                        <span className="font-ibm-mono text-[9px] text-gz-ink-light">
+                          &middot; {new Date(n.fechaAprobacion).toLocaleDateString("es-CL", { day: "numeric", month: "short" })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <a
+                    href={n.urlFuente}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 font-archivo text-[11px] font-semibold text-gz-gold hover:text-gz-navy transition-colors mt-1"
+                  >
+                    Leer &rarr;
+                  </a>
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href="/dashboard/noticias"
+              className="mt-3 inline-block font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-navy transition-colors"
+            >
+              Ver todas &rarr;
+            </Link>
+          </div>
+        )}
       </div>
 
       <GzFooter />

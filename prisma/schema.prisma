@@ -2201,3 +2201,37 @@ model ExpedienteComentario {
 
   @@index([argumentoId, createdAt])
 }
+
+// ─── Noticias Jurídicas ──────────────────────────────────
+
+model NoticiaJuridica {
+  id                     String    @id @default(cuid())
+
+  titulo                 String
+  resumen                String?
+  urlFuente              String    @unique
+  fuente                 String
+  fuenteNombre           String
+
+  categoria              String?
+  rama                   String?
+
+  imagenUrl              String?
+
+  estado                 String    @default("pendiente")
+  destacada              Boolean   @default(false)
+
+  fechaPublicacionFuente DateTime?
+  fechaRecopilacion      DateTime  @default(now())
+  fechaAprobacion        DateTime?
+
+  aprobadaPor            String?
+  notasAdmin             String?
+
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([estado, fechaAprobacion])
+  @@index([fuente, fechaRecopilacion])
+  @@index([destacada, estado])
+}

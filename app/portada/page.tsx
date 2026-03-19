@@ -32,6 +32,7 @@ export default async function PortadaPage() {
     totalEnsayos,
     activosHoyGroups,
     expedienteActivoRaw,
+    noticiasJuridicasRaw,
   ] = await Promise.all([
     prisma.heroSlide.findMany({
       where: {
@@ -110,6 +111,21 @@ export default async function PortadaPage() {
         fechaCierre: true,
         rama: true,
         _count: { select: { argumentos: true } },
+      },
+    }),
+    prisma.noticiaJuridica.findMany({
+      where: { estado: "aprobada" },
+      orderBy: { fechaAprobacion: "desc" },
+      take: 4,
+      select: {
+        id: true,
+        titulo: true,
+        resumen: true,
+        urlFuente: true,
+        fuente: true,
+        fuenteNombre: true,
+        destacada: true,
+        fechaAprobacion: true,
       },
     }),
   ]);
@@ -228,6 +244,16 @@ export default async function PortadaPage() {
           argumentosCount: expedienteActivoRaw._count.argumentos,
         }
       : null,
+    noticiasJuridicas: noticiasJuridicasRaw.map((n) => ({
+      id: n.id,
+      titulo: n.titulo,
+      resumen: n.resumen,
+      urlFuente: n.urlFuente,
+      fuente: n.fuente,
+      fuenteNombre: n.fuenteNombre,
+      destacada: n.destacada,
+      fechaAprobacion: n.fechaAprobacion?.toISOString() ?? null,
+    })),
     isLoggedIn: !!authUser,
     userName,
   };

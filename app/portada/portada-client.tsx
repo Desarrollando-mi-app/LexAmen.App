@@ -97,6 +97,17 @@ interface ExpedienteActivo {
   argumentosCount: number;
 }
 
+interface NoticiaJuridica {
+  id: string;
+  titulo: string;
+  resumen: string | null;
+  urlFuente: string;
+  fuente: string;
+  fuenteNombre: string;
+  destacada: boolean;
+  fechaAprobacion: string | null;
+}
+
 interface PortadaData {
   noticias: Noticia[];
   destacados: Destacados;
@@ -113,6 +124,7 @@ interface PortadaData {
     usuariosActivosHoy: number;
   };
   expedienteActivo: ExpedienteActivo | null;
+  noticiasJuridicas: NoticiaJuridica[];
   isLoggedIn: boolean;
   userName?: string;
 }
@@ -234,6 +246,7 @@ export function PortadaClient({ data }: { data: PortadaData }) {
     sponsors,
     stats,
     expedienteActivo,
+    noticiasJuridicas,
     isLoggedIn,
     userName,
   } = data;
@@ -594,6 +607,81 @@ export function PortadaClient({ data }: { data: PortadaData }) {
             <EditorialRule className="my-8" />
             <SectionHeader>Expediente Abierto</SectionHeader>
             <ExpedienteCard expediente={expedienteActivo} isLoggedIn={isLoggedIn} />
+          </>
+        )}
+
+        {/* ─── NOTICIAS JURÍDICAS ─── */}
+        {noticiasJuridicas.length > 0 && (
+          <>
+            <EditorialRule className="my-8" />
+            <SectionHeader>Noticias Jur&iacute;dicas</SectionHeader>
+
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-0">
+              {/* Headline (first destacada or first noticia) */}
+              <div className="lg:pr-6 lg:border-r lg:border-gz-rule pb-6 lg:pb-0">
+                {(() => {
+                  const headline = noticiasJuridicas.find((n) => n.destacada) ?? noticiasJuridicas[0];
+                  if (!headline) return null;
+                  return (
+                    <>
+                      {headline.destacada && (
+                        <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold mb-2 block">
+                          &#9733; Destacada
+                        </span>
+                      )}
+                      <h3 className="font-cormorant text-[24px] lg:text-[28px] !font-bold text-gz-ink leading-snug mb-3">
+                        {headline.titulo}
+                      </h3>
+                      {headline.resumen && (
+                        <p className="font-archivo text-[14px] text-gz-ink-mid leading-relaxed line-clamp-3 mb-3">
+                          {headline.resumen}
+                        </p>
+                      )}
+                      <p className="font-ibm-mono text-[10px] text-gz-ink-light mb-3">
+                        {headline.fuenteNombre}
+                      </p>
+                      <a
+                        href={headline.urlFuente}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-navy transition-colors"
+                      >
+                        Leer en fuente original &rarr;
+                      </a>
+                    </>
+                  );
+                })()}
+              </div>
+
+              {/* Compact list of remaining noticias */}
+              <div className="lg:pl-6 pt-6 lg:pt-0 border-t lg:border-t-0 border-gz-rule">
+                <div className="divide-y divide-gz-rule">
+                  {noticiasJuridicas
+                    .filter((n) => {
+                      const headline = noticiasJuridicas.find((x) => x.destacada) ?? noticiasJuridicas[0];
+                      return n.id !== headline?.id;
+                    })
+                    .slice(0, 3)
+                    .map((n) => (
+                      <div key={n.id} className="py-3 first:pt-0">
+                        <h4 className="font-cormorant text-[17px] !font-bold text-gz-ink leading-snug mb-1">
+                          {n.titulo}
+                        </h4>
+                        <p className="font-ibm-mono text-[9px] text-gz-ink-light">
+                          {n.fuenteNombre}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+
+                <Link
+                  href="/dashboard/noticias"
+                  className="mt-4 inline-block font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-navy transition-colors"
+                >
+                  Ver todas las noticias &rarr;
+                </Link>
+              </div>
+            </div>
           </>
         )}
 

@@ -93,6 +93,10 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    href: "/dashboard/noticias",
+    label: "Noticias",
+  },
+  {
     href: "/dashboard/perfil",
     label: "Perfil",
   },

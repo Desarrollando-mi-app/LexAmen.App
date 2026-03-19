@@ -102,6 +102,11 @@ const NAV_ITEMS: MobileNavItem[] = [
     ],
   },
   {
+    href: "/dashboard/noticias",
+    icon: "\uD83D\uDDDE\uFE0F",
+    label: "Noticias",
+  },
+  {
     href: "/dashboard/perfil",
     icon: "👤",
     label: "Perfil",

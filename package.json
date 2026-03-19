@@ -17,6 +17,7 @@
     "@prisma/client": "^7.4.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
+    "cheerio": "^1.2.0",
     "mammoth": "^1.11.0",
     "next": "14.2.35",
     "openai": "^6.27.0",
@@ -28,6 +29,7 @@
     "react-dom": "^18",
     "recharts": "^3.8.0",
     "resend": "^6.9.2",
+    "rss-parser": "^3.13.0",
     "sharp": "^0.34.5",
     "sonner": "^2.0.7"
   },
