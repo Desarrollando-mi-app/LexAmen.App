@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 import { TIER_LABELS, TIER_EMOJIS, getGradoInfo, NIVELES } from "@/lib/league";
+import { ReportModal } from "@/app/components/report-modal";
 import type { NivelLiga } from "@/lib/league";
 
 // ─── Types ───────────────────────────────────────────────
@@ -509,6 +510,9 @@ export function PerfilPublico({
                 LinkedIn
               </a>
             )}
+
+            {/* Report button */}
+            <ReportModal reportadoId={user.id} contenidoTipo="perfil" />
           </div>
         </div>
 

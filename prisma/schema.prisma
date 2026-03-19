@@ -329,6 +329,8 @@ model User {
   causasGanadas   Int       @default(0)
   causasPerdidas  Int       @default(0)
   suspended       Boolean   @default(false)
+  suspendedAt     DateTime?
+  suspendedReason String?
   isAdmin         Boolean   @default(false)
   createdAt       DateTime  @default(now())
 
@@ -430,6 +432,10 @@ model User {
 
   // Peer Review
   reviewsRealizados      PeerReview[]          @relation("ReviewsRealizados")
+
+  // Reportes de usuario
+  reportesEnviados       ReporteUsuario[]      @relation("ReportesEnviados")
+  reportesRecibidos      ReporteUsuario[]      @relation("ReportesRecibidos")
 
   // XP Log (desglose por categoría)
   xpLogs                  XpLog[]               @relation("XpLogs")
@@ -2400,4 +2406,32 @@ model PeerReview {
   @@unique([publicacionId, reviewerId])
   @@index([reviewerId, estado])
   @@index([publicacionId])
+}
+
+// ─── Reportes de Usuario ────────────────────────────────────
+
+model ReporteUsuario {
+  id              String   @id @default(cuid())
+
+  reporterId      String
+  reporter        User     @relation("ReportesEnviados", fields: [reporterId], references: [id])
+
+  reportadoId     String
+  reportado       User     @relation("ReportesRecibidos", fields: [reportadoId], references: [id])
+
+  contenidoId     String?
+  contenidoTipo   String?   // "obiter" | "analisis" | "ensayo" | "argumento" | "comentario" | "debate"
+
+  motivo          String    // "spam" | "contenido_ofensivo" | "plagio" | "acoso" | "informacion_falsa" | "otro"
+  descripcion     String?
+
+  estado          String   @default("pendiente") // "pendiente" | "revisado" | "accion_tomada" | "descartado"
+  resolucion      String?
+  resueltoPor     String?
+  resueltaAt      DateTime?
+
+  createdAt       DateTime @default(now())
+
+  @@index([estado, createdAt])
+  @@index([reportadoId])
 }

@@ -21,18 +21,20 @@ export async function GET() {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
-  const [noticiasPendientes, propuestasExpediente, debatesPorAvanzar] =
+  const [noticiasPendientes, propuestasExpediente, debatesPorAvanzar, reportesUsuarioPendientes] =
     await Promise.all([
       prisma.noticiaJuridica.count({ where: { estado: "pendiente" } }),
       prisma.expediente.count({ where: { aprobado: false } }),
       prisma.debateJuridico.count({
         where: { estado: { in: ["buscando_oponente", "argumentando"] } },
       }),
+      prisma.reporteUsuario.count({ where: { estado: "pendiente" } }),
     ]);
 
   return NextResponse.json({
     noticiasPendientes,
     propuestasExpediente,
     debatesPorAvanzar,
+    reportesUsuarioPendientes,
   });
 }

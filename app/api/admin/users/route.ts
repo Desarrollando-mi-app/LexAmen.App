@@ -155,7 +155,11 @@ export async function PATCH(request: NextRequest) {
     case "suspend": {
       await prisma.user.update({
         where: { id: userId },
-        data: { suspended: true },
+        data: {
+          suspended: true,
+          suspendedAt: new Date(),
+          suspendedReason: body.reason ?? null,
+        },
       });
       logAction = "SUSPEND_USER";
       break;
@@ -163,7 +167,11 @@ export async function PATCH(request: NextRequest) {
     case "unsuspend": {
       await prisma.user.update({
         where: { id: userId },
-        data: { suspended: false },
+        data: {
+          suspended: false,
+          suspendedAt: null,
+          suspendedReason: null,
+        },
       });
       logAction = "UNSUSPEND_USER";
       break;

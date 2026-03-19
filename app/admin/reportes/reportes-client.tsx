@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 
-type ReportTab = "content" | "ayudantia" | "simulacro";
+type ReportTab = "content" | "ayudantia" | "simulacro" | "usuarios";
 
 interface ContentReportRow {
   id: string;
@@ -45,6 +45,21 @@ interface SimulacroReporteRow {
   };
 }
 
+interface UserReportRow {
+  id: string;
+  reporterId: string;
+  reporter: { id: string; firstName: string; lastName: string; avatarUrl: string | null };
+  reportadoId: string;
+  reportado: { id: string; firstName: string; lastName: string; avatarUrl: string | null; email: string; suspended: boolean };
+  contenidoId: string | null;
+  contenidoTipo: string | null;
+  motivo: string;
+  descripcion: string | null;
+  estado: string;
+  resolucion: string | null;
+  createdAt: string;
+}
+
 interface ReportesData {
   items: (ContentReportRow | AyudantiaReportRow)[];
   total: number;
@@ -71,6 +86,13 @@ export function ReportesClient() {
   const [simLoading, setSimLoading] = useState(false);
   const [simPage, setSimPage] = useState(1);
 
+  // User reportes state
+  const [userReports, setUserReports] = useState<{ reportes: UserReportRow[]; total: number; page: number; totalPages: number } | null>(null);
+  const [userReportsLoading, setUserReportsLoading] = useState(false);
+  const [userReportsPage, setUserReportsPage] = useState(1);
+  const [userReportsFilter, setUserReportsFilter] = useState("pendiente");
+  const [resolucionText, setResolucionText] = useState<Record<string, string>>({});
+
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -88,6 +110,19 @@ export function ReportesClient() {
     }
   }, [tab, page, statusFilter]);
 
+  const fetchUserReports = useCallback(async () => {
+    setUserReportsLoading(true);
+    try {
+      const params = new URLSearchParams({ page: userReportsPage.toString(), estado: userReportsFilter });
+      const res = await fetch(`/api/admin/reportes-usuarios?${params}`);
+      if (res.ok) setUserReports(await res.json());
+    } catch {
+      // silently fail
+    } finally {
+      setUserReportsLoading(false);
+    }
+  }, [userReportsPage, userReportsFilter]);
+
   const fetchSimData = useCallback(async () => {
     setSimLoading(true);
     try {
@@ -103,10 +138,12 @@ export function ReportesClient() {
   useEffect(() => {
     if (tab === "simulacro") {
       fetchSimData();
+    } else if (tab === "usuarios") {
+      fetchUserReports();
     } else {
       fetchData();
     }
-  }, [tab, fetchData, fetchSimData]);
+  }, [tab, fetchData, fetchSimData, fetchUserReports]);
 
   const handleAction = async (
     reportId: string,
@@ -120,6 +157,20 @@ export function ReportesClient() {
         body: JSON.stringify({ reportId, action, tab }),
       });
       if (res.ok) fetchData();
+    } catch {
+      // silently fail
+    }
+  };
+
+  const handleResolveUserReport = async (reporteId: string, estado: string) => {
+    if (!confirm(`¿Confirmar acción "${estado}"?`)) return;
+    try {
+      const res = await fetch("/api/admin/reportes-usuarios", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reporteId, estado, resolucion: resolucionText[reporteId] ?? "" }),
+      });
+      if (res.ok) fetchUserReports();
     } catch {
       // silently fail
     }
@@ -172,9 +223,17 @@ export function ReportesClient() {
           >
             🎙️ Simulacro
           </button>
+          <button
+            onClick={() => { setTab("usuarios"); setUserReportsPage(1); }}
+            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              tab === "usuarios" ? "bg-gold text-white" : "text-navy/60 hover:text-navy"
+            }`}
+          >
+            👤 Usuarios
+          </button>
         </div>
 
-        {tab !== "simulacro" && <>
+        {tab !== "simulacro" && tab !== "usuarios" && <>
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
@@ -286,8 +345,120 @@ export function ReportesClient() {
         </div>
       )}
 
+      {/* User Reports */}
+      {tab === "usuarios" && (
+        <>
+          <div className="flex items-center gap-4">
+            <select
+              value={userReportsFilter}
+              onChange={(e) => { setUserReportsFilter(e.target.value); setUserReportsPage(1); }}
+              className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-navy"
+            >
+              <option value="pendiente">Pendientes</option>
+              <option value="accion_tomada">Acción tomada</option>
+              <option value="descartado">Descartados</option>
+              <option value="todos">Todos</option>
+            </select>
+            {userReports && (
+              <span className="text-sm text-navy/50">{userReports.total} reporte{userReports.total !== 1 ? "s" : ""}</span>
+            )}
+          </div>
+          <div className="rounded-xl border border-border bg-white">
+            {userReportsLoading ? (
+              <div className="space-y-3 p-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-20 animate-pulse rounded-lg bg-navy/5" />
+                ))}
+              </div>
+            ) : userReports?.reportes.length === 0 ? (
+              <p className="py-12 text-center text-sm text-navy/40">Sin reportes de usuarios</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {userReports?.reportes.map((r) => {
+                  const motivoColors: Record<string, string> = {
+                    spam: "bg-orange-100 text-orange-700",
+                    contenido_ofensivo: "bg-red-100 text-red-700",
+                    plagio: "bg-purple-100 text-purple-700",
+                    acoso: "bg-red-200 text-red-800",
+                    informacion_falsa: "bg-amber-100 text-amber-700",
+                    otro: "bg-gray-100 text-gray-600",
+                  };
+                  return (
+                    <li key={r.id} className="px-4 py-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${motivoColors[r.motivo] || "bg-gray-100 text-gray-600"}`}>
+                              {r.motivo.replace(/_/g, " ")}
+                            </span>
+                            {r.contenidoTipo && (
+                              <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">{r.contenidoTipo}</span>
+                            )}
+                            {r.reportado.suspended && (
+                              <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">Suspendido</span>
+                            )}
+                          </div>
+                          <p className="mt-1 text-sm text-navy">
+                            <span className="font-medium">{r.reporter.firstName} {r.reporter.lastName}</span>
+                            {" reportó a "}
+                            <span className="font-medium">{r.reportado.firstName} {r.reportado.lastName}</span>
+                            <span className="text-navy/40"> ({r.reportado.email})</span>
+                          </p>
+                          {r.descripcion && (
+                            <p className="mt-1 text-xs text-navy/60 italic">&quot;{r.descripcion}&quot;</p>
+                          )}
+                          <p className="mt-1 text-[10px] text-navy/40">
+                            {new Date(r.createdAt).toLocaleDateString("es-CL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                          {r.estado === "pendiente" && (
+                            <div className="mt-2">
+                              <input
+                                type="text"
+                                placeholder="Nota de resolución (opcional)"
+                                value={resolucionText[r.id] ?? ""}
+                                onChange={(e) => setResolucionText((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                                className="w-full rounded border border-border px-2 py-1 text-xs text-navy"
+                              />
+                            </div>
+                          )}
+                        </div>
+                        {r.estado === "pendiente" && (
+                          <div className="flex shrink-0 flex-col gap-1.5">
+                            <button
+                              onClick={() => handleResolveUserReport(r.id, "descartado")}
+                              className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-navy/50 hover:bg-navy/5"
+                            >
+                              Descartar
+                            </button>
+                            <button
+                              onClick={() => handleResolveUserReport(r.id, "accion_tomada")}
+                              className="rounded-lg bg-red-100 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-200"
+                            >
+                              Acción tomada
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          {userReports && userReports.totalPages > 1 && (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-navy/50">Página {userReports.page} de {userReports.totalPages}</p>
+              <div className="flex gap-2">
+                <button disabled={userReportsPage <= 1} onClick={() => setUserReportsPage(userReportsPage - 1)} className="rounded-lg border border-border px-3 py-1.5 text-sm text-navy hover:bg-navy/5 disabled:opacity-40">Anterior</button>
+                <button disabled={userReportsPage >= userReports.totalPages} onClick={() => setUserReportsPage(userReportsPage + 1)} className="rounded-lg border border-border px-3 py-1.5 text-sm text-navy hover:bg-navy/5 disabled:opacity-40">Siguiente</button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       {/* Report List */}
-      {tab !== "simulacro" && <div className="rounded-xl border border-border bg-white">
+      {tab !== "simulacro" && tab !== "usuarios" && <div className="rounded-xl border border-border bg-white">
         {loading ? (
           <div className="space-y-3 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -405,7 +576,7 @@ export function ReportesClient() {
       </div>}
 
       {/* Pagination */}
-      {tab !== "simulacro" && data && data.totalPages > 1 && (
+      {tab !== "simulacro" && tab !== "usuarios" && data && data.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-navy/50">
             Página {data.page} de {data.totalPages}
