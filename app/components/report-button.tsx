@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 
 type ReportButtonProps = {
-  contentType: "FLASHCARD" | "MCQ" | "TRUEFALSE" | "FillBlank" | "ERROR_IDENTIFICATION" | "OrderSequence" | "MatchColumns";
+  contentType: "FLASHCARD" | "MCQ" | "TRUEFALSE" | "FillBlank" | "ERROR_IDENTIFICATION" | "OrderSequence" | "MatchColumns" | "DictadoJuridico" | "Timeline" | "CasoPractico";
   contentId: string;
 };
 

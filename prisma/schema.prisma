@@ -399,6 +399,15 @@ model User {
   // Relacionar Columnas
   matchColumnsAttempts    MatchColumnsAttempt[]  @relation("MatchColumnsAttempts")
 
+  // Casos Prácticos
+  casoPracticoAttempts   CasoPracticoAttempt[] @relation("CasoPracticoAttempts")
+
+  // Dictado Jurídico
+  dictadoAttempts        DictadoAttempt[]      @relation("DictadoAttempts")
+
+  // Líneas de Tiempo
+  timelineAttempts       TimelineAttempt[]     @relation("TimelineAttempts")
+
   // XP Log (desglose por categoría)
   xpLogs                  XpLog[]               @relation("XpLogs")
 }
@@ -1964,6 +1973,128 @@ model MatchColumnsAttempt {
   perfecto        Boolean
 
   createdAt       DateTime     @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ─── Casos Prácticos ──────────────────────────────────────
+
+model CasoPractico {
+  id             String   @id @default(cuid())
+
+  titulo         String
+  hechos         String
+  preguntas      String   // JSON: [{ id, tipo, pregunta, opciones, correcta, explicacion }]
+  resumenFinal   String?
+
+  rama           String
+  libro          String?
+  tituloMateria  String?
+  materia        String?
+  dificultad     Int      @default(2)
+
+  activo         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  attempts       CasoPracticoAttempt[]
+
+  @@index([rama, activo])
+}
+
+model CasoPracticoAttempt {
+  id              String       @id @default(cuid())
+  userId          String
+  user            User         @relation("CasoPracticoAttempts", fields: [userId], references: [id], onDelete: Cascade)
+  casoPracticoId  String
+  casoPractico    CasoPractico @relation(fields: [casoPracticoId], references: [id], onDelete: Cascade)
+
+  respuestas      String       // JSON: [{ preguntaId, respuesta, correcta }]
+  correctas       Int
+
+  createdAt       DateTime     @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ─── Dictado Jurídico ─────────────────────────────────────
+
+model DictadoJuridico {
+  id             String   @id @default(cuid())
+
+  textoCompleto  String
+  titulo         String
+
+  rama           String
+  libro          String?
+  tituloMateria  String?
+  materia        String?
+  dificultad     Int      @default(2)
+
+  activo         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  attempts       DictadoAttempt[]
+
+  @@index([rama, activo])
+}
+
+model DictadoAttempt {
+  id                String          @id @default(cuid())
+  userId            String
+  user              User            @relation("DictadoAttempts", fields: [userId], references: [id], onDelete: Cascade)
+  dictadoId         String
+  dictado           DictadoJuridico @relation(fields: [dictadoId], references: [id], onDelete: Cascade)
+
+  textoUsuario      String
+  precision         Float
+  palabrasCorrectas Int
+  palabrasTotales   Int
+
+  createdAt         DateTime        @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ─── Líneas de Tiempo ─────────────────────────────────────
+
+model Timeline {
+  id             String   @id @default(cuid())
+
+  titulo         String
+  instruccion    String?
+  eventos        String   // JSON: [{ id, texto, posicion, unidad, descripcion }]
+  escala         String   @default("días")
+  rangoMin       Int      @default(0)
+  rangoMax       Int
+  explicacion    String?
+
+  rama           String
+  libro          String?
+  tituloMateria  String?
+  materia        String?
+  dificultad     Int      @default(2)
+
+  activo         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  attempts       TimelineAttempt[]
+
+  @@index([rama, activo])
+}
+
+model TimelineAttempt {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation("TimelineAttempts", fields: [userId], references: [id], onDelete: Cascade)
+  timelineId     String
+  timeline       Timeline @relation(fields: [timelineId], references: [id], onDelete: Cascade)
+
+  posiciones     String   // JSON: [{ eventoId, posicionUsuario }]
+  correctos      Int
+  totalEventos   Int
+  perfecto       Boolean
+
+  createdAt      DateTime @default(now())
 
   @@index([userId, createdAt])
 }
