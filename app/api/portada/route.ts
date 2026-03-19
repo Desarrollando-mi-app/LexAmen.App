@@ -31,6 +31,7 @@ export async function GET() {
     totalObiters,
     totalAnalisis,
     totalEnsayos,
+    expedienteActivoRaw,
     usuariosActivosHoy,
   ] = await Promise.all([
     // 1. Noticias (Hero Slides con ubicación "portada")
@@ -119,6 +120,21 @@ export async function GET() {
     prisma.obiterDictum.count(),
     prisma.analisisSentencia.count({ where: { isActive: true } }),
     prisma.ensayo.count({ where: { isActive: true } }),
+
+    // Expediente Abierto activo
+    prisma.expediente.findFirst({
+      where: { estado: "abierto", aprobado: true },
+      orderBy: { fechaApertura: "desc" },
+      select: {
+        id: true,
+        numero: true,
+        titulo: true,
+        pregunta: true,
+        fechaCierre: true,
+        rama: true,
+        _count: { select: { argumentos: true } },
+      },
+    }),
 
     // Usuarios activos hoy
     prisma.xpLog.groupBy({
@@ -242,6 +258,17 @@ export async function GET() {
       totalPublicaciones: totalObiters + totalAnalisis + totalEnsayos,
       usuariosActivosHoy,
     },
+    expedienteActivo: expedienteActivoRaw
+      ? {
+          id: expedienteActivoRaw.id,
+          numero: expedienteActivoRaw.numero,
+          titulo: expedienteActivoRaw.titulo,
+          pregunta: expedienteActivoRaw.pregunta,
+          fechaCierre: expedienteActivoRaw.fechaCierre.toISOString(),
+          rama: expedienteActivoRaw.rama,
+          argumentosCount: expedienteActivoRaw._count.argumentos,
+        }
+      : null,
     isLoggedIn: !!authUser,
     userName,
   });

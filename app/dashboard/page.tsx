@@ -145,6 +145,8 @@ export default async function DashboardPage() {
     proximoEventoRaw,
     pasantiasNuevasCount,
     ayudantiasActivasCount,
+    // Expediente Abierto
+    expedienteActivoRaw,
   ] = await Promise.all([
     prisma.userFlashcardProgress.count({
       where: { userId: authUser.id, repetitions: { gte: 3 } },
@@ -317,6 +319,19 @@ export default async function DashboardPage() {
 
     prisma.ayudantia.count({
       where: { isActive: true, isHidden: false },
+    }),
+
+    // Expediente Abierto activo
+    prisma.expediente.findFirst({
+      where: { estado: "abierto", aprobado: true },
+      orderBy: { fechaApertura: "desc" },
+      select: {
+        id: true,
+        numero: true,
+        titulo: true,
+        fechaCierre: true,
+        _count: { select: { argumentos: true } },
+      },
     }),
   ]);
 
@@ -500,6 +515,17 @@ export default async function DashboardPage() {
     ayudantiasActivas: ayudantiasActivasCount,
   };
 
+  // ─── Expediente Abierto ─────────────────────────────────────
+  const expedienteActivo = expedienteActivoRaw
+    ? {
+        id: expedienteActivoRaw.id,
+        numero: expedienteActivoRaw.numero,
+        titulo: expedienteActivoRaw.titulo,
+        fechaCierre: expedienteActivoRaw.fechaCierre.toISOString(),
+        _count: expedienteActivoRaw._count,
+      }
+    : null;
+
   // ─── Liga resumen ──────────────────────────────────────────
   const ligaMembership = await ensureLeagueMembership(authUser.id);
   const ligaMembers = await prisma.leagueMember.findMany({
@@ -590,6 +616,7 @@ export default async function DashboardPage() {
           ayudantias={serializedAyudantias}
           userId={authUser.id}
           salaResumen={salaResumen}
+          expedienteActivo={expedienteActivo}
         />
       </div>
 

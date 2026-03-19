@@ -435,6 +435,33 @@ async function checkBadgeCondition(
       return count >= threshold;
     }
 
+    // ── Expediente Abierto ─────────────────────────────
+    case "expediente_argumentos": {
+      const count = await prisma.expedienteArgumento.count({
+        where: { userId, parentId: null },
+      });
+      return count >= threshold;
+    }
+
+    case "expediente_mejor_alegato": {
+      // Check if any expediente has this user's argument as mejorArgumentoId
+      const best = await prisma.expediente.findFirst({
+        where: { argumentos: { some: { userId } }, mejorArgumentoId: { not: null } },
+        include: { argumentos: { where: { userId }, select: { id: true } } },
+      });
+      if (!best) return false;
+      return best.argumentos.some(a => a.id === best.mejorArgumentoId);
+    }
+
+    case "expediente_participaciones": {
+      const expedientes = await prisma.expedienteArgumento.findMany({
+        where: { userId },
+        select: { expedienteId: true },
+        distinct: ["expedienteId"],
+      });
+      return expedientes.length >= threshold;
+    }
+
     // ── Colegas count ──────────────────────────────────
     case "colegas_count": {
       const count = await prisma.colegaRequest.count({

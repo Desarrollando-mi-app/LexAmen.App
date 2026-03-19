@@ -154,7 +154,11 @@ export type BadgeSlug =
   | "CUMPLIDOR"
   | "METODICO"
   | "IMPARABLE"
-  | "RESILIENTE";
+  | "RESILIENTE"
+  // Expediente Abierto (3)
+  | "PRIMER_ALEGATO_EXPEDIENTE"
+  | "MEJOR_ALEGATO"
+  | "JURISTA_DE_EXPEDIENTES";
 
 // ─── BADGE_RULES ─────────────────────────────────────────
 
@@ -248,6 +252,11 @@ export const BADGE_RULES: BadgeRule[] = [
   { slug: "COMENTARISTA", label: "Comentarista", emoji: "💬", tier: "silver", category: "diario", description: "Publicar 10 análisis", check: { type: "analisis_published", threshold: 10 } },
   { slug: "ENSAYISTA", label: "Ensayista", emoji: "📝", tier: "silver", category: "diario", description: "Publicar tu primer ensayo", check: { type: "ensayos_published", threshold: 1 } },
   { slug: "TRATADISTA", label: "Tratadista", emoji: "📚", tier: "gold", category: "diario", description: "Publicar 5 ensayos", check: { type: "ensayos_published", threshold: 5 } },
+
+  // ── EXPEDIENTE ABIERTO (3) ─────────────────────────
+  { slug: "PRIMER_ALEGATO_EXPEDIENTE", label: "Primer Alegato", emoji: "⚖", tier: "bronze", category: "diario", description: "Publicar tu primer argumento en un Expediente Abierto", check: { type: "expediente_argumentos", threshold: 1 } },
+  { slug: "MEJOR_ALEGATO", label: "Mejor Alegato", emoji: "🏆", tier: "gold", category: "diario", description: "Tu argumento fue el más votado en un Expediente Abierto", check: { type: "expediente_mejor_alegato", threshold: 1 } },
+  { slug: "JURISTA_DE_EXPEDIENTES", label: "Jurista de Expedientes", emoji: "📂", tier: "silver", category: "diario", description: "Participar en 10 Expedientes Abiertos distintos", check: { type: "expediente_participaciones", threshold: 10 } },
 
   // ── COMUNIDAD (6) ────────────────────────────────────
   { slug: "PRIMER_COLEGA", label: "Primer Colega", emoji: "🤝", tier: "bronze", category: "comunidad", description: "Agregar tu primer colega", check: { type: "colegas_count", threshold: 1 } },

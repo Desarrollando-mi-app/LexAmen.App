@@ -99,6 +99,10 @@ enum BadgeSlug {
   PLUMA_NOVEL
   TRATADISTA
   VOZ_DEL_FORO
+  // Expediente Abierto
+  PRIMER_ALEGATO_EXPEDIENTE
+  MEJOR_ALEGATO
+  JURISTA_DE_EXPEDIENTES
   // Estudio
   ALUMNO_APLICADO
   CASACIONISTA
@@ -407,6 +411,11 @@ model User {
 
   // Líneas de Tiempo
   timelineAttempts       TimelineAttempt[]     @relation("TimelineAttempts")
+
+  // Expediente Abierto
+  expedienteArgumentos   ExpedienteArgumento[] @relation("ExpedienteArgumentos")
+  expedienteVotos        ExpedienteVoto[]      @relation("ExpedienteVotos")
+  expedienteComentarios  ExpedienteComentario[] @relation("ExpedienteComentarios")
 
   // XP Log (desglose por categoría)
   xpLogs                  XpLog[]               @relation("XpLogs")
@@ -2097,4 +2106,98 @@ model TimelineAttempt {
   createdAt      DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+// ─── Expediente Abierto ───────────────────────────────────
+
+model Expediente {
+  id              String   @id @default(cuid())
+
+  numero          Int      @unique
+  titulo          String
+  hechos          String
+  pregunta        String
+
+  rama            String
+  materias        String?
+  dificultad      Int      @default(2)
+
+  bandoDemandante String   @default("Demandante")
+  bandoDemandado  String   @default("Demandado")
+
+  fechaApertura   DateTime @default(now())
+  fechaCierre     DateTime
+  estado          String   @default("abierto")
+
+  cierreEditorial    String?
+  mejorArgumentoId   String?
+
+  creadoPor       String?
+  propuestaPor    String?
+  aprobado        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  argumentos      ExpedienteArgumento[]
+
+  @@index([estado, fechaCierre])
+  @@index([fechaApertura])
+}
+
+model ExpedienteArgumento {
+  id              String     @id @default(cuid())
+  expedienteId    String
+  expediente      Expediente @relation(fields: [expedienteId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User       @relation("ExpedienteArgumentos", fields: [userId], references: [id])
+
+  bando           String
+  posicion        String
+  fundamentoNormativo String
+  argumento       String
+
+  jurisprudencia  String?
+  normativa       String?
+
+  votos           Int        @default(0)
+
+  parentId        String?
+  parent          ExpedienteArgumento?  @relation("ContraArgumentos", fields: [parentId], references: [id])
+  contraArgumentos ExpedienteArgumento[] @relation("ContraArgumentos")
+
+  votosRecibidos  ExpedienteVoto[]
+  comentarios     ExpedienteComentario[]
+
+  createdAt       DateTime   @default(now())
+
+  @@index([expedienteId, votos])
+  @@index([expedienteId, bando])
+  @@index([userId])
+}
+
+model ExpedienteVoto {
+  id           String              @id @default(cuid())
+  argumentoId  String
+  argumento    ExpedienteArgumento @relation(fields: [argumentoId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User                @relation("ExpedienteVotos", fields: [userId], references: [id])
+
+  createdAt    DateTime            @default(now())
+
+  @@unique([argumentoId, userId])
+}
+
+model ExpedienteComentario {
+  id           String              @id @default(cuid())
+  argumentoId  String
+  argumento    ExpedienteArgumento @relation(fields: [argumentoId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User                @relation("ExpedienteComentarios", fields: [userId], references: [id])
+
+  contenido    String
+
+  createdAt    DateTime            @default(now())
+
+  @@index([argumentoId, createdAt])
 }

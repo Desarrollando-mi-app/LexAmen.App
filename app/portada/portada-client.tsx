@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ThemeToggle } from "@/app/dashboard/components/theme-toggle";
@@ -86,6 +87,16 @@ interface Sponsor {
   posicion: string;
 }
 
+interface ExpedienteActivo {
+  id: string;
+  numero: number;
+  titulo: string;
+  pregunta: string;
+  fechaCierre: string;
+  rama: string;
+  argumentosCount: number;
+}
+
 interface PortadaData {
   noticias: Noticia[];
   destacados: Destacados;
@@ -101,6 +112,7 @@ interface PortadaData {
     totalPublicaciones: number;
     usuariosActivosHoy: number;
   };
+  expedienteActivo: ExpedienteActivo | null;
   isLoggedIn: boolean;
   userName?: string;
 }
@@ -156,6 +168,61 @@ function SectionHeader({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* ─── Countdown hook ─── */
+function useCountdown(targetDate: string) {
+  const [timeLeft, setTimeLeft] = useState("");
+  useEffect(() => {
+    function calc() {
+      const diff = new Date(targetDate).getTime() - Date.now();
+      if (diff <= 0) { setTimeLeft("Cerrado"); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      if (d > 0) setTimeLeft(`${d}d ${h}h`);
+      else setTimeLeft(`${h}h ${m}m`);
+    }
+    calc();
+    const iv = setInterval(calc, 60000);
+    return () => clearInterval(iv);
+  }, [targetDate]);
+  return timeLeft;
+}
+
+/* ─── Expediente card ─── */
+function ExpedienteCard({ expediente, isLoggedIn }: { expediente: ExpedienteActivo; isLoggedIn: boolean }) {
+  const countdown = useCountdown(expediente.fechaCierre);
+  return (
+    <div
+      className="rounded-[3px] p-5"
+      style={{ borderLeft: "4px solid var(--gz-gold)", backgroundColor: "rgba(var(--gz-gold-rgb, 154, 114, 48), 0.04)" }}
+    >
+      <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2">
+        Expediente Abierto N.{expediente.numero}
+      </p>
+      <h3 className="font-cormorant text-[22px] lg:text-[26px] !font-bold text-gz-ink leading-snug mb-3">
+        {expediente.titulo}
+      </h3>
+      <div className="flex flex-wrap items-center gap-4 mb-4">
+        <span className="font-ibm-mono text-[10px] text-gz-ink-mid">
+          Cierra en: <span className="font-semibold text-gz-ink">{countdown}</span>
+        </span>
+        <span className="font-ibm-mono text-[10px] text-gz-ink-mid">
+          {expediente.argumentosCount} argumento{expediente.argumentosCount !== 1 ? "s" : ""}
+        </span>
+        <span className="font-ibm-mono text-[9px] uppercase tracking-[0.5px] text-gz-ink-light px-1.5 py-0.5 bg-gz-cream-dark rounded-sm">
+          {expediente.rama}
+        </span>
+      </div>
+      <Link
+        href={isLoggedIn ? `/dashboard/diario/expediente/${expediente.id}` : "/login"}
+        className="inline-block font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-navy transition-colors"
+      >
+        Leer y argumentar &rarr;
+      </Link>
+    </div>
+  );
+}
+
 // ─── Component ──────────────────────────────────────────────
 
 export function PortadaClient({ data }: { data: PortadaData }) {
@@ -166,6 +233,7 @@ export function PortadaClient({ data }: { data: PortadaData }) {
     eventos,
     sponsors,
     stats,
+    expedienteActivo,
     isLoggedIn,
     userName,
   } = data;
@@ -518,6 +586,15 @@ export function PortadaClient({ data }: { data: PortadaData }) {
               </p>
             </div>
           </div>
+        )}
+
+        {/* ─── EXPEDIENTE ABIERTO ─── */}
+        {expedienteActivo && (
+          <>
+            <EditorialRule className="my-8" />
+            <SectionHeader>Expediente Abierto</SectionHeader>
+            <ExpedienteCard expediente={expedienteActivo} isLoggedIn={isLoggedIn} />
+          </>
         )}
 
         {/* ─── SEPARADOR ─── */}

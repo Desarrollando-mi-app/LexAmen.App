@@ -31,6 +31,7 @@ export default async function PortadaPage() {
     totalAnalisis,
     totalEnsayos,
     activosHoyGroups,
+    expedienteActivoRaw,
   ] = await Promise.all([
     prisma.heroSlide.findMany({
       where: {
@@ -97,6 +98,19 @@ export default async function PortadaPage() {
     prisma.xpLog.groupBy({
       by: ["userId"],
       where: { createdAt: { gte: todayStart }, amount: { gt: 0 } },
+    }),
+    prisma.expediente.findFirst({
+      where: { estado: "abierto", aprobado: true },
+      orderBy: { fechaApertura: "desc" },
+      select: {
+        id: true,
+        numero: true,
+        titulo: true,
+        pregunta: true,
+        fechaCierre: true,
+        rama: true,
+        _count: { select: { argumentos: true } },
+      },
     }),
   ]);
 
@@ -203,6 +217,17 @@ export default async function PortadaPage() {
       totalPublicaciones: totalObiters + totalAnalisis + totalEnsayos,
       usuariosActivosHoy,
     },
+    expedienteActivo: expedienteActivoRaw
+      ? {
+          id: expedienteActivoRaw.id,
+          numero: expedienteActivoRaw.numero,
+          titulo: expedienteActivoRaw.titulo,
+          pregunta: expedienteActivoRaw.pregunta,
+          fechaCierre: expedienteActivoRaw.fechaCierre.toISOString(),
+          rama: expedienteActivoRaw.rama,
+          argumentosCount: expedienteActivoRaw._count.argumentos,
+        }
+      : null,
     isLoggedIn: !!authUser,
     userName,
   };

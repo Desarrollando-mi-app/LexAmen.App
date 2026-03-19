@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BADGE_RULES } from "@/lib/badge-constants";
 
@@ -27,6 +30,14 @@ export interface AyudantiaData {
   user: { firstName: string };
 }
 
+export interface ExpedienteActivoData {
+  id: string;
+  numero: number;
+  titulo: string;
+  fechaCierre: string;
+  _count: { argumentos: number };
+}
+
 export interface SalaResumenData {
   proximoEvento: {
     titulo: string;
@@ -44,6 +55,7 @@ interface GzCommunityProps {
   ayudantias: AyudantiaData[];
   userId: string;
   salaResumen?: SalaResumenData;
+  expedienteActivo?: ExpedienteActivoData | null;
 }
 
 // ─── Helpers ───────────────────────────────────────────
@@ -61,11 +73,32 @@ function formatPrice(priceType: string, amount: number | null): string {
 
 // ─── Component ─────────────────────────────────────────
 
+function useCountdown(targetDate: string | undefined) {
+  const [timeLeft, setTimeLeft] = useState("");
+  useEffect(() => {
+    if (!targetDate) return;
+    function calc() {
+      const diff = new Date(targetDate!).getTime() - Date.now();
+      if (diff <= 0) { setTimeLeft("Cerrado"); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      if (d > 0) setTimeLeft(`${d}d ${h}h`);
+      else setTimeLeft(`${h}h ${m}m`);
+    }
+    calc();
+    const iv = setInterval(calc, 60000);
+    return () => clearInterval(iv);
+  }, [targetDate]);
+  return timeLeft;
+}
+
 export function GzCommunity({
   badges,
   colegas,
   ayudantias,
   salaResumen,
+  expedienteActivo,
 }: GzCommunityProps) {
   const earnedSlugs = new Set(badges.map((b) => b.badge));
 
@@ -183,7 +216,7 @@ export function GzCommunity({
         </div>
 
         {/* Row 3: La Sala */}
-        <div>
+        <div className={expedienteActivo ? "border-b border-gz-rule pb-6 mb-6" : ""}>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
             <div>
               <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold mb-2">
@@ -265,6 +298,62 @@ export function GzCommunity({
                   No hay novedades en La Sala.
                 </p>
               ) : null}
+            </div>
+          </div>
+        </div>
+
+        {/* Row 4: Expediente Abierto */}
+        {expedienteActivo && (
+          <ExpedienteActivoCard expediente={expedienteActivo} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Expediente Activo mini-card ─── */
+function ExpedienteActivoCard({ expediente }: { expediente: ExpedienteActivoData }) {
+  const countdown = useCountdown(expediente.fechaCierre);
+  const argCount = expediente._count.argumentos;
+
+  return (
+    <div>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
+        <div>
+          <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold mb-2">
+            Debate activo
+          </p>
+          <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-3">
+            Expediente Abierto
+          </h3>
+          <p className="font-cormorant text-[15px] leading-[1.65] text-gz-ink-mid mb-3">
+            Participa en el debate jur&iacute;dico abierto. Argumenta tu posici&oacute;n y vota por los mejores alegatos.
+          </p>
+          <Link
+            href={`/dashboard/diario/expediente/${expediente.id}`}
+            className="font-archivo text-[12px] font-semibold text-gz-gold border-b border-gz-gold pb-0.5 hover:text-gz-ink hover:border-gz-ink transition-colors inline-block"
+          >
+            Leer y argumentar &rarr;
+          </Link>
+        </div>
+        <div>
+          <div
+            className="py-3 px-4 rounded-sm"
+            style={{ borderLeft: "3px solid var(--gz-gold)", backgroundColor: "rgba(var(--gz-gold-rgb, 154, 114, 48), 0.04)" }}
+          >
+            <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold mb-1">
+              Expediente N.{expediente.numero}
+            </p>
+            <p className="font-cormorant text-[16px] !font-bold text-gz-ink leading-snug mb-2">
+              {expediente.titulo}
+            </p>
+            <div className="flex items-center gap-3">
+              <span className="font-ibm-mono text-[10px] text-gz-ink-mid">
+                Cierra en: <span className="font-semibold text-gz-ink">{countdown}</span>
+              </span>
+              <span className="font-ibm-mono text-[10px] text-gz-ink-light">
+                {argCount} argumento{argCount !== 1 ? "s" : ""}
+              </span>
             </div>
           </div>
         </div>

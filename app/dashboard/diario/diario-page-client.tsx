@@ -18,12 +18,13 @@ type DiarioPageClientProps = {
   diarioFeedElement: React.ReactNode;
 };
 
-type MainTab = "feed" | "analisis" | "ensayos" | "mis";
+type MainTab = "feed" | "analisis" | "ensayos" | "expediente" | "mis";
 
 const TABS: { key: MainTab; label: string; requiresAuth?: boolean }[] = [
   { key: "feed", label: "Obiter Dictum" },
   { key: "analisis", label: "Análisis de Sentencia" },
   { key: "ensayos", label: "Ensayos" },
+  { key: "expediente", label: "Expediente Abierto" },
   { key: "mis", label: "Mis Publicaciones", requiresAuth: true },
 ];
 
@@ -620,6 +621,137 @@ function EnsayosListingContent() {
   );
 }
 
+// ─── Expediente Teaser ──────────────────────────────────────
+
+function ExpedienteTeaser() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [activo, setActivo] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [recientes, setRecientes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/expediente?limit=5", {
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (data.activo) setActivo(data.activo);
+        setRecientes(data.recientes ?? []);
+      } catch {
+        /* silent */
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2].map((i) => (
+          <div
+            key={i}
+            className="h-[120px] animate-pulse rounded-[4px] bg-gz-cream-dark"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-burgundy font-semibold">
+          Expediente Abierto
+        </p>
+        <Link
+          href="/dashboard/diario/expediente"
+          className="font-archivo text-[12px] text-gz-gold hover:underline"
+        >
+          Ver todos →
+        </Link>
+      </div>
+
+      {/* Active expediente mini-card */}
+      {activo && (
+        <Link
+          href={`/dashboard/diario/expediente/${activo.id}`}
+          className="mb-4 block rounded-[4px] border-2 border-gz-gold bg-white p-5 transition-colors hover:border-gz-gold/80"
+        >
+          <div className="mb-2 flex items-center justify-between">
+            <span className="font-ibm-mono text-[9px] font-semibold uppercase tracking-[2px] text-gz-gold">
+              Expediente N&deg; {activo.numero}
+            </span>
+            <span className="rounded-full bg-green-100 px-2 py-0.5 font-ibm-mono text-[9px] font-semibold uppercase tracking-[1px] text-green-700">
+              Abierto
+            </span>
+          </div>
+          <h4 className="mb-2 font-cormorant text-[20px] font-bold text-gz-ink">
+            {activo.titulo}
+          </h4>
+          <div className="flex items-center gap-3 font-ibm-mono text-[10px] text-gz-ink-light">
+            <span>{activo.totalArgumentos ?? 0} argumentos</span>
+            <span className="text-gz-rule-dark">|</span>
+            <span>Cierra {new Date(activo.fechaCierre).toLocaleDateString("es-CL", { day: "numeric", month: "short" })}</span>
+          </div>
+          <p className="mt-2 font-archivo text-[12px] font-semibold text-gz-gold">
+            Leer caso y argumentar &rarr;
+          </p>
+        </Link>
+      )}
+
+      {/* Recent closed */}
+      {recientes.length > 0 && (
+        <div className="space-y-2">
+          {recientes.map((exp: { id: string; numero: number; titulo: string; fechaCierre: string; totalArgumentos?: number }) => (
+            <Link
+              key={exp.id}
+              href={`/dashboard/diario/expediente/${exp.id}`}
+              className="block rounded-[4px] border border-gz-rule bg-white p-3 transition-colors hover:border-gz-gold/40"
+            >
+              <div className="flex items-center justify-between">
+                <div className="min-w-0 flex-1">
+                  <span className="font-ibm-mono text-[9px] text-gz-ink-light">
+                    N&deg; {exp.numero}
+                  </span>
+                  <h5 className="font-cormorant text-[15px] font-bold text-gz-ink truncate">
+                    {exp.titulo}
+                  </h5>
+                </div>
+                <span className="ml-2 flex-shrink-0 font-ibm-mono text-[9px] text-gz-ink-light">
+                  {new Date(exp.fechaCierre).toLocaleDateString("es-CL", { day: "numeric", month: "short" })}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {!activo && recientes.length === 0 && (
+        <div className="py-12 text-center">
+          <p className="font-cormorant text-[17px] italic text-gz-ink-light">
+            Aún no hay expedientes publicados.
+          </p>
+        </div>
+      )}
+
+      {/* Link to propose */}
+      <div className="mt-4 text-center">
+        <Link
+          href="/dashboard/diario/expediente/proponer"
+          className="font-archivo text-[12px] font-semibold text-gz-gold hover:underline"
+        >
+          Proponer un caso →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 // ─── Publish Dropdown ───────────────────────────────────────
 
 function PublishDropdown() {
@@ -723,6 +855,7 @@ export function DiarioPageClient({
   const [activeMainTab, setActiveMainTab] = useState<MainTab>(() => {
     if (tabParam === "analisis") return "analisis";
     if (tabParam === "ensayos") return "ensayos";
+    if (tabParam === "expediente") return "expediente";
     if (tabParam === "mis") return "mis";
     return "feed";
   });
@@ -731,6 +864,7 @@ export function DiarioPageClient({
   useEffect(() => {
     if (tabParam === "analisis") setActiveMainTab("analisis");
     else if (tabParam === "ensayos") setActiveMainTab("ensayos");
+    else if (tabParam === "expediente") setActiveMainTab("expediente");
     else if (tabParam === "mis") setActiveMainTab("mis");
     else if (tabParam === "feed" || !tabParam) setActiveMainTab("feed");
   }, [tabParam]);
@@ -818,6 +952,8 @@ export function DiarioPageClient({
       {activeMainTab === "analisis" && <AnalisisListing />}
 
       {activeMainTab === "ensayos" && <EnsayosListing />}
+
+      {activeMainTab === "expediente" && <ExpedienteTeaser />}
 
       {activeMainTab === "mis" && userId && (
         <MisPublicaciones userId={userId} />
