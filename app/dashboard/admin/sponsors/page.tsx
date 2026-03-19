@@ -41,6 +41,18 @@ export default async function SponsorsPage() {
           >
             Sponsors
           </Link>
+          <Link
+            href="/dashboard/admin/fill-blank"
+            className="font-archivo text-[11px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-gold transition-colors"
+          >
+            Completar Blancos
+          </Link>
+          <Link
+            href="/dashboard/admin/error-identification"
+            className="font-archivo text-[11px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-gold transition-colors"
+          >
+            Identificar Errores
+          </Link>
         </div>
 
         <SponsorsAdmin

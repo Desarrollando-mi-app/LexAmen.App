@@ -387,6 +387,12 @@ model User {
   // Definiciones
   definicionIntentos      DefinicionIntento[]   @relation("DefinicionIntentos")
 
+  // Completar Espacios
+  fillBlankAttempts       FillBlankAttempt[]     @relation("FillBlankAttempts")
+
+  // Identificar Errores
+  errorIdAttempts         ErrorIdentificationAttempt[] @relation("ErrorIdAttempts")
+
   // XP Log (desglose por categoría)
   xpLogs                  XpLog[]               @relation("XpLogs")
 }
@@ -1792,4 +1798,82 @@ model PlanSesionDiaria {
 
   @@index([planId, fecha])
   @@unique([planId, fecha])
+}
+
+// ─── Completar Espacios en Blanco ─────────────────────────
+
+model FillBlank {
+  id              String   @id @default(cuid())
+
+  textoConBlancos String   // "El artículo {1} del CC establece que {2}..."
+  blancos         String   // JSON: [{ id: 1, correcta: "...", opciones: [...] }]
+  explicacion     String?
+
+  rama            String
+  libro           String?
+  titulo          String?
+  materia         String?
+  dificultad      Int      @default(2)
+
+  activo          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  attempts        FillBlankAttempt[]
+
+  @@index([rama, activo])
+}
+
+model FillBlankAttempt {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation("FillBlankAttempts", fields: [userId], references: [id], onDelete: Cascade)
+  fillBlankId    String
+  fillBlank      FillBlank @relation(fields: [fillBlankId], references: [id], onDelete: Cascade)
+
+  respuestas     String    // JSON: [{ blancoId: 1, respuesta: "...", correcta: true }]
+  todosCorrectos Boolean
+
+  createdAt      DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ─── Identificar Errores ──────────────────────────────────
+
+model ErrorIdentification {
+  id                String   @id @default(cuid())
+
+  textoConErrores   String
+  segmentos         String   // JSON: [{ id: 0, texto: "...", esError: false }, { id: 1, texto: "condición resolutoria", esError: true, textoCorrecto: "...", explicacion: "..." }]
+  totalErrores      Int
+  explicacionGeneral String?
+
+  rama              String
+  libro             String?
+  titulo            String?
+  materia           String?
+  dificultad        Int      @default(2)
+
+  activo            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+
+  attempts          ErrorIdentificationAttempt[]
+
+  @@index([rama, activo])
+}
+
+model ErrorIdentificationAttempt {
+  id                    String              @id @default(cuid())
+  userId                String
+  user                  User                @relation("ErrorIdAttempts", fields: [userId], references: [id], onDelete: Cascade)
+  errorIdentificationId String
+  errorIdentification   ErrorIdentification @relation(fields: [errorIdentificationId], references: [id], onDelete: Cascade)
+
+  selecciones           String              // JSON: [{ segmentoId: 1, seleccionado: true }]
+  aciertos              Int
+  fallosPositivos       Int
+
+  createdAt             DateTime            @default(now())
+
+  @@index([userId, createdAt])
 }
