@@ -108,6 +108,16 @@ interface NoticiaJuridica {
   fechaAprobacion: string | null;
 }
 
+interface TopAutorEntry {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+  score: number;
+  gradoEmoji: string;
+  grado: number;
+}
+
 interface PortadaData {
   noticias: Noticia[];
   destacados: Destacados;
@@ -116,6 +126,7 @@ interface PortadaData {
     miPosicion?: number;
     miXp?: number;
   };
+  topAutores: TopAutorEntry[];
   eventos: Evento[];
   sponsors: Sponsor[];
   stats: {
@@ -242,6 +253,7 @@ export function PortadaClient({ data }: { data: PortadaData }) {
     noticias,
     destacados,
     ranking,
+    topAutores,
     eventos,
     sponsors,
     stats,
@@ -599,6 +611,62 @@ export function PortadaClient({ data }: { data: PortadaData }) {
               </p>
             </div>
           </div>
+        )}
+
+        {/* ─── TOP AUTORES DEL MES ─── */}
+        {topAutores.length > 0 && (
+          <>
+            <EditorialRule className="my-8" />
+            <SectionHeader>Top Autores del Mes</SectionHeader>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {topAutores.map((autor, i) => (
+                <div
+                  key={autor.userId}
+                  className="flex items-center gap-3 rounded-[3px] border border-gz-rule bg-white p-4"
+                >
+                  <span
+                    className={`font-cormorant text-[22px] !font-bold shrink-0 ${
+                      i === 0 ? "text-gz-gold" : i === 1 ? "text-gz-ink-mid" : "text-[#b87333]"
+                    }`}
+                  >
+                    {i + 1}
+                  </span>
+                  {autor.avatarUrl ? (
+                    <Image
+                      src={autor.avatarUrl}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="h-8 w-8 rounded-full object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-gz-cream-dark flex items-center justify-center font-archivo text-[10px] font-bold text-gz-ink-mid shrink-0">
+                      {autor.firstName[0]}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-archivo text-[13px] font-semibold text-gz-ink truncate">
+                      {autor.firstName} {autor.lastName.charAt(0)}.
+                    </p>
+                    <p className="font-ibm-mono text-[9px] text-gz-ink-light">
+                      {autor.gradoEmoji} Grado {autor.grado}
+                    </p>
+                  </div>
+                  <span className="font-ibm-mono text-[12px] font-bold text-gz-gold shrink-0">
+                    {Math.round(autor.score)} pts
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href={isLoggedIn ? "/dashboard/diario/ranking" : "/login"}
+              className="mt-4 inline-block font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-navy transition-colors"
+            >
+              Ver ranking completo &rarr;
+            </Link>
+          </>
         )}
 
         {/* ─── EXPEDIENTE ABIERTO ─── */}

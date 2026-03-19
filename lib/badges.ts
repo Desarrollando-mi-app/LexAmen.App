@@ -462,6 +462,19 @@ async function checkBadgeCondition(
       return expedientes.length >= threshold;
     }
 
+    // ── Peer Review + Ranking ─────────────────────────
+    case "reviews_completados": {
+      const count = await prisma.peerReview.count({
+        where: { reviewerId: userId, estado: "completado" },
+      });
+      return count >= threshold;
+    }
+
+    case "ranking_autor_top3": {
+      // This is checked externally when ranking is computed
+      return false;
+    }
+
     // ── Colegas count ──────────────────────────────────
     case "colegas_count": {
       const count = await prisma.colegaRequest.count({

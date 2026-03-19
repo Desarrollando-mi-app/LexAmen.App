@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { ObiterFeed } from "./components/obiter-feed";
 import { ObiterTrending } from "./components/obiter-trending";
 import { ContactSuggestions } from "./components/contact-suggestions";
+import { RankingSidebar } from "./components/ranking-sidebar";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -18,13 +19,14 @@ type DiarioPageClientProps = {
   diarioFeedElement: React.ReactNode;
 };
 
-type MainTab = "feed" | "analisis" | "ensayos" | "expediente" | "mis";
+type MainTab = "feed" | "analisis" | "ensayos" | "expediente" | "debates" | "mis";
 
 const TABS: { key: MainTab; label: string; requiresAuth?: boolean }[] = [
   { key: "feed", label: "Obiter Dictum" },
   { key: "analisis", label: "Análisis de Sentencia" },
   { key: "ensayos", label: "Ensayos" },
   { key: "expediente", label: "Expediente Abierto" },
+  { key: "debates", label: "Debates \uD83C\uDD9A" },
   { key: "mis", label: "Mis Publicaciones", requiresAuth: true },
 ];
 
@@ -270,52 +272,82 @@ function MisPublicaciones({ userId }: { userId: string }) {
 
 // ─── Embedded Listing Components ────────────────────────────
 
+type AnalisisSubFilter = "todos" | "mini" | "completo" | "fallo";
+
 function AnalisisListing() {
+  const [subFilter, setSubFilter] = useState<AnalisisSubFilter>("todos");
+
+  const SUB_FILTERS: { key: AnalisisSubFilter; label: string }[] = [
+    { key: "todos", label: "Todos" },
+    { key: "mini", label: "Mini-Analisis" },
+    { key: "completo", label: "Completos" },
+    { key: "fallo", label: "Fallo de la Semana" },
+  ];
+
   return (
     <div>
       {/* Render a lightweight iframe-like inline listing */}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-burgundy font-semibold">
-          Análisis de Sentencias
+          Analisis de Sentencias
         </p>
         <div className="flex gap-2">
           <Link
             href="/dashboard/diario/analisis"
             className="font-archivo text-[12px] text-gz-gold hover:underline"
           >
-            Ver todos →
+            Ver todos &rarr;
           </Link>
           <Link
             href="/dashboard/diario/analisis/nuevo"
             className="rounded-[3px] bg-gz-navy px-3 py-1.5 font-archivo text-[11px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
           >
-            + Nuevo Análisis
+            + Nuevo Analisis
           </Link>
         </div>
       </div>
-      <AnalisisListingContent />
+
+      {/* Sub-filter buttons */}
+      <div className="mb-4 flex gap-1 rounded-[4px] border border-gz-rule p-1 overflow-x-auto">
+        {SUB_FILTERS.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setSubFilter(f.key)}
+            className={`flex-shrink-0 rounded-[3px] px-3 py-1.5 font-ibm-mono text-[11px] font-semibold transition-colors ${
+              subFilter === f.key
+                ? "border border-gz-gold bg-gz-gold/[0.08] text-gz-ink"
+                : "text-gz-ink-mid hover:text-gz-ink"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Fallo de la Semana banner (shown when filter active OR always as teaser) */}
+      {subFilter === "fallo" && <FalloDeLaSemanaBanner />}
+
+      <AnalisisListingContent subFilter={subFilter} />
     </div>
   );
 }
 
-function AnalisisListingContent() {
+// ─── Fallo de la Semana Banner ──────────────────────────────
+
+function FalloDeLaSemanaBanner() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [items, setItems] = useState<any[]>([]);
+  const [fallo, setFallo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/diario/analisis?limit=10", {
+        const res = await fetch("/api/diario/fallo-semana", {
           credentials: "include",
         });
         if (!res.ok) throw new Error();
         const data = await res.json();
-        setItems(data.items ?? []);
-        setNextCursor(data.nextCursor ?? null);
-        setHasMore(data.hasMore ?? false);
+        setFallo(data.fallo ?? null);
       } catch {
         /* silent */
       } finally {
@@ -325,16 +357,134 @@ function AnalisisListingContent() {
     load();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="mb-4 h-[140px] animate-pulse rounded-[4px] bg-gz-cream-dark" />
+    );
+  }
+
+  if (!fallo) {
+    return (
+      <div className="mb-4 rounded-[4px] border border-gz-rule bg-white p-5 text-center">
+        <p className="font-cormorant text-[16px] italic text-gz-ink-light">
+          No hay un Fallo de la Semana activo en este momento.
+        </p>
+      </div>
+    );
+  }
+
+  // Countdown calculation
+  const endDate = fallo.fechaCierre ? new Date(fallo.fechaCierre) : null;
+  const now = new Date();
+  const diffMs = endDate ? endDate.getTime() - now.getTime() : 0;
+  const daysLeft = Math.max(0, Math.ceil(diffMs / 86400000));
+
+  return (
+    <div className="mb-4 rounded-[4px] border-2 border-gz-gold bg-white p-5">
+      <div className="flex items-center justify-between mb-3">
+        <span className="font-ibm-mono text-[9px] font-semibold uppercase tracking-[2px] text-gz-gold">
+          Fallo de la Semana
+        </span>
+        {daysLeft > 0 && (
+          <span className="font-ibm-mono text-[10px] text-gz-ink-light">
+            {daysLeft} dia{daysLeft !== 1 ? "s" : ""} restante{daysLeft !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
+      <h4 className="font-cormorant text-[20px] font-bold text-gz-ink mb-2">
+        {fallo.titulo}
+      </h4>
+      {fallo.tribunal && (
+        <p className="font-ibm-mono text-[10px] text-gz-ink-mid mb-2">
+          {fallo.tribunal} {fallo.rol ? `· Rol ${fallo.rol}` : ""}
+        </p>
+      )}
+      {fallo.resumen && (
+        <p className="font-cormorant text-[14px] leading-relaxed text-gz-ink-mid mb-3 line-clamp-3">
+          {fallo.resumen}
+        </p>
+      )}
+      {fallo.preguntaGuia && (
+        <p className="font-archivo text-[13px] italic text-gz-ink-mid mb-3">
+          &ldquo;{fallo.preguntaGuia}&rdquo;
+        </p>
+      )}
+      <div className="flex items-center gap-4">
+        {fallo.analisisCount != null && (
+          <span className="font-ibm-mono text-[10px] text-gz-ink-light">
+            {fallo.analisisCount} analisis publicados
+          </span>
+        )}
+        <Link
+          href={`/dashboard/diario/analisis/nuevo?fallo=${fallo.id}`}
+          className="rounded-[3px] bg-gz-gold px-4 py-1.5 font-archivo text-[11px] font-semibold text-gz-navy transition-colors hover:bg-gz-navy hover:text-white"
+        >
+          Publicar mi analisis del fallo &rarr;
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function AnalisisListingContent({ subFilter }: { subFilter: AnalisisSubFilter }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setItems([]);
+    setNextCursor(null);
+    setHasMore(false);
+
+    async function load() {
+      try {
+        let url = "/api/diario/analisis?limit=10";
+        if (subFilter === "mini") url += "&formato=mini";
+        else if (subFilter === "completo") url += "&formato=completo";
+        // "fallo" filter: we show all fallo-related analisis (those with falloDeLaSemanaId)
+        // The API doesn't have a "has falloDeLaSemanaId" filter, so we fetch all and filter client-side
+        // Or we could pass a special param — for now we use client-side filtering
+
+        const res = await fetch(url, { credentials: "include" });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        let fetched = data.items ?? [];
+        if (subFilter === "fallo") {
+          fetched = fetched.filter((a: { falloDeLaSemanaId?: string | null }) => !!a.falloDeLaSemanaId);
+        }
+        if (!cancelled) {
+          setItems(fetched);
+          setNextCursor(data.nextCursor ?? null);
+          setHasMore(data.hasMore ?? false);
+          setLoading(false);
+        }
+      } catch {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [subFilter]);
+
   async function loadMore() {
     if (!nextCursor) return;
     try {
-      const res = await fetch(
-        `/api/diario/analisis?limit=10&cursor=${nextCursor}`,
-        { credentials: "include" }
-      );
+      let url = `/api/diario/analisis?limit=10&cursor=${nextCursor}`;
+      if (subFilter === "mini") url += "&formato=mini";
+      else if (subFilter === "completo") url += "&formato=completo";
+
+      const res = await fetch(url, { credentials: "include" });
       if (!res.ok) return;
       const data = await res.json();
-      setItems((prev) => [...prev, ...(data.items ?? [])]);
+      let fetched = data.items ?? [];
+      if (subFilter === "fallo") {
+        fetched = fetched.filter((a: { falloDeLaSemanaId?: string | null }) => !!a.falloDeLaSemanaId);
+      }
+      setItems((prev) => [...prev, ...fetched]);
       setNextCursor(data.nextCursor ?? null);
       setHasMore(data.hasMore ?? false);
     } catch {
@@ -374,7 +524,13 @@ function AnalisisListingContent() {
     return (
       <div className="py-12 text-center">
         <p className="font-cormorant text-[17px] italic text-gz-ink-light">
-          Aún no hay análisis publicados.
+          {subFilter === "fallo"
+            ? "No hay analisis del Fallo de la Semana aun."
+            : subFilter === "mini"
+              ? "No hay mini-analisis publicados aun."
+              : subFilter === "completo"
+                ? "No hay analisis completos publicados aun."
+                : "Aun no hay analisis publicados."}
         </p>
       </div>
     );
@@ -409,21 +565,33 @@ function AnalisisListingContent() {
                 {timeAgo(item.createdAt)}
               </span>
             </div>
+            {/* Format badge */}
+            {item.formato && (
+              <span
+                className={`flex-shrink-0 rounded-full px-2 py-0.5 font-ibm-mono text-[9px] font-semibold uppercase tracking-[0.5px] ${
+                  item.formato === "mini"
+                    ? "bg-gz-gold/15 text-gz-gold"
+                    : "bg-gz-navy/15 text-gz-navy"
+                }`}
+              >
+                {item.formato === "mini" ? "Mini" : "Completo"}
+              </span>
+            )}
           </div>
           <h4 className="mb-1 font-cormorant text-[17px] font-bold leading-tight text-gz-ink">
             {item.titulo}
           </h4>
           <p className="mb-2 font-ibm-mono text-[10px] text-gz-ink-mid">
-            {item.tribunal} · Rol {item.numeroRol}
+            {item.tribunal} &middot; Rol {item.numeroRol}
           </p>
           <p className="line-clamp-2 font-cormorant text-[14px] leading-relaxed text-gz-ink-mid">
             {item.resumen}
           </p>
           <div className="mt-2 flex items-center gap-2 font-ibm-mono text-[10px] tracking-[0.5px] text-gz-ink-light">
             <span>Apoyar {item.apoyosCount ?? 0}</span>
-            <span className="text-gz-ink-light/30">·</span>
+            <span className="text-gz-ink-light/30">&middot;</span>
             <span>Citar {item.citasCount ?? 0}</span>
-            <span className="text-gz-ink-light/30">·</span>
+            <span className="text-gz-ink-light/30">&middot;</span>
             <span>{item.tiempoLectura ?? 5} min</span>
           </div>
         </Link>
@@ -433,7 +601,7 @@ function AnalisisListingContent() {
           onClick={loadMore}
           className="mt-2 w-full rounded-[3px] border border-gz-rule py-3 text-center font-archivo text-[13px] text-gz-gold transition-colors hover:border-gz-gold hover:bg-gz-gold/[0.04]"
         >
-          Cargar más
+          Cargar mas
         </button>
       )}
     </div>
@@ -752,6 +920,184 @@ function ExpedienteTeaser() {
   );
 }
 
+// ─── Collaboration Invitations Badge ─────────────────────────
+
+function ColaboracionBadge() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/diario/colaboracion/mis-invitaciones", {
+          credentials: "include",
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setCount(data.invitaciones?.length ?? 0);
+      } catch { /* silent */ }
+    }
+    load();
+  }, []);
+
+  if (count === 0) return null;
+
+  return (
+    <Link
+      href="/dashboard/diario/colaboracion"
+      className="relative flex items-center gap-1.5 rounded-[3px] border border-gz-gold/40 bg-gz-gold/[0.06] px-3 py-1.5 font-archivo text-[11px] font-semibold text-gz-gold transition-colors hover:bg-gz-gold/[0.12]"
+    >
+      <span>Invitaciones</span>
+      <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-gz-gold font-ibm-mono text-[10px] font-bold text-white">
+        {count}
+      </span>
+    </Link>
+  );
+}
+
+// ─── Debates Teaser ─────────────────────────────────────────
+
+function DebatesTeaser() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [debates, setDebates] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const ESTADO_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+    buscando_oponente: { label: "Buscando oponente", color: "text-amber-700", bg: "bg-amber-50" },
+    argumentos: { label: "Argumentos", color: "text-blue-700", bg: "bg-blue-50" },
+    replicas: { label: "Replicas", color: "text-purple-700", bg: "bg-purple-50" },
+    votacion: { label: "En votacion", color: "text-green-700", bg: "bg-green-50" },
+    cerrado: { label: "Cerrado", color: "text-gz-ink-light", bg: "bg-gz-cream-dark/50" },
+  };
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/diario/debates", { credentials: "include" });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setDebates(data.debates ?? []);
+      } catch {
+        /* silent */
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const activeDebates = debates.filter((d: { estado: string }) => d.estado !== "cerrado").slice(0, 5);
+  const closedDebates = debates.filter((d: { estado: string }) => d.estado === "cerrado").slice(0, 3);
+
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-[100px] animate-pulse rounded-[4px] bg-gz-cream-dark" />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-burgundy font-semibold">
+          Debates Juridicos
+        </p>
+        <div className="flex gap-2">
+          <Link
+            href="/dashboard/diario/debates"
+            className="font-archivo text-[12px] text-gz-gold hover:underline"
+          >
+            Ver todos &rarr;
+          </Link>
+          <Link
+            href="/dashboard/diario/debates/proponer"
+            className="rounded-[3px] bg-gz-navy px-3 py-1.5 font-archivo text-[11px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
+          >
+            + Proponer debate
+          </Link>
+        </div>
+      </div>
+
+      {/* Active debates */}
+      {activeDebates.length > 0 && (
+        <div className="space-y-3 mb-4">
+          {activeDebates.map((d: { id: string; titulo: string; estado: string; rama: string; autor1?: { firstName: string; lastName: string }; autor2?: { firstName: string; lastName: string } | null; votosAutor1: number; votosAutor2: number }) => {
+            const cfg = ESTADO_CONFIG[d.estado] ?? ESTADO_CONFIG.cerrado;
+            const totalVotos = d.votosAutor1 + d.votosAutor2;
+            return (
+              <Link
+                key={d.id}
+                href={`/dashboard/diario/debates/${d.id}`}
+                className="block rounded-[4px] border border-gz-rule bg-white p-4 transition-colors hover:border-gz-gold/40"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`rounded-full px-2 py-0.5 font-ibm-mono text-[9px] font-semibold uppercase tracking-[0.5px] ${cfg.color} ${cfg.bg}`}>
+                    {cfg.label}
+                  </span>
+                  <span className="font-ibm-mono text-[9px] text-gz-ink-light uppercase">
+                    {d.rama}
+                  </span>
+                </div>
+                <h4 className="font-cormorant text-[17px] font-bold text-gz-ink leading-snug">
+                  {d.titulo}
+                </h4>
+                <div className="mt-2 flex items-center gap-2 font-ibm-mono text-[10px] text-gz-ink-light">
+                  <span>{d.autor1?.firstName} {d.autor1?.lastName}</span>
+                  <span className="font-bold text-gz-burgundy">VS</span>
+                  <span>
+                    {d.autor2 ? `${d.autor2.firstName} ${d.autor2.lastName}` : "Esperando..."}
+                  </span>
+                  {d.estado === "votacion" && totalVotos > 0 && (
+                    <>
+                      <span className="text-gz-rule-dark">|</span>
+                      <span>{totalVotos} voto{totalVotos !== 1 ? "s" : ""}</span>
+                    </>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Closed debates */}
+      {closedDebates.length > 0 && (
+        <div>
+          <p className="mb-2 font-ibm-mono text-[9px] font-semibold uppercase tracking-[1.5px] text-gz-ink-light">
+            Cerrados
+          </p>
+          <div className="space-y-2">
+            {closedDebates.map((d: { id: string; titulo: string; votosAutor1: number; votosAutor2: number }) => (
+              <Link
+                key={d.id}
+                href={`/dashboard/diario/debates/${d.id}`}
+                className="block rounded-[4px] border border-gz-rule bg-white p-3 transition-colors hover:border-gz-gold/40"
+              >
+                <h5 className="font-cormorant text-[15px] font-bold text-gz-ink truncate">
+                  {d.titulo}
+                </h5>
+                <p className="mt-0.5 font-ibm-mono text-[9px] text-gz-ink-light">
+                  {d.votosAutor1} vs {d.votosAutor2} votos
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {debates.length === 0 && (
+        <div className="py-12 text-center">
+          <p className="font-cormorant text-[17px] italic text-gz-ink-light">
+            Aun no hay debates juridicos.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Publish Dropdown ───────────────────────────────────────
 
 function PublishDropdown() {
@@ -856,6 +1202,7 @@ export function DiarioPageClient({
     if (tabParam === "analisis") return "analisis";
     if (tabParam === "ensayos") return "ensayos";
     if (tabParam === "expediente") return "expediente";
+    if (tabParam === "debates") return "debates";
     if (tabParam === "mis") return "mis";
     return "feed";
   });
@@ -865,6 +1212,7 @@ export function DiarioPageClient({
     if (tabParam === "analisis") setActiveMainTab("analisis");
     else if (tabParam === "ensayos") setActiveMainTab("ensayos");
     else if (tabParam === "expediente") setActiveMainTab("expediente");
+    else if (tabParam === "debates") setActiveMainTab("debates");
     else if (tabParam === "mis") setActiveMainTab("mis");
     else if (tabParam === "feed" || !tabParam) setActiveMainTab("feed");
   }, [tabParam]);
@@ -909,9 +1257,10 @@ export function DiarioPageClient({
             </button>
           ))}
 
-          {/* Publish dropdown — pushed to the right */}
+          {/* Collaboration badge + Publish dropdown — pushed to the right */}
           {userId && (
-            <div className="ml-auto flex-shrink-0">
+            <div className="ml-auto flex flex-shrink-0 items-center gap-2">
+              <ColaboracionBadge />
               <PublishDropdown />
             </div>
           )}
@@ -938,14 +1287,13 @@ export function DiarioPageClient({
             />
           </div>
 
-          {/* Sugerencias sidebar — right, hidden on tablet and mobile */}
-          {userId && (
-            <aside className="hidden lg:block">
-              <div className="sticky top-[72px]">
-                <ContactSuggestions />
-              </div>
-            </aside>
-          )}
+          {/* Right sidebar — hidden on tablet and mobile */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-[72px] space-y-6">
+              {userId && <ContactSuggestions />}
+              <RankingSidebar />
+            </div>
+          </aside>
         </div>
       )}
 
@@ -955,8 +1303,51 @@ export function DiarioPageClient({
 
       {activeMainTab === "expediente" && <ExpedienteTeaser />}
 
+      {activeMainTab === "debates" && <DebatesTeaser />}
+
       {activeMainTab === "mis" && userId && (
         <MisPublicaciones userId={userId} />
+      )}
+
+      {/* Mobile ranking section (shown below content on small screens, hidden on lg when feed tab has it in sidebar) */}
+      <div className={`mt-6 ${activeMainTab === "feed" ? "lg:hidden" : ""}`}>
+        <MobileRankingSection />
+      </div>
+    </div>
+  );
+}
+
+// ─── Mobile Ranking Collapsible ─────────────────────────────
+
+function MobileRankingSection() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-[3px] border border-gz-rule bg-white p-4">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-[13px]">&#9997;&#65039;</span>
+          <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
+            Top Autores del Diario
+          </span>
+        </div>
+        <svg
+          className={`h-4 w-4 text-gz-ink-light transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      {open && (
+        <div className="mt-3 pt-3 border-t border-gz-rule">
+          <RankingSidebar />
+        </div>
       )}
     </div>
   );

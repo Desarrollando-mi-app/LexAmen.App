@@ -4,10 +4,12 @@ import { prisma } from "@/lib/prisma";
 import {
   canPublishLongContent,
   calculateReadingTime,
-  ANALISIS_HECHOS_MAX_CHARS,
-  ANALISIS_RATIO_MAX_CHARS,
-  ANALISIS_RESUMEN_MAX_CHARS,
 } from "@/lib/diario-utils";
+import {
+  ANALISIS_LIMITS,
+  XP_FALLO_SEMANA_PARTICIPAR,
+  type AnalisisFormato,
+} from "@/lib/diario-config";
 
 // ─── GET: Feed de Análisis de Sentencia ─────────────────────
 
@@ -24,6 +26,8 @@ export async function GET(request: NextRequest) {
   const q = searchParams.get("q");
   const cursor = searchParams.get("cursor");
   const limit = Math.min(Number(searchParams.get("limit")) || 15, 50);
+  const formato = searchParams.get("formato"); // "mini" | "completo" | null (all)
+  const falloDeLaSemanaId = searchParams.get("falloDeLaSemanaId");
 
   // ─── Construir where ─────────────────────────────────────
 
@@ -43,6 +47,14 @@ export async function GET(request: NextRequest) {
 
   if (userId) {
     where.userId = userId;
+  }
+
+  if (formato && (formato === "mini" || formato === "completo")) {
+    where.formato = formato;
+  }
+
+  if (falloDeLaSemanaId) {
+    where.falloDeLaSemanaId = falloDeLaSemanaId;
   }
 
   if (q) {
@@ -106,6 +118,8 @@ export async function GET(request: NextRequest) {
       partes: a.partes,
       resumen: a.resumen,
       tiempoLectura: a.tiempoLectura,
+      formato: (a as typeof a & { formato?: string }).formato ?? "completo",
+      falloDeLaSemanaId: (a as typeof a & { falloDeLaSemanaId?: string | null }).falloDeLaSemanaId ?? null,
       apoyosCount: a.apoyosCount,
       citasCount: a.citasCount,
       guardadosCount: a.guardadosCount,
@@ -159,6 +173,8 @@ export async function POST(request: NextRequest) {
     opinion,
     resumen,
     showInFeed,
+    formato: rawFormato,
+    falloDeLaSemanaId,
   } = body as {
     titulo: string;
     materia: string;
@@ -173,13 +189,21 @@ export async function POST(request: NextRequest) {
     opinion: string;
     resumen: string;
     showInFeed?: boolean;
+    formato?: string;
+    falloDeLaSemanaId?: string;
   };
+
+  // ─── Determine formato ─────────────────────────────────────
+
+  const formato: AnalisisFormato =
+    rawFormato === "mini" ? "mini" : "completo";
+  const limits = ANALISIS_LIMITS[formato];
 
   // ─── Validaciones ─────────────────────────────────────────
 
   if (!titulo || !titulo.trim()) {
     return NextResponse.json(
-      { error: "El título es requerido" },
+      { error: "El titulo es requerido" },
       { status: 400 }
     );
   }
@@ -193,7 +217,7 @@ export async function POST(request: NextRequest) {
 
   if (!numeroRol || !numeroRol.trim()) {
     return NextResponse.json(
-      { error: "El número de rol es requerido" },
+      { error: "El numero de rol es requerido" },
       { status: 400 }
     );
   }
@@ -219,10 +243,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (hechos.length > ANALISIS_HECHOS_MAX_CHARS) {
+  if (limits.maxHechos > 0 && hechos.length > limits.maxHechos) {
     return NextResponse.json(
       {
-        error: `Los hechos no pueden exceder ${ANALISIS_HECHOS_MAX_CHARS} caracteres`,
+        error: `Los hechos no pueden exceder ${limits.maxHechos} caracteres`,
       },
       { status: 400 }
     );
@@ -235,10 +259,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (ratioDecidendi.length > ANALISIS_RATIO_MAX_CHARS) {
+  if (limits.maxRatio > 0 && ratioDecidendi.length > limits.maxRatio) {
     return NextResponse.json(
       {
-        error: `La ratio decidendi no puede exceder ${ANALISIS_RATIO_MAX_CHARS} caracteres`,
+        error: `La ratio decidendi no puede exceder ${limits.maxRatio} caracteres`,
       },
       { status: 400 }
     );
@@ -246,7 +270,16 @@ export async function POST(request: NextRequest) {
 
   if (!opinion || !opinion.trim()) {
     return NextResponse.json(
-      { error: "La opinión es requerida" },
+      { error: "La opinion es requerida" },
+      { status: 400 }
+    );
+  }
+
+  if (limits.maxOpinion > 0 && opinion.length > limits.maxOpinion) {
+    return NextResponse.json(
+      {
+        error: `La opinion no puede exceder ${limits.maxOpinion} caracteres`,
+      },
       { status: 400 }
     );
   }
@@ -258,30 +291,23 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (resumen.length > ANALISIS_RESUMEN_MAX_CHARS) {
+  if (limits.maxResumen > 0 && resumen.length > limits.maxResumen) {
     return NextResponse.json(
       {
-        error: `El resumen no puede exceder ${ANALISIS_RESUMEN_MAX_CHARS} caracteres`,
+        error: `El resumen no puede exceder ${limits.maxResumen} caracteres`,
       },
       { status: 400 }
     );
   }
 
-  if (!falloUrl) {
-    return NextResponse.json(
-      { error: "La URL del fallo es requerida" },
-      { status: 400 }
-    );
-  }
-
-  // ─── Límite diario ────────────────────────────────────────
+  // ─── Limite diario ────────────────────────────────────────
 
   const publishCheck = await canPublishLongContent(authUser.id);
   if (!publishCheck.allowed) {
     return NextResponse.json(
       {
         error:
-          "Has alcanzado tu límite de publicaciones largas diarias. Actualiza a Premium para publicar sin límites.",
+          "Has alcanzado tu limite de publicaciones largas diarias. Actualiza a Premium para publicar sin limites.",
         remaining: 0,
       },
       { status: 429 }
@@ -292,26 +318,34 @@ export async function POST(request: NextRequest) {
 
   const tiempoLectura = calculateReadingTime(hechos, ratioDecidendi, opinion);
 
-  // ─── Crear análisis ───────────────────────────────────────
+  // ─── Crear analisis ───────────────────────────────────────
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const createData: any = {
+    userId: authUser.id,
+    titulo: titulo.trim(),
+    materia: materia.trim(),
+    tags: tags?.trim() || null,
+    tribunal: tribunal.trim(),
+    numeroRol: numeroRol.trim(),
+    fechaFallo: new Date(fechaFallo),
+    partes: partes.trim(),
+    falloUrl: falloUrl || null,
+    hechos: hechos.trim(),
+    ratioDecidendi: ratioDecidendi.trim(),
+    opinion: opinion.trim(),
+    resumen: resumen.trim(),
+    tiempoLectura,
+    showInFeed: showInFeed ?? true,
+    formato,
+  };
+
+  if (falloDeLaSemanaId) {
+    createData.falloDeLaSemanaId = falloDeLaSemanaId;
+  }
 
   const analisis = await prisma.analisisSentencia.create({
-    data: {
-      userId: authUser.id,
-      titulo: titulo.trim(),
-      materia: materia.trim(),
-      tags: tags?.trim() || null,
-      tribunal: tribunal.trim(),
-      numeroRol: numeroRol.trim(),
-      fechaFallo: new Date(fechaFallo),
-      partes: partes.trim(),
-      falloUrl: falloUrl || null,
-      hechos: hechos.trim(),
-      ratioDecidendi: ratioDecidendi.trim(),
-      opinion: opinion.trim(),
-      resumen: resumen.trim(),
-      tiempoLectura,
-      showInFeed: showInFeed ?? true,
-    },
+    data: createData,
     include: {
       user: {
         select: {
@@ -325,14 +359,27 @@ export async function POST(request: NextRequest) {
   });
 
   // ─── XP al autor (via awardXp centralizado) ─────────────
-  const { awardXp, XP_PUBLICAR_ANALISIS } = await import("@/lib/xp-config");
+  const { awardXp } = await import("@/lib/xp-config");
+
+  // XP based on formato
   await awardXp({
     userId: authUser.id,
-    amount: XP_PUBLICAR_ANALISIS,
+    amount: limits.xp,
     category: "publicaciones",
-    detalle: "Análisis de Sentencia",
+    detalle: `Analisis de Sentencia (${limits.label})`,
     prisma,
   });
+
+  // Extra XP for Fallo de la Semana participation
+  if (falloDeLaSemanaId) {
+    await awardXp({
+      userId: authUser.id,
+      amount: XP_FALLO_SEMANA_PARTICIPAR,
+      category: "publicaciones",
+      detalle: "Participacion Fallo de la Semana",
+      prisma,
+    });
+  }
 
   // Badge evaluation
   const { evaluateBadges } = await import("@/lib/badges");

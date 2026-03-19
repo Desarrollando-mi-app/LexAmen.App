@@ -112,6 +112,20 @@ export default async function AnalisisSentenciaPage({
     },
   });
 
+  // Fetch co-author data if collaborative
+  let coAuthorUsers: { id: string; firstName: string; lastName: string; avatarUrl: string | null }[] = [];
+  if (analisis?.colaborativo && analisis.coAutores) {
+    try {
+      const coAutorIds: string[] = JSON.parse(analisis.coAutores);
+      if (coAutorIds.length > 0) {
+        coAuthorUsers = await prisma.user.findMany({
+          where: { id: { in: coAutorIds } },
+          select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+        });
+      }
+    } catch { /* invalid JSON */ }
+  }
+
   if (!analisis || !analisis.isActive || analisis.isHidden) {
     notFound();
   }
@@ -143,6 +157,32 @@ export default async function AnalisisSentenciaPage({
     where: { id },
     data: { viewsCount: { increment: 1 } },
   });
+
+  // Fetch peer review data if estadoReview = "revisado"
+  let peerReviewPromedio: { general: number; totalReviewers: number } | null = null;
+  if ((analisis as typeof analisis & { estadoReview?: string | null }).estadoReview === "revisado") {
+    const completedReviews = await prisma.peerReview.findMany({
+      where: {
+        publicacionId: id,
+        estado: "completado",
+      },
+      select: {
+        claridadScore: true,
+        rigorScore: true,
+        originalidadScore: true,
+      },
+    });
+
+    if (completedReviews.length > 0) {
+      const n = completedReviews.length;
+      const avgClaridad = completedReviews.reduce((s, r) => s + (r.claridadScore ?? 0), 0) / n;
+      const avgRigor = completedReviews.reduce((s, r) => s + (r.rigorScore ?? 0), 0) / n;
+      const avgOriginalidad = completedReviews.reduce((s, r) => s + (r.originalidadScore ?? 0), 0) / n;
+      const general = Math.round(((avgClaridad + avgRigor + avgOriginalidad) / 3) * 10) / 10;
+
+      peerReviewPromedio = { general, totalReviewers: n };
+    }
+  }
 
   // Fetch ODs that cite this analysis
   const citingObiters = await prisma.obiterDictum.findMany({
@@ -200,9 +240,20 @@ export default async function AnalisisSentenciaPage({
 
         {/* ─── Header ─────────────────────────────────────── */}
         <header className="mb-8">
-          <p className="mb-3 font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-burgundy font-medium">
-            Analisis de Sentencia
-          </p>
+          <div className="mb-3 flex items-center gap-3">
+            <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-burgundy font-medium">
+              Analisis de Sentencia
+            </p>
+            {(analisis as typeof analisis & { formato?: string }).formato === "mini" ? (
+              <span className="rounded-full bg-gz-gold/15 px-3 py-0.5 font-ibm-mono text-[9px] font-semibold uppercase tracking-[1px] text-gz-gold">
+                Mini-Analisis
+              </span>
+            ) : (
+              <span className="rounded-full bg-gz-navy/15 px-3 py-0.5 font-ibm-mono text-[9px] font-semibold uppercase tracking-[1px] text-gz-navy">
+                Analisis Completo
+              </span>
+            )}
+          </div>
 
           <h1 className="mb-5 font-cormorant text-[32px] !font-bold leading-tight text-gz-ink">
             {analisis.titulo}
@@ -224,12 +275,35 @@ export default async function AnalisisSentenciaPage({
               )}
             </Link>
             <div className="min-w-0">
-              <Link
-                href={`/dashboard/perfil/${analisis.user.id}`}
-                className="font-archivo text-[14px] font-semibold text-gz-ink hover:underline"
-              >
-                {analisis.user.firstName} {analisis.user.lastName}
-              </Link>
+              {coAuthorUsers.length > 0 ? (
+                <p className="font-archivo text-[14px] font-semibold text-gz-ink">
+                  Por{" "}
+                  <Link
+                    href={`/dashboard/perfil/${analisis.user.id}`}
+                    className="hover:underline"
+                  >
+                    {analisis.user.firstName} {analisis.user.lastName}
+                  </Link>
+                  {coAuthorUsers.map((ca, i) => (
+                    <span key={ca.id}>
+                      {i === coAuthorUsers.length - 1 ? " y " : ", "}
+                      <Link
+                        href={`/dashboard/perfil/${ca.id}`}
+                        className="hover:underline"
+                      >
+                        {ca.firstName} {ca.lastName}
+                      </Link>
+                    </span>
+                  ))}
+                </p>
+              ) : (
+                <Link
+                  href={`/dashboard/perfil/${analisis.user.id}`}
+                  className="font-archivo text-[14px] font-semibold text-gz-ink hover:underline"
+                >
+                  {analisis.user.firstName} {analisis.user.lastName}
+                </Link>
+              )}
               <div className="flex items-center gap-2 font-ibm-mono text-[11px] text-gz-ink-light">
                 {analisis.user.universidad && (
                   <>
@@ -246,6 +320,33 @@ export default async function AnalisisSentenciaPage({
         </header>
 
         <div className="h-[2px] bg-gz-rule-dark mb-8" />
+
+        {/* ─── Peer Review Badge ──────────────────────────── */}
+        {peerReviewPromedio && (
+          <div className="mb-8 flex items-center gap-3 rounded-[4px] border border-green-200 bg-green-50/50 px-5 py-3">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#16a34a"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 12l2 2 4-4" />
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+            </svg>
+            <div>
+              <p className="font-archivo text-[14px] font-semibold text-green-700">
+                Revisado por pares &middot; Promedio: {peerReviewPromedio.general}/5 ({peerReviewPromedio.totalReviewers} revisor{peerReviewPromedio.totalReviewers > 1 ? "es" : ""})
+              </p>
+              <p className="font-ibm-mono text-[10px] text-green-600 uppercase tracking-[1px]">
+                Peer Review Completado
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* ─── Ficha Tecnica ──────────────────────────────── */}
         <div className="mb-10 rounded-[4px] border border-gz-rule bg-gz-cream-dark/30 p-5 sm:p-6">

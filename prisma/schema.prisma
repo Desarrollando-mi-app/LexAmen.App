@@ -103,6 +103,9 @@ enum BadgeSlug {
   PRIMER_ALEGATO_EXPEDIENTE
   MEJOR_ALEGATO
   JURISTA_DE_EXPEDIENTES
+  // Peer Review + Ranking
+  AUTOR_DESTACADO
+  REVISOR_EXPERTO
   // Estudio
   ALUMNO_APLICADO
   CASACIONISTA
@@ -416,6 +419,17 @@ model User {
   expedienteArgumentos   ExpedienteArgumento[] @relation("ExpedienteArgumentos")
   expedienteVotos        ExpedienteVoto[]      @relation("ExpedienteVotos")
   expedienteComentarios  ExpedienteComentario[] @relation("ExpedienteComentarios")
+
+  // Debates Jurídicos
+  debatesComoAutor1      DebateJuridico[]      @relation("DebateAutor1")
+  debatesComoAutor2      DebateJuridico[]      @relation("DebateAutor2")
+  debateVotos            DebateVoto[]          @relation("DebateVotos")
+
+  // Colaboración
+  colaboracionInvitaciones ColaboracionInvitacion[] @relation("ColaboracionInvitado")
+
+  // Peer Review
+  reviewsRealizados      PeerReview[]          @relation("ReviewsRealizados")
 
   // XP Log (desglose por categoría)
   xpLogs                  XpLog[]               @relation("XpLogs")
@@ -1425,6 +1439,21 @@ model AnalisisSentencia {
   tags            String?
   tiempoLectura   Int     @default(5)
 
+  // === FORMATO ===
+  formato         String  @default("completo") // "mini" | "completo"
+
+  // === FALLO DE LA SEMANA (opcional) ===
+  falloDeLaSemanaId String?
+  falloDeLaSemana   FalloDeLaSemana? @relation(fields: [falloDeLaSemanaId], references: [id])
+
+  // === COLABORACIÓN ===
+  colaborativo    Boolean  @default(false)
+  coAutores       String?  // JSON array of userIds
+  estadoBorrador  String   @default("publicado") // "borrador" | "invitando" | "editando" | "publicado"
+
+  // === PEER REVIEW ===
+  estadoReview    String?  // null | "solicitado" | "en_revision" | "revisado"
+
   // === VISIBILIDAD ===
   showInFeed      Boolean @default(true)
   isActive        Boolean @default(true)
@@ -1507,6 +1536,14 @@ model Ensayo {
   archivoNombre   String
   archivoFormato  String   // "pdf" | "docx"
   archivoTamano   Int
+
+  // === COLABORACIÓN ===
+  colaborativo    Boolean  @default(false)
+  coAutores       String?  // JSON array of userIds
+  estadoBorrador  String   @default("publicado")
+
+  // === PEER REVIEW ===
+  estadoReview    String?
 
   // === VISIBILIDAD ===
   showInFeed      Boolean @default(true)
@@ -2234,4 +2271,133 @@ model NoticiaJuridica {
   @@index([estado, fechaAprobacion])
   @@index([fuente, fechaRecopilacion])
   @@index([destacada, estado])
+}
+
+// ─── Fallo de la Semana ──────────────────────────────────
+
+model FalloDeLaSemana {
+  id              String   @id @default(cuid())
+
+  numero          Int      @unique
+  titulo          String
+  tribunal        String
+  rol             String
+  fechaFallo      String
+  resumen         String
+  preguntaGuia    String
+
+  urlFallo        String?
+  rama            String
+  materias        String?
+
+  fechaInicio     DateTime
+  fechaCierre     DateTime
+  estado          String   @default("activo")
+
+  mejorAnalisisId String?
+
+  createdAt       DateTime @default(now())
+
+  analisis        AnalisisSentencia[]
+
+  @@index([estado])
+}
+
+// ─── Debates Jurídicos ───────────────────────────────────
+
+model DebateJuridico {
+  id              String   @id @default(cuid())
+
+  titulo          String
+  descripcion     String
+  rama            String
+  materias        String?
+
+  autor1Id        String
+  autor1          User     @relation("DebateAutor1", fields: [autor1Id], references: [id])
+  autor1Posicion  String?
+  autor1Argumento String?
+  autor1Replica   String?
+
+  autor2Id        String?
+  autor2          User?    @relation("DebateAutor2", fields: [autor2Id], references: [id])
+  autor2Posicion  String?
+  autor2Argumento String?
+  autor2Replica   String?
+
+  votosAutor1     Int      @default(0)
+  votosAutor2     Int      @default(0)
+
+  estado          String   @default("buscando_oponente")
+
+  fechaLimiteArgumentos DateTime?
+  fechaLimiteReplicas   DateTime?
+  fechaLimiteVotacion   DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  votos           DebateVoto[]
+
+  @@index([estado])
+  @@index([createdAt])
+}
+
+model DebateVoto {
+  id         String         @id @default(cuid())
+  debateId   String
+  debate     DebateJuridico @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User           @relation("DebateVotos", fields: [userId], references: [id])
+  votoPara   String
+
+  createdAt  DateTime       @default(now())
+
+  @@unique([debateId, userId])
+}
+
+// ─── Colaboración en Publicaciones ────────────────────────
+
+model ColaboracionInvitacion {
+  id              String   @id @default(cuid())
+  publicacionId   String
+  publicacionTipo String
+
+  invitadoPor     String
+  invitadoId      String
+  invitado        User     @relation("ColaboracionInvitado", fields: [invitadoId], references: [id])
+
+  estado          String   @default("pendiente")
+
+  createdAt       DateTime @default(now())
+
+  @@unique([publicacionId, invitadoId])
+  @@index([invitadoId, estado])
+}
+
+// ─── Peer Review ──────────────────────────────────────────
+
+model PeerReview {
+  id                String   @id @default(cuid())
+  publicacionId     String
+  publicacionTipo   String
+  autorId           String
+
+  reviewerId        String
+  reviewer          User     @relation("ReviewsRealizados", fields: [reviewerId], references: [id])
+
+  estado            String   @default("pendiente")
+
+  claridadScore     Int?
+  rigorScore        Int?
+  originalidadScore Int?
+  comentarioGeneral String?
+  sugerencias       String?
+
+  createdAt         DateTime @default(now())
+  completedAt       DateTime?
+
+  @@unique([publicacionId, reviewerId])
+  @@index([reviewerId, estado])
+  @@index([publicacionId])
 }

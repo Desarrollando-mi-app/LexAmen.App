@@ -158,7 +158,10 @@ export type BadgeSlug =
   // Expediente Abierto (3)
   | "PRIMER_ALEGATO_EXPEDIENTE"
   | "MEJOR_ALEGATO"
-  | "JURISTA_DE_EXPEDIENTES";
+  | "JURISTA_DE_EXPEDIENTES"
+  // Peer Review + Ranking (2)
+  | "AUTOR_DESTACADO"
+  | "REVISOR_EXPERTO";
 
 // ─── BADGE_RULES ─────────────────────────────────────────
 
@@ -257,6 +260,10 @@ export const BADGE_RULES: BadgeRule[] = [
   { slug: "PRIMER_ALEGATO_EXPEDIENTE", label: "Primer Alegato", emoji: "⚖", tier: "bronze", category: "diario", description: "Publicar tu primer argumento en un Expediente Abierto", check: { type: "expediente_argumentos", threshold: 1 } },
   { slug: "MEJOR_ALEGATO", label: "Mejor Alegato", emoji: "🏆", tier: "gold", category: "diario", description: "Tu argumento fue el más votado en un Expediente Abierto", check: { type: "expediente_mejor_alegato", threshold: 1 } },
   { slug: "JURISTA_DE_EXPEDIENTES", label: "Jurista de Expedientes", emoji: "📂", tier: "silver", category: "diario", description: "Participar en 10 Expedientes Abiertos distintos", check: { type: "expediente_participaciones", threshold: 10 } },
+
+  // ── PEER REVIEW + RANKING (2) ──────────────────────
+  { slug: "AUTOR_DESTACADO", label: "Autor Destacado", emoji: "🌟", tier: "gold", category: "diario", description: "Alcanzar el top 3 del ranking de autores mensual", check: { type: "ranking_autor_top3", threshold: 1 } },
+  { slug: "REVISOR_EXPERTO", label: "Revisor Experto", emoji: "📋", tier: "silver", category: "diario", description: "Completar 10 peer reviews", check: { type: "reviews_completados", threshold: 10 } },
 
   // ── COMUNIDAD (6) ────────────────────────────────────
   { slug: "PRIMER_COLEGA", label: "Primer Colega", emoji: "🤝", tier: "bronze", category: "comunidad", description: "Agregar tu primer colega", check: { type: "colegas_count", threshold: 1 } },

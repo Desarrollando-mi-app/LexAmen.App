@@ -242,6 +242,12 @@ export default function NoticiasAdminPage() {
           >
             Noticias
           </Link>
+          <Link
+            href="/dashboard/admin/fallo-semana"
+            className="font-archivo text-[11px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-gold transition-colors"
+          >
+            Fallo Semana
+          </Link>
         </div>
 
         {/* ─── Title + Cron ─── */}

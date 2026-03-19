@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentWeekBounds } from "@/lib/league";
+import { getCurrentWeekBounds, getGradoInfo } from "@/lib/league";
+import { calcularScoreAutor, type AutorStats } from "@/lib/diario-ranking";
 import { PortadaClient } from "./portada-client";
 
 export default async function PortadaPage() {
@@ -132,6 +133,90 @@ export default async function PortadaPage() {
 
   const usuariosActivosHoy = activosHoyGroups.length;
 
+  // ─── Top Autores del Mes (lightweight query) ───
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const dateFilterAutores = { gte: thirtyDaysAgo };
+
+  const [
+    obiterGroupsAutores,
+    miniAnalisisGroupsAutores,
+    analisisCompletoGroupsAutores,
+    ensayoGroupsAutores,
+    argExpGroupsAutores,
+    obiterApoyosAutores,
+    analisisApoyosAutores,
+    ensayoApoyosAutores,
+    obiterCitasAutores,
+    analisisCitasAutores,
+    ensayoCitasAutores,
+  ] = await Promise.all([
+    prisma.obiterDictum.groupBy({ by: ["userId"], _count: { id: true }, where: { createdAt: dateFilterAutores } }),
+    prisma.analisisSentencia.groupBy({ by: ["userId"], _count: { id: true }, where: { isActive: true, formato: "mini", createdAt: dateFilterAutores } }),
+    prisma.analisisSentencia.groupBy({ by: ["userId"], _count: { id: true }, where: { isActive: true, formato: "completo", createdAt: dateFilterAutores } }),
+    prisma.ensayo.groupBy({ by: ["userId"], _count: { id: true }, where: { isActive: true, createdAt: dateFilterAutores } }),
+    prisma.expedienteArgumento.groupBy({ by: ["userId"], _count: { id: true }, where: { createdAt: dateFilterAutores } }),
+    prisma.obiterDictum.groupBy({ by: ["userId"], _sum: { apoyosCount: true }, where: { createdAt: dateFilterAutores } }),
+    prisma.analisisSentencia.groupBy({ by: ["userId"], _sum: { apoyosCount: true }, where: { isActive: true, createdAt: dateFilterAutores } }),
+    prisma.ensayo.groupBy({ by: ["userId"], _sum: { apoyosCount: true }, where: { isActive: true, createdAt: dateFilterAutores } }),
+    prisma.obiterDictum.groupBy({ by: ["userId"], _sum: { citasCount: true }, where: { createdAt: dateFilterAutores } }),
+    prisma.analisisSentencia.groupBy({ by: ["userId"], _sum: { citasCount: true }, where: { isActive: true, createdAt: dateFilterAutores } }),
+    prisma.ensayo.groupBy({ by: ["userId"], _sum: { citasCount: true }, where: { isActive: true, createdAt: dateFilterAutores } }),
+  ]);
+
+  const autorStatsMap = new Map<string, AutorStats>();
+  function getAutorStats(userId: string): AutorStats {
+    if (!autorStatsMap.has(userId)) {
+      autorStatsMap.set(userId, { obiters: 0, miniAnalisis: 0, analisisCompletos: 0, ensayos: 0, argumentosExpediente: 0, debatesParticipados: 0, debatesGanados: 0, apoyosRecibidos: 0, citasRecibidas: 0, mejorAnalisisSemana: 0, mejorAlegatoExpediente: 0, reviewsCompletados: 0 });
+    }
+    return autorStatsMap.get(userId)!;
+  }
+
+  for (const g of obiterGroupsAutores) getAutorStats(g.userId).obiters = g._count.id;
+  for (const g of miniAnalisisGroupsAutores) getAutorStats(g.userId).miniAnalisis = g._count.id;
+  for (const g of analisisCompletoGroupsAutores) getAutorStats(g.userId).analisisCompletos = g._count.id;
+  for (const g of ensayoGroupsAutores) getAutorStats(g.userId).ensayos = g._count.id;
+  for (const g of argExpGroupsAutores) getAutorStats(g.userId).argumentosExpediente = g._count.id;
+  for (const g of obiterApoyosAutores) getAutorStats(g.userId).apoyosRecibidos += g._sum.apoyosCount ?? 0;
+  for (const g of analisisApoyosAutores) getAutorStats(g.userId).apoyosRecibidos += g._sum.apoyosCount ?? 0;
+  for (const g of ensayoApoyosAutores) getAutorStats(g.userId).apoyosRecibidos += g._sum.apoyosCount ?? 0;
+  for (const g of obiterCitasAutores) getAutorStats(g.userId).citasRecibidas += g._sum.citasCount ?? 0;
+  for (const g of analisisCitasAutores) getAutorStats(g.userId).citasRecibidas += g._sum.citasCount ?? 0;
+  for (const g of ensayoCitasAutores) getAutorStats(g.userId).citasRecibidas += g._sum.citasCount ?? 0;
+
+  const autorScores: { userId: string; score: number }[] = [];
+  for (const [userId, stats] of Array.from(autorStatsMap.entries())) {
+    const score = calcularScoreAutor(stats);
+    if (score > 0) autorScores.push({ userId, score });
+  }
+  autorScores.sort((a, b) => b.score - a.score);
+  const top3AutorIds = autorScores.slice(0, 3);
+
+  const top3AutorUsers = top3AutorIds.length > 0
+    ? await prisma.user.findMany({
+        where: { id: { in: top3AutorIds.map((a) => a.userId) }, deletedAt: null },
+        select: { id: true, firstName: true, lastName: true, avatarUrl: true, grado: true },
+      })
+    : [];
+
+  const top3AutorMap = new Map(top3AutorUsers.map((u) => [u.id, u]));
+  const topAutores = top3AutorIds
+    .map((a) => {
+      const u = top3AutorMap.get(a.userId);
+      if (!u) return null;
+      const gi = getGradoInfo(u.grado);
+      return {
+        userId: u.id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        avatarUrl: u.avatarUrl,
+        score: a.score,
+        gradoEmoji: gi.emoji,
+        grado: u.grado,
+      };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null);
+
   // User ranking position if logged in
   let miPosicion: number | undefined;
   let miXp: number | undefined;
@@ -205,6 +290,7 @@ export default async function PortadaPage() {
       miPosicion,
       miXp,
     },
+    topAutores,
     eventos: eventos.map((e) => ({
       id: e.id,
       titulo: e.titulo,
