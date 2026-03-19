@@ -38,6 +38,15 @@ interface UserData {
   corte: string | null;
   visibleEnRanking: boolean;
   visibleEnLiga: boolean;
+  etapa: string | null;
+  anoIngreso: number | null;
+  anoEgreso: number | null;
+  anoJura: number | null;
+  empleoActual: string | null;
+  cargoActual: string | null;
+  especialidades: string | null;
+  intereses: string | null;
+  linkedin: string | null;
 }
 
 interface PerfilSettingsProps {
@@ -67,6 +76,13 @@ const BTN_SECONDARY =
   "border border-gz-rule text-gz-ink-mid font-archivo text-[13px] font-semibold px-6 py-2.5 rounded-[3px] hover:border-gz-gold hover:text-gz-gold transition-colors";
 const BTN_DESTRUCTIVE =
   "bg-gz-burgundy text-white font-archivo text-[13px] font-semibold px-6 py-2.5 rounded-[3px] hover:bg-gz-burgundy/90 transition-colors disabled:opacity-50";
+
+const ESPECIALIDAD_OPTIONS = ["Derecho Civil", "Derecho Procesal Civil", "Derecho Orgánico"];
+
+const INTERES_OPTIONS = [
+  "Obligaciones", "Bienes", "Acto Jurídico", "Responsabilidad", "Contratos",
+  "Sucesiones", "Familia", "Procedimiento Ordinario", "Recursos", "Ejecución",
+];
 
 // ─── Main Component ─────────────────────────────────────
 
@@ -132,6 +148,21 @@ function TabPerfil({
     user.universityYear ?? 1
   );
   const [cvAvailable, setCvAvailable] = useState(user.cvAvailable);
+  const [etapa, setEtapa] = useState(user.etapa ?? "");
+  const [anoIngreso, setAnoIngreso] = useState<number | null>(user.anoIngreso ?? null);
+  const [anoEgreso, setAnoEgreso] = useState<number | null>(user.anoEgreso ?? null);
+  const [anoJura, setAnoJura] = useState<number | null>(user.anoJura ?? null);
+  const [empleoActual, setEmpleoActual] = useState(user.empleoActual ?? "");
+  const [cargoActual, setCargoActual] = useState(user.cargoActual ?? "");
+  const [especialidades, setEspecialidades] = useState<string[]>(() => {
+    try { return user.especialidades ? JSON.parse(user.especialidades) : []; }
+    catch { return []; }
+  });
+  const [interesesState, setInteresesState] = useState<string[]>(() => {
+    try { return user.intereses ? JSON.parse(user.intereses) : []; }
+    catch { return []; }
+  });
+  const [linkedin, setLinkedin] = useState(user.linkedin ?? "");
   const [region, setRegion] = useState(user.region ?? "");
   const [corte, setCorte] = useState(user.corte ?? "");
   const [saving, setSaving] = useState(false);
@@ -198,6 +229,15 @@ function TabPerfil({
           cvAvailable,
           region: region || null,
           corte: corte || null,
+          etapa: etapa || null,
+          anoIngreso: anoIngreso,
+          anoEgreso: anoEgreso,
+          anoJura: anoJura,
+          empleoActual: empleoActual || null,
+          cargoActual: cargoActual || null,
+          especialidades: especialidades.length > 0 ? JSON.stringify(especialidades) : null,
+          intereses: interesesState.length > 0 ? JSON.stringify(interesesState) : null,
+          linkedin: linkedin || null,
         }),
       });
       const data = await res.json();
@@ -216,6 +256,15 @@ function TabPerfil({
         cvAvailable,
         region: region || null,
         corte: corte || null,
+        etapa: etapa || null,
+        anoIngreso,
+        anoEgreso,
+        anoJura,
+        empleoActual: empleoActual || null,
+        cargoActual: cargoActual || null,
+        especialidades: especialidades.length > 0 ? JSON.stringify(especialidades) : null,
+        intereses: interesesState.length > 0 ? JSON.stringify(interesesState) : null,
+        linkedin: linkedin || null,
       });
       toast.success("Perfil actualizado");
     } catch {
@@ -421,15 +470,178 @@ function TabPerfil({
         <label className={LABEL}>
           Bio{" "}
           <span className="normal-case tracking-normal font-archivo text-gz-ink-light/50">
-            ({bio.length}/280)
+            ({bio.length}/500)
           </span>
         </label>
         <textarea
           value={bio}
-          onChange={(e) => setBio(e.target.value.slice(0, 280))}
+          onChange={(e) => setBio(e.target.value.slice(0, 500))}
           rows={3}
           placeholder="Cu&eacute;ntanos sobre ti..."
           className={`${INPUT} resize-none`}
+        />
+      </div>
+
+      {/* ── Perfil Profesional ── */}
+      <div className="pt-3">
+        <hr className="border-gz-rule mb-4" />
+        <p className="font-cormorant text-[18px] font-bold text-gz-ink mb-4">
+          Perfil Profesional
+        </p>
+      </div>
+
+      {/* Etapa actual */}
+      <div>
+        <label className={LABEL}>Etapa actual</label>
+        <select
+          value={etapa}
+          onChange={(e) => setEtapa(e.target.value)}
+          className={INPUT}
+        >
+          <option value="">Sin especificar</option>
+          <option value="estudiante">Estudiante</option>
+          <option value="egresado">Egresado/a</option>
+          <option value="abogado">Abogado/a</option>
+        </select>
+      </div>
+
+      {/* Año de ingreso */}
+      {etapa && (
+        <div>
+          <label className={LABEL}>A&ntilde;o de ingreso</label>
+          <input
+            type="number"
+            value={anoIngreso ?? ""}
+            onChange={(e) => setAnoIngreso(e.target.value ? Number(e.target.value) : null)}
+            placeholder="Ej: 2020"
+            className={INPUT}
+          />
+        </div>
+      )}
+
+      {/* Año de egreso */}
+      {(etapa === "egresado" || etapa === "abogado") && (
+        <div>
+          <label className={LABEL}>A&ntilde;o de egreso</label>
+          <input
+            type="number"
+            value={anoEgreso ?? ""}
+            onChange={(e) => setAnoEgreso(e.target.value ? Number(e.target.value) : null)}
+            placeholder="Ej: 2025"
+            className={INPUT}
+          />
+        </div>
+      )}
+
+      {/* Año de jura */}
+      {etapa === "abogado" && (
+        <div>
+          <label className={LABEL}>A&ntilde;o de jura</label>
+          <input
+            type="number"
+            value={anoJura ?? ""}
+            onChange={(e) => setAnoJura(e.target.value ? Number(e.target.value) : null)}
+            placeholder="Ej: 2026"
+            className={INPUT}
+          />
+        </div>
+      )}
+
+      {/* Empleo actual */}
+      {etapa === "abogado" && (
+        <div>
+          <label className={LABEL}>Empleo actual</label>
+          <input
+            type="text"
+            value={empleoActual}
+            onChange={(e) => setEmpleoActual(e.target.value.slice(0, 100))}
+            maxLength={100}
+            placeholder="Ej: Estudio Jurídico Silva & Asociados"
+            className={INPUT}
+          />
+        </div>
+      )}
+
+      {/* Cargo actual */}
+      {etapa === "abogado" && (
+        <div>
+          <label className={LABEL}>Cargo actual</label>
+          <input
+            type="text"
+            value={cargoActual}
+            onChange={(e) => setCargoActual(e.target.value.slice(0, 100))}
+            maxLength={100}
+            placeholder="Ej: Abogado asociado"
+            className={INPUT}
+          />
+        </div>
+      )}
+
+      {/* Especialidades declaradas */}
+      <div>
+        <label className={LABEL}>Especialidades declaradas</label>
+        <div className="flex flex-wrap gap-2 mt-1">
+          {ESPECIALIDAD_OPTIONS.map((esp) => {
+            const selected = especialidades.includes(esp);
+            return (
+              <button
+                key={esp}
+                type="button"
+                onClick={() =>
+                  setEspecialidades((prev) =>
+                    selected ? prev.filter((e) => e !== esp) : [...prev, esp]
+                  )
+                }
+                className={`px-3 py-1.5 rounded-full font-archivo text-[13px] transition-colors cursor-pointer ${
+                  selected
+                    ? "bg-gz-gold text-gz-navy font-semibold"
+                    : "border border-gz-rule text-gz-ink-mid hover:border-gz-gold"
+                }`}
+              >
+                {esp}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Intereses */}
+      <div>
+        <label className={LABEL}>Intereses</label>
+        <div className="flex flex-wrap gap-2 mt-1">
+          {INTERES_OPTIONS.map((int) => {
+            const selected = interesesState.includes(int);
+            return (
+              <button
+                key={int}
+                type="button"
+                onClick={() =>
+                  setInteresesState((prev) =>
+                    selected ? prev.filter((i) => i !== int) : [...prev, int]
+                  )
+                }
+                className={`px-3 py-1.5 rounded-full font-archivo text-[13px] transition-colors cursor-pointer ${
+                  selected
+                    ? "bg-gz-gold text-gz-navy font-semibold"
+                    : "border border-gz-rule text-gz-ink-mid hover:border-gz-gold"
+                }`}
+              >
+                {int}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* LinkedIn */}
+      <div>
+        <label className={LABEL}>LinkedIn</label>
+        <input
+          type="text"
+          value={linkedin}
+          onChange={(e) => setLinkedin(e.target.value)}
+          placeholder="https://linkedin.com/in/tu-perfil"
+          className={INPUT}
         />
       </div>
 

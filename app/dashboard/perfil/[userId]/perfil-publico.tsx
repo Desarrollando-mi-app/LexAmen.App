@@ -31,6 +31,15 @@ interface ProfileUser {
   mcqAttempts: number;
   trueFalseAttempts: number;
   memberSince: string;
+  etapaActual: string | null;
+  anioIngreso: number | null;
+  anioEgreso: number | null;
+  anioJura: number | null;
+  empleoActual: string | null;
+  cargoActual: string | null;
+  especialidades: string | null;
+  intereses: string | null;
+  linkedinUrl: string | null;
 }
 
 interface ColegaPreview {
@@ -78,6 +87,9 @@ interface PerfilPublicoProps {
   obiterApoyosReceived: number;
   tutorStats?: TutorStats;
   recentEvaluations?: RecentEvaluation[];
+  especialidadesCalculadas?: Array<{ materia: string; porcentaje: number }>;
+  trayectoria?: Array<{ tipo: string; anio: number; detalle?: string }>;
+  topBadges?: Array<{ slug: string; emoji: string; label: string; tier: string }>;
 }
 
 // ─── Component ───────────────────────────────────────────
@@ -96,6 +108,9 @@ export function PerfilPublico({
   obiterApoyosReceived,
   tutorStats,
   recentEvaluations,
+  especialidadesCalculadas,
+  trayectoria,
+  topBadges,
 }: PerfilPublicoProps) {
   const [colegaStatus, setColegaStatus] = useState(initialStatus);
   const [requestId, setRequestId] = useState(initialRequestId);
@@ -316,9 +331,21 @@ export function PerfilPublico({
             )}
 
             <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-navy font-cormorant truncate">
-                {user.firstName} {user.lastName}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold text-navy font-cormorant truncate">
+                  {user.firstName} {user.lastName}
+                </h1>
+                {user.etapaActual && (
+                  <span className="shrink-0 rounded-full bg-navy/10 px-2.5 py-0.5 text-[10px] font-semibold text-navy/70 font-archivo uppercase tracking-wide">
+                    {user.etapaActual === "estudiante" ? "Estudiante" : user.etapaActual === "egresado" ? "Egresado/a" : user.etapaActual === "abogado" ? "Abogado/a" : user.etapaActual}
+                  </span>
+                )}
+              </div>
+              {user.empleoActual && user.cargoActual && (
+                <p className="mt-0.5 text-sm text-navy/60 font-archivo truncate">
+                  {user.cargoActual} &middot; {user.empleoActual}
+                </p>
+              )}
               <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-navy/60">
                 {user.universidad && <span>{user.universidad}</span>}
                 {user.sede && <span>· {user.sede}</span>}
@@ -470,6 +497,18 @@ export function PerfilPublico({
                 ✓ CV disponible — contacta directamente
               </span>
             )}
+
+            {user.linkedinUrl && (
+              <a
+                href={user.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-[3px] border border-[#0A66C2]/30 bg-[#0A66C2]/5 px-4 py-2.5 text-sm font-semibold text-[#0A66C2] transition-colors hover:bg-[#0A66C2]/10"
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                LinkedIn
+              </a>
+            )}
           </div>
         </div>
 
@@ -554,6 +593,89 @@ export function PerfilPublico({
 
         {activeTab === "perfil" && (
         <>
+        {/* ─── Trayectoria ─────────────────────────────── */}
+        {trayectoria && trayectoria.length > 0 && (
+          <div className="rounded-[4px] border border-gz-rule bg-white p-6">
+            <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider mb-4">
+              Trayectoria
+            </h2>
+            <div className="border-l-2 border-gz-gold pl-6 space-y-4">
+              {trayectoria.map((t, i) => (
+                <div key={i} className="relative">
+                  <div className="absolute -left-[31px] top-1 h-3 w-3 rounded-full bg-gz-gold border-2 border-white" />
+                  <p className="text-sm font-semibold text-navy font-archivo">
+                    {t.tipo === "ingreso" && "📖 Ingreso"}
+                    {t.tipo === "egreso" && "🎓 Egreso"}
+                    {t.tipo === "jura" && "⚖ Jura"}
+                    {t.tipo === "empleo" && "💼 Empleo actual"}
+                    <span className="ml-2 font-ibm-mono text-xs text-navy/40">{t.anio}</span>
+                  </p>
+                  {t.detalle && (
+                    <p className="text-xs text-navy/60 mt-0.5">{t.detalle}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ─── Especialidades ──────────────────────────── */}
+        {((especialidadesCalculadas && especialidadesCalculadas.length > 0) || user.especialidades) && (
+          <div className="rounded-[4px] border border-gz-rule bg-white p-6">
+            <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider mb-4">
+              Especialidades
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Left: Calculadas */}
+              {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-navy/50 uppercase tracking-wider mb-3">
+                    Calculadas por actividad
+                  </p>
+                  <div className="space-y-3">
+                    {especialidadesCalculadas.map((e) => (
+                      <div key={e.materia}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium text-navy font-archivo">{e.materia}</span>
+                          <span className="text-[10px] font-ibm-mono text-navy/40">{e.porcentaje}%</span>
+                        </div>
+                        <div className="h-2 w-full rounded-full bg-gz-rule/30">
+                          <div
+                            className="h-2 rounded-full bg-gz-gold transition-all"
+                            style={{ width: `${e.porcentaje}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Right: Declaradas */}
+              {user.especialidades && (() => {
+                let parsed: string[] = [];
+                try { parsed = JSON.parse(user.especialidades); } catch { /* ignore */ }
+                return parsed.length > 0 ? (
+                  <div>
+                    <p className="text-xs font-semibold text-navy/50 uppercase tracking-wider mb-3">
+                      Declaradas
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {parsed.map((esp) => (
+                        <span
+                          key={esp}
+                          className="rounded-full bg-gz-gold/10 px-3 py-1 text-xs font-semibold text-gz-gold font-archivo"
+                        >
+                          {esp}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null;
+              })()}
+            </div>
+          </div>
+        )}
+
         {/* ─── Stats ───────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-[4px] border border-gz-rule bg-white p-4 text-center">
@@ -668,6 +790,32 @@ export function PerfilPublico({
           <h2 className="text-sm font-semibold text-navy/70 uppercase tracking-wider">
             Insignias
           </h2>
+
+          {/* Destacadas */}
+          {topBadges && topBadges.length > 0 && (
+            <div className="mt-4 mb-5">
+              <p className="text-xs font-semibold text-gz-gold uppercase tracking-wider mb-3">
+                Destacadas
+              </p>
+              <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+                {topBadges.map((badge) => (
+                  <div
+                    key={badge.slug}
+                    className="flex flex-col items-center rounded-[4px] border border-gz-gold/20 bg-gz-gold/5 p-3 text-center"
+                  >
+                    <span className="text-4xl">{badge.emoji}</span>
+                    <p className="mt-1.5 text-[11px] font-semibold text-navy leading-tight font-archivo">
+                      {badge.label}
+                    </p>
+                    <span className="mt-0.5 text-[9px] font-ibm-mono text-navy/40 uppercase">
+                      {badge.tier}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-6">
             {BADGE_RULES.map((badge) => {
               const earned = earnedBadges.includes(badge.slug);

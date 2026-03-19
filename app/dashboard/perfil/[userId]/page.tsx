@@ -25,7 +25,7 @@ export default async function PerfilPage({ params }: Props) {
   }
 
   // Buscar usuario
-  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest, diarioPostCount, obiterStats, tutorStats, recentEvaluations] =
+  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest, diarioPostCount, obiterStats, tutorStats, recentEvaluations, xpByMateria] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: params.userId },
@@ -46,6 +46,15 @@ export default async function PerfilPage({ params }: Props) {
           causasGanadas: true,
           causasPerdidas: true,
           createdAt: true,
+          etapaActual: true,
+          anioIngreso: true,
+          anioEgreso: true,
+          anioJura: true,
+          empleoActual: true,
+          cargoActual: true,
+          especialidades: true,
+          intereses: true,
+          linkedinUrl: true,
           leagueMembers: {
             orderBy: { league: { weekStart: "desc" } },
             take: 1,
@@ -99,6 +108,14 @@ export default async function PerfilPage({ params }: Props) {
           evaluador: { select: { firstName: true } },
         },
       }),
+      // XP by materia for especialidades calculadas
+      prisma.xpLog.groupBy({
+        by: ["materia"],
+        where: { userId: params.userId, materia: { not: null }, amount: { gt: 0 } },
+        _sum: { amount: true },
+        orderBy: { _sum: { amount: "desc" } },
+        take: 5,
+      }),
     ]);
 
   if (!targetUser) {
@@ -111,6 +128,44 @@ export default async function PerfilPage({ params }: Props) {
     totalCausas > 0
       ? Math.round((targetUser.causasGanadas / totalCausas) * 100)
       : 0;
+
+  // Especialidades calculadas from XP by materia
+  const maxXp = xpByMateria[0]?._sum.amount ?? 1;
+  const especialidadesCalculadas = xpByMateria
+    .filter((m) => m.materia && m._sum.amount)
+    .map((m) => ({
+      materia: m.materia!,
+      porcentaje: Math.round(((m._sum.amount ?? 0) / maxXp) * 100),
+    }));
+
+  // Trayectoria timeline
+  const trayectoria: Array<{ tipo: string; anio: number; detalle?: string }> = [];
+  if (targetUser.anioIngreso) {
+    trayectoria.push({ tipo: "ingreso", anio: targetUser.anioIngreso, detalle: targetUser.universidad ?? undefined });
+  }
+  if (targetUser.anioEgreso) {
+    trayectoria.push({ tipo: "egreso", anio: targetUser.anioEgreso });
+  }
+  if (targetUser.anioJura) {
+    trayectoria.push({ tipo: "jura", anio: targetUser.anioJura });
+  }
+  if (targetUser.empleoActual) {
+    trayectoria.push({
+      tipo: "empleo",
+      anio: new Date().getFullYear(),
+      detalle: `${targetUser.empleoActual}${targetUser.cargoActual ? ` — ${targetUser.cargoActual}` : ""}`,
+    });
+  }
+
+  // Top badges: earned, sorted by tier priority
+  const TIER_PRIORITY: Record<string, number> = { unique: 0, special: 1, gold: 2, silver: 3, bronze: 4 };
+  const earnedSlugs = new Set(targetBadges.map((b) => b.badge));
+  const { BADGE_RULES } = await import("@/lib/badge-constants");
+  const topBadges = BADGE_RULES
+    .filter((b) => earnedSlugs.has(b.slug))
+    .sort((a, b) => (TIER_PRIORITY[a.tier] ?? 5) - (TIER_PRIORITY[b.tier] ?? 5))
+    .slice(0, 6)
+    .map((b) => ({ slug: b.slug, emoji: b.emoji, label: b.label, tier: b.tier }));
 
   return (
     <PerfilPublico
@@ -136,6 +191,15 @@ export default async function PerfilPage({ params }: Props) {
         mcqAttempts: targetUser._count.mcqAttempts,
         trueFalseAttempts: targetUser._count.trueFalseAttempts,
         memberSince: targetUser.createdAt.toISOString(),
+        etapaActual: targetUser.etapaActual,
+        anioIngreso: targetUser.anioIngreso,
+        anioEgreso: targetUser.anioEgreso,
+        anioJura: targetUser.anioJura,
+        empleoActual: targetUser.empleoActual,
+        cargoActual: targetUser.cargoActual,
+        especialidades: targetUser.especialidades,
+        intereses: targetUser.intereses,
+        linkedinUrl: targetUser.linkedinUrl,
       }}
       colegaStatus={colegaStatus.status}
       requestId={colegaStatus.requestId ?? null}
@@ -153,6 +217,9 @@ export default async function PerfilPage({ params }: Props) {
         comentario: e.comentario!,
         evaluadorNombre: e.evaluador.firstName,
       }))}
+      especialidadesCalculadas={especialidadesCalculadas}
+      trayectoria={trayectoria}
+      topBadges={topBadges}
     />
   );
 }

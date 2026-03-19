@@ -68,12 +68,12 @@ export const metadata: Metadata = {
     "chile",
     "studio iuris",
   ],
-  metadataBase: new URL("https://lexamen.cl"),
+  metadataBase: new URL("https://studioiuris.cl"),
   openGraph: {
     title: "Studio Iuris — Domina el Derecho Civil y Procesal Civil",
     description:
       "Flashcards, preguntas, duelos y más. La plataforma de estudio para estudiantes de Derecho en Chile.",
-    url: "https://lexamen.cl",
+    url: "https://studioiuris.cl",
     siteName: "Studio Iuris",
     locale: "es_CL",
     type: "website",

@@ -35,6 +35,15 @@ export default async function PerfilPage() {
       corte: true,
       visibleEnRanking: true,
       visibleEnLiga: true,
+      etapaActual: true,
+      anioIngreso: true,
+      anioEgreso: true,
+      anioJura: true,
+      empleoActual: true,
+      cargoActual: true,
+      especialidades: true,
+      intereses: true,
+      linkedinUrl: true,
     },
   });
 
@@ -76,6 +85,15 @@ export default async function PerfilPage() {
             corte: user.corte,
             visibleEnRanking: user.visibleEnRanking,
             visibleEnLiga: user.visibleEnLiga,
+            etapa: user.etapaActual,
+            anoIngreso: user.anioIngreso,
+            anoEgreso: user.anioEgreso,
+            anoJura: user.anioJura,
+            empleoActual: user.empleoActual,
+            cargoActual: user.cargoActual,
+            especialidades: user.especialidades,
+            intereses: user.intereses,
+            linkedin: user.linkedinUrl,
           }}
         />
       </div>

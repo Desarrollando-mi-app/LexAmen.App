@@ -301,6 +301,15 @@ model User {
   termsVersion    String?
   examDate        DateTime?
   bio             String?
+  etapaActual     String?   // "estudiante" | "egresado" | "abogado"
+  anioIngreso     Int?
+  anioEgreso      Int?
+  anioJura        Int?
+  empleoActual    String?
+  cargoActual     String?
+  especialidades  String?   // JSON array stored as string
+  intereses       String?   // JSON array stored as string
+  linkedinUrl     String?
   avatarUrl       String?
   cvAvailable     Boolean   @default(false)
   region          String?   // "Región Metropolitana de Santiago", etc.
