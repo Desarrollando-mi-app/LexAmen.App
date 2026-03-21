@@ -18,7 +18,9 @@ import { GzMiExamenResumen } from "./components/gz-mi-examen-resumen";
 import { GzFooter } from "./components/gz-footer";
 import { GzLigaResumen } from "./components/gz-liga-resumen";
 import { OnboardingCard } from "./components/onboarding-card";
+import { OnboardingWizard } from "./components/onboarding-wizard";
 import { StreakDetector } from "./components/streak-detector";
+import { GzProgressGlobal } from "./components/gz-progress-global";
 import { ensureLeagueMembership } from "@/lib/league-assign";
 import { getDaysRemaining } from "@/lib/league";
 
@@ -571,6 +573,28 @@ export default async function DashboardPage() {
     weeklyXp: m.weeklyXp,
   }));
 
+  // ─── Onboarding check ──────────────────────────────────────
+  if (!user.onboardingCompleted) {
+    // Get a simple flashcard for the wizard step 4
+    const sampleFc = await prisma.flashcard.findFirst({
+      where: { dificultad: "BASICO" },
+      select: { id: true, front: true, back: true, rama: true },
+    });
+    const sampleFlashcard = sampleFc
+      ? { id: sampleFc.id, question: sampleFc.front, answer: sampleFc.back, rama: sampleFc.rama }
+      : null;
+
+    return (
+      <OnboardingWizard
+        userName={user.firstName}
+        initialEtapa={user.etapaActual}
+        initialUniversidad={user.universidad}
+        initialSede={user.sede}
+        flashcard={sampleFlashcard}
+      />
+    );
+  }
+
   // ─── Render ───────────────────────────────────────────────
 
   return (
@@ -593,6 +617,8 @@ export default async function DashboardPage() {
       />
 
       <StreakDetector streak={streak} hadActivityYesterday={hadActivityYesterday} />
+
+      <GzProgressGlobal />
 
       <div className="mx-auto max-w-[1280px] px-4 lg:px-10 py-6 pb-20">
         {/* Onboarding for new users */}

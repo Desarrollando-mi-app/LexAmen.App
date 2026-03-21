@@ -75,6 +75,46 @@ export async function GET() {
       }
     : null;
 
+  // Grade distribution by nivel
+  const [gradoCounts, topUsers, avgGrado] = await Promise.all([
+    prisma.user.groupBy({
+      by: ["grado"],
+      where: { deletedAt: null, suspended: false },
+      _count: true,
+    }),
+    prisma.user.findMany({
+      where: { deletedAt: null, suspended: false },
+      orderBy: { grado: "desc" },
+      take: 10,
+      select: { id: true, firstName: true, lastName: true, grado: true, xp: true },
+    }),
+    prisma.user.aggregate({
+      where: { deletedAt: null, suspended: false },
+      _avg: { grado: true },
+    }),
+  ]);
+
+  const totalUsers = gradoCounts.reduce((s, g) => s + g._count, 0);
+  const nivelRanges = [
+    { nivel: "ESCUELA", label: "LA ESCUELA", min: 1, max: 3 },
+    { nivel: "PRACTICA", label: "LA PRÁCTICA", min: 4, max: 14 },
+    { nivel: "ESTRADO", label: "EL ESTRADO", min: 15, max: 18 },
+    { nivel: "MAGISTRATURA", label: "LA MAGISTRATURA", min: 19, max: 30 },
+    { nivel: "CONSEJO", label: "EL CONSEJO", min: 31, max: 33 },
+  ];
+
+  const gradoDistribution = nivelRanges.map((n) => {
+    const count = gradoCounts
+      .filter((g) => g.grado >= n.min && g.grado <= n.max)
+      .reduce((s, g) => s + g._count, 0);
+    return {
+      nivel: n.nivel,
+      nivelLabel: n.label,
+      count,
+      percent: totalUsers > 0 ? Math.round((count / totalUsers) * 100) : 0,
+    };
+  });
+
   return NextResponse.json({
     currentWeek,
     tiers,
@@ -85,6 +125,9 @@ export async function GET() {
       weekEnd: h.weekEnd.toISOString(),
       memberCount: h._count.members,
     })),
+    gradoDistribution,
+    topUsers,
+    gradoPromedio: avgGrado._avg.grado ?? 0,
   });
 }
 

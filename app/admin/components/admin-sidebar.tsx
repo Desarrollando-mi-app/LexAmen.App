@@ -65,6 +65,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/admin/contingencias", label: "Contingencias", icon: "⚠️" },
       { href: "/admin/sistema", label: "Configuración", icon: "⚙️" },
+      { href: "/admin/configuracion", label: "Config Global", icon: "🔧" },
+      { href: "/admin/logs", label: "Logs de Actividad", icon: "📋" },
     ],
   },
 ];

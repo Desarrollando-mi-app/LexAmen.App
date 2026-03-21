@@ -1143,6 +1143,37 @@ function TabPreferencias({
         </button>
       </div>
 
+      {/* Onboarding reset */}
+      <div className="flex items-center justify-between p-4 border border-gz-rule rounded-[4px]">
+        <div>
+          <p className="font-archivo text-[14px] font-medium text-gz-ink">
+            Repetir tutorial de bienvenida
+          </p>
+          <p className="font-archivo text-[12px] text-gz-ink-light mt-0.5">
+            Volver a hacer el onboarding paso a paso
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await fetch("/api/onboarding", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ step: 0, data: {}, reset: true }),
+              });
+              toast.success("Tutorial reiniciado. Redirigiendo...");
+              setTimeout(() => window.location.href = "/dashboard", 1000);
+            } catch {
+              toast.error("Error al reiniciar tutorial");
+            }
+          }}
+          className="rounded-[3px] border border-gz-rule px-3 py-1.5 font-archivo text-[12px] font-medium text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
+        >
+          Repetir →
+        </button>
+      </div>
+
       {/* Privacy section header */}
       <div className="pt-2">
         <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">

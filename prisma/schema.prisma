@@ -331,6 +331,8 @@ model User {
   suspended       Boolean   @default(false)
   suspendedAt     DateTime?
   suspendedReason String?
+  onboardingCompleted Boolean @default(false)
+  onboardingStep      Int     @default(0)     // 0=not started, 1-4=in progress, 5=completed
   isAdmin         Boolean   @default(false)
   createdAt       DateTime  @default(now())
 
@@ -2434,4 +2436,20 @@ model ReporteUsuario {
 
   @@index([estado, createdAt])
   @@index([reportadoId])
+}
+
+// ─── Configuración Global de la App ──────────────────────────
+
+model AppConfig {
+  id          String   @id @default(cuid())
+  clave       String   @unique
+  valor       String
+  tipo        String   @default("number") // "number" | "boolean" | "string" | "json"
+  categoria   String                       // "limites" | "xp" | "features" | "expediente" | "diario" | "peer_review"
+  label       String
+  descripcion String?
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+
+  @@index([categoria])
 }

@@ -17,6 +17,21 @@ interface LeagueHistoryItem {
   memberCount: number;
 }
 
+interface GradoDistribution {
+  nivel: string;
+  nivelLabel: string;
+  count: number;
+  percent: number;
+}
+
+interface TopUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  grado: number;
+  xp: number;
+}
+
 interface LigasData {
   currentWeek: {
     weekStart: string;
@@ -24,6 +39,9 @@ interface LigasData {
   } | null;
   tiers: TierInfo[];
   history: LeagueHistoryItem[];
+  gradoDistribution?: GradoDistribution[];
+  topUsers?: TopUser[];
+  gradoPromedio?: number;
 }
 
 const TIER_EMOJIS: Record<string, string> = {
@@ -38,10 +56,21 @@ const TIER_EMOJIS: Record<string, string> = {
   JURISCONSULTO: "⚖️",
 };
 
+const NIVEL_COLORS: Record<string, string> = {
+  "LA ESCUELA": "bg-amber-400",
+  "LA PRÁCTICA": "bg-orange-500",
+  "EL ESTRADO": "bg-blue-600",
+  "LA MAGISTRATURA": "bg-red-800",
+  "EL CONSEJO": "bg-gray-900",
+};
+
 export function LigasClient() {
   const [data, setData] = useState<LigasData | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [gradoUserId, setGradoUserId] = useState("");
+  const [newGrado, setNewGrado] = useState("");
+  const [adjusting, setAdjusting] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -152,6 +181,118 @@ export function LigasClient() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ── Grade Distribution ─────────────────────────── */}
+      {data.gradoDistribution && data.gradoDistribution.length > 0 && (
+        <div className="rounded-xl border border-border bg-white p-6">
+          <h2 className="mb-1 text-lg font-semibold text-navy font-display italic">
+            Distribución de Grados
+          </h2>
+          {data.gradoPromedio !== undefined && (
+            <p className="mb-4 text-sm text-navy/50">
+              Grado promedio: <span className="font-bold text-navy">{data.gradoPromedio.toFixed(1)}</span>
+            </p>
+          )}
+          <div className="space-y-3">
+            {data.gradoDistribution.map((d) => (
+              <div key={d.nivel} className="flex items-center gap-3">
+                <span className="w-36 text-sm font-medium text-navy truncate">{d.nivelLabel}</span>
+                <div className="flex-1 h-6 rounded bg-navy/5 overflow-hidden">
+                  <div
+                    className={`h-full rounded ${NIVEL_COLORS[d.nivelLabel] ?? "bg-navy/30"} transition-all`}
+                    style={{ width: `${Math.max(d.percent, 2)}%` }}
+                  />
+                </div>
+                <span className="w-20 text-right text-sm font-mono text-navy/60">
+                  {d.count} ({d.percent}%)
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Top Users ──────────────────────────────────── */}
+      {data.topUsers && data.topUsers.length > 0 && (
+        <div className="rounded-xl border border-border bg-white p-6">
+          <h2 className="mb-4 text-lg font-semibold text-navy font-display italic">
+            Top Usuarios por Grado
+          </h2>
+          <div className="space-y-2">
+            {data.topUsers.map((u, i) => (
+              <div key={u.id} className="flex items-center gap-3 text-sm">
+                <span className="w-6 font-bold text-navy/40">{i + 1}.</span>
+                <span className="font-medium text-navy">{u.firstName} {u.lastName}</span>
+                <span className="rounded bg-gold/10 px-2 py-0.5 text-xs font-bold text-gold">G{u.grado}</span>
+                <span className="ml-auto font-mono text-navy/50">{u.xp.toLocaleString("es-CL")} XP</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Manual Grade Adjust ────────────────────────── */}
+      <div className="rounded-xl border border-border bg-white p-6">
+        <h2 className="mb-2 text-lg font-semibold text-navy font-display italic">
+          Ajustar Grado Manual
+        </h2>
+        <p className="mb-4 text-xs text-navy/50">
+          ⚠ Esto sobrescribe el grado calculado. Usar con precaución.
+        </p>
+        <div className="flex flex-wrap items-end gap-3">
+          <div>
+            <label className="block text-xs font-medium text-navy/60 mb-1">User ID</label>
+            <input
+              type="text"
+              value={gradoUserId}
+              onChange={(e) => setGradoUserId(e.target.value)}
+              placeholder="ID del usuario"
+              className="rounded-lg border border-border px-3 py-2 text-sm text-navy w-64"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-navy/60 mb-1">Nuevo Grado (1-33)</label>
+            <input
+              type="number"
+              min={1}
+              max={33}
+              value={newGrado}
+              onChange={(e) => setNewGrado(e.target.value)}
+              className="rounded-lg border border-border px-3 py-2 text-sm text-navy w-24"
+            />
+          </div>
+          <button
+            disabled={!gradoUserId || !newGrado || adjusting}
+            onClick={async () => {
+              if (!confirm(`¿Cambiar grado del usuario a ${newGrado}?`)) return;
+              setAdjusting(true);
+              try {
+                const res = await fetch(`/api/admin/users/${gradoUserId}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ grado: parseInt(newGrado) }),
+                });
+                if (res.ok) {
+                  alert("Grado actualizado");
+                  setGradoUserId("");
+                  setNewGrado("");
+                  fetchData();
+                } else {
+                  const data = await res.json();
+                  alert(data.error || "Error");
+                }
+              } catch {
+                alert("Error de red");
+              } finally {
+                setAdjusting(false);
+              }
+            }}
+            className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white hover:bg-gold/90 disabled:opacity-50"
+          >
+            {adjusting ? "..." : "Aplicar"}
+          </button>
+        </div>
       </div>
 
       {/* ── History ──────────────────────────────────────── */}
