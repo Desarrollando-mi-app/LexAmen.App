@@ -28,7 +28,7 @@ export default async function RelacionarColumnasPage({
   // 2. Obtener usuario con plan
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { plan: true },
+    select: { plan: true, isAdmin: true },
   });
 
   if (!dbUser) {
@@ -93,7 +93,7 @@ export default async function RelacionarColumnasPage({
           items={items}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_FREE_LIMIT}
-          isPremium={dbUser.plan !== "FREE"}
+          isPremium={dbUser.plan !== "FREE" || dbUser.isAdmin}
           initialFilters={{
             rama: searchParams.rama,
           }}

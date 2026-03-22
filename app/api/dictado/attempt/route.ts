@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { awardXp } from "@/lib/xp-config";
 import { evaluateBadges } from "@/lib/badges";
 import { BADGE_MAP } from "@/lib/badge-constants";
+import { isFreePlan } from "@/lib/plan-utils";
 
 const DAILY_LIMIT = 5;
 
@@ -100,14 +101,14 @@ export async function POST(request: Request) {
   // 3. Get user + verify NOT free plan
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { plan: true },
+    select: { plan: true, isAdmin: true },
   });
 
   if (!dbUser) {
     return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
   }
 
-  if (dbUser.plan === "FREE") {
+  if (isFreePlan(dbUser)) {
     return NextResponse.json(
       { error: "Dictado Juridico es exclusivo para planes de pago." },
       { status: 403 },

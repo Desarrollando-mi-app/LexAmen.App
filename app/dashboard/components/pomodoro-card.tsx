@@ -27,8 +27,7 @@ export function PomodoroCard() {
   const color = FASE_COLORS[pomo.fase] ?? "var(--accent)";
 
   function handleSkip() {
-    // Force phase completion by resetting to 0
-    pomo.reset();
+    pomo.skip();
   }
 
   return (

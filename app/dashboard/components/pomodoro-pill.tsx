@@ -222,7 +222,7 @@ function PopoverContent() {
           {pomo.running ? "⏸ Pausar" : "▶ Iniciar"}
         </button>
         <button
-          onClick={pomo.reset}
+          onClick={pomo.skip}
           className="rounded-[3px] border border-gz-rule px-3 py-2 text-xs font-medium text-navy/60 hover:bg-navy/5 transition-colors"
           title="Saltar fase"
         >

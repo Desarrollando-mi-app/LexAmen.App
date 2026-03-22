@@ -31,8 +31,14 @@ interface DayData {
   total: number;
 }
 
+function formatDateLong(dateStr: string): string {
+  const d = new Date(dateStr + "T12:00:00");
+  return d.toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "short" });
+}
+
 function DayCell({ day }: { day: { date: string; count: number } | null }) {
   const [open, setOpen] = useState(false);
+  const [hover, setHover] = useState(false);
   const [data, setData] = useState<DayData | null>(null);
   const [loading, setLoading] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -51,6 +57,7 @@ function DayCell({ day }: { day: { date: string; count: number } | null }) {
   async function handleClick() {
     if (!day || day.count === 0) return;
     setOpen((prev) => !prev);
+    setHover(false);
     if (!data) {
       setLoading(true);
       try {
@@ -71,18 +78,26 @@ function DayCell({ day }: { day: { date: string; count: number } | null }) {
   }
 
   return (
-    <div ref={ref} className="relative">
+    <div
+      ref={ref}
+      className="relative"
+      onMouseEnter={() => { if (!open) setHover(true); }}
+      onMouseLeave={() => setHover(false)}
+    >
       <div
         onClick={handleClick}
         className={`h-[14px] w-[14px] rounded-sm ${
           day.count > 0 ? "cursor-pointer" : ""
         } ${getIntensityClass(day.count)}`}
-        title={
-          day.count === 0
-            ? `Sin actividad · ${formatDate(day.date)}`
-            : undefined
-        }
       />
+      {/* Hover tooltip */}
+      {hover && !open && (
+        <div className="absolute bottom-full left-1/2 z-30 mb-1.5 -translate-x-1/2 whitespace-nowrap rounded-[3px] border border-gz-rule bg-white px-2.5 py-1.5 text-[10px] shadow-sm pointer-events-none">
+          <span className="font-archivo text-gz-ink capitalize">{formatDateLong(day.date)}</span>
+          <span className="mx-1.5 text-gz-ink-light">·</span>
+          <span className="font-ibm-mono font-semibold text-gz-gold">{day.count > 0 ? `${day.count} actividades` : "Sin actividad"}</span>
+        </div>
+      )}
       {open && (
         <div className="absolute bottom-full left-1/2 z-40 mb-2 w-44 -translate-x-1/2 rounded-[4px] border border-gz-rule bg-white p-3 text-xs shadow-sm">
           <p className="font-semibold text-navy">{formatDate(day.date)}</p>

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { calculateXP, calculateStreakBonus, awardXp } from "@/lib/xp-config";
 import { evaluateBadges } from "@/lib/badges";
 import { BADGE_MAP } from "@/lib/badge-constants";
+import { isFreePlan } from "@/lib/plan-utils";
 
 const DAILY_FREE_LIMIT = 10;
 
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
   // 4. Obtener usuario de Prisma para verificar plan y xp
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { plan: true, xp: true },
+    select: { plan: true, isAdmin: true, xp: true },
   });
 
   if (!dbUser) {
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
     },
   });
 
-  if (dbUser.plan === "FREE" && attemptsToday >= DAILY_FREE_LIMIT) {
+  if (isFreePlan(dbUser) && attemptsToday >= DAILY_FREE_LIMIT) {
     return NextResponse.json(
       {
         error: "Has alcanzado el límite de 10 preguntas diarias.",

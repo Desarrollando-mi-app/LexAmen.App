@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { isFreePlan } from "@/lib/plan-utils";
 
 /**
  * GET /api/dictado — list active dictados (PAID ONLY)
@@ -19,14 +20,14 @@ export async function GET(request: NextRequest) {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { plan: true },
+    select: { plan: true, isAdmin: true },
   });
 
   if (!dbUser) {
     return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
   }
 
-  if (dbUser.plan === "FREE") {
+  if (isFreePlan(dbUser)) {
     return NextResponse.json(
       { error: "Dictado Juridico es exclusivo para planes de pago." },
       { status: 403 },

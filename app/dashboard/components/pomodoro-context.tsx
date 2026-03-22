@@ -41,6 +41,7 @@ interface PomodoroContextValue {
   iniciar: () => void;
   pausar: () => void;
   reset: () => void;
+  skip: () => void;
   setShowSettings: (v: boolean) => void;
   updateConfig: (c: PomodoroConfig) => void;
   dismissAlert: () => void;
@@ -285,6 +286,21 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
 
   const dismissAlert = useCallback(() => setIsAlerting(false), []);
 
+  const skip = useCallback(() => {
+    setRunning(false);
+    // Advance to next phase without waiting for timer
+    if (fase === "trabajo") {
+      const nextFase: PomodoroFase =
+        (sesionActual % config.sesionesAntes === 0) ? "descanso_largo" : "descanso_corto";
+      setSesionActual((prev) => prev + 1);
+      setFase(nextFase);
+      setSegundosRestantes(getTotalSeconds(nextFase));
+    } else {
+      setFase("trabajo");
+      setSegundosRestantes(getTotalSeconds("trabajo"));
+    }
+  }, [fase, sesionActual, config.sesionesAntes, getTotalSeconds]);
+
   const updateConfig = useCallback(
     (c: PomodoroConfig) => {
       setConfig(c);
@@ -309,6 +325,7 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
         iniciar,
         pausar,
         reset,
+        skip,
         setShowSettings,
         updateConfig,
         dismissAlert,

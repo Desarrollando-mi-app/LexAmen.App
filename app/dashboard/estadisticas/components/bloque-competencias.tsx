@@ -56,8 +56,21 @@ export function BloqueCompetencias({
     );
   }
 
+  // Truncate labels for better display in radar chart
+  const SHORT_LABELS: Record<string, string> = {
+    "Título Preliminar (Arts. 1–53)": "T. Preliminar",
+    "Libro Primero: De las Personas (Arts. 54–564)": "L.I Personas",
+    "Libro Segundo: De los Bienes, y de su Dominio, Posesión, Uso y Goce (Arts. 565–950)": "L.II Bienes",
+    "Libro Tercero: De la Sucesión por Causa de Muerte, y de las Donaciones entre Vivos (Arts. 951–1436)": "L.III Sucesión",
+    "Libro Cuarto: De las Obligaciones en General y de los Contratos (Arts. 1437–2524)": "L.IV Obligaciones",
+    "Libro Primero: Disposiciones Comunes a Todo Procedimiento": "CPC I Comunes",
+    "Libro Segundo: Del Juicio Ordinario": "CPC II Ordinario",
+    "Libro Tercero: De los Juicios Especiales": "CPC III Especiales",
+    "Libro Cuarto: De los Actos Judiciales No Contenciosos": "CPC IV No Contenc.",
+  };
+
   const data = competencias.map((c) => ({
-    materia: c.label,
+    materia: SHORT_LABELS[c.label] ?? (c.label.length > 18 ? c.label.slice(0, 16) + "…" : c.label),
     usuario: c.score,
     plataforma: 50,
   }));
@@ -104,8 +117,8 @@ export function BloqueCompetencias({
             dataKey="usuario"
             stroke={CHART_COLORS.gold}
             fill={CHART_COLORS.gold}
-            fillOpacity={0.15}
-            strokeWidth={2}
+            fillOpacity={0.3}
+            strokeWidth={2.5}
           />
         </RadarChart>
       </ResponsiveContainer>

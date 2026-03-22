@@ -24,7 +24,7 @@ export default async function DefinicionesPage({
 
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { firstName: true, plan: true },
+    select: { firstName: true, plan: true, isAdmin: true },
   });
 
   if (!dbUser) redirect("/login");
@@ -97,7 +97,7 @@ export default async function DefinicionesPage({
           definiciones={definiciones}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_FREE_LIMIT}
-          isPremium={dbUser.plan !== "FREE"}
+          isPremium={dbUser.plan !== "FREE" || dbUser.isAdmin}
           initialFilters={{
             rama: searchParams.rama,
             libro: searchParams.libro,

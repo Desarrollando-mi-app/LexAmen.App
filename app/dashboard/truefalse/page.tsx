@@ -25,7 +25,7 @@ export default async function TrueFalsePage({
 
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { firstName: true, plan: true },
+    select: { firstName: true, plan: true, isAdmin: true },
   });
 
   if (!dbUser) redirect("/login");
@@ -72,7 +72,7 @@ export default async function TrueFalsePage({
           items={items}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_FREE_LIMIT}
-          isPremium={dbUser.plan !== "FREE"}
+          isPremium={dbUser.plan !== "FREE" || dbUser.isAdmin}
           initialFilters={{
             rama: searchParams.rama,
             libro: searchParams.libro,

@@ -30,7 +30,7 @@ export default async function FlashcardsPage({
   // 2. Obtener usuario con plan
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { firstName: true, plan: true },
+    select: { firstName: true, plan: true, isAdmin: true },
   });
 
   if (!dbUser) {
@@ -118,7 +118,7 @@ export default async function FlashcardsPage({
           favoriteIds={favoriteIds}
           reviewsToday={reviewsToday}
           dailyLimit={DAILY_FREE_LIMIT}
-          isPremium={dbUser.plan !== "FREE"}
+          isPremium={dbUser.plan !== "FREE" || dbUser.isAdmin}
           initialFilters={{
             rama: searchParams.rama,
             libro: searchParams.libro,

@@ -4,6 +4,84 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { BADGE_RULES } from "@/lib/badge-constants";
 
+// ─── Compact Badges Component ─────────────────────────
+
+function CompactBadges({ badges, totalBadges }: { badges: UserBadgeData[]; totalBadges: number }) {
+  // Sort by earnedAt desc to get most recent
+  const sorted = [...badges].sort(
+    (a, b) => new Date(b.earnedAt).getTime() - new Date(a.earnedAt).getTime()
+  );
+  const recent = sorted.slice(0, 3);
+  const badgeMap = Object.fromEntries(BADGE_RULES.map((b) => [b.slug, b]));
+
+  return (
+    <div className="border border-gz-rule rounded-sm p-5" style={{ backgroundColor: "var(--gz-cream)" }}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-cormorant text-[18px] !font-bold text-gz-ink">
+          Mis Insignias
+        </h3>
+        <span className="font-ibm-mono text-[10px] text-gz-ink-light">
+          {badges.length}/{totalBadges}
+        </span>
+      </div>
+
+      {recent.length === 0 ? (
+        <p className="font-archivo text-[13px] text-gz-ink-light italic text-center py-6">
+          Aún no has desbloqueado insignias
+        </p>
+      ) : (
+        <div className="flex flex-col items-center gap-2">
+          {/* Top: most recent badge (large) */}
+          {recent[0] && (() => {
+            const b = badgeMap[recent[0].badge];
+            return (
+              <div className="flex flex-col items-center">
+                <span
+                  className="text-[48px] drop-shadow-sm"
+                  style={{ filter: "drop-shadow(0 0 8px rgba(154,114,48,0.3))" }}
+                >
+                  {b?.emoji ?? "🏅"}
+                </span>
+                <span className="font-ibm-mono text-[10px] text-gz-ink-mid mt-1">
+                  {b?.label ?? recent[0].badge}
+                </span>
+              </div>
+            );
+          })()}
+
+          {/* Bottom row: 2nd and 3rd (smaller) */}
+          {recent.length > 1 && (
+            <div className="flex items-end gap-8">
+              {recent.slice(1, 3).map((badge, i) => {
+                const b = badgeMap[badge.badge];
+                return (
+                  <div key={badge.badge} className="flex flex-col items-center">
+                    <span className={i === 0 ? "text-[36px]" : "text-[28px]"}>
+                      {b?.emoji ?? "🏅"}
+                    </span>
+                    <span className="font-ibm-mono text-[9px] text-gz-ink-light mt-0.5">
+                      {b?.label ?? badge.badge}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="mt-4 text-center">
+        <Link
+          href="/dashboard/insignias"
+          className="font-archivo text-[12px] font-semibold text-gz-gold border-b border-gz-gold pb-0.5 hover:text-gz-ink hover:border-gz-ink transition-colors inline-block"
+        >
+          Ver todas las insignias →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 // ─── Types ─────────────────────────────────────────────
 
 export interface UserBadgeData {
@@ -100,8 +178,6 @@ export function GzCommunity({
   salaResumen,
   expedienteActivo,
 }: GzCommunityProps) {
-  const earnedSlugs = new Set(badges.map((b) => b.badge));
-
   return (
     <div
       className="animate-gz-slide-up"
@@ -120,53 +196,9 @@ export function GzCommunity({
 
       {/* Vertical stack */}
       <div className="flex flex-col">
-        {/* Row 1: Insignias */}
+        {/* Row 1: Insignias (compact pyramidal view) */}
         <div className="border-b border-gz-rule pb-6 mb-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
-            <div>
-              <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold mb-2">
-                T&iacute;tulos jur&iacute;dicos
-              </p>
-              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-3">
-                Mis Insignias
-              </h3>
-              <p className="font-cormorant text-[15px] leading-[1.65] text-gz-ink-mid">
-                Desbloquea insignias completando hitos de estudio. Cada una reconoce un logro espec&iacute;fico en tu preparaci&oacute;n.
-              </p>
-            </div>
-            <div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-                {BADGE_RULES.map((badge) => {
-                  const earned = earnedSlugs.has(badge.slug);
-                  return (
-                    <div
-                      key={badge.slug}
-                      className="flex items-center gap-3 py-2.5 border-b border-gz-cream-dark last:border-b-0"
-                    >
-                      <span className="text-[24px]">{badge.emoji}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-semibold text-gz-ink">
-                          {badge.label}
-                        </p>
-                        <p className="text-[11px] text-gz-ink-light">
-                          {badge.description}
-                        </p>
-                      </div>
-                      <span
-                        className={`font-ibm-mono text-[9px] uppercase tracking-[1px] px-2.5 py-0.5 rounded-sm shrink-0 ${
-                          earned
-                            ? "bg-[var(--gz-gold)]/[0.12] text-gz-gold"
-                            : "bg-gz-cream-dark text-gz-ink-light"
-                        }`}
-                      >
-                        {earned ? "Obtenido" : "Bloqueado"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <CompactBadges badges={badges} totalBadges={BADGE_RULES.length} />
         </div>
 
         {/* Row 2: Colegas */}
