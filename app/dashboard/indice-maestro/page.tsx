@@ -19,265 +19,209 @@ export default async function IndiceMaestroPage() {
 
   // ── Parallel queries ──────────────────────────────────────────
   const [
-    flashcardsByTitulo,
-    dominatedRecords,
-    mcqByTitulo,
-    mcqCorrectByTitulo,
-    tfByTitulo,
-    tfCorrectByTitulo,
-    // Additional module counts
-    defByTitulo,
-    fillBlankByTitulo,
-    errorIdByTitulo,
-    orderSeqByTitulo,
-    matchColByTitulo,
-    casoByTitulo,
-    dictadoByTitulo,
-    timelineByTitulo,
+    // Totals (content counts)
+    fcByTitulo, mcqByTitulo, tfByTitulo, defByTitulo,
+    fillByTitulo, errorByTitulo, orderByTitulo, matchByTitulo,
+    casoByTitulo, dictadoByTitulo, timelineByTitulo,
+    // User progress (completed counts)
+    fcProgress, mcqDone, tfDone, defDone,
+    fillDone, errorDone, orderDone, matchDone,
+    casoDone, dictadoDone, timelineDone,
   ] = await Promise.all([
-    // Total flashcards grouped by rama/libro/titulo
-    prisma.flashcard.groupBy({
-      by: ["rama", "libro", "titulo"],
-      _count: { id: true },
-    }),
+    // ─── TOTALS ───────────────────────────────────────
+    prisma.flashcard.groupBy({ by: ["rama", "libro", "titulo"], _count: { id: true } }),
+    prisma.mCQ.groupBy({ by: ["rama", "libro", "titulo"], _count: { id: true } }),
+    prisma.trueFalse.groupBy({ by: ["rama", "libro", "titulo"], _count: { id: true } }),
+    prisma.definicion.groupBy({ by: ["rama", "libro", "titulo"], _count: { id: true } }),
+    prisma.fillBlank.groupBy({ by: ["rama", "libro", "titulo"], where: { activo: true }, _count: { id: true } }),
+    prisma.errorIdentification.groupBy({ by: ["rama", "libro", "titulo"], where: { activo: true }, _count: { id: true } }),
+    prisma.orderSequence.groupBy({ by: ["rama", "libro", "tituloMateria"], where: { activo: true }, _count: { id: true } }),
+    prisma.matchColumns.groupBy({ by: ["rama", "libro", "tituloMateria"], where: { activo: true }, _count: { id: true } }),
+    prisma.casoPractico.groupBy({ by: ["rama", "libro", "tituloMateria"], where: { activo: true }, _count: { id: true } }),
+    prisma.dictadoJuridico.groupBy({ by: ["rama", "libro", "tituloMateria"], where: { activo: true }, _count: { id: true } }),
+    prisma.timeline.groupBy({ by: ["rama", "libro", "tituloMateria"], where: { activo: true }, _count: { id: true } }),
 
-    // Reviewed flashcards (repetitions >= 1 = user has seen and rated it at least once)
+    // ─── USER PROGRESS ────────────────────────────────
+    // Flashcards: reviewed at least once
     prisma.userFlashcardProgress.findMany({
       where: { userId: authUser.id, repetitions: { gte: 1 } },
-      select: {
-        flashcard: { select: { rama: true, libro: true, titulo: true } },
-      },
+      select: { flashcard: { select: { rama: true, libro: true, titulo: true } } },
     }),
-
-    // Total MCQs grouped by rama/libro/titulo
-    prisma.mCQ.groupBy({
-      by: ["rama", "libro", "titulo"],
-      _count: { id: true },
-    }),
-
-    // Correct MCQ attempts for this user (distinct mcqId to avoid double counting)
+    // MCQ: answered correctly (distinct)
     prisma.userMCQAttempt.findMany({
       where: { userId: authUser.id, isCorrect: true },
-      select: {
-        mcq: { select: { rama: true, libro: true, titulo: true } },
-      },
+      select: { mcq: { select: { rama: true, libro: true, titulo: true } } },
       distinct: ["mcqId"],
     }),
-
-    // Total V/F grouped by rama/libro/titulo
-    prisma.trueFalse.groupBy({
-      by: ["rama", "libro", "titulo"],
-      _count: { id: true },
-    }),
-
-    // Correct V/F attempts for this user (distinct trueFalseId)
+    // V/F: answered correctly (distinct)
     prisma.userTrueFalseAttempt.findMany({
       where: { userId: authUser.id, isCorrect: true },
-      select: {
-        trueFalse: { select: { rama: true, libro: true, titulo: true } },
-      },
+      select: { trueFalse: { select: { rama: true, libro: true, titulo: true } } },
       distinct: ["trueFalseId"],
     }),
-
-    // Definiciones by titulo
-    prisma.definicion.groupBy({
-      by: ["rama", "libro", "titulo"],
-      _count: { id: true },
+    // Definiciones: answered correctly (distinct)
+    prisma.definicionIntento.findMany({
+      where: { userId: authUser.id, correcta: true },
+      select: { definicion: { select: { rama: true, libro: true, titulo: true } } },
+      distinct: ["definicionId"],
     }),
-
-    // FillBlank by titulo
-    prisma.fillBlank.groupBy({
-      by: ["rama", "libro", "titulo"],
-      where: { activo: true },
-      _count: { id: true },
+    // FillBlank: completed (distinct)
+    prisma.fillBlankAttempt.findMany({
+      where: { userId: authUser.id, todosCorrectos: true },
+      select: { fillBlank: { select: { rama: true, libro: true, titulo: true } } },
+      distinct: ["fillBlankId"],
     }),
-
-    // ErrorIdentification by titulo
-    prisma.errorIdentification.groupBy({
-      by: ["rama", "libro", "titulo"],
-      where: { activo: true },
-      _count: { id: true },
+    // ErrorIdentification: completed (distinct)
+    prisma.errorIdentificationAttempt.findMany({
+      where: { userId: authUser.id },
+      select: { errorIdentification: { select: { rama: true, libro: true, titulo: true } } },
+      distinct: ["errorIdentificationId"],
     }),
-
-    // OrderSequence by tituloMateria
-    prisma.orderSequence.groupBy({
-      by: ["rama", "libro", "tituloMateria"],
-      where: { activo: true },
-      _count: { id: true },
+    // OrderSequence: completed (distinct)
+    prisma.orderSequenceAttempt.findMany({
+      where: { userId: authUser.id },
+      select: { orderSequence: { select: { rama: true, libro: true, tituloMateria: true } } },
+      distinct: ["orderSequenceId"],
     }),
-
-    // MatchColumns by tituloMateria
-    prisma.matchColumns.groupBy({
-      by: ["rama", "libro", "tituloMateria"],
-      where: { activo: true },
-      _count: { id: true },
+    // MatchColumns: completed (distinct)
+    prisma.matchColumnsAttempt.findMany({
+      where: { userId: authUser.id },
+      select: { matchColumns: { select: { rama: true, libro: true, tituloMateria: true } } },
+      distinct: ["matchColumnsId"],
     }),
-
-    // CasoPractico by tituloMateria
-    prisma.casoPractico.groupBy({
-      by: ["rama", "libro", "tituloMateria"],
-      where: { activo: true },
-      _count: { id: true },
+    // CasoPractico: completed (distinct)
+    prisma.casoPracticoAttempt.findMany({
+      where: { userId: authUser.id },
+      select: { casoPractico: { select: { rama: true, libro: true, tituloMateria: true } } },
+      distinct: ["casoPracticoId"],
     }),
-
-    // Dictado by tituloMateria
-    prisma.dictadoJuridico.groupBy({
-      by: ["rama", "libro", "tituloMateria"],
-      where: { activo: true },
-      _count: { id: true },
+    // Dictado: completed (distinct)
+    prisma.dictadoAttempt.findMany({
+      where: { userId: authUser.id },
+      select: { dictado: { select: { rama: true, libro: true, tituloMateria: true } } },
+      distinct: ["dictadoId"],
     }),
-
-    // Timeline by tituloMateria
-    prisma.timeline.groupBy({
-      by: ["rama", "libro", "tituloMateria"],
-      where: { activo: true },
-      _count: { id: true },
+    // Timeline: completed (distinct)
+    prisma.timelineAttempt.findMany({
+      where: { userId: authUser.id },
+      select: { timeline: { select: { rama: true, libro: true, tituloMateria: true } } },
+      distinct: ["timelineId"],
     }),
   ]);
 
-  // ── Build progress data keyed by "RAMA|LIBRO|TITULO" ───────────
+  // ── Build stats map keyed by "RAMA|LIBRO|TITULO" ──────────────
+  type ModuleStats = { total: number; done: number };
   type TituloStats = {
-    fcTotal: number;
-    fcDom: number;
-    mcqTotal: number;
-    mcqOk: number;
-    tfTotal: number;
-    tfOk: number;
-    defTotal: number;
-    fillTotal: number;
-    errorTotal: number;
-    orderTotal: number;
-    matchTotal: number;
-    casoTotal: number;
-    dictadoTotal: number;
-    timelineTotal: number;
+    fc: ModuleStats; mcq: ModuleStats; tf: ModuleStats; def: ModuleStats;
+    fill: ModuleStats; error: ModuleStats; order: ModuleStats; match: ModuleStats;
+    caso: ModuleStats; dictado: ModuleStats; timeline: ModuleStats;
   };
 
   const emptyStats = (): TituloStats => ({
-    fcTotal: 0, fcDom: 0, mcqTotal: 0, mcqOk: 0, tfTotal: 0, tfOk: 0,
-    defTotal: 0, fillTotal: 0, errorTotal: 0, orderTotal: 0,
-    matchTotal: 0, casoTotal: 0, dictadoTotal: 0, timelineTotal: 0,
+    fc: { total: 0, done: 0 }, mcq: { total: 0, done: 0 }, tf: { total: 0, done: 0 },
+    def: { total: 0, done: 0 }, fill: { total: 0, done: 0 }, error: { total: 0, done: 0 },
+    order: { total: 0, done: 0 }, match: { total: 0, done: 0 }, caso: { total: 0, done: 0 },
+    dictado: { total: 0, done: 0 }, timeline: { total: 0, done: 0 },
   });
 
   const statsMap: Record<string, TituloStats> = {};
+  const ensure = (k: string) => { if (!statsMap[k]) statsMap[k] = emptyStats(); };
 
-  const ensureKey = (k: string) => {
-    if (!statsMap[k]) statsMap[k] = emptyStats();
-  };
+  // Helper to add totals from groupBy results
+  type GBRow = { rama: string; libro: string; titulo: string; _count: { id: number } };
+  type GBRowTM = { rama: string; libro: string | null; tituloMateria: string | null; _count: { id: number } };
 
-  for (const g of flashcardsByTitulo) {
-    const k = progressKey(g.rama, g.libro, g.titulo);
-    ensureKey(k);
-    statsMap[k].fcTotal = g._count.id;
+  function addTotals(rows: GBRow[], field: keyof TituloStats) {
+    for (const g of rows) {
+      if (!g.titulo) continue;
+      const k = progressKey(g.rama, g.libro ?? "", g.titulo);
+      ensure(k);
+      statsMap[k][field].total = g._count.id;
+    }
   }
-
-  for (const r of dominatedRecords) {
-    const { rama, libro, titulo } = r.flashcard;
-    const k = progressKey(rama, libro, titulo);
-    ensureKey(k);
-    statsMap[k].fcDom += 1;
+  function addTotalsTM(rows: GBRowTM[], field: keyof TituloStats) {
+    for (const g of rows) {
+      if (!g.tituloMateria) continue;
+      const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
+      ensure(k);
+      statsMap[k][field].total = g._count.id;
+    }
   }
-
-  for (const g of mcqByTitulo) {
-    const k = progressKey(g.rama, g.libro, g.titulo);
-    ensureKey(k);
-    statsMap[k].mcqTotal = g._count.id;
+  function addDone(rows: Array<{ rama: string; libro: string; titulo: string }>, field: keyof TituloStats) {
+    for (const r of rows) {
+      const k = progressKey(r.rama, r.libro, r.titulo);
+      ensure(k);
+      statsMap[k][field].done += 1;
+    }
   }
-
-  for (const r of mcqCorrectByTitulo) {
-    const { rama, libro, titulo } = r.mcq;
-    const k = progressKey(rama, libro, titulo);
-    ensureKey(k);
-    statsMap[k].mcqOk += 1;
-  }
-
-  for (const g of tfByTitulo) {
-    const k = progressKey(g.rama, g.libro, g.titulo);
-    ensureKey(k);
-    statsMap[k].tfTotal = g._count.id;
-  }
-
-  for (const r of tfCorrectByTitulo) {
-    const { rama, libro, titulo } = r.trueFalse;
-    const k = progressKey(rama, libro, titulo);
-    ensureKey(k);
-    statsMap[k].tfOk += 1;
+  function addDoneTM(rows: Array<{ rama: string; libro: string | null; tituloMateria: string | null }>, field: keyof TituloStats) {
+    for (const r of rows) {
+      if (!r.tituloMateria) continue;
+      const k = progressKey(r.rama, r.libro ?? "", r.tituloMateria);
+      ensure(k);
+      statsMap[k][field].done += 1;
+    }
   }
 
-  // Additional modules
-  for (const g of defByTitulo) {
-    if (!g.titulo) continue;
-    const k = progressKey(g.rama, g.libro ?? "", g.titulo);
-    ensureKey(k);
-    statsMap[k].defTotal = g._count.id;
-  }
-  for (const g of fillBlankByTitulo) {
-    if (!g.titulo) continue;
-    const k = progressKey(g.rama, g.libro ?? "", g.titulo);
-    ensureKey(k);
-    statsMap[k].fillTotal = g._count.id;
-  }
-  for (const g of errorIdByTitulo) {
-    if (!g.titulo) continue;
-    const k = progressKey(g.rama, g.libro ?? "", g.titulo);
-    ensureKey(k);
-    statsMap[k].errorTotal = g._count.id;
-  }
-  for (const g of orderSeqByTitulo) {
-    if (!g.tituloMateria) continue;
-    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
-    ensureKey(k);
-    statsMap[k].orderTotal = g._count.id;
-  }
-  for (const g of matchColByTitulo) {
-    if (!g.tituloMateria) continue;
-    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
-    ensureKey(k);
-    statsMap[k].matchTotal = g._count.id;
-  }
-  for (const g of casoByTitulo) {
-    if (!g.tituloMateria) continue;
-    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
-    ensureKey(k);
-    statsMap[k].casoTotal = g._count.id;
-  }
-  for (const g of dictadoByTitulo) {
-    if (!g.tituloMateria) continue;
-    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
-    ensureKey(k);
-    statsMap[k].dictadoTotal = g._count.id;
-  }
-  for (const g of timelineByTitulo) {
-    if (!g.tituloMateria) continue;
-    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
-    ensureKey(k);
-    statsMap[k].timelineTotal = g._count.id;
-  }
+  // Totals
+  addTotals(fcByTitulo as GBRow[], "fc");
+  addTotals(mcqByTitulo as GBRow[], "mcq");
+  addTotals(tfByTitulo as GBRow[], "tf");
+  addTotals(defByTitulo as GBRow[], "def");
+  addTotals(fillByTitulo as GBRow[], "fill");
+  addTotals(errorByTitulo as GBRow[], "error");
+  addTotalsTM(orderByTitulo as GBRowTM[], "order");
+  addTotalsTM(matchByTitulo as GBRowTM[], "match");
+  addTotalsTM(casoByTitulo as GBRowTM[], "caso");
+  addTotalsTM(dictadoByTitulo as GBRowTM[], "dictado");
+  addTotalsTM(timelineByTitulo as GBRowTM[], "timeline");
+
+  // Done (user progress) - filter out nulls and normalize types
+  type RLT = { rama: string; libro: string; titulo: string };
+  const toRLT = (r: { rama: string; libro: string | null; titulo: string | null }): RLT | null =>
+    r.titulo && r.libro ? { rama: r.rama, libro: r.libro, titulo: r.titulo } : null;
+
+  addDone(fcProgress.map((r) => r.flashcard), "fc");
+  addDone(mcqDone.map((r) => r.mcq), "mcq");
+  addDone(tfDone.map((r) => r.trueFalse), "tf");
+  addDone(defDone.map((r) => toRLT(r.definicion)).filter((d): d is RLT => d !== null), "def");
+  addDone(fillDone.map((r) => toRLT(r.fillBlank)).filter((d): d is RLT => d !== null), "fill");
+  addDone(errorDone.map((r) => toRLT(r.errorIdentification)).filter((d): d is RLT => d !== null), "error");
+  addDoneTM(orderDone.map((r) => r.orderSequence), "order");
+  addDoneTM(matchDone.map((r) => r.matchColumns), "match");
+  addDoneTM(casoDone.map((r) => r.casoPractico), "caso");
+  addDoneTM(dictadoDone.map((r) => r.dictado), "dictado");
+  addDoneTM(timelineDone.map((r) => r.timeline), "timeline");
 
   // ── Build serialisable curriculum with progress ─────────────────
+  const MODULE_KEYS: (keyof TituloStats)[] = ["fc", "mcq", "tf", "def", "fill", "error", "order", "match", "caso", "dictado", "timeline"];
+
+  function sumTotal(s: TituloStats): number {
+    return MODULE_KEYS.reduce((sum, k) => sum + s[k].total, 0);
+  }
+  function sumDone(s: TituloStats): number {
+    return MODULE_KEYS.reduce((sum, k) => sum + s[k].done, 0);
+  }
+
   const materias = Object.entries(CURRICULUM).map(([ramaKey, rama]) => {
-    let ramaFcTotal = 0, ramaFcDom = 0;
-    let ramaMcqTotal = 0, ramaMcqOk = 0;
-    let ramaTfTotal = 0, ramaTfOk = 0;
+    let ramaAllTotal = 0, ramaAllDone = 0;
 
     const libros = rama.secciones.map((sec) => {
-      let libroFcTotal = 0, libroFcDom = 0;
-      let libroMcqTotal = 0, libroMcqOk = 0;
-      let libroTfTotal = 0, libroTfOk = 0;
+      let libroAllTotal = 0, libroAllDone = 0;
 
       const titulos = sec.titulos.map((t) => {
         const k = progressKey(ramaKey, sec.libro, t.id);
         const s = statsMap[k] || emptyStats();
 
-        libroFcTotal += s.fcTotal;
-        libroFcDom += s.fcDom;
-        libroMcqTotal += s.mcqTotal;
-        libroMcqOk += s.mcqOk;
-        libroTfTotal += s.tfTotal;
-        libroTfOk += s.tfOk;
+        const tTotal = sumTotal(s);
+        const tDone = sumDone(s);
+        libroAllTotal += tTotal;
+        libroAllDone += Math.min(tDone, tTotal); // Cap at total for libro %
 
-        const total = s.fcTotal + s.mcqTotal + s.tfTotal;
-        const done = s.fcDom + s.mcqOk + s.tfOk;
+        // Cycles: done can exceed total via re-attempts
+        const cycles = tTotal > 0 ? Math.floor(tDone / tTotal) : 0;
+        const currentDone = tTotal > 0 ? tDone % tTotal : 0;
+        const percent = tTotal > 0 ? Math.round((currentDone / tTotal) * 100) : 0;
 
         return {
           id: t.id,
@@ -285,37 +229,22 @@ export default async function IndiceMaestroPage() {
           articulosRef: t.articulosRef ?? null,
           parrafos: t.parrafos ?? [],
           leyesAnexas: (t.leyesAnexas ?? []).map((la) => ({
-            ley: la.ley,
-            label: la.label,
-            nombreCorto: la.nombreCorto ?? null,
+            ley: la.ley, label: la.label, nombreCorto: la.nombreCorto ?? null,
           })),
-          fcTotal: s.fcTotal,
-          fcDom: s.fcDom,
-          mcqTotal: s.mcqTotal,
-          mcqOk: s.mcqOk,
-          tfTotal: s.tfTotal,
-          tfOk: s.tfOk,
-          defTotal: s.defTotal,
-          fillTotal: s.fillTotal,
-          errorTotal: s.errorTotal,
-          orderTotal: s.orderTotal,
-          matchTotal: s.matchTotal,
-          casoTotal: s.casoTotal,
-          dictadoTotal: s.dictadoTotal,
-          timelineTotal: s.timelineTotal,
-          percent: total > 0 ? Math.round((done / total) * 100) : 0,
+          // Module stats
+          fc: s.fc, mcq: s.mcq, tf: s.tf, def: s.def,
+          fill: s.fill, error: s.error, order: s.order, match: s.match,
+          caso: s.caso, dictado: s.dictado, timeline: s.timeline,
+          // Aggregates
+          totalExercicios: tTotal,
+          totalDone: tDone,
+          cycles,
+          percent: cycles > 0 && currentDone === 0 ? 100 : percent,
         };
       });
 
-      ramaFcTotal += libroFcTotal;
-      ramaFcDom += libroFcDom;
-      ramaMcqTotal += libroMcqTotal;
-      ramaMcqOk += libroMcqOk;
-      ramaTfTotal += libroTfTotal;
-      ramaTfOk += libroTfOk;
-
-      const libroTotal = libroFcTotal + libroMcqTotal + libroTfTotal;
-      const libroDone = libroFcDom + libroMcqOk + libroTfOk;
+      ramaAllTotal += libroAllTotal;
+      ramaAllDone += libroAllDone;
 
       return {
         id: sec.id,
@@ -323,33 +252,20 @@ export default async function IndiceMaestroPage() {
         label: sec.label,
         titulos,
         leyesAnexas: (sec.leyesAnexas ?? []).map((la) => ({
-          ley: la.ley,
-          label: la.label,
-          nombreCorto: la.nombreCorto ?? null,
+          ley: la.ley, label: la.label, nombreCorto: la.nombreCorto ?? null,
         })),
-        fcTotal: libroFcTotal,
-        mcqTotal: libroMcqTotal,
-        tfTotal: libroTfTotal,
-        percent: libroTotal > 0 ? Math.round((libroDone / libroTotal) * 100) : 0,
+        percent: libroAllTotal > 0 ? Math.round((libroAllDone / libroAllTotal) * 100) : 0,
       };
     });
-
-    const ramaTotal = ramaFcTotal + ramaMcqTotal + ramaTfTotal;
-    const ramaDone = ramaFcDom + ramaMcqOk + ramaTfOk;
 
     return {
       id: ramaKey,
       label: rama.label,
       libros,
       leyesAnexasRama: (rama.leyesAnexasRama ?? []).map((la) => ({
-        ley: la.ley,
-        label: la.label,
-        nombreCorto: la.nombreCorto ?? null,
+        ley: la.ley, label: la.label, nombreCorto: la.nombreCorto ?? null,
       })),
-      fcTotal: ramaFcTotal,
-      mcqTotal: ramaMcqTotal,
-      tfTotal: ramaTfTotal,
-      percent: ramaTotal > 0 ? Math.round((ramaDone / ramaTotal) * 100) : 0,
+      percent: ramaAllTotal > 0 ? Math.round((ramaAllDone / ramaAllTotal) * 100) : 0,
     };
   });
 

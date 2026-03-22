@@ -12,26 +12,31 @@ interface LeyAnexaData {
   nombreCorto: string | null;
 }
 
+interface ModuleStats {
+  total: number;
+  done: number;
+}
+
 interface TituloData {
   id: string;
   label: string;
   articulosRef: string | null;
   parrafos: string[];
   leyesAnexas: LeyAnexaData[];
-  fcTotal: number;
-  fcDom: number;
-  mcqTotal: number;
-  mcqOk: number;
-  tfTotal: number;
-  tfOk: number;
-  defTotal: number;
-  fillTotal: number;
-  errorTotal: number;
-  orderTotal: number;
-  matchTotal: number;
-  casoTotal: number;
-  dictadoTotal: number;
-  timelineTotal: number;
+  fc: ModuleStats;
+  mcq: ModuleStats;
+  tf: ModuleStats;
+  def: ModuleStats;
+  fill: ModuleStats;
+  error: ModuleStats;
+  order: ModuleStats;
+  match: ModuleStats;
+  caso: ModuleStats;
+  dictado: ModuleStats;
+  timeline: ModuleStats;
+  totalExercicios: number;
+  totalDone: number;
+  cycles: number;
   percent: number;
 }
 
@@ -41,9 +46,6 @@ interface LibroData {
   label: string;
   titulos: TituloData[];
   leyesAnexas: LeyAnexaData[];
-  fcTotal: number;
-  mcqTotal: number;
-  tfTotal: number;
   percent: number;
 }
 
@@ -52,9 +54,6 @@ interface MateriaData {
   label: string;
   libros: LibroData[];
   leyesAnexasRama: LeyAnexaData[];
-  fcTotal: number;
-  mcqTotal: number;
-  tfTotal: number;
   percent: number;
 }
 
@@ -76,21 +75,58 @@ const MATERIAS_PROXIMAMENTE = [
   { id: "DERECHO_CONSTITUCIONAL", nombre: "Derecho Constitucional", sigla: "D. Const.", icono: "📜" },
 ];
 
+const MODULE_LABELS: Array<{ key: keyof Pick<TituloData, "fc"|"mcq"|"tf"|"def"|"fill"|"error"|"order"|"match"|"caso"|"dictado"|"timeline">; label: string; shortLabel: string }> = [
+  { key: "fc", label: "Flashcards", shortLabel: "flashcards" },
+  { key: "mcq", label: "MCQ", shortLabel: "MCQ" },
+  { key: "tf", label: "V/F", shortLabel: "V/F" },
+  { key: "def", label: "Definiciones", shortLabel: "definiciones" },
+  { key: "fill", label: "Completar", shortLabel: "completar" },
+  { key: "error", label: "Errores", shortLabel: "errores" },
+  { key: "order", label: "Ordenar", shortLabel: "ordenar" },
+  { key: "match", label: "Relacionar", shortLabel: "relacionar" },
+  { key: "caso", label: "Casos", shortLabel: "casos" },
+  { key: "dictado", label: "Dictado", shortLabel: "dictado" },
+  { key: "timeline", label: "Timeline", shortLabel: "timeline" },
+];
+
+const MODULE_HREFS: Record<string, string> = {
+  fc: "/dashboard/flashcards",
+  mcq: "/dashboard/mcq",
+  tf: "/dashboard/truefalse",
+  def: "/dashboard/definiciones",
+  fill: "/dashboard/completar-espacios",
+  error: "/dashboard/identificar-errores",
+  order: "/dashboard/ordenar-secuencias",
+  match: "/dashboard/relacionar-columnas",
+  caso: "/dashboard/casos-practicos",
+  dictado: "/dashboard/dictado-juridico",
+  timeline: "/dashboard/linea-de-tiempo",
+};
+
 // ─── Progress Bar ───────────────────────────────────────────
 
 function MiniBar({
   percent,
+  cycles = 0,
   color = "bg-gz-gold",
   className = "",
 }: {
   percent: number;
+  cycles?: number;
   color?: string;
   className?: string;
 }) {
+  const barColor =
+    cycles >= 3
+      ? "bg-gradient-to-r from-gz-gold to-amber-600"
+      : cycles >= 2
+      ? "bg-gz-gold ring-1 ring-gz-gold/40"
+      : color;
+
   return (
     <div className={`h-1.5 rounded-sm overflow-hidden ${className}`} style={{ backgroundColor: "var(--gz-cream-dark)" }}>
       <div
-        className={`h-full rounded-sm transition-all duration-500 ${color}`}
+        className={`h-full rounded-sm transition-all duration-500 ${barColor}`}
         style={{ width: `${Math.min(percent, 100)}%` }}
       />
     </div>
@@ -141,20 +177,11 @@ function StudyButtons({
   const enc = encodeURIComponent(titulo);
   const qs = `rama=${rama}&libro=${libro}&titulo=${enc}`;
 
-  // Build buttons only for modules with content
-  const modules: Array<{ label: string; count: number; href: string }> = [];
-
-  if (stats.fcTotal > 0) modules.push({ label: "Flashcards", count: stats.fcTotal, href: `/dashboard/flashcards?${qs}` });
-  if (stats.mcqTotal > 0) modules.push({ label: "MCQ", count: stats.mcqTotal, href: `/dashboard/mcq?${qs}` });
-  if (stats.tfTotal > 0) modules.push({ label: "V/F", count: stats.tfTotal, href: `/dashboard/truefalse?${qs}` });
-  if (stats.defTotal > 0) modules.push({ label: "Definiciones", count: stats.defTotal, href: `/dashboard/definiciones?${qs}` });
-  if (stats.fillTotal > 0) modules.push({ label: "Completar", count: stats.fillTotal, href: `/dashboard/completar-espacios?${qs}` });
-  if (stats.errorTotal > 0) modules.push({ label: "Errores", count: stats.errorTotal, href: `/dashboard/identificar-errores?${qs}` });
-  if (stats.orderTotal > 0) modules.push({ label: "Ordenar", count: stats.orderTotal, href: `/dashboard/ordenar-secuencias?${qs}` });
-  if (stats.matchTotal > 0) modules.push({ label: "Relacionar", count: stats.matchTotal, href: `/dashboard/relacionar-columnas?${qs}` });
-  if (stats.casoTotal > 0) modules.push({ label: "Casos", count: stats.casoTotal, href: `/dashboard/casos-practicos?${qs}` });
-  if (stats.dictadoTotal > 0) modules.push({ label: "Dictado", count: stats.dictadoTotal, href: `/dashboard/dictado-juridico?${qs}` });
-  if (stats.timelineTotal > 0) modules.push({ label: "Timeline", count: stats.timelineTotal, href: `/dashboard/linea-de-tiempo?${qs}` });
+  // Only show buttons for modules with content
+  const activeModules = MODULE_LABELS.filter((m) => {
+    const s = stats[m.key] as ModuleStats;
+    return s.total > 0;
+  });
 
   return (
     <div className="pl-12 mt-2 mb-3">
@@ -162,13 +189,13 @@ function StudyButtons({
         Estudiar este tema:
       </p>
       <div className="flex flex-wrap gap-2">
-        {modules.map((b) => (
+        {activeModules.map((m) => (
           <Link
-            key={b.label}
-            href={b.href}
+            key={m.key}
+            href={`${MODULE_HREFS[m.key]}?${qs}`}
             className="font-archivo text-[11px] font-semibold px-3 py-1.5 rounded-[3px] border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
           >
-            {b.label} ({b.count})
+            {m.label}
           </Link>
         ))}
         {/* Simulacro — always shown, different style */}
@@ -180,6 +207,24 @@ function StudyButtons({
         </Link>
       </div>
     </div>
+  );
+}
+
+// ─── Stats Line ─────────────────────────────────────────────
+
+function StatsLine({ stats }: { stats: TituloData }) {
+  const parts: string[] = [];
+  for (const m of MODULE_LABELS) {
+    const s = stats[m.key] as ModuleStats;
+    if (s.total > 0) {
+      parts.push(`${s.done}/${s.total} ${m.shortLabel}`);
+    }
+  }
+  if (parts.length === 0) return null;
+  return (
+    <p className="font-ibm-mono text-[9px] text-gz-ink-light">
+      {parts.join(" · ")}
+    </p>
   );
 }
 
@@ -214,7 +259,7 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
         {materia.label}
       </h2>
       <p className="font-ibm-mono text-[11px] text-gz-ink-light mb-4">
-        {materia.fcTotal} flashcards · {materia.mcqTotal} MCQ · {materia.tfTotal} V/F · {materia.percent}% completado
+        {materia.percent}% completado
       </p>
       <div className="h-[2px] mb-6" style={{ backgroundColor: "var(--gz-rule-dark)" }} />
 
@@ -222,7 +267,7 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
       <div className="space-y-1">
         {materia.libros.map((libro) => {
           const libroOpen = expandedLibros.has(libro.id);
-          const hasContent = libro.fcTotal + libro.mcqTotal + libro.tfTotal > 0;
+          const hasContent = libro.titulos.some((t) => t.totalExercicios > 0);
 
           return (
             <div key={libro.id}>
@@ -253,11 +298,7 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                 <div className="ml-4 border-l-2 pl-0" style={{ borderColor: "var(--gz-cream-dark)" }}>
                   {libro.titulos.map((titulo) => {
                     const tituloOpen = expandedTitulos.has(titulo.id);
-                    const totalContent = titulo.fcTotal + titulo.mcqTotal + titulo.tfTotal +
-                      titulo.defTotal + titulo.fillTotal + titulo.errorTotal +
-                      titulo.orderTotal + titulo.matchTotal + titulo.casoTotal +
-                      titulo.dictadoTotal + titulo.timelineTotal;
-                    const hasTituloContent = totalContent > 0;
+                    const hasTituloContent = titulo.totalExercicios > 0;
                     const hasParrafos = titulo.parrafos.length > 0;
                     const hasLeyesTitulo = titulo.leyesAnexas.length > 0;
                     const isExpandable = hasTituloContent || hasParrafos || hasLeyesTitulo;
@@ -282,9 +323,15 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                           <span className="font-archivo text-[13px] text-gz-ink-mid text-left flex-1 min-w-0">
                             {titulo.label}
                           </span>
+                          {/* Cycles badge */}
+                          {titulo.cycles > 0 && (
+                            <span className="font-ibm-mono text-[9px] text-gz-gold bg-gz-gold/10 px-1.5 py-0.5 rounded-sm flex-shrink-0">
+                              ×{titulo.cycles}
+                            </span>
+                          )}
                           {hasTituloContent && (
                             <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
-                              <MiniBar percent={titulo.percent} className="w-16 h-1" />
+                              <MiniBar percent={titulo.percent} cycles={titulo.cycles} className="w-16 h-1" />
                               <span className="font-ibm-mono text-[10px] text-gz-ink-light w-8 text-right">
                                 {titulo.percent}%
                               </span>
@@ -322,12 +369,10 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                               </div>
                             )}
 
-                            {/* Stats mini */}
+                            {/* Stats per module */}
                             {hasTituloContent && (
                               <div className="pl-4 pb-1">
-                                <p className="font-ibm-mono text-[9px] text-gz-ink-light">
-                                  {titulo.fcDom}/{titulo.fcTotal} flashcards · {titulo.mcqOk}/{titulo.mcqTotal} MCQ · {titulo.tfOk}/{titulo.tfTotal} V/F
-                                </p>
+                                <StatsLine stats={titulo} />
                               </div>
                             )}
 
