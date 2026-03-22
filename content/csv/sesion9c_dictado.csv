@@ -1,0 +1,6 @@
+titulo,textoCompleto,rama,libro,titulo_materia,materia,dificultad
+"Art. 341 CPC — Medios de prueba","Los medios de prueba de que puede hacerse uso en juicio son: instrumentos, testigos, confesión de parte, inspección personal del tribunal, informe de peritos, y presunciones.",DERECHO_PROCESAL_CIVIL,LIBRO_II,TITULO_XI,De los medios de prueba,1
+"Art. 1698 CC — Carga de la prueba","Incumbe probar las obligaciones o su extinción al que alega aquéllas o ésta.",DERECHO_PROCESAL_CIVIL,LIBRO_II,TITULO_XI,De los medios de prueba,1
+"Art. 1700 CC — Valor del instrumento público","El instrumento público hace plena fe en cuanto al hecho de haberse otorgado y su fecha, pero no en cuanto a la verdad de las declaraciones que en él hayan hecho los interesados.",DERECHO_PROCESAL_CIVIL,LIBRO_II,TITULO_XI,De la prueba instrumental,2
+"Art. 1713 CC — Confesión judicial","La confesión que alguno hiciere en juicio por sí, o por medio de apoderado especial, o de su representante legal, y relativa a un hecho personal de la misma parte, producirá plena fe contra ella.",DERECHO_PROCESAL_CIVIL,LIBRO_II,TITULO_XI,De la confesión de parte,2
+"Art. 425 CPC — Valoración del peritaje","Los tribunales apreciarán la fuerza probatoria del dictamen de peritos en conformidad a las reglas de la sana crítica.",DERECHO_PROCESAL_CIVIL,LIBRO_II,TITULO_XI,Del informe de peritos,2
