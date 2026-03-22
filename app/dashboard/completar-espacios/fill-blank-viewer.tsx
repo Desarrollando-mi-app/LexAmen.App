@@ -7,6 +7,7 @@ import { ReportButton } from "@/app/components/report-button";
 import {
   RAMA_LABELS,
   LIBRO_LABELS,
+  TITULO_LABELS,
 } from "@/lib/curriculum-data";
 import {
   StudySourceSelector,
@@ -422,7 +423,7 @@ export function FillBlankViewer({
             <option value="ALL">Todos los titulos</option>
             {availableTitulos.map((t) => (
               <option key={t} value={t}>
-                {t}
+                {TITULO_LABELS[t] ?? t}
               </option>
             ))}
           </select>

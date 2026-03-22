@@ -79,7 +79,7 @@ export const CURRICULUM: CurriculumTree = {
           {
             id: "TP_1",
             label: "§1. De la Ley",
-            articulosRef: "Arts. 1–3",
+            articulosRef: "Arts. 1–5",
           },
           {
             id: "TP_2",
@@ -1256,6 +1256,16 @@ export const LIBRO_LABELS: Record<string, string> = {};
 for (const rama of Object.values(CURRICULUM)) {
   for (const sec of rama.secciones) {
     LIBRO_LABELS[sec.libro] = sec.label;
+  }
+}
+
+/** Titulo labels para UI (tituloId → label legible) */
+export const TITULO_LABELS: Record<string, string> = {};
+for (const rama of Object.values(CURRICULUM)) {
+  for (const sec of rama.secciones) {
+    for (const titulo of sec.titulos) {
+      TITULO_LABELS[titulo.id] = titulo.label;
+    }
   }
 }
 

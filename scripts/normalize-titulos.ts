@@ -92,10 +92,9 @@ function resolveTitulo(rama: string, libro: string, csvTitulo: string): string |
   // Handle special cases
   if (csvTitulo === "TITULO_FINAL") {
     // Look for TFINAL or similar
-    for (const [, id] of mapping.byNumber) {
-      if (id.includes("FINAL")) return id;
-    }
-    return null;
+    const entries = Array.from(mapping.byNumber.values());
+    const finalEntry = entries.find((id) => id.includes("FINAL"));
+    return finalEntry ?? null;
   }
 
   // Handle "TITULO_IV_LIBRO_II" style (cross-references in CPC)

@@ -186,7 +186,7 @@ export function GzCommunity({
                 href="/dashboard/colegas"
                 className="font-archivo text-[12px] font-semibold text-gz-gold border-b border-gz-gold pb-0.5 hover:text-gz-ink hover:border-gz-ink transition-colors inline-block"
               >
-                Ver todos los colegas \u2192
+                Ver todos los colegas →
               </Link>
             </div>
             <div>
@@ -237,8 +237,8 @@ export function GzCommunity({
                   </p>
                   <p className="text-[11px] text-gz-ink-light mt-0.5">
                     {new Date(salaResumen.proximoEvento.fecha).toLocaleDateString("es-CL", { weekday: "short", day: "numeric", month: "short" })}
-                    {salaResumen.proximoEvento.lugar && ` \u00B7 ${salaResumen.proximoEvento.lugar}`}
-                    {" \u00B7 "}{salaResumen.proximoEvento.interesadosCount} interesado{salaResumen.proximoEvento.interesadosCount !== 1 ? "s" : ""}
+                    {salaResumen.proximoEvento.lugar && ` · ${salaResumen.proximoEvento.lugar}`}
+                    {" · "}{salaResumen.proximoEvento.interesadosCount} interesado{salaResumen.proximoEvento.interesadosCount !== 1 ? "s" : ""}
                   </p>
                 </div>
               )}
@@ -263,7 +263,7 @@ export function GzCommunity({
                 href="/dashboard/sala"
                 className="font-archivo text-[12px] font-semibold text-gz-gold border-b border-gz-gold pb-0.5 hover:text-gz-ink hover:border-gz-ink transition-colors inline-block mt-2"
               >
-                Entrar a La Sala \u2192
+                Entrar a La Sala →
               </Link>
             </div>
             <div>
@@ -280,8 +280,8 @@ export function GzCommunity({
                         }`}
                       >
                         {a.type === "OFREZCO"
-                          ? "Ofrezco ayudant\u00EDa"
-                          : "Busco ayudant\u00EDa"}
+                          ? "Ofrezco ayudantía"
+                          : "Busco ayudantía"}
                       </p>
                       <p className="font-cormorant text-[16px] !font-bold text-gz-ink">
                         {a.materia}

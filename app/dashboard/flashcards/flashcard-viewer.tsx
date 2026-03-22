@@ -9,12 +9,15 @@ import {
   RAMA_LABELS,
   LIBRO_LABELS,
   DIFICULTAD_LABELS,
+  TITULO_LABELS,
 } from "@/lib/curriculum-data";
 import {
   StudySourceSelector,
   type SourceSelection,
 } from "@/app/dashboard/components/study-source-selector";
-import { playFlip } from "@/lib/sounds";
+import { playFlip, playAchievement, playXpGained, getAnimationsEnabled } from "@/lib/sounds";
+import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
+import { Confetti } from "@/app/dashboard/components/confetti";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -106,9 +109,12 @@ export function FlashcardViewer({
   const [limitReached, setLimitReached] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [sessionXP, setSessionXP] = useState(0);
+  const [showCompletionConfetti, setShowCompletionConfetti] = useState(false);
   const [favoriteSet, setFavoriteSet] = useState<Set<string>>(
     () => new Set(favoriteIds)
   );
+  const { showXpFloat } = useXpFloat();
 
   // Derive available options based on selections
   const availableRamas = useMemo(
@@ -285,11 +291,22 @@ export function FlashcardViewer({
       }
 
       setReviewsCount(data.reviewsToday ?? reviewsCount + 1);
+      const xp = data.xpGained ?? 0;
+      if (xp > 0) {
+        setSessionXP((prev) => prev + xp);
+        playXpGained();
+        showXpFloat(xp);
+      }
       setIsFlipped(false);
 
       setTimeout(() => {
-        if (currentIndex + 1 >= totalCards) setCompleted(true);
-        else setCurrentIndex((prev) => prev + 1);
+        if (currentIndex + 1 >= totalCards) {
+          setCompleted(true);
+          playAchievement();
+          if (getAnimationsEnabled()) setShowCompletionConfetti(true);
+        } else {
+          setCurrentIndex((prev) => prev + 1);
+        }
       }, 300);
     } catch (err) {
       console.error("Error al enviar review:", err);
@@ -394,7 +411,7 @@ export function FlashcardViewer({
               <option value="ALL">Todos los titulos</option>
               {availableTitulos.map((t) => (
                 <option key={t} value={t}>
-                  {t}
+                  {TITULO_LABELS[t] ?? t}
                 </option>
               ))}
             </select>
@@ -483,14 +500,28 @@ export function FlashcardViewer({
   if (completed) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
+        <Confetti active={showCompletionConfetti} color="gold" />
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gz-sage/10">
           <svg className="h-10 w-10 text-gz-sage" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h2 className="mt-6 font-cormorant text-[28px] !font-bold text-gz-ink">Sesion completada!</h2>
-        <p className="mt-2 font-archivo text-[14px] text-gz-ink-mid">Has revisado {reviewsCount} tarjeta{reviewsCount !== 1 ? "s" : ""} hoy.</p>
-        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
+        <h2 className="mt-6 font-cormorant text-[28px] !font-bold text-gz-ink">¡Sesión completada!</h2>
+        <div className="mt-6 grid grid-cols-2 gap-6 text-center">
+          <div>
+            <p className="font-cormorant text-[36px] !font-bold text-gz-gold">{totalCards}</p>
+            <p className="font-ibm-mono text-[11px] text-gz-ink-light uppercase tracking-[1px]">Tarjetas revisadas</p>
+          </div>
+          <div>
+            <p className="font-cormorant text-[36px] !font-bold text-gz-gold">+{sessionXP}</p>
+            <p className="font-ibm-mono text-[11px] text-gz-ink-light uppercase tracking-[1px]">XP Ganados</p>
+          </div>
+        </div>
+        <p className="mt-4 font-archivo text-[14px] text-gz-ink-mid">Total hoy: {reviewsCount} tarjeta{reviewsCount !== 1 ? "s" : ""}</p>
+        <div className="mt-8 flex gap-3">
+          <Link href="/dashboard/flashcards" className="rounded-[3px] border border-gz-rule bg-white px-5 py-2.5 font-archivo text-[13px] font-semibold text-gz-ink transition-colors hover:border-gz-gold">Estudiar más</Link>
+          <Link href="/dashboard" className="rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
+        </div>
       </div>
     );
   }

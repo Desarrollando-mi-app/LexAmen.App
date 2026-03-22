@@ -39,22 +39,41 @@ export default async function MCQPage({
 
   const rawMCQs = await prisma.mCQ.findMany({ orderBy: { id: "asc" } });
 
-  const mcqs = rawMCQs.map((m) => ({
-    id: m.id,
-    question: m.question,
-    optionA: m.optionA,
-    optionB: m.optionB,
-    optionC: m.optionC,
-    optionD: m.optionD,
-    correctOption: m.correctOption,
-    explanation: m.explanation,
-    rama: m.rama,
-    codigo: m.codigo,
-    libro: m.libro,
-    titulo: m.titulo,
-    parrafo: m.parrafo,
-    dificultad: m.dificultad,
-  }));
+  const mcqs = rawMCQs.map((m) => {
+    // Shuffle options so the correct answer isn't always in the same position
+    const options = [
+      { key: "A", text: m.optionA },
+      { key: "B", text: m.optionB },
+      { key: "C", text: m.optionC },
+      { key: "D", text: m.optionD },
+    ];
+    // Fisher-Yates shuffle
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    // Map correctOption to new position
+    const newCorrectKey = ["A", "B", "C", "D"][
+      options.findIndex((o) => o.key === m.correctOption)
+    ];
+
+    return {
+      id: m.id,
+      question: m.question,
+      optionA: options[0].text,
+      optionB: options[1].text,
+      optionC: options[2].text,
+      optionD: options[3].text,
+      correctOption: newCorrectKey,
+      explanation: m.explanation,
+      rama: m.rama,
+      codigo: m.codigo,
+      libro: m.libro,
+      titulo: m.titulo,
+      parrafo: m.parrafo,
+      dificultad: m.dificultad,
+    };
+  });
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>

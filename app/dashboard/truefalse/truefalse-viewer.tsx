@@ -8,6 +8,7 @@ import {
   RAMA_LABELS,
   LIBRO_LABELS,
   DIFICULTAD_LABELS,
+  TITULO_LABELS,
 } from "@/lib/curriculum-data";
 import {
   StudySourceSelector,
@@ -315,7 +316,7 @@ export function TrueFalseViewer({
         {availableTitulos.length > 0 && (
           <select value={selectedTitulo} onChange={(e) => handleTituloChange(e.target.value)} className="rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors">
             <option value="ALL">Todos los titulos</option>
-            {availableTitulos.map((t) => <option key={t} value={t}>{t}</option>)}
+            {availableTitulos.map((t) => <option key={t} value={t}>{TITULO_LABELS[t] ?? t}</option>)}
           </select>
         )}
         {availableDificultades.length > 1 && (
@@ -431,7 +432,7 @@ export function TrueFalseViewer({
         {feedback && (
           <div className={`mt-6 ${feedback.isCorrect ? "border-l-[3px] border-gz-sage bg-gz-sage/[0.06] rounded-[3px] p-4" : "border-l-[3px] border-gz-burgundy bg-gz-burgundy/[0.06] rounded-[3px] p-4"}`}>
             <div className="flex items-center gap-2">
-              <span className="text-lg">{feedback.isCorrect ? "&#10003;" : "&#10007;"}</span>
+              <span className="text-lg">{feedback.isCorrect ? "✓" : "✗"}</span>
               <span className={`font-semibold ${feedback.isCorrect ? "text-gz-sage" : "text-gz-burgundy"}`}>{feedback.isCorrect ? "Correcto!" : "Incorrecto"}</span>
               <span className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-bold ${feedback.isCorrect ? "bg-gz-sage/[0.15] text-gz-sage font-ibm-mono text-[11px]" : "bg-gz-burgundy/[0.15] text-gz-burgundy font-ibm-mono text-[11px]"}`}>+{feedback.xpGained} XP</span>
               {feedback.streakBonus > 0 && <span className="ml-1 rounded-full bg-gz-gold/15 px-2.5 py-0.5 text-xs font-bold text-gz-gold font-ibm-mono text-[11px]">+{feedback.streakBonus} Bonus Racha</span>}

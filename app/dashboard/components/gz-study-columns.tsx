@@ -71,7 +71,7 @@ export function GzStudyColumns({
                 href="/dashboard/flashcards"
                 className="font-archivo text-[12px] font-semibold text-gz-gold border-b border-gz-gold pb-0.5 hover:text-gz-ink hover:border-gz-ink transition-colors inline-block"
               >
-                Estudiar ahora \u2192
+                Estudiar ahora →
               </Link>
             </div>
             <div>
@@ -111,14 +111,14 @@ export function GzStudyColumns({
               </h3>
               <p className="font-cormorant text-[15px] leading-[1.65] text-gz-ink-mid mb-3">
                 {mcqTotal > 0
-                  ? `${new Intl.NumberFormat("es-CL").format(mcqTotal)} preguntas respondidas con explicaci\u00F3n doctrinal post-respuesta. Cada acierto suma XP.`
-                  : "Preguntas con explicaci\u00F3n doctrinal post-respuesta. Cada acierto suma XP. Cada error refuerza el aprendizaje."}
+                  ? `${new Intl.NumberFormat("es-CL").format(mcqTotal)} preguntas respondidas con explicación doctrinal post-respuesta. Cada acierto suma XP.`
+                  : "Preguntas con explicación doctrinal post-respuesta. Cada acierto suma XP. Cada error refuerza el aprendizaje."}
               </p>
               <Link
                 href="/dashboard/mcq"
                 className="font-archivo text-[12px] font-semibold text-gz-gold border-b border-gz-gold pb-0.5 hover:text-gz-ink hover:border-gz-ink transition-colors inline-block"
               >
-                Responder preguntas \u2192
+                Responder preguntas →
               </Link>
             </div>
             <div>
@@ -172,7 +172,7 @@ export function GzStudyColumns({
                 href="/dashboard/simulacro"
                 className="font-archivo text-[12px] font-semibold text-gz-gold border-b border-gz-gold pb-0.5 hover:text-gz-ink hover:border-gz-ink transition-colors inline-block"
               >
-                Iniciar simulacro \u2192
+                Iniciar simulacro →
               </Link>
             </div>
             <div>

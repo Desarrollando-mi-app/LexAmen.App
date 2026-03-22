@@ -15,7 +15,7 @@ const MODULOS = [
   },
   {
     href: "/dashboard/mcq",
-    kicker: "XP",
+    kicker: "MCQ",
     title: "Preguntas MCQ",
     description:
       "Alternativas múltiples con retroalimentación inmediata y ranking.",
@@ -28,6 +28,70 @@ const MODULOS = [
     description:
       "Evalúa afirmaciones jurídicas. Velocidad y precisión en cada ronda.",
     color: "var(--gz-sage)",
+  },
+  {
+    href: "/dashboard/definiciones",
+    kicker: "Concepto",
+    title: "Definiciones",
+    description:
+      "Identifica el concepto correcto a partir de su definición jurídica.",
+    color: "var(--gz-navy)",
+  },
+  {
+    href: "/dashboard/completar-espacios",
+    kicker: "Blancos",
+    title: "Completar Espacios",
+    description:
+      "Completa artículos y normas con las palabras faltantes correctas.",
+    color: "var(--gz-burgundy)",
+  },
+  {
+    href: "/dashboard/identificar-errores",
+    kicker: "Errores",
+    title: "Identificar Errores",
+    description:
+      "Encuentra errores deliberados en textos legales y corrígelos.",
+    color: "var(--gz-sage)",
+  },
+  {
+    href: "/dashboard/ordenar-secuencias",
+    kicker: "Orden",
+    title: "Ordenar Secuencias",
+    description:
+      "Ordena las etapas de procedimientos jurídicos en el orden correcto.",
+    color: "var(--gz-gold)",
+  },
+  {
+    href: "/dashboard/relacionar-columnas",
+    kicker: "Match",
+    title: "Relacionar Columnas",
+    description:
+      "Conecta cada concepto con su definición o categoría correspondiente.",
+    color: "var(--gz-navy)",
+  },
+  {
+    href: "/dashboard/casos-practicos",
+    kicker: "Caso",
+    title: "Casos Prácticos",
+    description:
+      "Resuelve mini-casos con 3 preguntas progresivas: identifica, norma, resuelve.",
+    color: "var(--gz-burgundy)",
+  },
+  {
+    href: "/dashboard/dictado-juridico",
+    kicker: "Audio",
+    title: "Dictado Jurídico",
+    description:
+      "Escucha artículos del Código y escríbelos. Evalúa tu precisión.",
+    color: "var(--gz-sage)",
+  },
+  {
+    href: "/dashboard/linea-de-tiempo",
+    kicker: "Timeline",
+    title: "Líneas de Tiempo",
+    description:
+      "Coloca eventos y plazos procesales en su posición temporal correcta.",
+    color: "var(--gz-gold)",
   },
   {
     href: "/dashboard/simulacro",
