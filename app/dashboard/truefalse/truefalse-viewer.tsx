@@ -18,6 +18,7 @@ import { playCorrect, playIncorrect, playXpGained, playStreakBonus, getAnimation
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
+import { ShareSession } from "@/app/components/share-session";
 
 // ─── Tipos ─────────────────────────────────────────────────
 
@@ -384,6 +385,14 @@ export function TrueFalseViewer({
           <div><p className="font-cormorant text-[36px] !font-bold text-gz-gold">+{sessionXP}</p><p className="font-ibm-mono text-[11px] text-gz-ink-light uppercase tracking-[1px]">XP Ganados</p></div>
           <div><p className="font-cormorant text-[36px] !font-bold text-gz-gold">{bestStreak}</p><p className="font-ibm-mono text-[11px] text-gz-ink-light uppercase tracking-[1px]">Mejor Racha</p></div>
         </div>
+        <ShareSession
+          modulo="V/F"
+          materia={RAMA_LABELS[selectedRama] ?? undefined}
+          titulo={selectedTitulo !== "ALL" ? (TITULO_LABELS[selectedTitulo] ?? selectedTitulo) : undefined}
+          total={totalCards}
+          correctas={sessionCorrect}
+          xp={sessionXP}
+        />
         <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
       </div>
     );

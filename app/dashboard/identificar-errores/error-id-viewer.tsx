@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ReportButton } from "@/app/components/report-button";
-import { RAMA_LABELS } from "@/lib/curriculum-data";
+import { RAMA_LABELS, TITULO_LABELS } from "@/lib/curriculum-data";
 import {
   playCorrect,
   playIncorrect,
@@ -449,7 +449,7 @@ export function ErrorIdViewer({
               <>
                 <span className="text-gz-rule">&middot;</span>
                 <span className="font-ibm-mono text-[11px] text-gz-ink-light">
-                  {currentItem.titulo}
+                  {TITULO_LABELS[currentItem.titulo] ?? currentItem.titulo}
                 </span>
               </>
             )}

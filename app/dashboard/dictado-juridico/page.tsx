@@ -19,13 +19,13 @@ export default async function DictadoJuridicoPage() {
 
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { plan: true },
+    select: { plan: true, isAdmin: true },
   });
 
   if (!dbUser) redirect("/login");
 
-  // PAID ONLY — show upgrade message for free users
-  if (dbUser.plan === "FREE") {
+  // PAID ONLY — show upgrade message for free users (admins bypass)
+  if (dbUser.plan === "FREE" && !dbUser.isAdmin) {
     return (
       <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
         <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">

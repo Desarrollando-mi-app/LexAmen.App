@@ -19,7 +19,7 @@ export default async function CasosPracticosPage() {
   // 2. Get user
   const dbUser = await prisma.user.findUnique({
     where: { id: authUser.id },
-    select: { firstName: true, plan: true },
+    select: { firstName: true, plan: true, isAdmin: true },
   });
 
   if (!dbUser) {
@@ -84,7 +84,7 @@ export default async function CasosPracticosPage() {
 
         <CasoPracticoViewer
           casos={casos}
-          plan={dbUser.plan}
+          plan={dbUser.isAdmin ? "PREMIUM_ANNUAL" : dbUser.plan}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_FREE_LIMIT}
         />

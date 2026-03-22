@@ -9,6 +9,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { CHART_COLORS } from "@/lib/estadisticas-chart-config";
+import { InfoTooltip } from "@/app/components/info-tooltip";
+import { FEATURE_INFO } from "@/lib/feature-info";
 
 interface BloqueCompetenciasProps {
   competencias: Array<{
@@ -39,8 +41,9 @@ export function BloqueCompetencias({
       <div className="bg-white border border-gz-rule rounded-[4px] p-5">
         <div className="mb-4">
           <div className="flex items-center gap-3 mb-1">
-            <h3 className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light font-medium">
+            <h3 className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light font-medium flex items-center gap-2">
               Mapa de competencias
+              <InfoTooltip title={FEATURE_INFO.competencias.title} description={FEATURE_INFO.competencias.description} />
             </h3>
             <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold bg-gz-gold/10 px-2 py-0.5 rounded-[2px]">
               Dominio por materia

@@ -21,7 +21,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { RAMA_LABELS } from "@/lib/curriculum-data";
+import { RAMA_LABELS, TITULO_LABELS } from "@/lib/curriculum-data";
 import {
   playCorrect,
   playIncorrect,
@@ -554,7 +554,7 @@ export function OrderSequenceViewer({
 
         {/* Title */}
         <h2 className="font-cormorant text-[22px] lg:text-[26px] font-bold text-gz-ink mb-2">
-          {currentItem.titulo}
+          {TITULO_LABELS[currentItem.titulo] ?? currentItem.titulo}
         </h2>
 
         {/* Instruction */}

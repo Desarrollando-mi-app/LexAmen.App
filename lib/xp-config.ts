@@ -17,7 +17,7 @@ export type XpCategory =
 
 // Flashcards
 export const XP_FLASHCARD_REVIEW = 1; // Cualquier revisión
-export const XP_FLASHCARD_KNEW = 2; // "La sabía" (quality >= 3)
+export const XP_FLASHCARD_KNEW = 1; // "La sabía" (quality >= 3)
 export const XP_FLASHCARD_FIRST_MASTERY = 5; // Primera vez que rep >= 3
 
 // MCQ

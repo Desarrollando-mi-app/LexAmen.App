@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { InfoTooltip } from "@/app/components/info-tooltip";
+import { FEATURE_INFO } from "@/lib/feature-info";
 
 interface LibroProgress {
   libro: string;
@@ -67,8 +69,9 @@ export function GzProgressGlobal() {
       <div className="rounded-[4px] border border-gz-rule bg-white p-5 sm:p-6">
         {/* Header */}
         <div className="flex items-baseline justify-between">
-          <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light flex items-center gap-2">
             Tu progreso
+            <InfoTooltip title={FEATURE_INFO.progreso.title} description={FEATURE_INFO.progreso.description} />
           </p>
           <span className="font-cormorant text-[28px] font-bold text-gz-gold">
             {data.global.porcentaje}%

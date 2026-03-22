@@ -1,105 +1,116 @@
 import Link from "next/link";
+import { InfoTooltip } from "@/app/components/info-tooltip";
+import { FEATURE_INFO } from "@/lib/feature-info";
 
 export const metadata = {
   title: "Módulos de Estudio — Studio Iuris",
 };
 
-const MODULOS = [
+type InfoKey = keyof typeof FEATURE_INFO;
+
+const MODULOS: Array<{
+  href: string;
+  kicker: string;
+  title: string;
+  description: string;
+  color: string;
+  infoKey: InfoKey;
+}> = [
   {
     href: "/dashboard/flashcards",
     kicker: "SM-2",
     title: "Flashcards",
-    description:
-      "Repaso activo con repetición espaciada. Domina conceptos uno a uno.",
+    description: "Repaso activo con repetición espaciada. Domina conceptos uno a uno.",
     color: "var(--gz-navy)",
+    infoKey: "flashcards",
   },
   {
     href: "/dashboard/mcq",
     kicker: "MCQ",
     title: "Preguntas MCQ",
-    description:
-      "Alternativas múltiples con retroalimentación inmediata y ranking.",
+    description: "Alternativas múltiples con retroalimentación inmediata y ranking.",
     color: "var(--gz-burgundy)",
+    infoKey: "mcq",
   },
   {
     href: "/dashboard/truefalse",
     kicker: "V/F",
     title: "Verdadero / Falso",
-    description:
-      "Evalúa afirmaciones jurídicas. Velocidad y precisión en cada ronda.",
+    description: "Evalúa afirmaciones jurídicas. Velocidad y precisión en cada ronda.",
     color: "var(--gz-sage)",
+    infoKey: "vf",
   },
   {
     href: "/dashboard/definiciones",
     kicker: "Concepto",
     title: "Definiciones",
-    description:
-      "Identifica el concepto correcto a partir de su definición jurídica.",
+    description: "Identifica el concepto correcto a partir de su definición jurídica.",
     color: "var(--gz-navy)",
+    infoKey: "definiciones",
   },
   {
     href: "/dashboard/completar-espacios",
     kicker: "Blancos",
     title: "Completar Espacios",
-    description:
-      "Completa artículos y normas con las palabras faltantes correctas.",
+    description: "Completa artículos y normas con las palabras faltantes correctas.",
     color: "var(--gz-burgundy)",
+    infoKey: "completarEspacios",
   },
   {
     href: "/dashboard/identificar-errores",
     kicker: "Errores",
     title: "Identificar Errores",
-    description:
-      "Encuentra errores deliberados en textos legales y corrígelos.",
+    description: "Encuentra errores deliberados en textos legales y corrígelos.",
     color: "var(--gz-sage)",
+    infoKey: "identificarErrores",
   },
   {
     href: "/dashboard/ordenar-secuencias",
     kicker: "Orden",
     title: "Ordenar Secuencias",
-    description:
-      "Ordena las etapas de procedimientos jurídicos en el orden correcto.",
+    description: "Ordena las etapas de procedimientos jurídicos en el orden correcto.",
     color: "var(--gz-gold)",
+    infoKey: "ordenarSecuencias",
   },
   {
     href: "/dashboard/relacionar-columnas",
     kicker: "Match",
     title: "Relacionar Columnas",
-    description:
-      "Conecta cada concepto con su definición o categoría correspondiente.",
+    description: "Conecta cada concepto con su definición o categoría correspondiente.",
     color: "var(--gz-navy)",
+    infoKey: "relacionarColumnas",
   },
   {
     href: "/dashboard/casos-practicos",
     kicker: "Caso",
     title: "Casos Prácticos",
-    description:
-      "Resuelve mini-casos con 3 preguntas progresivas: identifica, norma, resuelve.",
+    description: "Resuelve mini-casos con 3 preguntas progresivas: identifica, norma, resuelve.",
     color: "var(--gz-burgundy)",
+    infoKey: "casosPracticos",
   },
   {
     href: "/dashboard/dictado-juridico",
     kicker: "Audio",
     title: "Dictado Jurídico",
-    description:
-      "Escucha artículos del Código y escríbelos. Evalúa tu precisión.",
+    description: "Escucha artículos del Código y escríbelos. Evalúa tu precisión.",
     color: "var(--gz-sage)",
+    infoKey: "dictado",
   },
   {
     href: "/dashboard/linea-de-tiempo",
     kicker: "Timeline",
     title: "Líneas de Tiempo",
-    description:
-      "Coloca eventos y plazos procesales en su posición temporal correcta.",
+    description: "Coloca eventos y plazos procesales en su posición temporal correcta.",
     color: "var(--gz-gold)",
+    infoKey: "lineaTiempo",
   },
   {
     href: "/dashboard/simulacro",
     kicker: "IA",
     title: "Simulacro Oral",
-    description:
-      "Interrogación oral con IA. Practica frente a 5 perfiles de examinador.",
+    description: "Interrogación oral con IA. Practica frente a 5 perfiles de examinador.",
     color: "var(--gz-gold)",
+    infoKey: "simulacro",
   },
 ];
 
@@ -121,30 +132,37 @@ export default function EstudiosPage() {
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {MODULOS.map((mod) => (
-            <Link
-              key={mod.href}
-              href={mod.href}
-              className="group block border border-gz-rule rounded-sm p-6 transition-all hover:border-gz-gold hover:shadow-sm"
-              style={{ backgroundColor: "var(--gz-cream)" }}
-            >
-              <span
-                className="font-ibm-mono text-[10px] uppercase tracking-[2px] font-medium"
-                style={{ color: mod.color }}
+          {MODULOS.map((mod) => {
+            const info = FEATURE_INFO[mod.infoKey];
+            return (
+              <div
+                key={mod.href}
+                className="group relative border border-gz-rule rounded-sm p-6 transition-all hover:border-gz-gold hover:shadow-sm"
+                style={{ backgroundColor: "var(--gz-cream)" }}
               >
-                {mod.kicker}
-              </span>
-              <h2 className="font-cormorant text-[22px] !font-bold text-gz-ink mt-1 group-hover:text-gz-gold transition-colors">
-                {mod.title}
-              </h2>
-              <p className="font-archivo text-[13px] text-gz-ink-mid leading-relaxed mt-2">
-                {mod.description}
-              </p>
-              <span className="inline-block mt-4 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold">
-                Acceder &rarr;
-              </span>
-            </Link>
-          ))}
+                <div className="absolute top-4 right-4">
+                  <InfoTooltip title={info.title} description={info.description} />
+                </div>
+                <Link href={mod.href} className="block">
+                  <span
+                    className="font-ibm-mono text-[10px] uppercase tracking-[2px] font-medium"
+                    style={{ color: mod.color }}
+                  >
+                    {mod.kicker}
+                  </span>
+                  <h2 className="font-cormorant text-[22px] !font-bold text-gz-ink mt-1 group-hover:text-gz-gold transition-colors">
+                    {mod.title}
+                  </h2>
+                  <p className="font-archivo text-[13px] text-gz-ink-mid leading-relaxed mt-2">
+                    {mod.description}
+                  </p>
+                  <span className="inline-block mt-4 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold">
+                    Acceder →
+                  </span>
+                </Link>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

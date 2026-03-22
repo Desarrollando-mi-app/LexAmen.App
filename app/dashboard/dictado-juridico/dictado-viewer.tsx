@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { playCorrect, playIncorrect, playXpGained, getAnimationsEnabled } from "@/lib/sounds";
+import { TITULO_LABELS } from "@/lib/curriculum-data";
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { ReportButton } from "@/app/components/report-button";
@@ -392,7 +393,7 @@ export function DictadoViewer({
             {/* Title + metadata */}
             <div className="mb-4">
               <h2 className="font-cormorant text-[22px] font-bold text-gz-ink mb-1">
-                {current.titulo}
+                {TITULO_LABELS[current.titulo] ?? current.titulo}
               </h2>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light">

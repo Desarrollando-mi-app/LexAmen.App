@@ -6,6 +6,8 @@ import {
   RELEGATION_SPOTS,
 } from "@/lib/league";
 import type { NivelLiga } from "@/lib/league";
+import { InfoTooltip } from "@/app/components/info-tooltip";
+import { FEATURE_INFO } from "@/lib/feature-info";
 
 /* ─── Types ─── */
 
@@ -60,8 +62,9 @@ export function GzLigaResumen({
             <p className="font-ibm-mono text-[8px] uppercase tracking-[2px] text-gz-ink-light">
               Grado {userGrado} · {nivelInfo?.label ?? gradoInfo.nivel}
             </p>
-            <p className="font-cormorant text-lg font-bold italic text-gz-ink leading-tight">
+            <p className="font-cormorant text-lg font-bold italic text-gz-ink leading-tight flex items-center gap-2">
               {gradoInfo.nombre}
+              <InfoTooltip title={FEATURE_INFO.liga.title} description={FEATURE_INFO.liga.description} />
             </p>
           </div>
         </div>

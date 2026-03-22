@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { INTERROGADORES } from "@/lib/interrogadores";
+import { InfoTooltip } from "@/app/components/info-tooltip";
+import { FEATURE_INFO } from "@/lib/feature-info";
 
 interface ProgressItem {
   label: string;
@@ -58,8 +60,9 @@ export function GzStudyColumns({
               <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold mb-2">
                 Repetici&oacute;n espaciada &middot; SM-2
               </p>
-              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-1">
+              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-1 flex items-center gap-2">
                 Flashcards
+                <InfoTooltip title={FEATURE_INFO.flashcards.title} description={FEATURE_INFO.flashcards.description} />
               </h3>
               <p className="font-cormorant text-[15px] leading-[1.65] text-gz-ink-mid mb-3">
                 {new Intl.NumberFormat("es-CL").format(flashcardsTotal)} tarjetas
@@ -106,8 +109,9 @@ export function GzStudyColumns({
               <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold mb-2">
                 Selecci&oacute;n m&uacute;ltiple &middot; XP
               </p>
-              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-1">
+              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-1 flex items-center gap-2">
                 Preguntas MCQ
+                <InfoTooltip title={FEATURE_INFO.mcq.title} description={FEATURE_INFO.mcq.description} />
               </h3>
               <p className="font-cormorant text-[15px] leading-[1.65] text-gz-ink-mid mb-3">
                 {mcqTotal > 0
@@ -160,8 +164,9 @@ export function GzStudyColumns({
               <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold mb-2">
                 IA &middot; 5 interrogadores &middot; TTS
               </p>
-              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-1">
+              <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-1 flex items-center gap-2">
                 Simulacro Oral
+                <InfoTooltip title={FEATURE_INFO.simulacro.title} description={FEATURE_INFO.simulacro.description} />
               </h3>
               <p className="font-cormorant text-[15px] leading-[1.65] text-gz-ink-mid mb-3">
                 Cinco examinadores virtuales con personalidades distintas y

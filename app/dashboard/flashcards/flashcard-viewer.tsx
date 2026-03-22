@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ReportButton } from "@/app/components/report-button";
 import {
-  CURRICULUM,
   RAMA_LABELS,
   LIBRO_LABELS,
   DIFICULTAD_LABELS,
@@ -18,6 +17,7 @@ import {
 import { playFlip, playAchievement, playXpGained, getAnimationsEnabled } from "@/lib/sounds";
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
+import { ShareSession } from "@/app/components/share-session";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -518,6 +518,14 @@ export function FlashcardViewer({
           </div>
         </div>
         <p className="mt-4 font-archivo text-[14px] text-gz-ink-mid">Total hoy: {reviewsCount} tarjeta{reviewsCount !== 1 ? "s" : ""}</p>
+        <ShareSession
+          modulo="Flashcards"
+          materia={RAMA_LABELS[selectedRama] ?? undefined}
+          titulo={selectedTitulo !== "ALL" ? (TITULO_LABELS[selectedTitulo] ?? selectedTitulo) : undefined}
+          total={totalCards}
+          correctas={totalCards}
+          xp={sessionXP}
+        />
         <div className="mt-8 flex gap-3">
           <Link href="/dashboard/flashcards" className="rounded-[3px] border border-gz-rule bg-white px-5 py-2.5 font-archivo text-[13px] font-semibold text-gz-ink transition-colors hover:border-gz-gold">Estudiar más</Link>
           <Link href="/dashboard" className="rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
@@ -547,15 +555,7 @@ export function FlashcardViewer({
 
   // ─── Main view ─────────────────────────────────────────
 
-  const cardLabel = (() => {
-    const ramaNode = CURRICULUM[currentCard.rama];
-    if (!ramaNode) return currentCard.titulo;
-    for (const sec of ramaNode.secciones) {
-      const found = sec.titulos.find((t) => t.label === currentCard.titulo);
-      if (found) return found.label;
-    }
-    return currentCard.titulo;
-  })();
+  const cardLabel = TITULO_LABELS[currentCard.titulo] ?? currentCard.titulo;
 
   return (
     <div className="space-y-6">
