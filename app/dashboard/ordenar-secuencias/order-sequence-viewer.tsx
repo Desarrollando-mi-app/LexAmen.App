@@ -61,6 +61,8 @@ type OrderSequenceViewerProps = {
   isPremium: boolean;
   initialFilters?: {
     rama?: string;
+    libro?: string;
+    titulo?: string;
   };
 };
 
@@ -248,9 +250,13 @@ export function OrderSequenceViewer({
   const filteredItems = useMemo(() => {
     let cards = [...items];
     if (selectedRama !== "ALL") cards = cards.filter((m) => m.rama === selectedRama);
+    if (initialFilters?.libro)
+      cards = cards.filter((m) => (m.libro ?? m.tituloMateria) === initialFilters.libro || m.libro === initialFilters.libro);
+    if (initialFilters?.titulo)
+      cards = cards.filter((m) => m.tituloMateria === initialFilters.titulo);
     // Shuffle for variety
     return cards.sort(() => Math.random() - 0.5);
-  }, [items, selectedRama]);
+  }, [items, selectedRama, initialFilters]);
 
   const totalCards = filteredItems.length;
   const currentItem = filteredItems[currentIndex];
@@ -428,10 +434,10 @@ export function OrderSequenceViewer({
           acceso ilimitado.
         </p>
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
-          Volver al Dashboard
+          Volver al Indice
         </Link>
       </div>
     );
@@ -479,10 +485,10 @@ export function OrderSequenceViewer({
           </div>
         </div>
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
-          Volver al Dashboard
+          Volver al Indice
         </Link>
       </div>
     );
@@ -498,10 +504,10 @@ export function OrderSequenceViewer({
           No hay ejercicios disponibles para estos filtros.
         </p>
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
-          Volver al Dashboard
+          Volver al Indice
         </Link>
       </div>
     );
@@ -521,10 +527,10 @@ export function OrderSequenceViewer({
     <div>
       <div className="mb-6 flex items-center justify-between">
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="font-archivo text-[13px] font-medium text-gz-ink-mid hover:text-gz-ink transition-colors"
         >
-          Volver
+          Volver al Indice
         </Link>
         <span className="font-ibm-mono text-[12px] text-gz-ink-light">
           Ejercicio {currentIndex + 1} de {totalCards}

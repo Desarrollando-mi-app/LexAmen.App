@@ -4,12 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 
 interface ShareSessionProps {
-  modulo: string;       // "Flashcards", "MCQ", etc.
-  materia?: string;     // "Derecho Civil", etc.
-  titulo?: string;      // "De la Ley", etc.
+  modulo: string;
+  materia?: string;
+  titulo?: string;
   total: number;
   correctas: number;
   xp: number;
+  racha?: number;
+  grado?: number;
 }
 
 export function ShareSession({
@@ -19,8 +21,11 @@ export function ShareSession({
   total,
   correctas,
   xp,
+  racha,
+  grado,
 }: ShareSessionProps) {
   const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const materiaText = materia ? ` de ${materia}` : "";
   const tituloText = titulo ? ` · ${titulo}` : "";
@@ -41,6 +46,31 @@ export function ShareSession({
     });
   }
 
+  async function handleDownloadImage() {
+    setDownloading(true);
+    try {
+      const res = await fetch("/api/share-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ modulo, materia, total, correctas, xp, racha, grado }),
+      });
+      if (!res.ok) throw new Error("Failed to generate image");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `studio-iuris-${modulo.toLowerCase()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // silently fail
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   return (
     <div className="mt-6 border-t border-gz-rule pt-5">
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-3">
@@ -50,12 +80,22 @@ export function ShareSession({
       <div className="flex flex-col gap-2">
         {/* Share to Obiter Dictum */}
         <Link
-          href={`/dashboard/diario/obiter/nuevo?prefill=${obiterPrefill}`}
+          href={`/dashboard/diario?prefill=${obiterPrefill}`}
           className="flex items-center gap-2 rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[13px] font-medium text-gz-ink transition-colors hover:border-gz-gold hover:text-gz-gold"
         >
           <span>📝</span>
           <span>Compartir en Obiter Dictum</span>
         </Link>
+
+        {/* Download image */}
+        <button
+          onClick={handleDownloadImage}
+          disabled={downloading}
+          className="flex items-center gap-2 rounded-[3px] border border-gz-rule px-4 py-2.5 font-archivo text-[13px] font-medium text-gz-ink transition-colors hover:border-gz-gold hover:text-gz-gold disabled:opacity-50"
+        >
+          <span>📷</span>
+          <span>{downloading ? "Generando..." : "Descargar imagen para redes"}</span>
+        </button>
 
         {/* Social share buttons */}
         <div className="flex gap-2">

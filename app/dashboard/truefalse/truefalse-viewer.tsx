@@ -368,7 +368,7 @@ export function TrueFalseViewer({
         </div>
         <h2 className="mt-6 font-cormorant text-[28px] !font-bold text-gz-ink">Limite diario alcanzado</h2>
         <p className="mt-2 font-archivo text-[14px] text-gz-ink-mid">Has completado {dailyLimit} afirmaciones hoy. Actualiza a Premium para acceso ilimitado.</p>
-        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
+        <Link href="/dashboard/indice-maestro" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Indice</Link>
       </div>
     );
   }
@@ -393,7 +393,7 @@ export function TrueFalseViewer({
           correctas={sessionCorrect}
           xp={sessionXP}
         />
-        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
+        <Link href="/dashboard/indice-maestro" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Indice</Link>
       </div>
     );
   }
@@ -403,7 +403,7 @@ export function TrueFalseViewer({
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <FiltersUI />
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">No hay afirmaciones disponibles para estos filtros.</p>
-        <Link href="/dashboard" className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
+        <Link href="/dashboard/indice-maestro" className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Indice</Link>
       </div>
     );
   }
@@ -411,7 +411,7 @@ export function TrueFalseViewer({
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <Link href="/dashboard" className="font-archivo text-[13px] font-medium text-gz-ink-mid hover:text-gz-ink transition-colors">Volver</Link>
+        <Link href="/dashboard/indice-maestro" className="font-archivo text-[13px] font-medium text-gz-ink-mid hover:text-gz-ink transition-colors">Volver al Indice</Link>
         <span className="font-ibm-mono text-[12px] text-gz-ink-light">Afirmacion {currentIndex + 1} de {totalCards}</span>
       </div>
 

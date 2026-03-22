@@ -14,7 +14,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Studio Iuris · La comunidad jurídica donde estudias, compites, publicas y creces",
   description:
-    "Plataforma de aprendizaje jurídico gamificada para estudiantes de derecho, egresados y abogados en Chile. Flashcards, simulacro oral con IA, liga de 33 grados, publicaciones académicas y comunidad profesional.",
+    "Plataforma de aprendizaje jurídico gamificada para estudiantes de derecho, egresados y abogados en Chile. Flashcards, simulacro oral con IA, La Vida del Derecho, publicaciones académicas y comunidad profesional.",
   keywords: [
     "derecho chile",
     "examen de grado",
@@ -49,7 +49,7 @@ const PILARES = [
     icon: "⚔️",
     title: "Competir",
     items: [
-      "33 grados de progresión",
+      "La Vida del Derecho: 33 grados",
       "Liga semanal con ascensos y descensos",
       "Causas 1v1 y grupales",
       "90 insignias desbloqueables",
@@ -101,7 +101,7 @@ const PILARES = [
 const COMPARACION = [
   { feature: "Repetición espaciada", otros: false, si: true },
   { feature: "Simulacro oral con IA", otros: false, si: true },
-  { feature: "Liga competitiva (33 grados)", otros: false, si: true },
+  { feature: "La Vida del Derecho (33 grados)", otros: false, si: true },
   { feature: "Causas 1v1 y grupales", otros: false, si: true },
   { feature: "Publicación académica", otros: false, si: true },
   { feature: "Comunidad integrada", otros: false, si: true },
@@ -482,7 +482,7 @@ export default async function HomePage() {
         </section>
       </ScrollReveal>
 
-      {/* ─── S6: 33 Grados ─────────────────────────────────── */}
+      {/* ─── S6: La Vida del Derecho ──────────────────────────── */}
       <ScrollReveal>
         <section
           className="px-6 py-20"

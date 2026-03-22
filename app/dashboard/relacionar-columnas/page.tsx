@@ -13,6 +13,8 @@ export default async function RelacionarColumnasPage({
 }: {
   searchParams: {
     rama?: string;
+    libro?: string;
+    titulo?: string;
   };
 }) {
   // 1. Autenticar
@@ -96,6 +98,8 @@ export default async function RelacionarColumnasPage({
           isPremium={dbUser.plan !== "FREE" || dbUser.isAdmin}
           initialFilters={{
             rama: searchParams.rama,
+            libro: searchParams.libro,
+            titulo: searchParams.titulo,
           }}
         />
       </div>

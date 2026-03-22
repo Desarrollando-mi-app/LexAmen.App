@@ -19,6 +19,7 @@ type ObiterFeedProps = {
   userId: string | null;
   userFirstName?: string;
   userAvatarUrl?: string | null;
+  prefillText?: string;
 };
 
 type Tab = "recientes" | "destacados" | "colegas" | "guardados";
@@ -36,6 +37,7 @@ export function ObiterFeed({
   userId,
   userFirstName,
   userAvatarUrl,
+  prefillText,
 }: ObiterFeedProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("recientes");
@@ -400,6 +402,7 @@ export function ObiterFeed({
             onPublished={handlePublished}
             citingObiter={citingObiter}
             onCancelCite={() => setCitingObiter(null)}
+            initialText={prefillText}
           />
         </div>
       )}

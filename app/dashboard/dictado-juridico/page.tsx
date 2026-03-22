@@ -9,7 +9,15 @@ const DAILY_LIMIT = 5;
 
 export const metadata = { title: "Dictado Juridico — Studio Iuris" };
 
-export default async function DictadoJuridicoPage() {
+export default async function DictadoJuridicoPage({
+  searchParams,
+}: {
+  searchParams: {
+    rama?: string;
+    libro?: string;
+    titulo?: string;
+  };
+}) {
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -60,10 +68,10 @@ export default async function DictadoJuridicoPage() {
               Escucha textos legales y escr&iacute;belos para mejorar tu precisi&oacute;n y vocabulario jur&iacute;dico.
             </p>
             <Link
-              href="/dashboard"
+              href="/dashboard/indice-maestro"
               className="inline-block rounded-[3px] bg-gz-navy px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
             >
-              Volver al Dashboard
+              Volver al Indice
             </Link>
           </div>
         </div>
@@ -97,6 +105,13 @@ export default async function DictadoJuridicoPage() {
     },
   });
 
+  // Filter by searchParams if provided
+  const { rama, libro, titulo } = searchParams;
+  let filteredItems = [...rawItems];
+  if (rama) filteredItems = filteredItems.filter((i) => i.rama === rama);
+  if (libro) filteredItems = filteredItems.filter((i) => (i.libro ?? i.tituloMateria) === libro || i.libro === libro);
+  if (titulo) filteredItems = filteredItems.filter((i) => (i.tituloMateria) === titulo);
+
   return (
     <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
@@ -121,7 +136,7 @@ export default async function DictadoJuridicoPage() {
         </div>
 
         <DictadoViewer
-          items={rawItems}
+          items={filteredItems}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_LIMIT}
         />

@@ -13,6 +13,8 @@ export default async function LineaDeTiempoPage({
 }: {
   searchParams: {
     rama?: string;
+    libro?: string;
+    titulo?: string;
   };
 }) {
   const supabase = await createClient();
@@ -101,6 +103,8 @@ export default async function LineaDeTiempoPage({
           isPremium={dbUser.plan !== "FREE" || dbUser.isAdmin}
           initialFilters={{
             rama: searchParams.rama,
+            libro: searchParams.libro,
+            titulo: searchParams.titulo,
           }}
         />
       </div>

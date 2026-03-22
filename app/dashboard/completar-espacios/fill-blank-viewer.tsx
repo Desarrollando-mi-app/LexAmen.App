@@ -486,10 +486,10 @@ export function FillBlankViewer({
           acceso ilimitado.
         </p>
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
-          Volver al Dashboard
+          Volver al Indice
         </Link>
       </div>
     );
@@ -537,10 +537,10 @@ export function FillBlankViewer({
           </div>
         </div>
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
-          Volver al Dashboard
+          Volver al Indice
         </Link>
       </div>
     );
@@ -556,10 +556,10 @@ export function FillBlankViewer({
           No hay ejercicios disponibles para estos filtros.
         </p>
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
-          Volver al Dashboard
+          Volver al Indice
         </Link>
       </div>
     );
@@ -573,10 +573,10 @@ export function FillBlankViewer({
     <div>
       <div className="mb-6 flex items-center justify-between">
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="font-archivo text-[13px] font-medium text-gz-ink-mid hover:text-gz-ink transition-colors"
         >
-          Volver
+          Volver al Indice
         </Link>
         <span className="font-ibm-mono text-[12px] text-gz-ink-light">
           Ejercicio {currentIndex + 1} de {totalCards}

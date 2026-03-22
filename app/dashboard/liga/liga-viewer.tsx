@@ -94,7 +94,7 @@ function getInitials(first: string, last: string): string {
   return `${first?.[0] ?? ""}${last?.[0] ?? ""}`.toUpperCase();
 }
 
-/* ─── Barra visual de 33 grados ─── */
+/* ─── Barra visual de La Vida del Derecho ─── */
 
 function GradoBar({ grados, niveles, userGrado, userXp }: {
   grados: GradoData[];
@@ -231,7 +231,7 @@ export function LigaViewer({
             Liga Semanal
           </p>
           <h1 className="font-cormorant text-4xl lg:text-5xl font-bold italic text-gz-ink leading-tight mt-1">
-            Los 33 Grados
+            La Vida del Derecho
           </h1>
 
           {/* Rule */}
@@ -636,7 +636,7 @@ export function LigaViewer({
           <div className="border-t-2 border-gz-rule" />
           <div className="border-t border-gz-rule mt-[3px]" />
           <p className="text-center mt-3 font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light">
-            Tu Causa · Los 33 Grados · {new Date().getFullYear()}
+            Tu Causa · La Vida del Derecho · {new Date().getFullYear()}
           </p>
         </div>
       </div>

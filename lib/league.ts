@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// LIGA — 5 Niveles, 33 Grados
+// LIGA — La Vida del Derecho — 5 Niveles, 33 Grados
 // Studio Iuris · Progresión híbrida XP + liga semanal
 // ═══════════════════════════════════════════════════════════════
 
@@ -89,46 +89,46 @@ export interface GradoLiga {
 export const GRADOS: GradoLiga[] = [
   // ═══ NIVEL I: LA ESCUELA (Grados 1-3) ═══
   { grado: 1,  nombre: "Oyente",                  nivel: "ESCUELA",       emoji: "👂",  xpMinimo: 0,       color: "#8a8073" },
-  { grado: 2,  nombre: "Alumno Regular",           nivel: "ESCUELA",       emoji: "📖",  xpMinimo: 50,      color: "#8a8073" },
-  { grado: 3,  nombre: "Egresado",                 nivel: "ESCUELA",       emoji: "🎓",  xpMinimo: 150,     color: "#8a8073" },
+  { grado: 2,  nombre: "Alumno Regular",           nivel: "ESCUELA",       emoji: "📖",  xpMinimo: 600,     color: "#8a8073" },
+  { grado: 3,  nombre: "Egresado",                 nivel: "ESCUELA",       emoji: "🎓",  xpMinimo: 1500,    color: "#8a8073" },
 
   // ═══ NIVEL II: LA PRÁCTICA (Grados 4-14) ═══
-  { grado: 4,  nombre: "Postulante",               nivel: "PRACTICA",      emoji: "📋",  xpMinimo: 300,     color: "#9a7230" },
-  { grado: 5,  nombre: "Practicante",              nivel: "PRACTICA",      emoji: "⚙",   xpMinimo: 500,     color: "#9a7230" },
-  { grado: 6,  nombre: "Procurador",               nivel: "PRACTICA",      emoji: "📜",  xpMinimo: 750,     color: "#9a7230" },
-  { grado: 7,  nombre: "Receptor",                 nivel: "PRACTICA",      emoji: "📨",  xpMinimo: 1000,    color: "#9a7230" },
-  { grado: 8,  nombre: "Oficial de Sala",          nivel: "PRACTICA",      emoji: "🏛",  xpMinimo: 1500,    color: "#9a7230" },
-  { grado: 9,  nombre: "Defensor Público",         nivel: "PRACTICA",      emoji: "🛡",  xpMinimo: 2000,    color: "#9a7230" },
-  { grado: 10, nombre: "Abogado Habilitado",       nivel: "PRACTICA",      emoji: "⚖",   xpMinimo: 2750,    color: "#9a7230" },
-  { grado: 11, nombre: "Abogado Patrocinante",     nivel: "PRACTICA",      emoji: "👔",  xpMinimo: 3500,    color: "#9a7230" },
-  { grado: 12, nombre: "Relator",                  nivel: "PRACTICA",      emoji: "🗣",  xpMinimo: 4500,    color: "#9a7230" },
-  { grado: 13, nombre: "Árbitro",                  nivel: "PRACTICA",      emoji: "⚔",   xpMinimo: 5500,    color: "#9a7230" },
-  { grado: 14, nombre: "Maestro del Foro",         nivel: "PRACTICA",      emoji: "🏆",  xpMinimo: 7000,    color: "#9a7230" },
+  { grado: 4,  nombre: "Postulante",               nivel: "PRACTICA",      emoji: "📋",  xpMinimo: 3000,    color: "#9a7230" },
+  { grado: 5,  nombre: "Practicante",              nivel: "PRACTICA",      emoji: "⚙",   xpMinimo: 5000,    color: "#9a7230" },
+  { grado: 6,  nombre: "Procurador",               nivel: "PRACTICA",      emoji: "📜",  xpMinimo: 8000,    color: "#9a7230" },
+  { grado: 7,  nombre: "Receptor",                 nivel: "PRACTICA",      emoji: "📨",  xpMinimo: 11500,   color: "#9a7230" },
+  { grado: 8,  nombre: "Oficial de Sala",          nivel: "PRACTICA",      emoji: "🏛",  xpMinimo: 15500,   color: "#9a7230" },
+  { grado: 9,  nombre: "Defensor Público",         nivel: "PRACTICA",      emoji: "🛡",  xpMinimo: 20000,   color: "#9a7230" },
+  { grado: 10, nombre: "Abogado Habilitado",       nivel: "PRACTICA",      emoji: "⚖",   xpMinimo: 25000,   color: "#9a7230" },
+  { grado: 11, nombre: "Abogado Patrocinante",     nivel: "PRACTICA",      emoji: "👔",  xpMinimo: 30500,   color: "#9a7230" },
+  { grado: 12, nombre: "Relator",                  nivel: "PRACTICA",      emoji: "🗣",  xpMinimo: 36500,   color: "#9a7230" },
+  { grado: 13, nombre: "Árbitro",                  nivel: "PRACTICA",      emoji: "⚔",   xpMinimo: 43000,   color: "#9a7230" },
+  { grado: 14, nombre: "Maestro del Foro",         nivel: "PRACTICA",      emoji: "🏆",  xpMinimo: 50000,   color: "#9a7230" },
 
   // ═══ NIVEL III: EL ESTRADO (Grados 15-18) ═══
-  { grado: 15, nombre: "Juez Suplente",            nivel: "ESTRADO",       emoji: "👨‍⚖️", xpMinimo: 9000,    color: "#1e4080" },
-  { grado: 16, nombre: "Juez de Letras",           nivel: "ESTRADO",       emoji: "📝",  xpMinimo: 11000,   color: "#1e4080" },
-  { grado: 17, nombre: "Juez de Garantía",         nivel: "ESTRADO",       emoji: "🔒",  xpMinimo: 14000,   color: "#1e4080" },
-  { grado: 18, nombre: "Juez de Tribunal Oral",    nivel: "ESTRADO",       emoji: "🎤",  xpMinimo: 17000,   color: "#1e4080" },
+  { grado: 15, nombre: "Juez Suplente",            nivel: "ESTRADO",       emoji: "👨‍⚖️", xpMinimo: 58000,   color: "#1e4080" },
+  { grado: 16, nombre: "Juez de Letras",           nivel: "ESTRADO",       emoji: "📝",  xpMinimo: 66500,   color: "#1e4080" },
+  { grado: 17, nombre: "Juez de Garantía",         nivel: "ESTRADO",       emoji: "🔒",  xpMinimo: 75500,   color: "#1e4080" },
+  { grado: 18, nombre: "Juez de Tribunal Oral",    nivel: "ESTRADO",       emoji: "🎤",  xpMinimo: 85000,   color: "#1e4080" },
 
   // ═══ NIVEL IV: LA MAGISTRATURA (Grados 19-30) ═══
-  { grado: 19, nombre: "Secretario de Corte",      nivel: "MAGISTRATURA",  emoji: "📑",  xpMinimo: 20000,   color: "#6b1d2a" },
-  { grado: 20, nombre: "Fiscal Adjunto",           nivel: "MAGISTRATURA",  emoji: "🔍",  xpMinimo: 24000,   color: "#6b1d2a" },
-  { grado: 21, nombre: "Fiscal Regional",          nivel: "MAGISTRATURA",  emoji: "🏴",  xpMinimo: 28000,   color: "#6b1d2a" },
-  { grado: 22, nombre: "Ministro Suplente",        nivel: "MAGISTRATURA",  emoji: "⭐",  xpMinimo: 33000,   color: "#6b1d2a" },
-  { grado: 23, nombre: "Ministro de Corte",        nivel: "MAGISTRATURA",  emoji: "🌟",  xpMinimo: 38000,   color: "#6b1d2a" },
-  { grado: 24, nombre: "Presidente de Sala",       nivel: "MAGISTRATURA",  emoji: "💫",  xpMinimo: 44000,   color: "#6b1d2a" },
-  { grado: 25, nombre: "Presidente de Corte",      nivel: "MAGISTRATURA",  emoji: "👑",  xpMinimo: 50000,   color: "#6b1d2a" },
-  { grado: 26, nombre: "Fiscal Nacional",          nivel: "MAGISTRATURA",  emoji: "🦅",  xpMinimo: 57000,   color: "#6b1d2a" },
-  { grado: 27, nombre: "Ministro de Corte Suprema",nivel: "MAGISTRATURA",  emoji: "🏛",  xpMinimo: 65000,   color: "#6b1d2a" },
-  { grado: 28, nombre: "Presidente de Sala CS",    nivel: "MAGISTRATURA",  emoji: "💎",  xpMinimo: 75000,   color: "#6b1d2a" },
-  { grado: 29, nombre: "Fiscal Judicial",          nivel: "MAGISTRATURA",  emoji: "⚡",  xpMinimo: 85000,   color: "#6b1d2a" },
-  { grado: 30, nombre: "Decano de la Corte Suprema",nivel: "MAGISTRATURA", emoji: "🌿",  xpMinimo: 100000,  color: "#6b1d2a" },
+  { grado: 19, nombre: "Secretario de Corte",      nivel: "MAGISTRATURA",  emoji: "📑",  xpMinimo: 95000,   color: "#6b1d2a" },
+  { grado: 20, nombre: "Fiscal Adjunto",           nivel: "MAGISTRATURA",  emoji: "🔍",  xpMinimo: 105500,  color: "#6b1d2a" },
+  { grado: 21, nombre: "Fiscal Regional",          nivel: "MAGISTRATURA",  emoji: "🏴",  xpMinimo: 116500,  color: "#6b1d2a" },
+  { grado: 22, nombre: "Ministro Suplente",        nivel: "MAGISTRATURA",  emoji: "⭐",  xpMinimo: 118000,  color: "#6b1d2a" },
+  { grado: 23, nombre: "Ministro de Corte",        nivel: "MAGISTRATURA",  emoji: "🌟",  xpMinimo: 121000,  color: "#6b1d2a" },
+  { grado: 24, nombre: "Presidente de Sala",       nivel: "MAGISTRATURA",  emoji: "💫",  xpMinimo: 125000,  color: "#6b1d2a" },
+  { grado: 25, nombre: "Presidente de Corte",      nivel: "MAGISTRATURA",  emoji: "👑",  xpMinimo: 130000,  color: "#6b1d2a" },
+  { grado: 26, nombre: "Fiscal Nacional",          nivel: "MAGISTRATURA",  emoji: "🦅",  xpMinimo: 136000,  color: "#6b1d2a" },
+  { grado: 27, nombre: "Ministro de Corte Suprema",nivel: "MAGISTRATURA",  emoji: "🏛",  xpMinimo: 142500,  color: "#6b1d2a" },
+  { grado: 28, nombre: "Presidente de Sala CS",    nivel: "MAGISTRATURA",  emoji: "💎",  xpMinimo: 149500,  color: "#6b1d2a" },
+  { grado: 29, nombre: "Fiscal Judicial",          nivel: "MAGISTRATURA",  emoji: "⚡",  xpMinimo: 152000,  color: "#6b1d2a" },
+  { grado: 30, nombre: "Decano de la Corte Suprema",nivel: "MAGISTRATURA", emoji: "🌿",  xpMinimo: 155000,  color: "#6b1d2a" },
 
   // ═══ NIVEL V: EL CONSEJO (Grados 31-33) ═══
-  { grado: 31, nombre: "Presidente de la Corte Suprema", nivel: "CONSEJO", emoji: "🏆",  xpMinimo: 120000,  color: "#12203a" },
-  { grado: 32, nombre: "Contralor General",              nivel: "CONSEJO", emoji: "🗡",   xpMinimo: 150000,  color: "#12203a" },
-  { grado: 33, nombre: "Jurisconsulto de la República",  nivel: "CONSEJO", emoji: "⚜",   xpMinimo: 200000,  color: "#12203a" },
+  { grado: 31, nombre: "Presidente de la Corte Suprema", nivel: "CONSEJO", emoji: "🏆",  xpMinimo: 158000,  color: "#12203a" },
+  { grado: 32, nombre: "Contralor General",              nivel: "CONSEJO", emoji: "🗡",   xpMinimo: 160000,  color: "#12203a" },
+  { grado: 33, nombre: "Jurisconsulto de la República",  nivel: "CONSEJO", emoji: "⚜",   xpMinimo: 165000,  color: "#12203a" },
 ];
 
 // ─── Niveles con metadata ────────────────────────────────────

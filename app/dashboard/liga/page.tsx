@@ -152,7 +152,7 @@ export default async function LigaPage() {
       siguienteGradoNombre={siguienteGrado?.nombre ?? null}
       siguienteGradoNum={siguienteGrado?.grado ?? null}
       progresoGrado={progresoGrado}
-      // All 33 grados for the visual bar
+      // All grados for the visual bar (La Vida del Derecho)
       grados={GRADOS.map(g => ({
         grado: g.grado,
         nombre: g.nombre,

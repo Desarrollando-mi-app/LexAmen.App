@@ -13,6 +13,8 @@ export default async function OrdenarSecuenciasPage({
 }: {
   searchParams: {
     rama?: string;
+    libro?: string;
+    titulo?: string;
   };
 }) {
   const supabase = await createClient();
@@ -93,6 +95,8 @@ export default async function OrdenarSecuenciasPage({
           isPremium={dbUser.plan !== "FREE" || dbUser.isAdmin}
           initialFilters={{
             rama: searchParams.rama,
+            libro: searchParams.libro,
+            titulo: searchParams.titulo,
           }}
         />
       </div>

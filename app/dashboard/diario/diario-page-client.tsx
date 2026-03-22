@@ -17,6 +17,7 @@ type DiarioPageClientProps = {
   userAvatarUrl?: string | null;
   // Existing DiarioFeed props
   diarioFeedElement: React.ReactNode;
+  prefillText?: string;
 };
 
 type MainTab = "feed" | "analisis" | "ensayos" | "expediente" | "debates" | "mis";
@@ -1193,6 +1194,7 @@ export function DiarioPageClient({
   userAvatarUrl,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   diarioFeedElement,
+  prefillText,
 }: DiarioPageClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -1284,6 +1286,7 @@ export function DiarioPageClient({
               userId={userId}
               userFirstName={userFirstName}
               userAvatarUrl={userAvatarUrl}
+              prefillText={prefillText}
             />
           </div>
 

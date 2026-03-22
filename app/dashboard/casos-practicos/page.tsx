@@ -5,7 +5,15 @@ import { CasoPracticoViewer } from "./caso-practico-viewer";
 
 const DAILY_FREE_LIMIT = 3;
 
-export default async function CasosPracticosPage() {
+export default async function CasosPracticosPage({
+  searchParams,
+}: {
+  searchParams: {
+    rama?: string;
+    libro?: string;
+    titulo?: string;
+  };
+}) {
   // 1. Auth
   const supabase = await createClient();
   const {
@@ -43,7 +51,7 @@ export default async function CasosPracticosPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const casos = rawCasos.map((c) => ({
+  let casos = rawCasos.map((c) => ({
     id: c.id,
     titulo: c.titulo,
     hechos: c.hechos,
@@ -61,6 +69,12 @@ export default async function CasosPracticosPage() {
       }
     })(),
   }));
+
+  // Filter by searchParams if provided
+  const { rama, libro, titulo } = searchParams;
+  if (rama) casos = casos.filter((c) => c.rama === rama);
+  if (libro) casos = casos.filter((c) => (c.libro ?? c.tituloMateria) === libro || c.libro === libro);
+  if (titulo) casos = casos.filter((c) => (c.tituloMateria) === titulo);
 
   return (
     <main

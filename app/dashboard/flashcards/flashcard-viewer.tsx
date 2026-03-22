@@ -492,7 +492,7 @@ export function FlashcardViewer({
         </div>
         <h2 className="mt-6 font-cormorant text-[28px] !font-bold text-gz-ink">Limite diario alcanzado</h2>
         <p className="mt-2 max-w-sm font-archivo text-[14px] text-gz-ink-mid">Has completado {dailyLimit} revisiones hoy. Actualiza a Premium para revisiones ilimitadas.</p>
-        <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
+        <Link href="/dashboard/indice-maestro" className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Indice</Link>
       </div>
     );
   }
@@ -528,7 +528,7 @@ export function FlashcardViewer({
         />
         <div className="mt-8 flex gap-3">
           <Link href="/dashboard/flashcards" className="rounded-[3px] border border-gz-rule bg-white px-5 py-2.5 font-archivo text-[13px] font-semibold text-gz-ink transition-colors hover:border-gz-gold">Estudiar más</Link>
-          <Link href="/dashboard" className="rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Dashboard</Link>
+          <Link href="/dashboard/indice-maestro" className="rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Indice</Link>
         </div>
       </div>
     );
@@ -538,7 +538,7 @@ export function FlashcardViewer({
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="inline-flex items-center gap-1.5 font-archivo text-[13px] font-medium text-gz-ink-mid transition-colors hover:text-gz-ink">
+          <Link href="/dashboard/indice-maestro" className="inline-flex items-center gap-1.5 font-archivo text-[13px] font-medium text-gz-ink-mid transition-colors hover:text-gz-ink">
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
             Volver
           </Link>
@@ -560,7 +560,7 @@ export function FlashcardViewer({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Link href="/dashboard" className="inline-flex items-center gap-1.5 font-archivo text-[13px] font-medium text-gz-ink-mid transition-colors hover:text-gz-ink">
+        <Link href="/dashboard/indice-maestro" className="inline-flex items-center gap-1.5 font-archivo text-[13px] font-medium text-gz-ink-mid transition-colors hover:text-gz-ink">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
           Volver
         </Link>

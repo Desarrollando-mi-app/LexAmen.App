@@ -297,10 +297,10 @@ export function DictadoViewer({
         )}
         <br />
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="mt-4 inline-block rounded-[3px] bg-gz-navy px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
         >
-          Volver al Dashboard
+          Volver al Indice
         </Link>
       </div>
     );
@@ -535,10 +535,10 @@ export function DictadoViewer({
                     </button>
                   ) : (
                     <Link
-                      href="/dashboard"
+                      href="/dashboard/indice-maestro"
                       className="rounded-[3px] bg-gz-navy px-5 py-2 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
                     >
-                      Volver al Dashboard
+                      Volver al Indice
                     </Link>
                   )}
 

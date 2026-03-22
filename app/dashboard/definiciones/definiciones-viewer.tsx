@@ -245,10 +245,10 @@ export function DefinicionesViewer({
             Cambiar selecci&oacute;n
           </button>
           <Link
-            href="/dashboard"
+            href="/dashboard/indice-maestro"
             className="rounded-sm border border-gz-rule px-5 py-2 font-archivo text-sm text-gz-ink-mid hover:bg-gz-cream-dark transition-colors"
           >
-            Volver al Escritorio
+            Volver al Indice
           </Link>
         </div>
       </div>
@@ -269,10 +269,10 @@ export function DefinicionesViewer({
         </p>
         <div className="mt-6 flex gap-3">
           <Link
-            href="/dashboard"
+            href="/dashboard/indice-maestro"
             className="rounded-sm border border-gz-rule px-5 py-2 font-archivo text-sm text-gz-ink-mid hover:bg-gz-cream-dark transition-colors"
           >
-            Volver
+            Volver al Indice
           </Link>
           <Link
             href="/dashboard/perfil"
@@ -297,10 +297,10 @@ export function DefinicionesViewer({
           Correctas: {score.correct} &middot; Incorrectas: {score.incorrect}
         </p>
         <Link
-          href="/dashboard"
+          href="/dashboard/indice-maestro"
           className="mt-6 inline-block rounded-sm border border-gz-rule px-5 py-2 font-archivo text-sm text-gz-ink-mid hover:bg-gz-cream-dark transition-colors"
         >
-          Volver al Escritorio
+          Volver al Indice
         </Link>
       </div>
     );
@@ -457,10 +457,10 @@ export function DefinicionesViewer({
             </button>
           ) : (
             <Link
-              href="/dashboard"
+              href="/dashboard/indice-maestro"
               className="font-archivo text-sm text-gz-ink-mid hover:text-gz-ink transition-colors"
             >
-              Volver al Escritorio
+              Volver al Indice
             </Link>
           )}
         </div>

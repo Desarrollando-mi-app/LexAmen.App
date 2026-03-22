@@ -29,6 +29,7 @@ type ObiterEditorProps = {
   threadId?: string;
   threadOrder?: number;
   onCancelCite?: () => void;
+  initialText?: string;
 };
 
 type EditorState = "collapsed" | "expanded" | "sending" | "published";
@@ -46,9 +47,10 @@ export function ObiterEditor(props: ObiterEditorProps) {
     threadId,
     threadOrder,
     onCancelCite,
+    initialText,
   } = props;
-  const [state, setState] = useState<EditorState>("collapsed");
-  const [content, setContent] = useState("");
+  const [state, setState] = useState<EditorState>(initialText ? "expanded" : "collapsed");
+  const [content, setContent] = useState(initialText ?? "");
   const [materia, setMateria] = useState("");
   const [tipo, setTipo] = useState("");
   const [showDetails, setShowDetails] = useState(false);

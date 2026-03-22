@@ -374,7 +374,7 @@ export function ResumenClient() {
         {/* Liga */}
         <div className="rounded-xl border border-border bg-white p-6">
           <h2 className="mb-4 text-lg font-semibold text-navy font-display italic">
-            Liga 33 Grados
+            La Vida del Derecho
           </h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">

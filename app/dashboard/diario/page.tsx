@@ -9,13 +9,19 @@ export const metadata = {
   title: "El Diario — Studio Iuris",
 };
 
-export default async function DiarioPage() {
+export default async function DiarioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ prefill?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser();
 
   if (!authUser) redirect("/login");
+
+  const { prefill } = await searchParams;
 
   // Fetch user info for the Obiter editor
   const user = await prisma.user.findUnique({
@@ -45,6 +51,7 @@ export default async function DiarioPage() {
             userFirstName={user?.firstName ?? ""}
             userAvatarUrl={user?.avatarUrl ?? null}
             diarioFeedElement={null}
+            prefillText={prefill ?? undefined}
           />
         </Suspense>
       </div>
