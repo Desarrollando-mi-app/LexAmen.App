@@ -501,6 +501,7 @@ function TabPerfil({
           <option value="">Sin especificar</option>
           <option value="estudiante">Estudiante</option>
           <option value="egresado">Egresado/a</option>
+          <option value="titulado">Titulado/a (Licenciado/a)</option>
           <option value="abogado">Abogado/a</option>
         </select>
       </div>
@@ -520,7 +521,7 @@ function TabPerfil({
       )}
 
       {/* Año de egreso */}
-      {(etapa === "egresado" || etapa === "abogado") && (
+      {(etapa === "egresado" || etapa === "titulado" || etapa === "abogado") && (
         <div>
           <label className={LABEL}>A&ntilde;o de egreso</label>
           <input
@@ -533,10 +534,10 @@ function TabPerfil({
         </div>
       )}
 
-      {/* Año de jura */}
-      {etapa === "abogado" && (
+      {/* Año de titulación / jura */}
+      {(etapa === "titulado" || etapa === "abogado") && (
         <div>
-          <label className={LABEL}>A&ntilde;o de jura</label>
+          <label className={LABEL}>{etapa === "titulado" ? "Año de titulación" : "Año de jura"}</label>
           <input
             type="number"
             value={anoJura ?? ""}

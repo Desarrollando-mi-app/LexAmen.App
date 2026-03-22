@@ -28,6 +28,7 @@ type Step = 1 | 2 | 3 | 4 | 5; // 5 = completed screen
 const ETAPAS = [
   { value: "estudiante", emoji: "📖", label: "Estudiante", desc: "Cursando la carrera" },
   { value: "egresado", emoji: "🎓", label: "Egresado", desc: "Preparando el grado" },
+  { value: "titulado", emoji: "📜", label: "Titulado", desc: "Licenciado, aún no jura" },
   { value: "abogado", emoji: "⚖", label: "Abogado", desc: "Ya jurado, en ejercicio" },
 ];
 
@@ -219,7 +220,7 @@ export function OnboardingWizard({
   // ─── Render ────────────────────────────────────────────
 
   const containerClass =
-    "min-h-screen gz-page flex items-center justify-center px-4 py-12";
+    "min-h-screen flex items-center justify-center px-4 py-12";
   const cardClass =
     "w-full max-w-lg rounded-[4px] border border-gz-rule bg-white p-8 sm:p-10 shadow-sm";
 
@@ -242,12 +243,13 @@ export function OnboardingWizard({
             ¿En qué etapa estás?
           </p>
 
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
             {ETAPAS.map((e) => (
               <button
                 key={e.value}
+                type="button"
                 onClick={() => setEtapa(e.value)}
-                className={`rounded-[4px] border p-4 text-center transition-all ${
+                className={`relative z-10 rounded-[4px] border p-4 text-center transition-all cursor-pointer ${
                   etapa === e.value
                     ? "border-2 border-gz-gold bg-gz-gold/[0.05]"
                     : "border-gz-rule hover:border-gz-gold/40"
@@ -335,7 +337,7 @@ export function OnboardingWizard({
               </select>
             </div>
 
-            {(etapa === "egresado" || etapa === "abogado") && (
+            {(etapa === "egresado" || etapa === "titulado" || etapa === "abogado") && (
               <div>
                 <label className="font-archivo text-[12px] font-medium text-gz-ink-mid">
                   Año de egreso
@@ -353,10 +355,10 @@ export function OnboardingWizard({
               </div>
             )}
 
-            {etapa === "abogado" && (
+            {(etapa === "titulado" || etapa === "abogado") && (
               <div>
                 <label className="font-archivo text-[12px] font-medium text-gz-ink-mid">
-                  Año de jura
+                  Año de titulación
                 </label>
                 <select
                   value={anioJura}
