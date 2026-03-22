@@ -25,6 +25,15 @@ export default async function IndiceMaestroPage() {
     mcqCorrectByTitulo,
     tfByTitulo,
     tfCorrectByTitulo,
+    // Additional module counts
+    defByTitulo,
+    fillBlankByTitulo,
+    errorIdByTitulo,
+    orderSeqByTitulo,
+    matchColByTitulo,
+    casoByTitulo,
+    dictadoByTitulo,
+    timelineByTitulo,
   ] = await Promise.all([
     // Total flashcards grouped by rama/libro/titulo
     prisma.flashcard.groupBy({
@@ -32,9 +41,9 @@ export default async function IndiceMaestroPage() {
       _count: { id: true },
     }),
 
-    // Dominated flashcards (repetitions >= 3) for this user
+    // Reviewed flashcards (repetitions >= 1 = user has seen and rated it at least once)
     prisma.userFlashcardProgress.findMany({
-      where: { userId: authUser.id, repetitions: { gte: 3 } },
+      where: { userId: authUser.id, repetitions: { gte: 1 } },
       select: {
         flashcard: { select: { rama: true, libro: true, titulo: true } },
       },
@@ -69,6 +78,61 @@ export default async function IndiceMaestroPage() {
       },
       distinct: ["trueFalseId"],
     }),
+
+    // Definiciones by titulo
+    prisma.definicion.groupBy({
+      by: ["rama", "libro", "titulo"],
+      _count: { id: true },
+    }),
+
+    // FillBlank by titulo
+    prisma.fillBlank.groupBy({
+      by: ["rama", "libro", "titulo"],
+      where: { activo: true },
+      _count: { id: true },
+    }),
+
+    // ErrorIdentification by titulo
+    prisma.errorIdentification.groupBy({
+      by: ["rama", "libro", "titulo"],
+      where: { activo: true },
+      _count: { id: true },
+    }),
+
+    // OrderSequence by tituloMateria
+    prisma.orderSequence.groupBy({
+      by: ["rama", "libro", "tituloMateria"],
+      where: { activo: true },
+      _count: { id: true },
+    }),
+
+    // MatchColumns by tituloMateria
+    prisma.matchColumns.groupBy({
+      by: ["rama", "libro", "tituloMateria"],
+      where: { activo: true },
+      _count: { id: true },
+    }),
+
+    // CasoPractico by tituloMateria
+    prisma.casoPractico.groupBy({
+      by: ["rama", "libro", "tituloMateria"],
+      where: { activo: true },
+      _count: { id: true },
+    }),
+
+    // Dictado by tituloMateria
+    prisma.dictadoJuridico.groupBy({
+      by: ["rama", "libro", "tituloMateria"],
+      where: { activo: true },
+      _count: { id: true },
+    }),
+
+    // Timeline by tituloMateria
+    prisma.timeline.groupBy({
+      by: ["rama", "libro", "tituloMateria"],
+      where: { activo: true },
+      _count: { id: true },
+    }),
   ]);
 
   // ── Build progress data keyed by "RAMA|LIBRO|TITULO" ───────────
@@ -79,14 +143,26 @@ export default async function IndiceMaestroPage() {
     mcqOk: number;
     tfTotal: number;
     tfOk: number;
+    defTotal: number;
+    fillTotal: number;
+    errorTotal: number;
+    orderTotal: number;
+    matchTotal: number;
+    casoTotal: number;
+    dictadoTotal: number;
+    timelineTotal: number;
   };
+
+  const emptyStats = (): TituloStats => ({
+    fcTotal: 0, fcDom: 0, mcqTotal: 0, mcqOk: 0, tfTotal: 0, tfOk: 0,
+    defTotal: 0, fillTotal: 0, errorTotal: 0, orderTotal: 0,
+    matchTotal: 0, casoTotal: 0, dictadoTotal: 0, timelineTotal: 0,
+  });
 
   const statsMap: Record<string, TituloStats> = {};
 
   const ensureKey = (k: string) => {
-    if (!statsMap[k]) {
-      statsMap[k] = { fcTotal: 0, fcDom: 0, mcqTotal: 0, mcqOk: 0, tfTotal: 0, tfOk: 0 };
-    }
+    if (!statsMap[k]) statsMap[k] = emptyStats();
   };
 
   for (const g of flashcardsByTitulo) {
@@ -128,6 +204,56 @@ export default async function IndiceMaestroPage() {
     statsMap[k].tfOk += 1;
   }
 
+  // Additional modules
+  for (const g of defByTitulo) {
+    if (!g.titulo) continue;
+    const k = progressKey(g.rama, g.libro ?? "", g.titulo);
+    ensureKey(k);
+    statsMap[k].defTotal = g._count.id;
+  }
+  for (const g of fillBlankByTitulo) {
+    if (!g.titulo) continue;
+    const k = progressKey(g.rama, g.libro ?? "", g.titulo);
+    ensureKey(k);
+    statsMap[k].fillTotal = g._count.id;
+  }
+  for (const g of errorIdByTitulo) {
+    if (!g.titulo) continue;
+    const k = progressKey(g.rama, g.libro ?? "", g.titulo);
+    ensureKey(k);
+    statsMap[k].errorTotal = g._count.id;
+  }
+  for (const g of orderSeqByTitulo) {
+    if (!g.tituloMateria) continue;
+    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
+    ensureKey(k);
+    statsMap[k].orderTotal = g._count.id;
+  }
+  for (const g of matchColByTitulo) {
+    if (!g.tituloMateria) continue;
+    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
+    ensureKey(k);
+    statsMap[k].matchTotal = g._count.id;
+  }
+  for (const g of casoByTitulo) {
+    if (!g.tituloMateria) continue;
+    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
+    ensureKey(k);
+    statsMap[k].casoTotal = g._count.id;
+  }
+  for (const g of dictadoByTitulo) {
+    if (!g.tituloMateria) continue;
+    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
+    ensureKey(k);
+    statsMap[k].dictadoTotal = g._count.id;
+  }
+  for (const g of timelineByTitulo) {
+    if (!g.tituloMateria) continue;
+    const k = progressKey(g.rama, g.libro ?? "", g.tituloMateria);
+    ensureKey(k);
+    statsMap[k].timelineTotal = g._count.id;
+  }
+
   // ── Build serialisable curriculum with progress ─────────────────
   const materias = Object.entries(CURRICULUM).map(([ramaKey, rama]) => {
     let ramaFcTotal = 0, ramaFcDom = 0;
@@ -141,7 +267,7 @@ export default async function IndiceMaestroPage() {
 
       const titulos = sec.titulos.map((t) => {
         const k = progressKey(ramaKey, sec.libro, t.id);
-        const s = statsMap[k] || { fcTotal: 0, fcDom: 0, mcqTotal: 0, mcqOk: 0, tfTotal: 0, tfOk: 0 };
+        const s = statsMap[k] || emptyStats();
 
         libroFcTotal += s.fcTotal;
         libroFcDom += s.fcDom;
@@ -169,6 +295,14 @@ export default async function IndiceMaestroPage() {
           mcqOk: s.mcqOk,
           tfTotal: s.tfTotal,
           tfOk: s.tfOk,
+          defTotal: s.defTotal,
+          fillTotal: s.fillTotal,
+          errorTotal: s.errorTotal,
+          orderTotal: s.orderTotal,
+          matchTotal: s.matchTotal,
+          casoTotal: s.casoTotal,
+          dictadoTotal: s.dictadoTotal,
+          timelineTotal: s.timelineTotal,
           percent: total > 0 ? Math.round((done / total) * 100) : 0,
         };
       });

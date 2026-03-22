@@ -24,6 +24,14 @@ interface TituloData {
   mcqOk: number;
   tfTotal: number;
   tfOk: number;
+  defTotal: number;
+  fillTotal: number;
+  errorTotal: number;
+  orderTotal: number;
+  matchTotal: number;
+  casoTotal: number;
+  dictadoTotal: number;
+  timelineTotal: number;
   percent: number;
 }
 
@@ -123,41 +131,30 @@ function StudyButtons({
   rama,
   libro,
   titulo,
-  fcTotal,
-  mcqTotal,
-  tfTotal,
+  stats,
 }: {
   rama: string;
   libro: string;
   titulo: string;
-  fcTotal: number;
-  mcqTotal: number;
-  tfTotal: number;
+  stats: TituloData;
 }) {
-  const encodedTitulo = encodeURIComponent(titulo);
+  const enc = encodeURIComponent(titulo);
+  const qs = `rama=${rama}&libro=${libro}&titulo=${enc}`;
 
-  const buttons = [
-    {
-      label: "Flashcards",
-      count: fcTotal,
-      href: `/dashboard/flashcards?rama=${rama}&libro=${libro}&titulo=${encodedTitulo}`,
-    },
-    {
-      label: "MCQ",
-      count: mcqTotal,
-      href: `/dashboard/mcq?rama=${rama}&libro=${libro}&titulo=${encodedTitulo}`,
-    },
-    {
-      label: "V/F",
-      count: tfTotal,
-      href: `/dashboard/truefalse?rama=${rama}&libro=${libro}&titulo=${encodedTitulo}`,
-    },
-    {
-      label: "Simulacro",
-      count: null,
-      href: `/dashboard/simulacro`,
-    },
-  ];
+  // Build buttons only for modules with content
+  const modules: Array<{ label: string; count: number; href: string }> = [];
+
+  if (stats.fcTotal > 0) modules.push({ label: "Flashcards", count: stats.fcTotal, href: `/dashboard/flashcards?${qs}` });
+  if (stats.mcqTotal > 0) modules.push({ label: "MCQ", count: stats.mcqTotal, href: `/dashboard/mcq?${qs}` });
+  if (stats.tfTotal > 0) modules.push({ label: "V/F", count: stats.tfTotal, href: `/dashboard/truefalse?${qs}` });
+  if (stats.defTotal > 0) modules.push({ label: "Definiciones", count: stats.defTotal, href: `/dashboard/definiciones?${qs}` });
+  if (stats.fillTotal > 0) modules.push({ label: "Completar", count: stats.fillTotal, href: `/dashboard/completar-espacios?${qs}` });
+  if (stats.errorTotal > 0) modules.push({ label: "Errores", count: stats.errorTotal, href: `/dashboard/identificar-errores?${qs}` });
+  if (stats.orderTotal > 0) modules.push({ label: "Ordenar", count: stats.orderTotal, href: `/dashboard/ordenar-secuencias?${qs}` });
+  if (stats.matchTotal > 0) modules.push({ label: "Relacionar", count: stats.matchTotal, href: `/dashboard/relacionar-columnas?${qs}` });
+  if (stats.casoTotal > 0) modules.push({ label: "Casos", count: stats.casoTotal, href: `/dashboard/casos-practicos?${qs}` });
+  if (stats.dictadoTotal > 0) modules.push({ label: "Dictado", count: stats.dictadoTotal, href: `/dashboard/dictado-juridico?${qs}` });
+  if (stats.timelineTotal > 0) modules.push({ label: "Timeline", count: stats.timelineTotal, href: `/dashboard/linea-de-tiempo?${qs}` });
 
   return (
     <div className="pl-12 mt-2 mb-3">
@@ -165,32 +162,22 @@ function StudyButtons({
         Estudiar este tema:
       </p>
       <div className="flex flex-wrap gap-2">
-        {buttons.map((b) => {
-          const disabled = b.count === 0;
-          const label = b.count !== null ? `${b.label} (${b.count})` : b.label;
-
-          if (disabled) {
-            return (
-              <span
-                key={b.label}
-                className="font-archivo text-[11px] font-semibold px-3 py-1.5 rounded-[3px] border border-gz-rule text-gz-ink-light opacity-40 cursor-not-allowed"
-                title="Sin contenido aún"
-              >
-                {label}
-              </span>
-            );
-          }
-
-          return (
-            <Link
-              key={b.label}
-              href={b.href}
-              className="font-archivo text-[11px] font-semibold px-3 py-1.5 rounded-[3px] border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
-            >
-              {label}
-            </Link>
-          );
-        })}
+        {modules.map((b) => (
+          <Link
+            key={b.label}
+            href={b.href}
+            className="font-archivo text-[11px] font-semibold px-3 py-1.5 rounded-[3px] border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
+          >
+            {b.label} ({b.count})
+          </Link>
+        ))}
+        {/* Simulacro — always shown, different style */}
+        <Link
+          href="/dashboard/simulacro"
+          className="font-archivo text-[11px] font-semibold px-3 py-1.5 rounded-[3px] border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+        >
+          Simulacro
+        </Link>
       </div>
     </div>
   );
@@ -266,7 +253,10 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                 <div className="ml-4 border-l-2 pl-0" style={{ borderColor: "var(--gz-cream-dark)" }}>
                   {libro.titulos.map((titulo) => {
                     const tituloOpen = expandedTitulos.has(titulo.id);
-                    const totalContent = titulo.fcTotal + titulo.mcqTotal + titulo.tfTotal;
+                    const totalContent = titulo.fcTotal + titulo.mcqTotal + titulo.tfTotal +
+                      titulo.defTotal + titulo.fillTotal + titulo.errorTotal +
+                      titulo.orderTotal + titulo.matchTotal + titulo.casoTotal +
+                      titulo.dictadoTotal + titulo.timelineTotal;
                     const hasTituloContent = totalContent > 0;
                     const hasParrafos = titulo.parrafos.length > 0;
                     const hasLeyesTitulo = titulo.leyesAnexas.length > 0;
@@ -347,9 +337,7 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                                 rama={materia.id}
                                 libro={libro.libro}
                                 titulo={titulo.id}
-                                fcTotal={titulo.fcTotal}
-                                mcqTotal={titulo.mcqTotal}
-                                tfTotal={titulo.tfTotal}
+                                stats={titulo}
                               />
                             )}
 
