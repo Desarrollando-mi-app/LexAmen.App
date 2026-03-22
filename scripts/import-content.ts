@@ -62,6 +62,15 @@ const RAMA_TO_CODIGO: Record<string, string> = {
   DERECHO_ORGANICO: "CODIGO_ORGANICO_TRIBUNALES",
 };
 
+const LIBRO_MAP: Record<string, string> = {
+  COT: "LIBRO_COT",
+};
+
+/** Normalize libro value — map CSV aliases to enum values */
+function normalizeLibro(libro: string): string {
+  return LIBRO_MAP[libro] || libro;
+}
+
 const DIFICULTAD_MAP: Record<string, string> = {
   "1": "BASICO",
   "2": "INTERMEDIO",
@@ -139,7 +148,7 @@ async function importFlashcards(rows: Record<string, string>[]) {
           back: row.respuesta,
           rama: row.rama as any,
           codigo: (RAMA_TO_CODIGO[row.rama] || "CODIGO_CIVIL") as any,
-          libro: (row.libro || "TITULO_PRELIMINAR") as any,
+          libro: normalizeLibro(row.libro || "TITULO_PRELIMINAR") as any,
           titulo: row.titulo || "",
           dificultad: DIFICULTAD_MAP[row.dificultad] || "BASICO",
         },
@@ -168,7 +177,7 @@ async function importMCQ(rows: Record<string, string>[]) {
           explanation: row.explicacion || null,
           rama: row.rama as any,
           codigo: (RAMA_TO_CODIGO[row.rama] || "CODIGO_CIVIL") as any,
-          libro: (row.libro || "TITULO_PRELIMINAR") as any,
+          libro: normalizeLibro(row.libro || "TITULO_PRELIMINAR") as any,
           titulo: row.titulo || "",
           dificultad: DIFICULTAD_MAP[row.dificultad] || "BASICO",
         },
@@ -197,7 +206,7 @@ async function importVF(rows: Record<string, string>[]) {
           explanation: row.explicacion || null,
           rama: row.rama as any,
           codigo: (RAMA_TO_CODIGO[row.rama] || "CODIGO_CIVIL") as any,
-          libro: (row.libro || "TITULO_PRELIMINAR") as any,
+          libro: normalizeLibro(row.libro || "TITULO_PRELIMINAR") as any,
           titulo: row.titulo || "",
           dificultad: DIFICULTAD_MAP[row.dificultad] || "BASICO",
         },
