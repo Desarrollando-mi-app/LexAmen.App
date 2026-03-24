@@ -9,6 +9,8 @@ import {
 import { playCorrect, playIncorrect, playXpGained, getAnimationsEnabled } from "@/lib/sounds";
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
+import { RAMA_LABELS } from "@/lib/curriculum-data";
+import { ShareSession } from "@/app/components/share-session";
 
 /* ─── Types ─── */
 
@@ -296,6 +298,13 @@ export function DefinicionesViewer({
         <p className="text-sm text-gz-ink-mid">
           Correctas: {score.correct} &middot; Incorrectas: {score.incorrect}
         </p>
+        <ShareSession
+          modulo="Definiciones"
+          materia={RAMA_LABELS[selectedRama] ?? undefined}
+          total={score.correct + score.incorrect}
+          correctas={score.correct}
+          xp={0}
+        />
         <Link
           href="/dashboard/indice-maestro"
           className="mt-6 inline-block rounded-sm border border-gz-rule px-5 py-2 font-archivo text-sm text-gz-ink-mid hover:bg-gz-cream-dark transition-colors"

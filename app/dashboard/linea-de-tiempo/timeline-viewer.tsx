@@ -14,6 +14,7 @@ import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
 import { ReportButton } from "@/app/components/report-button";
+import { ShareSession } from "@/app/components/share-session";
 
 // ----------------------------------------------------------------
 // Types
@@ -438,6 +439,13 @@ export function TimelineViewer({
             </p>
           </div>
         </div>
+        <ShareSession
+          modulo="Lineas de Tiempo"
+          materia={RAMA_LABELS[selectedRama] ?? undefined}
+          total={totalCards}
+          correctas={sessionPerfect}
+          xp={sessionXP}
+        />
         <Link
           href="/dashboard/indice-maestro"
           className="mt-8 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"

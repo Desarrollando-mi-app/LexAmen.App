@@ -37,6 +37,10 @@ const NAV_ITEMS: NavItem[] = [
     label: "Materias",
   },
   {
+    href: "/dashboard/instituciones",
+    label: "Instituciones",
+  },
+  {
     href: "/dashboard/estudios",
     label: "Estudios",
     children: [

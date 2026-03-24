@@ -460,10 +460,14 @@ model Flashcard {
   articuloRef String?
   dificultad  String  @default("BASICO")
 
+  institucionId Int?
+  institucion   InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   progress  UserFlashcardProgress[]
   favorites FlashcardFavorite[]
 
   @@index([rama, libro])
+  @@index([institucionId])
 }
 
 model UserFlashcardProgress {
@@ -500,12 +504,16 @@ model MCQ {
   articuloRef   String?
   dificultad    String  @default("BASICO")
 
+  institucionId Int?
+  institucion   InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   attempts           UserMCQAttempt[]
   causaAnswers       CausaAnswer[]
   causaRoomQuestions CausaRoomQuestion[]
   causaRoomAnswers   CausaRoomAnswer[]
 
   @@index([rama, libro])
+  @@index([institucionId])
 }
 
 model UserMCQAttempt {
@@ -534,9 +542,13 @@ model TrueFalse {
   articuloRef String?
   dificultad  String  @default("BASICO")
 
+  institucionId Int?
+  institucion   InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   attempts UserTrueFalseAttempt[]
 
   @@index([rama, libro])
+  @@index([institucionId])
 }
 
 model UserTrueFalseAttempt {
@@ -1728,6 +1740,9 @@ model Definicion {
   explicacion   String?
   articuloRef   String?
 
+  institucionId Int?
+  institucion   InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -1736,6 +1751,7 @@ model Definicion {
 
   @@index([rama])
   @@index([isActive, rama])
+  @@index([institucionId])
 }
 
 model DefinicionIntento {
@@ -1888,12 +1904,16 @@ model FillBlank {
   materia         String?
   dificultad      Int      @default(2)
 
+  institucionId   Int?
+  institucion     InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   activo          Boolean  @default(true)
   createdAt       DateTime @default(now())
 
   attempts        FillBlankAttempt[]
 
   @@index([rama, activo])
+  @@index([institucionId])
 }
 
 model FillBlankAttempt {
@@ -1927,12 +1947,16 @@ model ErrorIdentification {
   materia           String?
   dificultad        Int      @default(2)
 
+  institucionId     Int?
+  institucion       InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   activo            Boolean  @default(true)
   createdAt         DateTime @default(now())
 
   attempts          ErrorIdentificationAttempt[]
 
   @@index([rama, activo])
+  @@index([institucionId])
 }
 
 model ErrorIdentificationAttempt {
@@ -1967,12 +1991,16 @@ model OrderSequence {
   materia        String?
   dificultad     Int      @default(2)
 
+  institucionId  Int?
+  institucion    InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   activo         Boolean  @default(true)
   createdAt      DateTime @default(now())
 
   attempts       OrderSequenceAttempt[]
 
   @@index([rama, activo])
+  @@index([institucionId])
 }
 
 model OrderSequenceAttempt {
@@ -2010,12 +2038,16 @@ model MatchColumns {
   materia         String?
   dificultad      Int      @default(2)
 
+  institucionId   Int?
+  institucion     InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   activo          Boolean  @default(true)
   createdAt       DateTime @default(now())
 
   attempts        MatchColumnsAttempt[]
 
   @@index([rama, activo])
+  @@index([institucionId])
 }
 
 model MatchColumnsAttempt {
@@ -2051,12 +2083,16 @@ model CasoPractico {
   materia        String?
   dificultad     Int      @default(2)
 
+  institucionId  Int?
+  institucion    InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   activo         Boolean  @default(true)
   createdAt      DateTime @default(now())
 
   attempts       CasoPracticoAttempt[]
 
   @@index([rama, activo])
+  @@index([institucionId])
 }
 
 model CasoPracticoAttempt {
@@ -2088,12 +2124,16 @@ model DictadoJuridico {
   materia        String?
   dificultad     Int      @default(2)
 
+  institucionId  Int?
+  institucion    InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   activo         Boolean  @default(true)
   createdAt      DateTime @default(now())
 
   attempts       DictadoAttempt[]
 
   @@index([rama, activo])
+  @@index([institucionId])
 }
 
 model DictadoAttempt {
@@ -2132,12 +2172,16 @@ model Timeline {
   materia        String?
   dificultad     Int      @default(2)
 
+  institucionId  Int?
+  institucion    InstitucionJuridica? @relation(fields: [institucionId], references: [id])
+
   activo         Boolean  @default(true)
   createdAt      DateTime @default(now())
 
   attempts       TimelineAttempt[]
 
   @@index([rama, activo])
+  @@index([institucionId])
 }
 
 model TimelineAttempt {
@@ -2456,4 +2500,34 @@ model AppConfig {
   updatedBy   String?
 
   @@index([categoria])
+}
+
+// ─── Instituciones Jurídicas ──────────────────────────────
+
+model InstitucionJuridica {
+  id            Int      @id
+  nombre        String
+  area          String   // "CIVIL" | "PROCESAL" | "ORGANICO" | "TRANSVERSAL"
+  grupo         String   // "Teoría de la Ley" | "Personas" | etc.
+  descripcion   String
+  subContenido  String   @db.Text
+  articulosCC   String?
+  articulosCPC  String?
+  articulosCOT  String?
+  tag           String   // "fundamental" | "complejo" | "transversal" | etc.
+  orden         Int
+
+  flashcards          Flashcard[]
+  mcqs                MCQ[]
+  trueFalses          TrueFalse[]
+  definiciones        Definicion[]
+  fillBlanks          FillBlank[]
+  errorIdentifications ErrorIdentification[]
+  orderSequences      OrderSequence[]
+  matchColumns        MatchColumns[]
+  casoPracticos       CasoPractico[]
+  dictados            DictadoJuridico[]
+  timelines           Timeline[]
+
+  createdAt     DateTime @default(now())
 }

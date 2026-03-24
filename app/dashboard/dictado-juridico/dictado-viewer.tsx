@@ -3,7 +3,8 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import Link from "next/link";
 import { playCorrect, playIncorrect, playXpGained, getAnimationsEnabled } from "@/lib/sounds";
-import { TITULO_LABELS } from "@/lib/curriculum-data";
+import { TITULO_LABELS, RAMA_LABELS } from "@/lib/curriculum-data";
+import { ShareSession } from "@/app/components/share-session";
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { ReportButton } from "@/app/components/report-button";
@@ -324,6 +325,13 @@ export function DictadoViewer({
             +{sessionStats.totalXp} XP
           </span>
         </div>
+        <ShareSession
+          modulo="Dictado Juridico"
+          materia={RAMA_LABELS[selectedRama] ?? undefined}
+          total={sessionStats.completed}
+          correctas={sessionStats.completed}
+          xp={sessionStats.totalXp}
+        />
         <br />
         <button
           onClick={handleRestart}
