@@ -10,7 +10,8 @@ const DAILY_FREE_LIMIT = 3;
 
 /**
  * POST /api/caso-practico/attempt
- * Body: { casoPracticoId, respuestas: [{ preguntaId: number, respuesta: number }, ...] }
+ * Body: { casoPracticoId, respuestas: [{ preguntaId: number, respuestaTexto: string }, ...] }
+ * Compares respuestaTexto against opciones[correcta] (correcta=0 in DB = first option).
  * XP: +2 per correct + 3 bonus if all 3 correct = max 9 XP
  */
 export async function POST(request: Request) {
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
   // 2. Parse body
   let body: {
     casoPracticoId: string;
-    respuestas: { preguntaId: number; respuesta: number }[];
+    respuestas: { preguntaId: number; respuestaTexto: string }[];
   };
   try {
     body = await request.json();
@@ -108,16 +109,24 @@ export async function POST(request: Request) {
   const gradedRespuestas = respuestas.map((r) => {
     const pregunta = preguntas.find((p: any) => p.id === r.preguntaId);
     if (!pregunta) {
-      return { preguntaId: r.preguntaId, respuesta: r.respuesta, correcta: false };
+      return {
+        preguntaId: r.preguntaId,
+        respuestaTexto: r.respuestaTexto,
+        correcta: false,
+        explicacion: null,
+        correctaTexto: null,
+      };
     }
-    const isCorrect = r.respuesta === pregunta.correcta;
+    // Compare by TEXT: correcta=0 in DB means opciones[0] is the correct answer
+    const correctaTexto = pregunta.opciones?.[pregunta.correcta] ?? "";
+    const isCorrect = r.respuestaTexto?.trim() === correctaTexto?.trim();
     if (isCorrect) correctas++;
     return {
       preguntaId: r.preguntaId,
-      respuesta: r.respuesta,
+      respuestaTexto: r.respuestaTexto,
       correcta: isCorrect,
       explicacion: pregunta.explicacion || null,
-      correctaIndex: pregunta.correcta,
+      correctaTexto,
     };
   });
 

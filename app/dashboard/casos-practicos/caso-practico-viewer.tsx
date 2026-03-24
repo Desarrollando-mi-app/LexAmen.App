@@ -33,10 +33,10 @@ interface Pregunta {
 
 interface GradedRespuesta {
   preguntaId: number;
-  respuesta: number;
+  respuestaTexto: string;
   correcta: boolean;
   explicacion: string | null;
-  correctaIndex: number;
+  correctaTexto: string | null;
 }
 
 interface AttemptResult {
@@ -89,7 +89,7 @@ export function CasoPracticoViewer({
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [collectedAnswers, setCollectedAnswers] = useState<{ preguntaId: number; respuesta: number }[]>([]);
+  const [collectedAnswers, setCollectedAnswers] = useState<{ preguntaId: number; respuestaTexto: string }[]>([]);
 
   // Results
   const [result, setResult] = useState<AttemptResult | null>(null);
@@ -145,7 +145,7 @@ export function CasoPracticoViewer({
     const pregunta = preguntas[currentQ];
     const newAnswers = [
       ...collectedAnswers,
-      { preguntaId: pregunta.id, respuesta: selectedOption },
+      { preguntaId: pregunta.id, respuestaTexto: pregunta.opciones[selectedOption] },
     ];
     setCollectedAnswers(newAnswers);
 
@@ -161,7 +161,7 @@ export function CasoPracticoViewer({
 
   /* ─── Submit attempt ─── */
   const submitAttempt = useCallback(
-    async (answers: { preguntaId: number; respuesta: number }[]) => {
+    async (answers: { preguntaId: number; respuestaTexto: string }[]) => {
       setPhase("submitting");
       try {
         const res = await fetch("/api/caso-practico/attempt", {
@@ -562,8 +562,8 @@ export function CasoPracticoViewer({
         {/* Options with correct/incorrect highlighting */}
         <div className="mt-4 space-y-2">
           {pregunta.opciones.map((opcion, idx) => {
-            const isSelected = idx === graded.respuesta;
-            const isCorrectOption = idx === graded.correctaIndex;
+            const isSelected = opcion.trim() === graded.respuestaTexto?.trim();
+            const isCorrectOption = opcion.trim() === graded.correctaTexto?.trim();
             let borderClass = "border-gz-rule";
             let bgClass = "";
 
@@ -586,12 +586,12 @@ export function CasoPracticoViewer({
                 {opcion}
                 {isCorrectOption && (
                   <span className="ml-2 font-ibm-mono text-[11px] text-green-600">
-                    &#x2713; Correcta
+                    ✓ Correcta
                   </span>
                 )}
                 {isSelected && !graded.correcta && (
                   <span className="ml-2 font-ibm-mono text-[11px] text-red-500">
-                    &#x2717; Tu respuesta
+                    ✗ Tu respuesta
                   </span>
                 )}
               </div>
