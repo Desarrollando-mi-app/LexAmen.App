@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ReportButton } from "@/app/components/report-button";
-import { RAMA_LABELS, TITULO_LABELS } from "@/lib/curriculum-data";
+import { RAMA_LABELS, LIBRO_LABELS, TITULO_LABELS } from "@/lib/curriculum-data";
 import {
   playCorrect,
   playIncorrect,
@@ -80,6 +80,12 @@ export function ErrorIdViewer({
   const [selectedRama, setSelectedRama] = useState<string>(
     initialFilters?.rama || "ALL"
   );
+  const [selectedLibro, setSelectedLibro] = useState<string>(
+    initialFilters?.libro || "ALL"
+  );
+  const [selectedTitulo, setSelectedTitulo] = useState<string>(
+    initialFilters?.titulo || "ALL"
+  );
 
   function updateUrl(params: Record<string, string>) {
     const sp = new URLSearchParams();
@@ -95,12 +101,28 @@ export function ErrorIdViewer({
     [items]
   );
 
+  const availableLibros = useMemo(() => {
+    const pool = selectedRama !== "ALL" ? items.filter((i) => i.rama === selectedRama) : items;
+    return Array.from(new Set(pool.map((i) => i.libro).filter(Boolean) as string[]));
+  }, [items, selectedRama]);
+
+  const availableTitulos = useMemo(() => {
+    let pool = [...items];
+    if (selectedRama !== "ALL") pool = pool.filter((i) => i.rama === selectedRama);
+    if (selectedLibro !== "ALL") pool = pool.filter((i) => i.libro === selectedLibro);
+    return Array.from(new Set(pool.map((i) => i.titulo).filter(Boolean) as string[]));
+  }, [items, selectedRama, selectedLibro]);
+
   const filteredItems = useMemo(() => {
     let pool = [...items];
     if (selectedRama !== "ALL")
       pool = pool.filter((i) => i.rama === selectedRama);
+    if (selectedLibro !== "ALL")
+      pool = pool.filter((i) => i.libro === selectedLibro);
+    if (selectedTitulo !== "ALL")
+      pool = pool.filter((i) => i.titulo === selectedTitulo);
     return pool;
-  }, [items, selectedRama]);
+  }, [items, selectedRama, selectedLibro, selectedTitulo]);
 
   // ---- Estado de ejercicio ----
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -137,8 +159,23 @@ export function ErrorIdViewer({
 
   function handleRamaChange(value: string) {
     setSelectedRama(value);
+    setSelectedLibro("ALL");
+    setSelectedTitulo("ALL");
     resetExerciseState();
     updateUrl({ rama: value });
+  }
+
+  function handleLibroChange(value: string) {
+    setSelectedLibro(value);
+    setSelectedTitulo("ALL");
+    resetExerciseState();
+    updateUrl({ rama: selectedRama, libro: value });
+  }
+
+  function handleTituloChange(value: string) {
+    setSelectedTitulo(value);
+    resetExerciseState();
+    updateUrl({ rama: selectedRama, libro: selectedLibro, titulo: value });
   }
 
   function handleToggleSegment(segId: number) {
@@ -296,6 +333,34 @@ export function ErrorIdViewer({
             </option>
           ))}
         </select>
+        {availableLibros.length > 0 && (
+          <select
+            value={selectedLibro}
+            onChange={(e) => handleLibroChange(e.target.value)}
+            className="rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors"
+          >
+            <option value="ALL">Todos los libros</option>
+            {availableLibros.map((l) => (
+              <option key={l} value={l}>
+                {LIBRO_LABELS[l] ?? l}
+              </option>
+            ))}
+          </select>
+        )}
+        {availableTitulos.length > 0 && (
+          <select
+            value={selectedTitulo}
+            onChange={(e) => handleTituloChange(e.target.value)}
+            className="rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors"
+          >
+            <option value="ALL">Todos los titulos</option>
+            {availableTitulos.map((t) => (
+              <option key={t} value={t}>
+                {TITULO_LABELS[t] ?? t}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
     );
   }

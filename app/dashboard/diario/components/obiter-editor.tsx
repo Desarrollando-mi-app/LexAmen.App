@@ -57,9 +57,13 @@ export function ObiterEditor(props: ObiterEditorProps) {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [isPremium] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [publishedObiter, setPublishedObiter] = useState<ObiterData | null>(
     null
   );
+  const [continueThread, setContinueThread] = useState(false);
+  const [threadPartNumber, setThreadPartNumber] = useState(threadOrder ?? 1);
+  const [activeThreadId, setActiveThreadId] = useState<string | undefined>(threadId);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -133,7 +137,10 @@ export function ObiterEditor(props: ObiterEditorProps) {
       if (citingObiter) body.citedObiterId = citingObiter.id;
       if (citingAnalisis) body.citedAnalisisId = citingAnalisis.id;
       if (citingEnsayo) body.citedEnsayoId = citingEnsayo.id;
-      if (threadId && threadOrder) {
+      if (activeThreadId && threadPartNumber > 1) {
+        body.threadId = activeThreadId;
+        body.threadOrder = threadPartNumber;
+      } else if (threadId && threadOrder) {
         body.threadId = threadId;
         body.threadOrder = threadOrder;
       }
@@ -165,11 +172,23 @@ export function ObiterEditor(props: ObiterEditorProps) {
       const newObiter = data.obiter as ObiterData;
       setPublishedObiter(newObiter);
       onPublished(newObiter);
-      setState("published");
 
       // Decrement remaining
       if (remaining !== null && remaining > 0) {
         setRemaining(remaining - 1);
+      }
+
+      // If "continue thread" is checked, reset editor for next part
+      if (continueThread) {
+        const newThreadId = activeThreadId ?? newObiter.threadId ?? newObiter.id;
+        setActiveThreadId(newThreadId);
+        setThreadPartNumber((prev) => prev + 1);
+        setContent("");
+        setError(null);
+        setState("expanded");
+        setTimeout(() => textareaRef.current?.focus(), 100);
+      } else {
+        setState("published");
       }
     } catch {
       setError("Error de conexión");
@@ -237,30 +256,12 @@ export function ObiterEditor(props: ObiterEditorProps) {
         <p className="mb-3 font-archivo text-[14px] font-semibold text-gz-sage">
           ✅ Obiter publicado
         </p>
-        <div className="flex items-center justify-center gap-3">
-          {publishedObiter && (
-            <button
-              onClick={() => {
-                // Continue thread: reset with threadId
-                setContent("");
-                setMateria("");
-                setTipo("");
-                setError(null);
-                setState("expanded");
-                // The parent should handle thread continuation
-              }}
-              className="rounded-[3px] border border-gz-gold px-4 py-2 font-archivo text-[13px] font-semibold text-gz-gold transition-colors hover:bg-gz-gold/[0.06]"
-            >
-              Continuar hilo +
-            </button>
-          )}
-          <button
-            onClick={handlePublishAnother}
-            className="font-archivo text-[13px] text-gz-ink-mid transition-colors hover:text-gz-ink"
-          >
-            Publicar otro
-          </button>
-        </div>
+        <button
+          onClick={handlePublishAnother}
+          className="font-archivo text-[13px] text-gz-ink-mid transition-colors hover:text-gz-ink"
+        >
+          Publicar otro
+        </button>
       </div>
     );
   }
@@ -343,10 +344,10 @@ export function ObiterEditor(props: ObiterEditorProps) {
       )}
 
       {/* Thread indicator */}
-      {threadId && threadOrder && (
+      {(threadPartNumber > 1 || (threadId && threadOrder)) && (
         <div className="mb-3 flex items-center gap-1.5 font-ibm-mono text-[10px] text-gz-gold">
           <span>🧵</span>
-          <span>Parte {threadOrder} de tu hilo</span>
+          <span>Parte {threadPartNumber} del hilo</span>
         </div>
       )}
 
@@ -455,6 +456,19 @@ export function ObiterEditor(props: ObiterEditorProps) {
             : `${remaining}/5 publicaciones restantes hoy`}
         </p>
       )}
+
+      {/* Thread toggle */}
+      <label className="mb-3 flex items-center gap-2 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={continueThread}
+          onChange={(e) => setContinueThread(e.target.checked)}
+          className="h-4 w-4 rounded border-gz-rule text-gz-gold focus:ring-gz-gold/20"
+        />
+        <span className="font-archivo text-[12px] text-gz-ink-mid">
+          Continuar como hilo (publicar y seguir escribiendo)
+        </span>
+      </label>
 
       {/* Action buttons */}
       <div className="flex items-center justify-between">

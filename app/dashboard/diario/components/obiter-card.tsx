@@ -249,56 +249,56 @@ export function ObiterCard({
         <button
           onClick={() => !isOwnObiter && onApoyar(obiter.id)}
           disabled={isOwnObiter}
-          className={`font-ibm-mono text-[11px] tracking-[0.5px] transition-colors ${
+          className={`font-ibm-mono text-[13px] tracking-[0.5px] transition-colors ${
             obiter.hasApoyado
               ? "font-semibold text-gz-gold"
               : isOwnObiter
                 ? "cursor-default text-gz-ink-light/50"
-                : "cursor-pointer text-gz-ink-light hover:text-gz-gold"
+                : "cursor-pointer text-gz-ink-mid hover:text-gz-gold"
           }`}
         >
-          Apoyar{obiter.apoyosCount > 0 ? ` ${obiter.apoyosCount}` : ""}
+          {obiter.hasApoyado ? "♥" : "♡"} Apoyar{obiter.apoyosCount > 0 ? ` ${obiter.apoyosCount}` : ""}
         </button>
 
-        <span className="mx-2 text-gz-ink-light/30">·</span>
+        <span className="mx-3 text-gz-rule">|</span>
 
         {/* Citar */}
         <button
           onClick={() => onCitar(obiter)}
-          className="cursor-pointer font-ibm-mono text-[11px] tracking-[0.5px] text-gz-ink-light transition-colors hover:text-gz-gold"
+          className="cursor-pointer font-ibm-mono text-[13px] tracking-[0.5px] text-gz-ink-mid transition-colors hover:text-gz-gold"
         >
           Citar{obiter.citasCount > 0 ? ` ${obiter.citasCount}` : ""}
         </button>
 
-        <span className="mx-2 text-gz-ink-light/30">·</span>
-
-        {/* Guardar */}
-        <button
-          onClick={() => onGuardar(obiter.id)}
-          className={`font-ibm-mono text-[11px] tracking-[0.5px] transition-colors ${
-            obiter.hasGuardado
-              ? "font-semibold text-gz-gold"
-              : "cursor-pointer text-gz-ink-light hover:text-gz-gold"
-          }`}
-        >
-          {obiter.hasGuardado ? "Guardado" : "Guardar"}
-        </button>
-
-        <span className="mx-2 text-gz-ink-light/30">·</span>
+        <span className="mx-3 text-gz-rule">|</span>
 
         {/* Comuníquese */}
         <button
           onClick={() => !isOwnObiter && onComuniquese(obiter.id)}
           disabled={isOwnObiter}
-          className={`font-ibm-mono text-[11px] tracking-[0.5px] transition-colors ${
+          className={`font-ibm-mono text-[13px] tracking-[0.5px] transition-colors ${
             obiter.hasComunicado
               ? "font-semibold text-gz-gold"
               : isOwnObiter
                 ? "cursor-default text-gz-ink-light/50"
-                : "cursor-pointer text-gz-ink-light hover:text-gz-gold"
+                : "cursor-pointer text-gz-ink-mid hover:text-gz-gold"
           }`}
         >
           {obiter.hasComunicado ? "Comunicado" : "Comuníquese"}
+        </button>
+
+        <span className="mx-3 text-gz-rule">|</span>
+
+        {/* Guardar */}
+        <button
+          onClick={() => onGuardar(obiter.id)}
+          className={`font-ibm-mono text-[13px] tracking-[0.5px] transition-colors ${
+            obiter.hasGuardado
+              ? "font-semibold text-gz-gold"
+              : "cursor-pointer text-gz-ink-mid hover:text-gz-gold"
+          }`}
+        >
+          {obiter.hasGuardado ? "✓ Guardado" : "Guardar"}
         </button>
       </div>
 
