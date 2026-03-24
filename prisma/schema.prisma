@@ -44,6 +44,10 @@ enum Libro {
   LIBRO_III_CPC
   LIBRO_IV_CPC
   LIBRO_COT
+  CODIGO_CIVIL
+  CPC
+  LEY_17336
+  MODULO_DIARIO
 }
 
 enum SubscriptionStatus {

@@ -7,6 +7,8 @@ import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
 import { RAMA_LABELS } from "@/lib/curriculum-data";
 import { ReportButton } from "@/app/components/report-button";
+import { ShareSession } from "@/app/components/share-session";
+import Link from "next/link";
 
 /* ─── Types ─── */
 interface CasoSummary {
@@ -715,6 +717,23 @@ export function CasoPracticoViewer({
               Repetir caso
             </button>
           )}
+        </div>
+
+        <ShareSession
+          modulo="Casos Prácticos"
+          materia={RAMA_LABELS[selectedCaso.rama] ?? undefined}
+          total={result.totalPreguntas}
+          correctas={result.correctas}
+          xp={result.xpGained}
+        />
+
+        <div className="mt-4 text-center">
+          <Link
+            href="/dashboard/indice-maestro"
+            className="font-archivo text-[12px] text-gz-ink-light underline hover:text-gz-ink transition-colors"
+          >
+            Volver al Índice Maestro
+          </Link>
         </div>
 
         <ReportButton contentType="CasoPractico" contentId={selectedCaso.id} />
