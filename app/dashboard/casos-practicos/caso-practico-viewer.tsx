@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { playCorrect, playIncorrect, playXpGained, getAnimationsEnabled } from "@/lib/sounds";
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
@@ -72,14 +72,17 @@ export function CasoPracticoViewer({
   plan,
   attemptsToday: initialAttemptsToday,
   dailyLimit,
+  completedIds = [],
 }: {
   casos: CasoSummary[];
   plan: string;
   attemptsToday: number;
   dailyLimit: number;
+  completedIds?: string[];
 }) {
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
+  const completedSet = useMemo(() => new Set(completedIds), [completedIds]);
 
   const [phase, setPhase] = useState<Phase>("browse");
   const [ramaFilter, setRamaFilter] = useState<string>("ALL");
@@ -377,7 +380,9 @@ export function CasoPracticoViewer({
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredCasos.map((caso) => (
+            {filteredCasos.map((caso) => {
+              const isCompleted = completedSet.has(caso.id);
+              return (
               <button
                 key={caso.id}
                 onClick={() => startCase(caso)}
@@ -386,6 +391,10 @@ export function CasoPracticoViewer({
                 style={{ backgroundColor: "var(--gz-cream)" }}
               >
                 <div className="flex items-start justify-between gap-4">
+                  {/* Completion indicator */}
+                  <span className={`mt-0.5 flex-shrink-0 text-[16px] ${isCompleted ? "text-gz-sage" : "text-gz-rule"}`}>
+                    {isCompleted ? "✅" : "○"}
+                  </span>
                   <div className="flex-1">
                     <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
                       {RAMA_LABELS[caso.rama] || caso.rama.replace(/_/g, " ")}
@@ -408,7 +417,8 @@ export function CasoPracticoViewer({
                   </div>
                 </div>
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
       </>

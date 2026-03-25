@@ -45,11 +45,20 @@ export default async function CasosPracticosPage({
     },
   });
 
-  // 4. Fetch all active casos
-  const rawCasos = await prisma.casoPractico.findMany({
-    where: { activo: true },
-    orderBy: { createdAt: "desc" },
-  });
+  // 4. Fetch all active casos + completed IDs
+  const [rawCasos, completedAttempts] = await Promise.all([
+    prisma.casoPractico.findMany({
+      where: { activo: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.casoPracticoAttempt.findMany({
+      where: { userId: authUser.id },
+      select: { casoPracticoId: true },
+      distinct: ["casoPracticoId"],
+    }),
+  ]);
+
+  const completedIds = completedAttempts.map((a) => a.casoPracticoId);
 
   let casos = rawCasos.map((c) => ({
     id: c.id,
@@ -101,6 +110,7 @@ export default async function CasosPracticosPage({
           plan={dbUser.isAdmin ? "PREMIUM_ANNUAL" : dbUser.plan}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_FREE_LIMIT}
+          completedIds={completedIds}
         />
       </div>
     </main>
