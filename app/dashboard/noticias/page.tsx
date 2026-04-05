@@ -54,13 +54,6 @@ export default async function NoticiasPage() {
       className="gz-page min-h-screen"
       style={{ backgroundColor: "var(--gz-cream)" }}
     >
-      {/* Hide standard dashboard header */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: "#dashboard-standard-header { display: none !important; }",
-        }}
-      />
-
       {/* Gazette-style header */}
       <header className="mx-auto max-w-[1280px] px-4 lg:px-10 pt-8 pb-4">
         <div className="flex items-center gap-3 mb-2">

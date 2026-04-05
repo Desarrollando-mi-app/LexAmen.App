@@ -6,17 +6,14 @@ import { progressKey } from "@/lib/progress-utils";
 import { checkStreakPenalty } from "@/lib/xp-config";
 import type { ProgressData } from "./components/curriculum-progress";
 import { RAMA_LABELS, CURRICULUM } from "@/lib/curriculum-data";
-import { getGradoInfo } from "@/lib/league";
+// getGradoInfo moved to layout.tsx
 
-import { GzMasthead } from "./components/gz-masthead";
-import { GzUserBar } from "./components/gz-user-bar";
 import { GzHeadline } from "./components/gz-headline";
 import { GzCausasWire } from "./components/gz-causas-wire";
 import { GzStudyColumns } from "./components/gz-study-columns";
 import { GzCommunity } from "./components/gz-community";
 import { GzObiterSemana } from "./components/gz-obiter-semana";
 import { GzMiExamenResumen } from "./components/gz-mi-examen-resumen";
-import { GzFooter } from "./components/gz-footer";
 import { GzLigaResumen } from "./components/gz-liga-resumen";
 import { OnboardingCard } from "./components/onboarding-card";
 import { OnboardingWizard } from "./components/onboarding-wizard";
@@ -601,29 +598,7 @@ export default async function DashboardPage() {
   console.log("[PERF] Dashboard:", Date.now() - perfStart, "ms");
 
   return (
-    <main className="gz-page min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
-      {/* Hide standard dashboard header on this page only */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: "#dashboard-standard-header { display: none !important; }",
-        }}
-      />
-
-      <GzMasthead />
-
-      <GzUserBar
-        userName={user.firstName}
-        email={user.email}
-        avatarUrl={user.avatarUrl}
-        streak={streak}
-        causasGanadas={user.causasGanadas}
-        tasaAcierto={mcqPercent}
-        grado={user.grado}
-        gradoNombre={getGradoInfo(user.grado).nombre}
-        isAdmin={user.isAdmin}
-        userId={authUser.id}
-      />
-
+    <main>
       <StreakDetector streak={streak} hadActivityYesterday={hadActivityYesterday} />
 
       <GzProgressGlobal />
@@ -730,8 +705,6 @@ export default async function DashboardPage() {
           </div>
         )}
       </div>
-
-      <GzFooter />
     </main>
   );
 }
