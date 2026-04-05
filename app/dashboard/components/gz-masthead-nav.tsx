@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useCallback, useEffect } from "react";
 
-/* ─── Navigation structure ─── */
+/* ─── Navigation structure (6 items) ─── */
 
 interface SubItem {
   href: string;
   label: string;
-  badge?: string; // e.g. "PRÓXIMO"
+  emoji: string;
 }
 
 interface NavItem {
@@ -20,99 +20,88 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    href: "/portada",
-    label: "Portada",
+    href: "/dashboard/noticias",
+    label: "Noticias",
   },
   {
     href: "/dashboard",
     label: "Escritorio",
-    children: [
-      { href: "/dashboard/progreso", label: "Mi Progreso" },
-      { href: "/dashboard/calendario", label: "Calendario" },
-      { href: "/dashboard/estadisticas", label: "Mis Estadísticas" },
-    ],
-  },
-  {
-    href: "/dashboard/indice-maestro",
-    label: "Materias",
-  },
-  {
-    href: "/dashboard/instituciones",
-    label: "Instituciones",
   },
   {
     href: "/dashboard/estudios",
-    label: "Estudios",
+    label: "Estudiar",
     children: [
-      { href: "/dashboard/flashcards", label: "Flashcards" },
-      { href: "/dashboard/mcq", label: "MCQ" },
-      { href: "/dashboard/truefalse", label: "Verdadero / Falso" },
-      { href: "/dashboard/definiciones", label: "Definiciones" },
-      { href: "/dashboard/completar-espacios", label: "Completar Espacios" },
-      { href: "/dashboard/identificar-errores", label: "Identificar Errores" },
-      { href: "/dashboard/ordenar-secuencias", label: "Ordenar Secuencias" },
-      { href: "/dashboard/relacionar-columnas", label: "Relacionar Columnas" },
-      { href: "/dashboard/casos-practicos", label: "Casos Prácticos" },
-      { href: "/dashboard/dictado-juridico", label: "Dictado Jurídico" },
-      { href: "/dashboard/linea-de-tiempo", label: "Líneas de Tiempo" },
-      { href: "/dashboard/simulacro", label: "Simulacro Oral" },
+      { href: "/dashboard/indice-maestro", label: "Índice Maestro", emoji: "📚" },
+      { href: "/dashboard/instituciones", label: "Instituciones", emoji: "🏛️" },
+      { href: "/dashboard/estudios", label: "Ejercicios (11 módulos)", emoji: "📝" },
     ],
   },
   {
     href: "/dashboard/liga",
-    label: "Liga",
-  },
-  {
-    href: "/dashboard/ranking",
-    label: "Ranking",
-  },
-  {
-    href: "/dashboard/causas",
-    label: "Causas",
+    label: "Competencias",
     children: [
-      { href: "/dashboard/causas?mode=relampage", label: "1v1" },
-      { href: "/dashboard/causas?mode=2v2", label: "2v2" },
-      { href: "/dashboard/causas?mode=individual", label: "Desafío Grupal" },
+      { href: "/dashboard/liga", label: "Liga", emoji: "🏆" },
+      { href: "/dashboard/ranking", label: "Ranking", emoji: "📊" },
+      { href: "/dashboard/causas", label: "Causas", emoji: "⚔️" },
     ],
   },
   {
     href: "/dashboard/sala",
     label: "La Sala",
     children: [
-      { href: "/dashboard/sala", label: "Ayudantías" },
-      { href: "/dashboard/sala/pasantias", label: "Pasantías" },
-      { href: "/dashboard/sala/eventos", label: "Eventos" },
-      { href: "/dashboard/sala/ofertas", label: "Ofertas de Trabajo" },
+      { href: "/dashboard/sala", label: "Ayudantías", emoji: "🏫" },
+      { href: "/dashboard/sala/pasantias", label: "Pasantías", emoji: "💼" },
+      { href: "/dashboard/sala/eventos", label: "Eventos", emoji: "📅" },
+      { href: "/dashboard/sala/ofertas", label: "Ofertas de Trabajo", emoji: "📌" },
     ],
   },
   {
     href: "/dashboard/diario",
     label: "El Diario",
     children: [
-      { href: "/dashboard/diario", label: "Feed" },
-      { href: "/dashboard/diario?tab=analisis", label: "Análisis de Sentencia" },
-      { href: "/dashboard/diario?tab=ensayos", label: "Ensayos" },
-      { href: "/dashboard/diario/analisis/nuevo", label: "Nuevo Análisis" },
-      { href: "/dashboard/diario/ensayos/nuevo", label: "Nuevo Ensayo" },
+      { href: "/dashboard/diario", label: "Feed", emoji: "📰" },
+      { href: "/dashboard/diario?tab=analisis", label: "Análisis de Sentencia", emoji: "📋" },
+      { href: "/dashboard/diario?tab=ensayos", label: "Ensayos", emoji: "📜" },
+      { href: "/dashboard/diario/debates", label: "Debates", emoji: "🆚" },
+      { href: "/dashboard/diario/expediente", label: "Expediente Abierto", emoji: "📂" },
     ],
-  },
-  {
-    href: "/dashboard/noticias",
-    label: "Noticias",
-  },
-  {
-    href: "/dashboard/perfil",
-    label: "Perfil",
   },
 ];
 
 /* ─── Active detection ─── */
 
-function isItemActive(item: NavItem, pathname: string): boolean {
-  // Portada: exact match
-  if (item.href === "/portada") return pathname === "/portada";
+const STUDY_ROUTES = [
+  "/dashboard/indice-maestro",
+  "/dashboard/instituciones",
+  "/dashboard/estudios",
+  "/dashboard/flashcards",
+  "/dashboard/mcq",
+  "/dashboard/truefalse",
+  "/dashboard/definiciones",
+  "/dashboard/completar-espacios",
+  "/dashboard/identificar-errores",
+  "/dashboard/ordenar-secuencias",
+  "/dashboard/relacionar-columnas",
+  "/dashboard/casos-practicos",
+  "/dashboard/dictado-juridico",
+  "/dashboard/linea-de-tiempo",
+  "/dashboard/simulacro",
+  "/dashboard/sesion-mixta",
+];
 
-  // Exact match for dashboard home
+const COMPETE_ROUTES = [
+  "/dashboard/liga",
+  "/dashboard/ranking",
+  "/dashboard/causas",
+];
+
+function isItemActive(item: NavItem, pathname: string): boolean {
+  // Noticias
+  if (item.href === "/dashboard/noticias") {
+    return pathname.startsWith("/dashboard/noticias") || pathname === "/portada";
+  }
+
+  // Escritorio: exact match only
   if (item.href === "/dashboard") {
     return (
       pathname === "/dashboard" ||
@@ -122,55 +111,43 @@ function isItemActive(item: NavItem, pathname: string): boolean {
     );
   }
 
-  // Materias: exact match
-  if (item.href === "/dashboard/indice-maestro") {
-    return pathname.startsWith("/dashboard/indice-maestro");
+  // Estudiar: matches any study route
+  if (item.label === "Estudiar") {
+    return STUDY_ROUTES.some((r) => pathname.startsWith(r));
   }
 
-  // Estudios: match its own route + all study sub-routes
-  if (item.href === "/dashboard/estudios") {
-    return (
-      pathname === "/dashboard/estudios" ||
-      pathname.startsWith("/dashboard/flashcards") ||
-      pathname.startsWith("/dashboard/mcq") ||
-      pathname.startsWith("/dashboard/truefalse") ||
-      pathname.startsWith("/dashboard/definiciones") ||
-      pathname.startsWith("/dashboard/simulacro")
-    );
+  // Competencias: matches liga, ranking, causas
+  if (item.label === "Competencias") {
+    return COMPETE_ROUTES.some((r) => pathname.startsWith(r));
   }
 
-  // Default: starts with the item's href
+  // Default: starts with href
   return pathname.startsWith(item.href);
 }
 
 /* ─── Component ─── */
 
-const HOVER_DELAY = 150; // ms before closing dropdown
-
 export function GzMastheadNav() {
   const pathname = usePathname();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const clearTimer = useCallback(() => {
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current);
-      closeTimerRef.current = null;
-    }
-  }, []);
-
-  const handleEnter = useCallback(
+  const handleToggle = useCallback(
     (idx: number) => {
-      clearTimer();
-      setOpenIndex(idx);
+      setOpenIndex((prev) => (prev === idx ? null : idx));
     },
-    [clearTimer]
+    []
   );
 
-  const handleLeave = useCallback(() => {
-    closeTimerRef.current = setTimeout(() => {
-      setOpenIndex(null);
-    }, HOVER_DELAY);
+  // Close on click outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpenIndex(null);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Close on route change
@@ -178,37 +155,30 @@ export function GzMastheadNav() {
     setOpenIndex(null);
   }, [pathname]);
 
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => clearTimer();
-  }, [clearTimer]);
-
   return (
-    <nav className="hidden lg:flex justify-center gap-0 mt-3.5 border-t border-gz-rule pt-2.5">
+    <nav
+      ref={containerRef}
+      className="hidden lg:flex justify-center gap-0 mt-3.5 border-t border-gz-rule pt-2.5"
+    >
       {NAV_ITEMS.map((item, i) => {
         const active = isItemActive(item, pathname);
         const isOpen = openIndex === i && !!item.children;
         const isLast = i === NAV_ITEMS.length - 1;
 
         return (
-          <div
-            key={item.href}
-            className="relative"
-            onMouseEnter={() => item.children && handleEnter(i)}
-            onMouseLeave={handleLeave}
-          >
-            {/* Top-level link */}
-            <Link
-              href={item.href}
-              className={`
-                block font-archivo text-[11px] font-semibold uppercase tracking-[2px]
-                px-[18px] py-1 transition-colors hover:text-gz-gold
-                ${!isLast ? "border-r border-gz-rule" : ""}
-                ${active ? "text-gz-ink font-bold" : "text-gz-ink-mid"}
-              `}
-            >
-              {item.label}
-              {item.children && (
+          <div key={item.href + item.label} className="relative">
+            {/* Top-level link or dropdown trigger */}
+            {item.children ? (
+              <button
+                onClick={() => handleToggle(i)}
+                className={`
+                  block font-archivo text-[11px] font-semibold uppercase tracking-[2px]
+                  px-[18px] py-1 transition-colors hover:text-gz-gold cursor-pointer
+                  ${!isLast ? "border-r border-gz-rule" : ""}
+                  ${active ? "text-gz-ink font-bold" : "text-gz-ink-mid"}
+                `}
+              >
+                {item.label}
                 <span
                   className={`ml-1 inline-block text-[8px] transition-transform duration-200 ${
                     isOpen ? "rotate-180" : ""
@@ -216,16 +186,28 @@ export function GzMastheadNav() {
                 >
                   ▾
                 </span>
-              )}
-            </Link>
+              </button>
+            ) : (
+              <Link
+                href={item.href}
+                className={`
+                  block font-archivo text-[11px] font-semibold uppercase tracking-[2px]
+                  px-[18px] py-1 transition-colors hover:text-gz-gold
+                  ${!isLast ? "border-r border-gz-rule" : ""}
+                  ${active ? "text-gz-ink font-bold" : "text-gz-ink-mid"}
+                `}
+              >
+                {item.label}
+              </Link>
+            )}
 
             {/* Dropdown */}
             {item.children && (
               <div
                 className={`
                   absolute top-full left-1/2 -translate-x-1/2 mt-1.5 z-50
-                  min-w-[200px] py-2
-                  border border-gz-rule rounded-sm shadow-sm
+                  min-w-[220px] py-2
+                  border border-gz-rule rounded-lg shadow-md
                   transition-all duration-200 origin-top
                   ${
                     isOpen
@@ -234,8 +216,6 @@ export function GzMastheadNav() {
                   }
                 `}
                 style={{ backgroundColor: "var(--gz-cream)" }}
-                onMouseEnter={() => handleEnter(i)}
-                onMouseLeave={handleLeave}
               >
                 {/* Caret arrow */}
                 <div
@@ -246,7 +226,8 @@ export function GzMastheadNav() {
                 {item.children.map((sub) => {
                   const subActive =
                     sub.href.includes("?")
-                      ? pathname + (typeof window !== "undefined" ? window.location.search : "") === sub.href
+                      ? pathname + (typeof window !== "undefined" ? window.location.search : "") ===
+                        sub.href
                       : pathname === sub.href || pathname.startsWith(sub.href + "/");
 
                   return (
@@ -254,17 +235,13 @@ export function GzMastheadNav() {
                       key={sub.href}
                       href={sub.href}
                       className={`
-                        block px-4 py-2 font-archivo text-[12px] tracking-[0.5px]
-                        transition-colors hover:bg-gz-gold/10 hover:text-gz-gold
+                        flex items-center gap-2 px-4 py-2.5 font-archivo text-[11px] uppercase tracking-[1.5px]
+                        transition-colors hover:bg-gz-gold/[0.06] hover:text-gz-ink
                         ${subActive ? "text-gz-gold font-semibold" : "text-gz-ink-mid"}
                       `}
                     >
+                      <span className="text-[14px]">{sub.emoji}</span>
                       {sub.label}
-                      {sub.badge && (
-                        <span className="ml-2 font-ibm-mono text-[8px] uppercase tracking-[1px] text-gz-ink-light border border-gz-rule rounded-full px-2 py-0.5">
-                          {sub.badge}
-                        </span>
-                      )}
                     </Link>
                   );
                 })}

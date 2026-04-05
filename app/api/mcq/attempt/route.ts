@@ -5,6 +5,7 @@ import { calculateXP, calculateStreakBonus, awardXp } from "@/lib/xp-config";
 import { evaluateBadges } from "@/lib/badges";
 import { BADGE_MAP } from "@/lib/badge-constants";
 import { isFreePlan } from "@/lib/plan-utils";
+import { invalidateProgresoCache } from "@/lib/progreso-cache";
 
 const DAILY_FREE_LIMIT = 10;
 
@@ -119,6 +120,9 @@ export async function POST(request: Request) {
       prisma,
     });
   }
+
+  // Invalidate progress cache
+  invalidateProgresoCache(authUser.id).catch(() => {});
 
   // Badge evaluation (await to return newly earned badges)
   const newBadgeSlugs = await evaluateBadges(authUser.id, "estudio").catch(() => [] as string[]);

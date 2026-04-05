@@ -189,16 +189,23 @@ function StudyButtons({
         Estudiar este tema:
       </p>
       <div className="flex flex-wrap gap-2">
-        {activeModules.map((m) => (
-          <Link
-            key={m.key}
-            href={`${MODULE_HREFS[m.key]}?${qs}`}
-            className="font-archivo text-[11px] font-semibold px-3 py-1.5 rounded-[3px] border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold transition-colors"
-          >
-            {m.label}
-          </Link>
-        ))}
-        {/* Simulacro — always shown, different style */}
+        {activeModules.map((m) => {
+          const isTokenModule = m.key === "dictado";
+          return (
+            <Link
+              key={m.key}
+              href={`${MODULE_HREFS[m.key]}?${qs}`}
+              className={`font-archivo text-[11px] font-semibold px-3 py-1.5 rounded-[3px] border transition-colors ${
+                isTokenModule
+                  ? "border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  : "border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold"
+              }`}
+            >
+              {m.label}
+            </Link>
+          );
+        })}
+        {/* Simulacro — always shown, blue (token consumer) */}
         <Link
           href="/dashboard/simulacro"
           className="font-archivo text-[11px] font-semibold px-3 py-1.5 rounded-[3px] border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
@@ -325,8 +332,16 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                           </span>
                           {/* Cycles badge */}
                           {titulo.cycles > 0 && (
-                            <span className="font-ibm-mono text-[9px] text-gz-gold bg-gz-gold/10 px-1.5 py-0.5 rounded-sm flex-shrink-0">
-                              ×{titulo.cycles}
+                            <span
+                              className={`font-ibm-mono text-[12px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${
+                                titulo.cycles >= 10
+                                  ? "bg-gz-navy/20 text-gz-navy border-gz-navy/40"
+                                  : titulo.cycles >= 5
+                                  ? "bg-gz-burgundy/20 text-gz-burgundy border-gz-burgundy/40"
+                                  : "bg-gz-gold/20 text-gz-gold border-gz-gold"
+                              }`}
+                            >
+                              {titulo.cycles >= 10 ? "⭐ " : ""}×{titulo.cycles}
                             </span>
                           )}
                           {hasTituloContent && (
@@ -438,13 +453,13 @@ export function IndiceMaestroClient({ materias }: Props) {
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
         Índice Maestro
       </p>
-      <div className="flex items-center gap-3 mb-1">
+      <div className="flex items-center gap-4 mb-1">
         <Image
           src="/brand/logo-sello.svg"
           alt="Studio Iuris"
-          width={80}
-          height={80}
-          className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
+          width={120}
+          height={120}
+          className="h-[80px] w-[80px] lg:h-[120px] lg:w-[120px]"
         />
         <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
           Materias

@@ -1,18 +1,17 @@
 import Image from "next/image";
+import { ProfileDropdown } from "./profile-dropdown";
 
 interface GzUserBarProps {
   userName: string;
+  email: string;
   avatarUrl: string | null;
   streak: number;
   causasGanadas: number;
   tasaAcierto: number;
-}
-
-function getSaludo(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Buenos días";
-  if (hour < 19) return "Buenas tardes";
-  return "Buenas noches";
+  grado: number;
+  gradoNombre: string;
+  isAdmin: boolean;
+  userId: string;
 }
 
 function getInitials(name: string): string {
@@ -26,19 +25,23 @@ function getInitials(name: string): string {
 
 export function GzUserBar({
   userName,
+  email,
   avatarUrl,
   streak,
   causasGanadas,
   tasaAcierto,
+  grado,
+  gradoNombre,
+  isAdmin,
 }: GzUserBarProps) {
-  const saludo = getSaludo();
   const initials = getInitials(userName);
 
   return (
     <div className="flex justify-between items-center px-4 lg:px-10 py-2.5 border-b border-gz-rule bg-[var(--gz-gold)]/[0.04]">
-      {/* Left: avatar + greeting */}
+      {/* Left: avatar + profile dropdown + stats */}
       <div className="flex items-center gap-4">
-        <div className="w-8 h-8 rounded-full bg-gz-navy flex items-center justify-center text-gz-gold-bright text-xs font-semibold shrink-0 overflow-hidden">
+        {/* Avatar (mobile only — desktop avatar is in ProfileDropdown) */}
+        <div className="w-8 h-8 rounded-full bg-gz-navy flex items-center justify-center text-gz-gold-bright text-xs font-semibold shrink-0 overflow-hidden sm:hidden">
           {avatarUrl ? (
             <Image
               src={avatarUrl}
@@ -51,22 +54,35 @@ export function GzUserBar({
             initials
           )}
         </div>
-        <span className="font-cormorant text-[15px] font-semibold text-gz-ink">
-          {saludo}, {userName}
-        </span>
+
+        {/* Profile dropdown */}
+        <ProfileDropdown
+          userName={userName}
+          email={email}
+          avatarUrl={avatarUrl}
+          grado={grado}
+          gradoNombre={gradoNombre}
+          isAdmin={isAdmin}
+        />
+
+        {/* Stats — hidden on mobile */}
+        <div className="hidden sm:flex items-center gap-5 ml-2">
+          <div className="w-px h-5 bg-gz-rule" />
+          <div data-streak-indicator className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">
+            🔥 <strong className="text-gz-ink text-[13px]">{streak}</strong> días de racha
+          </div>
+          <div className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">
+            🏆 <strong className="text-gz-ink text-[13px]">{causasGanadas}</strong> causas ganadas
+          </div>
+          <div className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">
+            📊 <strong className="text-gz-ink text-[13px]">{tasaAcierto}%</strong> acierto
+          </div>
+        </div>
       </div>
 
-      {/* Right: stats */}
-      <div className="hidden sm:flex items-center gap-5">
-        <div data-streak-indicator className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">
-          🔥 <strong className="text-gz-ink text-[13px]">{streak}</strong> días de racha
-        </div>
-        <div className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">
-          🏆 <strong className="text-gz-ink text-[13px]">{causasGanadas}</strong> causas ganadas
-        </div>
-        <div className="font-ibm-mono text-[11px] text-gz-ink-mid flex items-center gap-1.5">
-          📊 <strong className="text-gz-ink text-[13px]">{tasaAcierto}%</strong> acierto
-        </div>
+      {/* Right: search + notifications */}
+      <div className="flex items-center gap-3">
+        {/* These could be added later — search icon + notification bell */}
       </div>
     </div>
   );

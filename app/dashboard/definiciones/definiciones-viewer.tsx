@@ -11,6 +11,7 @@ import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { RAMA_LABELS } from "@/lib/curriculum-data";
 import { ShareSession } from "@/app/components/share-session";
+import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
 
 /* ─── Types ─── */
 
@@ -80,6 +81,7 @@ export function DefinicionesViewer({
   const [scaleCorrectOpt, setScaleCorrectOpt] = useState<string | null>(null);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
 
   // Filter definitions by selected rama/libro/titulo
   const filteredDefiniciones = useMemo(() => {
@@ -323,6 +325,8 @@ export function DefinicionesViewer({
 
   return (
     <div className="space-y-6">
+      {hasFiltersFromUrl && <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} />}
+
       {/* Progress bar + score */}
       <div className="flex items-center justify-between text-xs text-gz-ink-mid font-ibm-mono">
         <span>

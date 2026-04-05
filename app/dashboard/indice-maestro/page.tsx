@@ -10,6 +10,7 @@ export const metadata = {
 };
 
 export default async function IndiceMaestroPage() {
+  const perfStart = Date.now();
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -268,6 +269,8 @@ export default async function IndiceMaestroPage() {
       percent: ramaAllTotal > 0 ? Math.round((ramaAllDone / ramaAllTotal) * 100) : 0,
     };
   });
+
+  console.log("[PERF] Índice Maestro:", Date.now() - perfStart, "ms");
 
   return (
     <main

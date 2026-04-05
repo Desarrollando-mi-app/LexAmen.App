@@ -23,59 +23,33 @@ interface MobileNavItem {
 
 const NAV_ITEMS: MobileNavItem[] = [
   {
+    href: "/dashboard/noticias",
+    icon: "📰",
+    label: "Noticias",
+  },
+  {
     href: "/dashboard",
     icon: "🏠",
     label: "Inicio",
-    children: [
-      { href: "/dashboard", label: "Escritorio" },
-      { href: "/dashboard/progreso", label: "Mi Progreso" },
-      { href: "/dashboard/calendario", label: "Calendario" },
-      { href: "/dashboard/estadisticas", label: "Mis Estadísticas" },
-    ],
-  },
-  {
-    href: "/dashboard/indice-maestro",
-    icon: "📂",
-    label: "Materias",
   },
   {
     href: "/dashboard/estudios",
     icon: "📚",
-    label: "Estudios",
+    label: "Estudiar",
     children: [
-      { href: "/dashboard/flashcards", label: "Flashcards" },
-      { href: "/dashboard/mcq", label: "MCQ" },
-      { href: "/dashboard/truefalse", label: "Verdadero / Falso" },
-      { href: "/dashboard/definiciones", label: "Definiciones" },
-      { href: "/dashboard/completar-espacios", label: "Completar Espacios" },
-      { href: "/dashboard/identificar-errores", label: "Identificar Errores" },
-      { href: "/dashboard/ordenar-secuencias", label: "Ordenar Secuencias" },
-      { href: "/dashboard/relacionar-columnas", label: "Relacionar Columnas" },
-      { href: "/dashboard/casos-practicos", label: "Casos Prácticos" },
-      { href: "/dashboard/dictado-juridico", label: "Dictado Jurídico" },
-      { href: "/dashboard/linea-de-tiempo", label: "Líneas de Tiempo" },
-      { href: "/dashboard/simulacro", label: "Simulacro Oral" },
+      { href: "/dashboard/indice-maestro", label: "Índice Maestro" },
+      { href: "/dashboard/instituciones", label: "Instituciones" },
+      { href: "/dashboard/estudios", label: "Ejercicios (11 módulos)" },
     ],
   },
   {
     href: "/dashboard/liga",
     icon: "🏆",
-    label: "Liga",
-  },
-  {
-    href: "/dashboard/ranking",
-    icon: "📊",
-    label: "Ranking",
-  },
-  {
-    href: "/dashboard/causas",
-    icon: "⚔️",
-    label: "Causas",
+    label: "Competir",
     children: [
-      { href: "/dashboard/causas", label: "Todas las Causas" },
-      { href: "/dashboard/causas?mode=relampage", label: "1v1" },
-      { href: "/dashboard/causas?mode=2v2", label: "2v2" },
-      { href: "/dashboard/causas?mode=individual", label: "Desafío Grupal" },
+      { href: "/dashboard/liga", label: "Liga" },
+      { href: "/dashboard/ranking", label: "Ranking" },
+      { href: "/dashboard/causas", label: "Causas" },
     ],
   },
   {
@@ -91,51 +65,43 @@ const NAV_ITEMS: MobileNavItem[] = [
   },
   {
     href: "/dashboard/diario",
-    icon: "📰",
+    icon: "✍️",
     label: "Diario",
     children: [
       { href: "/dashboard/diario", label: "Feed" },
-      { href: "/dashboard/diario?tab=analisis", label: "Análisis de Sentencia" },
+      { href: "/dashboard/diario?tab=analisis", label: "Análisis" },
       { href: "/dashboard/diario?tab=ensayos", label: "Ensayos" },
-      { href: "/dashboard/diario/analisis/nuevo", label: "Nuevo Análisis" },
-      { href: "/dashboard/diario/ensayos/nuevo", label: "Nuevo Ensayo" },
+      { href: "/dashboard/diario/debates", label: "Debates" },
+      { href: "/dashboard/diario/expediente", label: "Expediente Abierto" },
     ],
-  },
-  {
-    href: "/dashboard/noticias",
-    icon: "\uD83D\uDDDE\uFE0F",
-    label: "Noticias",
-  },
-  {
-    href: "/dashboard/perfil",
-    icon: "👤",
-    label: "Perfil",
   },
 ];
 
 /* ─── Active detection ─── */
 
+const STUDY_ROUTES = [
+  "/dashboard/indice-maestro", "/dashboard/instituciones", "/dashboard/estudios",
+  "/dashboard/flashcards", "/dashboard/mcq", "/dashboard/truefalse",
+  "/dashboard/definiciones", "/dashboard/completar-espacios", "/dashboard/identificar-errores",
+  "/dashboard/ordenar-secuencias", "/dashboard/relacionar-columnas", "/dashboard/casos-practicos",
+  "/dashboard/dictado-juridico", "/dashboard/linea-de-tiempo", "/dashboard/simulacro",
+  "/dashboard/sesion-mixta",
+];
+const COMPETE_ROUTES = ["/dashboard/liga", "/dashboard/ranking", "/dashboard/causas"];
+
 function isItemActive(item: MobileNavItem, pathname: string): boolean {
+  if (item.href === "/dashboard/noticias") {
+    return pathname.startsWith("/dashboard/noticias") || pathname === "/portada";
+  }
   if (item.href === "/dashboard") {
-    return (
-      pathname === "/dashboard" ||
-      pathname === "/dashboard/progreso" ||
-      pathname === "/dashboard/calendario" ||
-      pathname === "/dashboard/estadisticas"
-    );
+    return pathname === "/dashboard" || pathname === "/dashboard/progreso" ||
+      pathname === "/dashboard/calendario" || pathname === "/dashboard/estadisticas";
   }
-  if (item.href === "/dashboard/indice-maestro") {
-    return pathname.startsWith("/dashboard/indice-maestro");
+  if (item.label === "Estudiar") {
+    return STUDY_ROUTES.some((r) => pathname.startsWith(r));
   }
-  if (item.href === "/dashboard/estudios") {
-    return (
-      pathname === "/dashboard/estudios" ||
-      pathname.startsWith("/dashboard/flashcards") ||
-      pathname.startsWith("/dashboard/mcq") ||
-      pathname.startsWith("/dashboard/truefalse") ||
-      pathname.startsWith("/dashboard/definiciones") ||
-      pathname.startsWith("/dashboard/simulacro")
-    );
+  if (item.label === "Competir") {
+    return COMPETE_ROUTES.some((r) => pathname.startsWith(r));
   }
   return pathname.startsWith(item.href);
 }

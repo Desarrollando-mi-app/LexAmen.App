@@ -18,6 +18,7 @@ import { playFlip, playAchievement, playXpGained, getAnimationsEnabled } from "@
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
 import { ShareSession } from "@/app/components/share-session";
+import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -115,6 +116,7 @@ export function FlashcardViewer({
     () => new Set(favoriteIds)
   );
   const { showXpFloat } = useXpFloat();
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
 
   // Derive available options based on selections
   const availableRamas = useMemo(
@@ -543,7 +545,7 @@ export function FlashcardViewer({
             Volver
           </Link>
         </div>
-        <FiltersUI />
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">
             {viewMode === "FAVORITES" ? "No tienes tarjetas favoritas en esta seleccion." : viewMode === "PENDING" ? "No tienes tarjetas pendientes de revision." : "No hay tarjetas disponibles para esta seleccion."}
@@ -567,7 +569,7 @@ export function FlashcardViewer({
         <span className="font-ibm-mono text-[12px] text-gz-ink-light">Tarjeta {currentIndex + 1} de {totalCards}</span>
       </div>
 
-      <FiltersUI />
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
 
       {/* Tarjeta flip */}
       <div className="relative">

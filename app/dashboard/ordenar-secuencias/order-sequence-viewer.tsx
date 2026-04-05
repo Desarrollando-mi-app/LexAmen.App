@@ -33,6 +33,7 @@ import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
 import { ReportButton } from "@/app/components/report-button";
 import { ShareSession } from "@/app/components/share-session";
+import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
 
 // ----------------------------------------------------------------
 // Types
@@ -223,6 +224,7 @@ export function OrderSequenceViewer({
   const [showConfetti, setShowConfetti] = useState(false);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
 
   // ─── DnD sensors ────────────────────────────────────────
   const sensors = useSensors(
@@ -507,7 +509,7 @@ export function OrderSequenceViewer({
   if (totalCards === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <FiltersUI />
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">
           No hay ejercicios disponibles para estos filtros.
         </p>
@@ -545,7 +547,7 @@ export function OrderSequenceViewer({
         </span>
       </div>
 
-      <FiltersUI />
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
 
       <Confetti active={showConfetti} color="gold" />
 

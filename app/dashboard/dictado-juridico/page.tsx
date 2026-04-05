@@ -139,6 +139,7 @@ export default async function DictadoJuridicoPage({
           items={filteredItems}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_LIMIT}
+          initialFilters={{ rama, libro, titulo }}
         />
       </div>
     </main>

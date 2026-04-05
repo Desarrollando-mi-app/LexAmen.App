@@ -19,6 +19,7 @@ import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
 import { ShareSession } from "@/app/components/share-session";
+import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
 
 // ─── Tipos ─────────────────────────────────────────────────
 
@@ -107,6 +108,7 @@ export function TrueFalseViewer({
   const [showConfetti, setShowConfetti] = useState(false);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
 
   // ─── Derived filter options ────────────────────────────
 
@@ -401,7 +403,7 @@ export function TrueFalseViewer({
   if (totalCards === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <FiltersUI />
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">No hay afirmaciones disponibles para estos filtros.</p>
         <Link href="/dashboard/indice-maestro" className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Indice</Link>
       </div>
@@ -415,7 +417,7 @@ export function TrueFalseViewer({
         <span className="font-ibm-mono text-[12px] text-gz-ink-light">Afirmacion {currentIndex + 1} de {totalCards}</span>
       </div>
 
-      <FiltersUI />
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
 
       <Confetti active={showConfetti} color="gold" />
 

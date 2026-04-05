@@ -338,6 +338,8 @@ model User {
   onboardingCompleted Boolean @default(false)
   onboardingStep      Int     @default(0)     // 0=not started, 1-4=in progress, 5=completed
   isAdmin         Boolean   @default(false)
+  progresoCache     Json?
+  progresoCacheAt   DateTime?
   createdAt       DateTime  @default(now())
 
   flashcardProgress   UserFlashcardProgress[]
@@ -445,6 +447,8 @@ model User {
 
   // XP Log (desglose por categoría)
   xpLogs                  XpLog[]               @relation("XpLogs")
+
+  @@index([grado])
 }
 
 model Flashcard {
@@ -467,6 +471,7 @@ model Flashcard {
   favorites FlashcardFavorite[]
 
   @@index([rama, libro])
+  @@index([rama, libro, titulo])
   @@index([institucionId])
 }
 
@@ -484,6 +489,7 @@ model UserFlashcardProgress {
   flashcard Flashcard @relation(fields: [flashcardId], references: [id], onDelete: Cascade)
 
   @@unique([userId, flashcardId])
+  @@index([userId, repetitions])
 }
 
 model MCQ {
@@ -513,6 +519,7 @@ model MCQ {
   causaRoomAnswers   CausaRoomAnswer[]
 
   @@index([rama, libro])
+  @@index([rama, libro, titulo])
   @@index([institucionId])
 }
 
@@ -526,6 +533,9 @@ model UserMCQAttempt {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   mcq  MCQ  @relation(fields: [mcqId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, mcqId])
 }
 
 model TrueFalse {
@@ -548,6 +558,7 @@ model TrueFalse {
   attempts UserTrueFalseAttempt[]
 
   @@index([rama, libro])
+  @@index([rama, libro, titulo])
   @@index([institucionId])
 }
 
@@ -561,6 +572,9 @@ model UserTrueFalseAttempt {
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   trueFalse TrueFalse @relation(fields: [trueFalseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, trueFalseId])
 }
 
 model ContentReport {

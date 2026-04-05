@@ -6,6 +6,7 @@ import { progressKey } from "@/lib/progress-utils";
 import { checkStreakPenalty } from "@/lib/xp-config";
 import type { ProgressData } from "./components/curriculum-progress";
 import { RAMA_LABELS, CURRICULUM } from "@/lib/curriculum-data";
+import { getGradoInfo } from "@/lib/league";
 
 import { GzMasthead } from "./components/gz-masthead";
 import { GzUserBar } from "./components/gz-user-bar";
@@ -89,6 +90,7 @@ function getRamaProgress(
 // ─── Página principal ────────────────────────────────────
 
 export default async function DashboardPage() {
+  const perfStart = Date.now();
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -596,6 +598,7 @@ export default async function DashboardPage() {
   }
 
   // ─── Render ───────────────────────────────────────────────
+  console.log("[PERF] Dashboard:", Date.now() - perfStart, "ms");
 
   return (
     <main className="gz-page min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
@@ -610,10 +613,15 @@ export default async function DashboardPage() {
 
       <GzUserBar
         userName={user.firstName}
+        email={user.email}
         avatarUrl={user.avatarUrl}
         streak={streak}
         causasGanadas={user.causasGanadas}
         tasaAcierto={mcqPercent}
+        grado={user.grado}
+        gradoNombre={getGradoInfo(user.grado).nombre}
+        isAdmin={user.isAdmin}
+        userId={authUser.id}
       />
 
       <StreakDetector streak={streak} hadActivityYesterday={hadActivityYesterday} />

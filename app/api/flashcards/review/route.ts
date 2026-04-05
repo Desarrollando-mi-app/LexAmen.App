@@ -10,6 +10,7 @@ import {
 } from "@/lib/xp-config";
 import { evaluateBadges } from "@/lib/badges";
 import { isFreePlan } from "@/lib/plan-utils";
+import { invalidateProgresoCache } from "@/lib/progreso-cache";
 
 const DAILY_FREE_LIMIT = 30;
 
@@ -227,6 +228,9 @@ export async function POST(request: Request) {
       completedTitulo = flashcard.titulo;
     }
   }
+
+  // Invalidate progress cache
+  invalidateProgresoCache(authUser.id).catch(() => {});
 
   // 12. Retornar resultado
   return NextResponse.json({

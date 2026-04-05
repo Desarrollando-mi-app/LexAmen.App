@@ -8,6 +8,7 @@ import { ShareSession } from "@/app/components/share-session";
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { ReportButton } from "@/app/components/report-button";
+import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
 
 /* ─── Types ─── */
 
@@ -41,6 +42,11 @@ interface Props {
   items: DictadoItem[];
   attemptsToday: number;
   dailyLimit: number;
+  initialFilters?: {
+    rama?: string;
+    libro?: string;
+    titulo?: string;
+  };
 }
 
 const RAMAS = ["DERECHO_CIVIL", "DERECHO_PROCESAL_CIVIL", "DERECHO_ORGANICO"];
@@ -52,8 +58,10 @@ export function DictadoViewer({
   items,
   attemptsToday: initialAttempts,
   dailyLimit,
+  initialFilters,
 }: Props) {
-  const [selectedRama, setSelectedRama] = useState<string>("ALL");
+  const [selectedRama, setSelectedRama] = useState<string>(initialFilters?.rama || "ALL");
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [attempts, setAttempts] = useState(initialAttempts);
 
@@ -62,6 +70,8 @@ export function DictadoViewer({
   const [speed, setSpeed] = useState<number>(1.0);
   const [loadingAudio, setLoadingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const MAX_PLAYS = 3;
+  const [playCount, setPlayCount] = useState(0);
 
   // Input state
   const [textoUsuario, setTextoUsuario] = useState("");
@@ -100,7 +110,7 @@ export function DictadoViewer({
 
   const handleListenDictado = useCallback(
     async (selectedSpeed?: number) => {
-      if (!current || loadingAudio) return;
+      if (!current || loadingAudio || playCount >= MAX_PLAYS) return;
       setLoadingAudio(true);
 
       try {
@@ -120,6 +130,7 @@ export function DictadoViewer({
 
         const data = await res.json();
         setAudioUrl(data.audioUrl);
+        setPlayCount((c) => c + 1);
 
         // Play automatically
         if (audioRef.current) {
@@ -132,13 +143,15 @@ export function DictadoViewer({
         setLoadingAudio(false);
       }
     },
-    [current, loadingAudio, speed],
+    [current, loadingAudio, speed, playCount],
   );
 
   function handleRepeat() {
+    if (playCount >= MAX_PLAYS) return;
     if (audioRef.current && audioUrl) {
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(() => {});
+      setPlayCount((c) => c + 1);
     }
   }
 
@@ -216,6 +229,7 @@ export function DictadoViewer({
     setTextoUsuario("");
     setResult(null);
     setAudioUrl(null);
+    setPlayCount(0);
   }
 
   function handleRestart() {
@@ -223,6 +237,7 @@ export function DictadoViewer({
     setTextoUsuario("");
     setResult(null);
     setAudioUrl(null);
+    setPlayCount(0);
     setSessionStats({ completed: 0, totalXp: 0 });
   }
 
@@ -349,34 +364,38 @@ export function DictadoViewer({
       <audio ref={audioRef} />
 
       {/* ─── Rama filter ─── */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mr-1">
-          Rama:
-        </span>
-        <button
-          onClick={() => { setSelectedRama("ALL"); setCurrentIndex(0); setResult(null); setAudioUrl(null); setTextoUsuario(""); }}
-          className={`rounded-[3px] px-3 py-1 font-archivo text-[11px] uppercase tracking-[1px] transition-colors ${
-            selectedRama === "ALL"
-              ? "bg-gz-navy text-white"
-              : "border border-gz-rule text-gz-ink-light hover:border-gz-gold hover:text-gz-gold"
-          }`}
-        >
-          Todas
-        </button>
-        {RAMAS.map((r) => (
+      {hasFiltersFromUrl ? (
+        <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} />
+      ) : (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mr-1">
+            Rama:
+          </span>
           <button
-            key={r}
-            onClick={() => { setSelectedRama(r); setCurrentIndex(0); setResult(null); setAudioUrl(null); setTextoUsuario(""); }}
+            onClick={() => { setSelectedRama("ALL"); setCurrentIndex(0); setResult(null); setAudioUrl(null); setTextoUsuario(""); setPlayCount(0); }}
             className={`rounded-[3px] px-3 py-1 font-archivo text-[11px] uppercase tracking-[1px] transition-colors ${
-              selectedRama === r
+              selectedRama === "ALL"
                 ? "bg-gz-navy text-white"
                 : "border border-gz-rule text-gz-ink-light hover:border-gz-gold hover:text-gz-gold"
             }`}
           >
-            {r.replace(/_/g, " ")}
+            Todas
           </button>
-        ))}
-      </div>
+          {RAMAS.map((r) => (
+            <button
+              key={r}
+              onClick={() => { setSelectedRama(r); setCurrentIndex(0); setResult(null); setAudioUrl(null); setTextoUsuario(""); setPlayCount(0); }}
+              className={`rounded-[3px] px-3 py-1 font-archivo text-[11px] uppercase tracking-[1px] transition-colors ${
+                selectedRama === r
+                  ? "bg-gz-navy text-white"
+                  : "border border-gz-rule text-gz-ink-light hover:border-gz-gold hover:text-gz-gold"
+              }`}
+            >
+              {r.replace(/_/g, " ")}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ─── Progress bar ─── */}
       <div className="flex items-center justify-between">
@@ -427,7 +446,7 @@ export function DictadoViewer({
               <div className="flex flex-wrap items-center gap-3 mb-3">
                 <button
                   onClick={() => handleListenDictado()}
-                  disabled={loadingAudio}
+                  disabled={loadingAudio || playCount >= MAX_PLAYS}
                   className="flex items-center gap-2 rounded-[3px] bg-gz-navy px-4 py-2 font-archivo text-[12px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50"
                 >
                   {loadingAudio ? (
@@ -435,21 +454,25 @@ export function DictadoViewer({
                       <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                       Generando...
                     </>
+                  ) : playCount >= MAX_PLAYS ? (
+                    <>Máximo alcanzado</>
                   ) : (
-                    <>
-                      &#x1F50A; Escuchar dictado
-                    </>
+                    <>🔊 Escuchar dictado</>
                   )}
                 </button>
 
-                {audioUrl && (
+                {audioUrl && playCount < MAX_PLAYS && (
                   <button
                     onClick={handleRepeat}
                     className="rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[12px] text-gz-ink-light transition-colors hover:border-gz-gold hover:text-gz-gold"
                   >
-                    &#x1F501; Repetir
+                    🔁 Repetir
                   </button>
                 )}
+
+                <span className="font-ibm-mono text-[10px] text-gz-ink-light">
+                  Reproducciones: {playCount}/{MAX_PLAYS}
+                </span>
               </div>
 
               {/* Speed selector */}
