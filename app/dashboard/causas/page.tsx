@@ -159,7 +159,7 @@ export default async function CausasPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
         <div className="mb-6">
           <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
             Competici&oacute;n &middot; Causas

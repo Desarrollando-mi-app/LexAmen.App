@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ObiterData } from "../types/obiter";
 import { parseObiterContent } from "@/lib/legal-reference-parser";
 import { ObiterLegalRef } from "./obiter-legal-ref";
@@ -165,12 +166,12 @@ export function ObiterCard({
         </div>
 
         {/* 3-dot menu (only for own obiters) */}
-        {isOwnObiter && onManage && (
+        {isOwnObiter && (
           <ObiterMenu
             obiterId={obiter.id}
-            isPinned={!!!!(obiter as unknown as { pinned?: boolean }).pinned}
-            isArchived={!!!!(obiter as unknown as { archived?: boolean }).archived}
-            commentsDisabled={!!!!(obiter as unknown as { commentsDisabled?: boolean }).commentsDisabled}
+            isPinned={!!(obiter as unknown as { pinned?: boolean }).pinned}
+            isArchived={!!(obiter as unknown as { archived?: boolean }).archived}
+            commentsDisabled={!!(obiter as unknown as { commentsDisabled?: boolean }).commentsDisabled}
             onManage={onManage}
           />
         )}
@@ -346,10 +347,32 @@ function ObiterMenu({
   isPinned: boolean;
   isArchived: boolean;
   commentsDisabled: boolean;
-  onManage: (id: string, action: string, content?: string) => void;
+  onManage?: (id: string, action: string, content?: string) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  // Self-contained handler when parent doesn't provide onManage
+  async function handleAction(action: string, content?: string) {
+    if (onManage) {
+      onManage(obiterId, action, content);
+      return;
+    }
+    // Direct API call
+    try {
+      if (action === "delete") {
+        await fetch(`/api/obiter/${obiterId}`, { method: "DELETE" });
+      } else {
+        await fetch(`/api/obiter/${obiterId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, ...(content ? { content } : {}) }),
+        });
+      }
+      router.refresh();
+    } catch { /* silent */ }
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -409,15 +432,15 @@ function ObiterMenu({
                 setOpen(false);
                 if (item.action === "delete") {
                   if (confirm("¿Estás seguro de que quieres eliminar este Obiter?")) {
-                    onManage(obiterId, item.action);
+                    handleAction(item.action);
                   }
                 } else if (item.action === "edit") {
                   const newContent = prompt("Editar contenido:");
                   if (newContent && newContent.trim()) {
-                    onManage(obiterId, item.action, newContent.trim());
+                    handleAction(item.action, newContent.trim());
                   }
                 } else {
-                  onManage(obiterId, item.action);
+                  handleAction(item.action);
                 }
               }}
               className={`w-full flex items-center gap-3 px-4 py-2.5 font-archivo text-[13px] transition-colors ${

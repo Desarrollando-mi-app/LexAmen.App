@@ -54,7 +54,8 @@ const NAV_ITEMS: MobileNavItem[] = [
     label: "Competir",
     children: [
       { href: "/dashboard/liga", label: "Liga" },
-      { href: "/dashboard/ranking", label: "Ranking" },
+      { href: "/dashboard/ranking", label: "Ranking XP" },
+      { href: "/dashboard/ranking-causas", label: "Ranking Causas" },
       { href: "/dashboard/causas", label: "Causas" },
     ],
   },

@@ -47,7 +47,8 @@ const NAV_ITEMS: NavItem[] = [
     label: "Competencias",
     children: [
       { href: "/dashboard/liga", label: "Liga", emoji: "🏆" },
-      { href: "/dashboard/ranking", label: "Ranking", emoji: "📊" },
+      { href: "/dashboard/ranking", label: "Ranking XP", emoji: "📊" },
+      { href: "/dashboard/ranking-causas", label: "Ranking Causas", emoji: "🏅" },
       { href: "/dashboard/causas", label: "Causas", emoji: "⚔️" },
     ],
   },
@@ -98,6 +99,7 @@ const STUDY_ROUTES = [
 const COMPETE_ROUTES = [
   "/dashboard/liga",
   "/dashboard/ranking",
+  "/dashboard/ranking-causas",
   "/dashboard/causas",
 ];
 

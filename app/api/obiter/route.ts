@@ -578,6 +578,7 @@ export async function GET(request: NextRequest) {
     type: "obiter" as const,
     data: {
       id: o.id,
+      userId: o.userId,
       content: o.content,
       materia: o.materia,
       tipo: o.tipo,
@@ -624,6 +625,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({
     obiters: items.map((o) => ({
       id: o.id,
+      userId: o.userId,
       content: o.content,
       materia: o.materia,
       tipo: o.tipo,
