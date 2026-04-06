@@ -60,9 +60,9 @@ export default async function NoticiasPage() {
           <Image
             src="/brand/logo-sello.svg"
             alt="Studio Iuris"
-            width={32}
-            height={32}
-            className="h-7 w-7 opacity-60"
+            width={80}
+            height={80}
+            className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
           />
           <div>
             <h1 className="font-cormorant text-[28px] lg:text-[34px] !font-bold text-gz-ink leading-none">

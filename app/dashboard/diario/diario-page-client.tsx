@@ -1235,7 +1235,7 @@ export function DiarioPageClient({
     <div>
       {/* ── Header: Title + Tabs + Publish in one line ────────── */}
       <div className="mb-6">
-        <div className="flex items-center gap-0 overflow-x-auto">
+        <div className="flex items-center gap-0 flex-wrap">
           {/* Title — hidden on mobile (kicker already identifies the page) */}
           <div className="mr-1 hidden flex-shrink-0 items-center gap-3 border-r border-gz-rule pr-4 sm:flex">
             <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />

@@ -63,6 +63,19 @@ interface MateriaUserRank {
   xpMateria: number;
 }
 
+interface CausasUserRank {
+  rank: number;
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+  grado: number;
+  universidad: string | null;
+  causasGanadas: number;
+  causasJugadas: number;
+  porcentajeVictoria: number;
+}
+
 interface MiPosicion {
   universidad: string | null;
   sede: string | null;
@@ -79,13 +92,14 @@ const RAMAS = [
   { key: "COT", label: "Código Orgánico de Tribunales" },
 ];
 
-type TabId = "nacional" | "region" | "universidad" | "materia";
+type TabId = "nacional" | "region" | "universidad" | "materia" | "causas";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "nacional", label: "Nacional" },
   { id: "region", label: "Por Región" },
   { id: "universidad", label: "Por Facultad" },
   { id: "materia", label: "Por Materia" },
+  { id: "causas", label: "⚔️ Causas" },
 ];
 
 /* ─── Helpers ─── */
@@ -306,6 +320,13 @@ export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean 
   const [matTotalPages, setMatTotalPages] = useState(1);
   const [matMiPos, setMatMiPos] = useState<number | null>(null);
 
+  // ─── Causas state ───
+  const [causasLoading, setCausasLoading] = useState(false);
+  const [causasUsers, setCausasUsers] = useState<CausasUserRank[]>([]);
+  const [causasPage, setCausasPage] = useState(1);
+  const [causasTotalPages, setCausasTotalPages] = useState(1);
+  const [causasMiPos, setCausasMiPos] = useState<number | null>(null);
+
   // ─── Fetch functions ───
 
   const fetchNacional = useCallback(async (p = 1) => {
@@ -399,6 +420,19 @@ export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean 
     setMatLoading(false);
   }, []);
 
+  const fetchCausas = useCallback(async (p = 1) => {
+    setCausasLoading(true);
+    try {
+      const res = await fetch(`/api/ranking/causas?scope=nacional&page=${p}`);
+      const data = await res.json();
+      setCausasUsers(data.usuarios ?? []);
+      setCausasPage(data.page ?? 1);
+      setCausasTotalPages(Math.ceil((data.total ?? 0) / 50) || 1);
+      setCausasMiPos(data.miPosicion ?? null);
+    } catch { /* */ }
+    setCausasLoading(false);
+  }, []);
+
   // ─── Auto-fetch on tab change ───
 
   useEffect(() => {
@@ -418,6 +452,10 @@ export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean 
         .catch(() => {});
     }
   }, [activeTab, universidades.length, fetchUniversidades]);
+
+  useEffect(() => {
+    if (activeTab === "causas" && causasUsers.length === 0) fetchCausas();
+  }, [activeTab, causasUsers.length, fetchCausas]);
 
   // ─── Tab change reset ───
   function handleTabChange(tab: TabId) {
@@ -486,17 +524,17 @@ export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean 
       <div className="mx-auto max-w-4xl px-4 lg:px-10 py-8">
 
         {/* ═══ HEADER ═══ */}
-        <div className="text-center mb-6">
-          <p className="font-ibm-mono text-[9px] uppercase tracking-[3px] text-gz-ink-light mb-1">
+        <div className="mb-6">
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
             Clasificación General
           </p>
-          <h1 className="font-cormorant text-4xl lg:text-5xl font-bold italic text-gz-ink">
-            Ranking
-          </h1>
-          <div className="relative mt-4 mb-2">
-            <div className="border-t-2 border-gz-rule" />
-            <div className="border-t border-gz-rule mt-[3px]" />
+          <div className="flex items-center gap-3">
+            <img src="/brand/logo-sello.svg" alt="Studio Iuris" className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
+            <h1 className="font-cormorant text-[28px] lg:text-[36px] font-bold text-gz-ink">
+              Ranking
+            </h1>
           </div>
+          <div className="border-b-2 border-gz-rule-dark mt-3" />
         </div>
 
         {/* Visibility notice */}
@@ -744,6 +782,76 @@ export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean 
                 <Pagination page={matPage} totalPages={matTotalPages} onPageChange={(p) => fetchMateria(selectedRama!, p)} />
               </div>
             )}
+          </div>
+        )}
+
+        {/* ═══ CAUSAS TAB ═══ */}
+        {activeTab === "causas" && (
+          <div>
+            {causasMiPos && (
+              <div className="mb-4 px-4 py-3 rounded-sm border border-gz-gold/30" style={{ backgroundColor: "color-mix(in srgb, var(--gz-gold) 8%, var(--gz-cream))" }}>
+                <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-gold mb-1">Tu Posición en Causas</p>
+                <p className="font-cormorant text-2xl font-bold text-gz-ink">#{causasMiPos}</p>
+              </div>
+            )}
+            <div className="border border-gz-rule rounded-sm overflow-hidden" style={{ backgroundColor: "var(--gz-cream)" }}>
+              {causasLoading ? (
+                <Spinner />
+              ) : causasUsers.length === 0 ? (
+                <EmptyState text="No hay datos de causas aún" />
+              ) : (
+                causasUsers.map((u) => (
+                  <Link
+                    key={u.id}
+                    href={`/dashboard/perfil/${u.id}`}
+                    className="flex items-center gap-3 px-4 py-3 border-b border-gz-rule/50 transition-colors hover:bg-gz-gold/[0.04]"
+                  >
+                    <span className="w-8 text-center">
+                      <RankBadge rank={u.rank} />
+                    </span>
+
+                    {u.avatarUrl ? (
+                      <img src={u.avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover border border-gz-rule flex-shrink-0" />
+                    ) : (
+                      <span className="h-8 w-8 rounded-full bg-gz-cream-dark flex items-center justify-center text-[10px] font-bold text-gz-ink-light flex-shrink-0">
+                        {getInitials(u.firstName, u.lastName)}
+                      </span>
+                    )}
+
+                    <div className="flex-1 min-w-0">
+                      <p className="font-archivo text-[13px] font-medium text-gz-ink truncate">
+                        {u.firstName} {u.lastName}
+                      </p>
+                      <div className="flex items-center gap-2 text-[10px] text-gz-ink-light">
+                        {u.universidad && <span className="truncate">{u.universidad}</span>}
+                        {(() => {
+                          const g = getGradoInfo(u.grado);
+                          return g ? <span>{g.emoji} G{g.grado}</span> : null;
+                        })()}
+                      </div>
+                    </div>
+
+                    <div className="text-right flex-shrink-0 flex items-center gap-4">
+                      <div>
+                        <p className="font-ibm-mono text-[12px] font-medium text-gz-ink tabular-nums">
+                          {u.causasGanadas}
+                        </p>
+                        <p className="font-ibm-mono text-[8px] uppercase tracking-[1px] text-gz-ink-light">Ganadas</p>
+                      </div>
+                      <div>
+                        <p className={`font-ibm-mono text-[12px] font-medium tabular-nums ${
+                          u.porcentajeVictoria >= 60 ? "text-green-600" : u.porcentajeVictoria >= 40 ? "text-gz-gold" : "text-gz-burgundy"
+                        }`}>
+                          {u.porcentajeVictoria}%
+                        </p>
+                        <p className="font-ibm-mono text-[8px] uppercase tracking-[1px] text-gz-ink-light">Victoria</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+            <Pagination page={causasPage} totalPages={causasTotalPages} onPageChange={(p) => fetchCausas(p)} />
           </div>
         )}
 

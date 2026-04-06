@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { InfoTooltip } from "@/app/components/info-tooltip";
 import { FEATURE_INFO } from "@/lib/feature-info";
 
@@ -123,11 +124,14 @@ export default function EstudiosPage() {
       <div className="mx-auto max-w-4xl px-4 lg:px-0 py-8 sm:py-12">
         {/* Header */}
         <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
-          M&oacute;dulos &middot; Estudio
+          Módulos · Estudio
         </p>
-        <h1 className="font-cormorant text-[28px] sm:text-[36px] !font-bold text-gz-ink leading-tight mt-1">
-          M&oacute;dulos de Estudio
-        </h1>
+        <div className="flex items-center gap-3 mt-1">
+          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
+          <h1 className="font-cormorant text-[28px] sm:text-[36px] !font-bold text-gz-ink leading-tight">
+            Módulos de Estudio
+          </h1>
+        </div>
         <div className="border-b-2 border-gz-rule-dark mt-3 mb-8" />
 
         {/* Grid */}

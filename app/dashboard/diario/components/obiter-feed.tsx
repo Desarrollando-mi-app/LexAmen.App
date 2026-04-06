@@ -261,6 +261,35 @@ export function ObiterFeed({
     router.push(`/dashboard/diario/obiter/${threadId}`);
   }
 
+  async function handleManage(id: string, action: string, content?: string) {
+    if (!userId) return;
+    try {
+      if (action === "delete") {
+        await fetch(`/api/obiter/${id}`, { method: "DELETE" });
+        setFeedItems((prev) => prev.filter((item) => !(item.type === "obiter" && (item.data as ObiterData).id === id)));
+      } else {
+        await fetch(`/api/obiter/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, ...(content ? { content } : {}) }),
+        });
+        if (action === "archive") {
+          setFeedItems((prev) => prev.filter((item) => !(item.type === "obiter" && (item.data as ObiterData).id === id)));
+        } else if (action === "edit" && content) {
+          setFeedItems((prev) => prev.map((item) => {
+            if (item.type === "obiter" && (item.data as ObiterData).id === id) {
+              return { ...item, data: { ...item.data as ObiterData, content } };
+            }
+            return item;
+          }));
+        } else {
+          // Refresh for pin/unpin/comments toggle
+          router.refresh();
+        }
+      }
+    } catch { /* silent */ }
+  }
+
   // ─── Preview interaction handlers ──────────────────────────
 
   async function handlePreviewApoyar(id: string, type: "analisis" | "ensayo") {
@@ -435,6 +464,7 @@ export function ObiterFeed({
                     onComuniquese={handleComuniquese}
                     onCitar={handleCitar}
                     onThreadClick={handleThreadClick}
+                    onManage={handleManage}
                     showComuniquesePor={!!obiter.comuniquesePor}
                   />
                 </div>

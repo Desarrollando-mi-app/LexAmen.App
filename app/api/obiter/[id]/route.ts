@@ -200,6 +200,90 @@ export async function GET(
   });
 }
 
+// ─── PATCH: Manage Obiter (archive, pin, comments, edit) ────
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+
+  if (!authUser) {
+    return NextResponse.json({ error: "No autenticado" }, { status: 401 });
+  }
+
+  const obiter = await prisma.obiterDictum.findUnique({
+    where: { id },
+    select: { userId: true, pinned: true },
+  });
+
+  if (!obiter) {
+    return NextResponse.json({ error: "Obiter no encontrado" }, { status: 404 });
+  }
+
+  if (obiter.userId !== authUser.id) {
+    return NextResponse.json({ error: "No tienes permiso" }, { status: 403 });
+  }
+
+  let body: {
+    action: "archive" | "unarchive" | "pin" | "unpin" | "disableComments" | "enableComments" | "edit";
+    content?: string;
+  };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Body inválido" }, { status: 400 });
+  }
+
+  switch (body.action) {
+    case "archive":
+      await prisma.obiterDictum.update({ where: { id }, data: { archived: true } });
+      return NextResponse.json({ success: true, archived: true });
+
+    case "unarchive":
+      await prisma.obiterDictum.update({ where: { id }, data: { archived: false } });
+      return NextResponse.json({ success: true, archived: false });
+
+    case "pin":
+      // Unpin all other pinned obiters from this user first
+      await prisma.obiterDictum.updateMany({
+        where: { userId: authUser.id, pinned: true },
+        data: { pinned: false },
+      });
+      await prisma.obiterDictum.update({ where: { id }, data: { pinned: true } });
+      return NextResponse.json({ success: true, pinned: true });
+
+    case "unpin":
+      await prisma.obiterDictum.update({ where: { id }, data: { pinned: false } });
+      return NextResponse.json({ success: true, pinned: false });
+
+    case "disableComments":
+      await prisma.obiterDictum.update({ where: { id }, data: { commentsDisabled: true } });
+      return NextResponse.json({ success: true, commentsDisabled: true });
+
+    case "enableComments":
+      await prisma.obiterDictum.update({ where: { id }, data: { commentsDisabled: false } });
+      return NextResponse.json({ success: true, commentsDisabled: false });
+
+    case "edit":
+      if (!body.content || body.content.trim().length === 0) {
+        return NextResponse.json({ error: "Contenido vacío" }, { status: 400 });
+      }
+      await prisma.obiterDictum.update({
+        where: { id },
+        data: { content: body.content.trim() },
+      });
+      return NextResponse.json({ success: true });
+
+    default:
+      return NextResponse.json({ error: "Acción no válida" }, { status: 400 });
+  }
+}
+
 // ─── DELETE: Eliminar Obiter ────────────────────────────────
 
 export async function DELETE(

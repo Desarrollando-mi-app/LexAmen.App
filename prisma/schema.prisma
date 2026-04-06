@@ -1401,6 +1401,11 @@ model ObiterDictum {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
+  // === GESTIÓN ===
+  archived          Boolean  @default(false)
+  pinned            Boolean  @default(false)
+  commentsDisabled  Boolean  @default(false)
+
   // Relaciones
   apoyos           ObiterApoyo[]
   guardados        ObiterGuardado[]
@@ -1411,6 +1416,8 @@ model ObiterDictum {
   @@index([citedObiterId])
   @@index([createdAt(sort: Desc)])
   @@index([materia])
+  @@index([userId, archived])
+  @@index([pinned])
 }
 
 model ObiterApoyo {

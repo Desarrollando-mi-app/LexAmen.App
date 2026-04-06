@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import type { ObiterData } from "../types/obiter";
 import { parseObiterContent } from "@/lib/legal-reference-parser";
@@ -15,6 +16,7 @@ type ObiterCardProps = {
   onComuniquese: (id: string) => void;
   onCitar: (obiter: ObiterData) => void;
   onThreadClick?: (threadId: string) => void;
+  onManage?: (id: string, action: string, content?: string) => void;
   showComuniquesePor?: boolean;
 };
 
@@ -97,6 +99,7 @@ export function ObiterCard({
   onComuniquese,
   onCitar,
   onThreadClick,
+  onManage,
   showComuniquesePor,
 }: ObiterCardProps) {
   const initials =
@@ -160,6 +163,17 @@ export function ObiterCard({
             {metaPieces.join(" · ")}
           </p>
         </div>
+
+        {/* 3-dot menu (only for own obiters) */}
+        {isOwnObiter && onManage && (
+          <ObiterMenu
+            obiterId={obiter.id}
+            isPinned={!!!!(obiter as unknown as { pinned?: boolean }).pinned}
+            isArchived={!!!!(obiter as unknown as { archived?: boolean }).archived}
+            commentsDisabled={!!!!(obiter as unknown as { commentsDisabled?: boolean }).commentsDisabled}
+            onManage={onManage}
+          />
+        )}
       </div>
 
       {/* ── Content ──────────────────────────────────── */}
@@ -302,11 +316,121 @@ export function ObiterCard({
         </button>
       </div>
 
+      {/* ── Pinned indicator ────────────────────────── */}
+      {!!(obiter as unknown as { pinned?: boolean }).pinned && (
+        <p className="mt-2 font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-gold">
+          📌 Fijado
+        </p>
+      )}
+
       {/* ── Colegas que apoyaron ─────────────────────── */}
       {colegasText && (
         <p className="mt-2 font-archivo text-[10px] text-gz-ink-light">
           {colegasText}
         </p>
+      )}
+    </div>
+  );
+}
+
+// ─── 3-Dot Menu Component ──────────────────────────────────
+
+function ObiterMenu({
+  obiterId,
+  isPinned,
+  isArchived,
+  commentsDisabled,
+  onManage,
+}: {
+  obiterId: string;
+  isPinned: boolean;
+  isArchived: boolean;
+  commentsDisabled: boolean;
+  onManage: (id: string, action: string, content?: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  const items = [
+    {
+      label: isArchived ? "Desarchivar" : "Archivar",
+      icon: "📦",
+      action: isArchived ? "unarchive" : "archive",
+    },
+    {
+      label: commentsDisabled ? "Activar comentarios" : "Desactivar comentarios",
+      icon: commentsDisabled ? "💬" : "🔇",
+      action: commentsDisabled ? "enableComments" : "disableComments",
+    },
+    {
+      label: "Editar",
+      icon: "✏️",
+      action: "edit",
+    },
+    {
+      label: isPinned ? "Desfijar" : "Fijar",
+      icon: "📌",
+      action: isPinned ? "unpin" : "pin",
+    },
+    {
+      label: "Eliminar",
+      icon: "🗑️",
+      action: "delete",
+      danger: true,
+    },
+  ];
+
+  return (
+    <div ref={ref} className="relative flex-shrink-0">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex h-8 w-8 items-center justify-center rounded-full text-gz-ink-light transition-colors hover:bg-gz-cream-dark hover:text-gz-ink"
+      >
+        <span className="text-[16px] leading-none">⋯</span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full z-50 mt-1 w-[220px] rounded-lg border border-gz-rule bg-white py-1 shadow-lg">
+          {items.map((item) => (
+            <button
+              key={item.action}
+              onClick={() => {
+                setOpen(false);
+                if (item.action === "delete") {
+                  if (confirm("¿Estás seguro de que quieres eliminar este Obiter?")) {
+                    onManage(obiterId, item.action);
+                  }
+                } else if (item.action === "edit") {
+                  const newContent = prompt("Editar contenido:");
+                  if (newContent && newContent.trim()) {
+                    onManage(obiterId, item.action, newContent.trim());
+                  }
+                } else {
+                  onManage(obiterId, item.action);
+                }
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-2.5 font-archivo text-[13px] transition-colors ${
+                (item as { danger?: boolean }).danger
+                  ? "text-gz-burgundy hover:bg-gz-burgundy/5"
+                  : "text-gz-ink hover:bg-gz-gold/5"
+              }`}
+            >
+              <span className="text-[14px]">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

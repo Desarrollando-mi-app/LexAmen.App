@@ -226,24 +226,17 @@ export function LigaViewer({
       <div className="mx-auto max-w-5xl px-4 lg:px-10 py-8">
 
         {/* ═══ MASTHEAD ═══ */}
-        <div className="text-center mb-6">
-          <p className="font-ibm-mono text-[9px] uppercase tracking-[3px] text-gz-ink-light">
-            Liga Semanal
+        <div className="mb-6">
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
+            Liga Semanal · {daysRemaining} día{daysRemaining !== 1 ? "s" : ""} restante{daysRemaining !== 1 ? "s" : ""}
           </p>
-          <h1 className="font-cormorant text-4xl lg:text-5xl font-bold italic text-gz-ink leading-tight mt-1">
-            La Vida del Derecho
-          </h1>
-
-          {/* Rule */}
-          <div className="relative my-4">
-            <div className="border-t-2 border-gz-rule" />
-            <div className="border-t border-gz-rule mt-[3px]" />
-            <div className="absolute left-1/2 -translate-x-1/2 -top-2 bg-[var(--gz-cream)] px-4">
-              <span className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-gold font-medium">
-                {daysRemaining} día{daysRemaining !== 1 ? "s" : ""} restante{daysRemaining !== 1 ? "s" : ""}
-              </span>
-            </div>
+          <div className="flex items-center gap-3">
+            <img src="/brand/logo-sello.svg" alt="Studio Iuris" className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
+            <h1 className="font-cormorant text-[28px] lg:text-[36px] font-bold text-gz-ink">
+              La Vida del Derecho
+            </h1>
           </div>
+          <div className="border-b-2 border-gz-rule-dark mt-3" />
         </div>
 
         {/* Visibility notice */}

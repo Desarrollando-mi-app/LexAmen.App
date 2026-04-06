@@ -31,6 +31,12 @@ const NAV_ITEMS: MobileNavItem[] = [
     href: "/dashboard",
     icon: "🏠",
     label: "Inicio",
+    children: [
+      { href: "/dashboard", label: "Escritorio" },
+      { href: "/dashboard/estadisticas", label: "Estadísticas" },
+      { href: "/dashboard/calendario", label: "Calendario" },
+      { href: "/dashboard/progreso", label: "Mi Progreso" },
+    ],
   },
   {
     href: "/dashboard/estudios",

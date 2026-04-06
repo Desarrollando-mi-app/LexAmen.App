@@ -55,29 +55,55 @@ export function ProfileDropdown({
     router.push("/login");
   }
 
+  // Grado color mapping by nivel
+  const gradoColor =
+    grado <= 3
+      ? "#8a8073" // ESCUELA
+      : grado <= 14
+      ? "#9a7230" // PRACTICA
+      : grado <= 18
+      ? "#1e4080" // ESTRADO
+      : grado <= 30
+      ? "#8b1a1a" // MAGISTRATURA
+      : "#1a1a2e"; // CONSEJO
+
   return (
     <div ref={ref} className="relative">
-      {/* Avatar button */}
+      {/* Avatar + grado badge */}
       <button
         onClick={() => setOpen(!open)}
-        className="w-9 h-9 rounded-full bg-gz-navy flex items-center justify-center text-gz-gold-bright text-xs font-semibold shrink-0 overflow-hidden ring-2 ring-transparent hover:ring-gz-gold/30 transition-all cursor-pointer"
+        className="flex items-center gap-2 cursor-pointer group"
       >
-        {avatarUrl ? (
-          <Image
-            src={avatarUrl}
-            alt={userName}
-            width={36}
-            height={36}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          initials
-        )}
+        <div className="w-9 h-9 rounded-full bg-gz-navy flex items-center justify-center text-gz-gold-bright text-xs font-semibold shrink-0 overflow-hidden ring-2 ring-transparent group-hover:ring-gz-gold/30 transition-all">
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt={userName}
+              width={36}
+              height={36}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            initials
+          )}
+        </div>
+        <div className="hidden sm:flex items-center gap-1.5">
+          <span className="font-archivo text-[13px] font-semibold text-gz-ink">
+            {userName}
+          </span>
+          <span
+            className="font-ibm-mono text-[9px] uppercase tracking-[1px] px-2 py-0.5 rounded-full text-white"
+            style={{ backgroundColor: gradoColor }}
+          >
+            {gradoNombre}
+          </span>
+          <span className="text-[8px] text-gz-ink-light">▾</span>
+        </div>
       </button>
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-64 rounded-lg border border-gz-rule bg-white shadow-lg z-50">
+        <div className="absolute left-0 top-full mt-2 w-64 rounded-lg border border-gz-rule bg-white shadow-lg z-50">
           {/* User info */}
           <div className="px-4 py-3 border-b border-gz-rule">
             <p className="font-archivo text-[14px] font-semibold text-gz-ink truncate">

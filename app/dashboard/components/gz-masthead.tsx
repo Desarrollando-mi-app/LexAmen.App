@@ -1,37 +1,7 @@
 import Image from "next/image";
 import { GzMastheadNav } from "./gz-masthead-nav";
 
-function formatFechaEspanol(): string {
-  const now = new Date();
-  const dias = [
-    "Domingo",
-    "Lunes",
-    "Martes",
-    "Miércoles",
-    "Jueves",
-    "Viernes",
-    "Sábado",
-  ];
-  const meses = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
-  ];
-  return `${dias[now.getDay()]} ${now.getDate()} de ${meses[now.getMonth()]}, ${now.getFullYear()}`;
-}
-
 export function GzMasthead() {
-  const fecha = formatFechaEspanol();
-
   return (
     <header className="px-6 lg:px-10 pt-5 pb-0">
       {/* Row superior: marca izquierda + metadata derecha */}
@@ -66,18 +36,7 @@ export function GzMasthead() {
           </div>
         </div>
 
-        {/* === DERECHA: Fecha + Edición + URL === */}
-        <div className="text-right hidden lg:block flex-shrink-0">
-          <div className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
-            {fecha}
-          </div>
-          <div className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mt-1">
-            Edición diaria · Santiago, Chile
-          </div>
-          <div className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mt-1">
-            studioiuris.cl
-          </div>
-        </div>
+        {/* Esquina derecha vacía — limpio */}
       </div>
 
       {/* Doble línea separadora */}

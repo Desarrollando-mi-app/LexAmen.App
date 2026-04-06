@@ -26,6 +26,12 @@ const NAV_ITEMS: NavItem[] = [
   {
     href: "/dashboard",
     label: "Escritorio",
+    children: [
+      { href: "/dashboard", label: "Inicio", emoji: "🏠" },
+      { href: "/dashboard/estadisticas", label: "Estadísticas", emoji: "📊" },
+      { href: "/dashboard/calendario", label: "Calendario", emoji: "📅" },
+      { href: "/dashboard/progreso", label: "Mi Progreso", emoji: "📈" },
+    ],
   },
   {
     href: "/dashboard/estudios",
