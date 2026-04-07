@@ -1,6 +1,7 @@
 // ─── Sistema de Notificaciones (server-only) ────────────────────
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
+import { EMAIL_FROM } from "@/lib/resend";
 
 let _resend: Resend | null = null;
 function getResend(): Resend {
@@ -222,7 +223,7 @@ async function sendNotificationEmail(
 </html>`;
 
   await getResend().emails.send({
-    from: "Studio Iuris <noreply@lexamen.cl>",
+    from: EMAIL_FROM,
     to: email,
     subject: `[Studio Iuris] ${title}`,
     html,

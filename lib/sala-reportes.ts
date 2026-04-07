@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
+import { EMAIL_FROM } from "@/lib/resend";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "contacto@iurisstudio.cl";
 
@@ -125,7 +126,7 @@ export async function checkAndAutoHide(
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
-      from: "Studio Iuris <noreply@lexamen.cl>",
+      from: EMAIL_FROM,
       to: ADMIN_EMAIL,
       subject: `[Studio Iuris] Publicación auto-ocultada — ${tipoLabel}: ${titulo}`,
       html: `
