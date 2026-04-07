@@ -60,29 +60,48 @@ export async function POST(request: Request) {
 
   const newStatus = action === "accept" ? "ACCEPTED" : "REJECTED";
 
-  await prisma.colegaRequest.update({
-    where: { id: requestId },
-    data: { status: newStatus },
-  });
-
-  // Si se aceptó, notificar al sender
-  if (action === "accept") {
-    const receiver = await prisma.user.findUnique({
-      where: { id: authUser.id },
-      select: { firstName: true },
+  try {
+    await prisma.colegaRequest.update({
+      where: { id: requestId },
+      data: { status: newStatus },
     });
+  } catch (err) {
+    console.error("[colegas/respond] DB update failed:", err);
+    return NextResponse.json(
+      { error: "Error al actualizar la solicitud. Intenta de nuevo." },
+      { status: 500 }
+    );
+  }
 
-    sendNotification({
-      type: "COLEGA_ACCEPTED",
-      title: "¡Nuevo Colega!",
-      body: `${receiver?.firstName ?? "Alguien"} aceptó tu solicitud de colega`,
-      targetUserId: colegaRequest.senderId,
-      metadata: { requestId },
-    }).catch(() => {});
+  // Si se aceptó, notificar al sender (fire-and-forget, errores no bloquean)
+  if (action === "accept") {
+    try {
+      const receiver = await prisma.user.findUnique({
+        where: { id: authUser.id },
+        select: { firstName: true },
+      });
 
-    // Badge evaluation for both colegas
-    evaluateBadges(colegaRequest.senderId, "comunidad").catch(() => {});
-    evaluateBadges(authUser.id, "comunidad").catch(() => {});
+      sendNotification({
+        type: "COLEGA_ACCEPTED",
+        title: "¡Nuevo Colega!",
+        body: `${receiver?.firstName ?? "Alguien"} aceptó tu solicitud de colega`,
+        targetUserId: colegaRequest.senderId,
+        metadata: { requestId },
+      }).catch((err) => {
+        console.error("[colegas/respond] sendNotification failed:", err);
+      });
+
+      // Badge evaluation for both colegas
+      evaluateBadges(colegaRequest.senderId, "comunidad").catch((err) => {
+        console.error("[colegas/respond] evaluateBadges (sender) failed:", err);
+      });
+      evaluateBadges(authUser.id, "comunidad").catch((err) => {
+        console.error("[colegas/respond] evaluateBadges (receiver) failed:", err);
+      });
+    } catch (err) {
+      console.error("[colegas/respond] post-update side-effects failed:", err);
+      // Do not fail the response — the main action (update) succeeded.
+    }
   }
 
   return NextResponse.json({ success: true, status: newStatus });

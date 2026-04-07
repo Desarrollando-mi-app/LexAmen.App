@@ -215,12 +215,17 @@ export function PerfilPublico({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId, action: "accept" }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setColegaStatus("accepted");
         toast.success("Solicitud aceptada");
+      } else {
+        console.error("[colegas] accept failed:", res.status, data);
+        toast.error(data.error || `Error ${res.status}: no se pudo aceptar`);
       }
-    } catch {
-      toast.error("Error de conexion");
+    } catch (err) {
+      console.error("[colegas] accept network error:", err);
+      toast.error("Error de conexión");
     } finally {
       setLoading(false);
     }

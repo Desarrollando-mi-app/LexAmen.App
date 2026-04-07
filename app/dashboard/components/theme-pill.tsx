@@ -33,7 +33,7 @@ export function ThemePill() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-6 left-6 z-50">
+    <div className="fixed bottom-20 left-6 z-40 lg:bottom-6 lg:z-50">
       <button
         onClick={toggle}
         aria-label={isDark ? "Activar modo día" : "Activar modo noche"}

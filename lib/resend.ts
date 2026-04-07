@@ -1,6 +1,46 @@
 import { Resend } from "resend";
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
+/**
+ * Lazy-init singleton de Resend.
+ *
+ * NO se instancia al importar este módulo — solo cuando se llama `getResend()`.
+ * Esto permite que el build de Next.js no falle aunque `RESEND_API_KEY` no esté
+ * definida en el entorno, y solo fallará en runtime si se intenta enviar un
+ * email sin la key configurada.
+ */
+let _resend: Resend | null = null;
+export function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
+
+/**
+ * @deprecated Use `getResend()` instead. Kept for backwards compat with
+ * any code that still imports `resend` directly. This will throw if
+ * RESEND_API_KEY is missing at module-load time.
+ */
+export const resend = {
+  get emails() {
+    return getResend().emails;
+  },
+  get batch() {
+    return getResend().batch;
+  },
+  get domains() {
+    return getResend().domains;
+  },
+  get apiKeys() {
+    return getResend().apiKeys;
+  },
+  get audiences() {
+    return getResend().audiences;
+  },
+  get contacts() {
+    return getResend().contacts;
+  },
+};
 
 /**
  * Dirección remitente para todos los emails transaccionales.

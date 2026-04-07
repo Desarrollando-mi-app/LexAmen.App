@@ -163,13 +163,18 @@ export function ColegasClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId, action: "accept" }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setPending((prev) => prev.filter((r) => r.id !== requestId));
         toast.success(`${senderName} es tu colega ahora`);
         router.refresh();
+      } else {
+        console.error("[colegas] accept failed:", res.status, data);
+        toast.error(data.error || `Error ${res.status}: no se pudo aceptar`);
       }
-    } catch {
-      toast.error("Error de conexion");
+    } catch (err) {
+      console.error("[colegas] accept network error:", err);
+      toast.error("Error de conexión");
     } finally {
       setActionLoading(null);
     }
@@ -183,12 +188,17 @@ export function ColegasClient({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requestId, action: "reject" }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setPending((prev) => prev.filter((r) => r.id !== requestId));
         toast.success("Solicitud rechazada");
+      } else {
+        console.error("[colegas] reject failed:", res.status, data);
+        toast.error(data.error || `Error ${res.status}: no se pudo rechazar`);
       }
-    } catch {
-      toast.error("Error de conexion");
+    } catch (err) {
+      console.error("[colegas] reject network error:", err);
+      toast.error("Error de conexión");
     } finally {
       setActionLoading(null);
     }

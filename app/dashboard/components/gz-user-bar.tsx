@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { ProfileDropdown } from "./profile-dropdown";
+import { NotificationBell } from "./notification-bell";
+import { UserSearch } from "./user-search";
 
 interface GzUserBarProps {
   userName: string;
@@ -65,6 +67,9 @@ export function GzUserBar({
           isAdmin={isAdmin}
         />
 
+        {/* Notification bell — inmediately after profile dropdown */}
+        <NotificationBell />
+
         {/* Stats — hidden on mobile */}
         <div className="hidden sm:flex items-center gap-5 ml-2">
           <div className="w-px h-5 bg-gz-rule" />
@@ -80,9 +85,9 @@ export function GzUserBar({
         </div>
       </div>
 
-      {/* Right: search + notifications */}
-      <div className="flex items-center gap-3">
-        {/* These could be added later — search icon + notification bell */}
+      {/* Right: user search */}
+      <div className="flex items-center gap-2">
+        <UserSearch />
       </div>
     </div>
   );
