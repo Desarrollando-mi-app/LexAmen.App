@@ -269,7 +269,10 @@ export function ObiterEditor(props: ObiterEditorProps) {
   // ─── Expanded / Sending state ─────────────────────────────
 
   return (
-    <div className="mb-6 rounded-[4px] border border-gz-gold bg-white p-4 shadow-sm">
+    <div
+      key={`editor-${threadPartNumber}`}
+      className="mb-6 rounded-[4px] border border-gz-gold bg-white p-4 shadow-sm animate-gz-slide-up"
+    >
       {/* Citing preview — Obiter */}
       {citingObiter && (
         <div
@@ -457,19 +460,6 @@ export function ObiterEditor(props: ObiterEditorProps) {
         </p>
       )}
 
-      {/* Thread toggle */}
-      <label className="mb-3 flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={continueThread}
-          onChange={(e) => setContinueThread(e.target.checked)}
-          className="h-4 w-4 rounded border-gz-rule text-gz-gold focus:ring-gz-gold/20"
-        />
-        <span className="font-archivo text-[12px] text-gz-ink-mid">
-          Continuar como hilo (publicar y seguir escribiendo)
-        </span>
-      </label>
-
       {/* Action buttons */}
       <div className="flex items-center justify-between">
         <button
@@ -479,44 +469,45 @@ export function ObiterEditor(props: ObiterEditorProps) {
           Cancelar
         </button>
 
-        <button
-          onClick={handlePublish}
-          disabled={
-            state === "sending" ||
-            !content.trim() ||
-            isOverLimit ||
-            remaining === 0
-          }
-          className="rounded-[3px] bg-gz-navy px-5 py-2 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {state === "sending" ? (
-            <span className="flex items-center gap-2">
-              <svg
-                className="h-3.5 w-3.5 animate-spin"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className="opacity-25"
-                />
-                <path
-                  d="M4 12a8 8 0 018-8"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              </svg>
-              Publicando…
-            </span>
-          ) : (
-            "Publicar Obiter"
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handlePublish}
+            disabled={
+              state === "sending" ||
+              !content.trim() ||
+              isOverLimit ||
+              remaining === 0
+            }
+            className="rounded-[3px] bg-gz-navy px-5 py-2 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {state === "sending" ? (
+              <span className="flex items-center gap-2">
+                <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+                  <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+                Publicando…
+              </span>
+            ) : (
+              "Publicar Obiter"
+            )}
+          </button>
+
+          {/* "+" button: publish and continue thread */}
+          <button
+            onClick={() => {
+              setContinueThread(true);
+              // Small delay so state is set before handlePublish reads it
+              setTimeout(() => handlePublish(), 10);
+            }}
+            disabled={state === "sending" || !content.trim() || isOverLimit || remaining === 0}
+            title="Publicar y continuar hilo"
+            aria-label="Publicar y continuar hilo"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-gz-gold bg-gz-gold/10 text-[18px] font-bold text-gz-gold transition-all hover:bg-gz-gold hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            +
+          </button>
+        </div>
       </div>
     </div>
   );

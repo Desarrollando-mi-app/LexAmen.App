@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { ObiterData } from "../types/obiter";
 import { parseObiterContent } from "@/lib/legal-reference-parser";
 import { ObiterLegalRef } from "./obiter-legal-ref";
+import { ReportButton } from "@/app/components/report-button";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -329,6 +330,11 @@ export function ObiterCard({
         <p className="mt-2 font-archivo text-[10px] text-gz-ink-light">
           {colegasText}
         </p>
+      )}
+
+      {/* ── Report button (only for other users' obiters) ── */}
+      {!isOwnObiter && currentUserId && (
+        <ReportButton contentType="Obiter" contentId={obiter.id} />
       )}
     </div>
   );

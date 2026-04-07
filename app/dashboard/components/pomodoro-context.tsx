@@ -201,12 +201,17 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     setIsAlerting(true);
 
     if (fase === "trabajo") {
-      const newSesion = sesionActual + 1;
-      const nextFase: PomodoroFase =
-        (sesionActual % config.sesionesAntes === 0) ? "descanso_largo" : "descanso_corto";
-      setSesionActual(newSesion);
-      setFase(nextFase);
-      setSegundosRestantes(getTotalSeconds(nextFase));
+      // Target reached: reset sessions to 0 and start long break
+      const targetReached = sesionActual >= config.sesionesAntes;
+      if (targetReached) {
+        setSesionActual(0);
+        setFase("descanso_largo");
+        setSegundosRestantes(getTotalSeconds("descanso_largo"));
+      } else {
+        setSesionActual(sesionActual + 1);
+        setFase("descanso_corto");
+        setSegundosRestantes(getTotalSeconds("descanso_corto"));
+      }
     } else {
       setFase("trabajo");
       setSegundosRestantes(getTotalSeconds("trabajo"));
@@ -281,8 +286,10 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
 
   const reset = useCallback(() => {
     setRunning(false);
-    setSegundosRestantes(getTotalSeconds(fase));
-  }, [fase, getTotalSeconds]);
+    setSesionActual(0);
+    setFase("trabajo");
+    setSegundosRestantes(getTotalSeconds("trabajo"));
+  }, [getTotalSeconds]);
 
   const dismissAlert = useCallback(() => setIsAlerting(false), []);
 
@@ -290,11 +297,16 @@ export function PomodoroProvider({ children }: { children: ReactNode }) {
     setRunning(false);
     // Advance to next phase without waiting for timer
     if (fase === "trabajo") {
-      const nextFase: PomodoroFase =
-        (sesionActual % config.sesionesAntes === 0) ? "descanso_largo" : "descanso_corto";
-      setSesionActual((prev) => prev + 1);
-      setFase(nextFase);
-      setSegundosRestantes(getTotalSeconds(nextFase));
+      const targetReached = sesionActual >= config.sesionesAntes;
+      if (targetReached) {
+        setSesionActual(0);
+        setFase("descanso_largo");
+        setSegundosRestantes(getTotalSeconds("descanso_largo"));
+      } else {
+        setSesionActual((prev) => prev + 1);
+        setFase("descanso_corto");
+        setSegundosRestantes(getTotalSeconds("descanso_corto"));
+      }
     } else {
       setFase("trabajo");
       setSegundosRestantes(getTotalSeconds("trabajo"));

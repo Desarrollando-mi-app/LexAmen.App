@@ -10,6 +10,7 @@ import { GzUserBar } from "./components/gz-user-bar";
 import { GzFooter } from "./components/gz-footer";
 import { MobileNav } from "./components/mobile-nav";
 import { PomodoroPill } from "./components/pomodoro-pill";
+import { ThemePill } from "./components/theme-pill";
 import { DiarioFab } from "./components/diario-fab";
 import { PomodoroProvider } from "./components/pomodoro-context";
 import { XpFloatProvider } from "./components/xp-float-provider";
@@ -122,6 +123,7 @@ export default async function DashboardLayout({
           </div>
           <MobileNav />
           <PomodoroPill />
+          <ThemePill />
           <DiarioFab />
           <GradoChangeDetector userGrado={dbUser.grado} />
         </BadgeModalProvider>

@@ -12,6 +12,7 @@ import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { RAMA_LABELS } from "@/lib/curriculum-data";
 import { ShareSession } from "@/app/components/share-session";
 import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
+import { ReportButton } from "@/app/components/report-button";
 
 /* ─── Types ─── */
 
@@ -454,6 +455,7 @@ export function DefinicionesViewer({
                 {feedback.explicacion}
               </p>
             )}
+            <ReportButton contentType="Definicion" contentId={current.id} />
           </div>
         )}
       </div>

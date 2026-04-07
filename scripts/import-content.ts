@@ -64,6 +64,10 @@ const RAMA_TO_CODIGO: Record<string, string> = {
 
 const LIBRO_MAP: Record<string, string> = {
   COT: "LIBRO_COT",
+  CPC_LIBRO_I: "LIBRO_I_CPC",
+  CPC_LIBRO_II: "LIBRO_II_CPC",
+  CPC_LIBRO_III: "LIBRO_III_CPC",
+  CPC_LIBRO_IV: "LIBRO_IV_CPC",
 };
 
 /** Normalize libro value — map CSV aliases to enum values */
@@ -488,7 +492,7 @@ async function main() {
 
     // Detect module type from filename
     const match = file.match(
-      /sesion[\da-z]+_(flashcards|mcq|vf|definiciones|fill_blank|error_identification|order_sequence|match_columns|caso_practico|dictado|timeline)/
+      /sesion[\dA-Za-z]+_(flashcards|mcq|vf|definiciones|fill_blank|error_identification|order_sequence|match_columns|caso_practico|dictado|timeline)/
     );
 
     if (!match) {
