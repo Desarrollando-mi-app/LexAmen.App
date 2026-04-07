@@ -1,26 +1,56 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { exerciseCode, isValidExerciseType, EXERCISE_TYPE_LABEL, type ExerciseType } from "@/lib/exercise-codes";
 
 type ReportButtonProps = {
-  contentType: "FLASHCARD" | "MCQ" | "TRUEFALSE" | "Definicion" | "FillBlank" | "ERROR_IDENTIFICATION" | "OrderSequence" | "MatchColumns" | "DictadoJuridico" | "Timeline" | "CasoPractico" | "Obiter" | "Analisis" | "Ensayo";
+  contentType: "FLASHCARD" | "MCQ" | "TRUEFALSE" | "DEFINICION" | "FILLBLANK" | "ERROR_IDENTIFICATION" | "ORDER_SEQUENCE" | "MATCH_COLUMNS" | "CASO_PRACTICO" | "DICTADO" | "TIMELINE" | "Definicion" | "FillBlank" | "OrderSequence" | "MatchColumns" | "DictadoJuridico" | "Timeline" | "CasoPractico" | "Obiter" | "Analisis" | "Ensayo";
   contentId: string;
+  /** Optional title shown in the modal header (e.g. "§1. De la Ley") */
+  contentTitle?: string;
 };
 
-const REASONS = [
-  "Respuesta incorrecta",
-  "Artículo del CC equivocado",
-  "Redacción confusa o ambigua",
-  "Contenido desactualizado",
-  "Otro",
+// Legacy → canonical type mapping (for backwards compat with old call sites)
+const LEGACY_TYPE_MAP: Record<string, string> = {
+  Definicion: "DEFINICION",
+  FillBlank: "FILLBLANK",
+  OrderSequence: "ORDER_SEQUENCE",
+  MatchColumns: "MATCH_COLUMNS",
+  DictadoJuridico: "DICTADO",
+  Timeline: "TIMELINE",
+  CasoPractico: "CASO_PRACTICO",
+};
+
+const EXERCISE_REASONS = [
+  { value: "respuesta_incorrecta", label: "Respuesta incorrecta" },
+  { value: "mal_redactada", label: "Pregunta mal redactada" },
+  { value: "opciones_confusas", label: "Opciones confusas" },
+  { value: "duplicado", label: "Contenido duplicado" },
+  { value: "error_articulo", label: "Error en el artículo citado" },
+  { value: "otro", label: "Otro" },
 ];
 
-export function ReportButton({ contentType, contentId }: ReportButtonProps) {
+const POST_REASONS = [
+  { value: "spam", label: "Spam o contenido irrelevante" },
+  { value: "ofensivo", label: "Contenido ofensivo" },
+  { value: "plagio", label: "Plagio" },
+  { value: "informacion_falsa", label: "Información falsa" },
+  { value: "otro", label: "Otro" },
+];
+
+export function ReportButton({ contentType, contentId, contentTitle }: ReportButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+
+  // Resolve canonical type (handle legacy type names)
+  const canonicalType = LEGACY_TYPE_MAP[contentType] || contentType;
+  const isExercise = isValidExerciseType(canonicalType);
+  const reasons = isExercise ? EXERCISE_REASONS : POST_REASONS;
+  const code = isExercise ? exerciseCode(canonicalType as ExerciseType, contentId) : null;
+  const moduleLabel = isExercise ? EXERCISE_TYPE_LABEL[canonicalType as ExerciseType] : null;
 
   // Auto-cerrar modal tras enviar
   useEffect(() => {
@@ -42,7 +72,7 @@ export function ReportButton({ contentType, contentId }: ReportButtonProps) {
       await fetch("/api/report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contentType, contentId, reason, description }),
+        body: JSON.stringify({ contentType: canonicalType, contentId, reason, description }),
       });
       setSent(true);
     } catch {
@@ -65,9 +95,9 @@ export function ReportButton({ contentType, contentId }: ReportButtonProps) {
       {/* Botón discreto */}
       <button
         onClick={() => setIsOpen(true)}
-        className="mt-3 font-archivo text-[11px] text-gz-ink-light transition-colors hover:text-gz-ink"
+        className="font-archivo text-[11px] text-gz-ink-light transition-colors hover:text-gz-burgundy"
       >
-        ⚑ Reportar error
+        🚩 Reportar
       </button>
 
       {/* Modal */}
@@ -99,11 +129,15 @@ export function ReportButton({ contentType, contentId }: ReportButtonProps) {
               /* Estado: Formulario */
               <>
                 <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink">
-                  Reportar un error
+                  ⚠️ Reportar ejercicio
                 </h3>
-                <p className="mt-1 font-archivo text-[13px] text-gz-ink-light">
-                  Ayúdanos a mejorar el contenido.
-                </p>
+                {code && (
+                  <div className="mt-2 space-y-0.5 font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light">
+                    <p>Código: <span className="text-gz-ink">{code}</span></p>
+                    {moduleLabel && <p>Módulo: <span className="text-gz-ink">{moduleLabel}</span></p>}
+                    {contentTitle && <p>Título: <span className="normal-case tracking-normal font-archivo text-gz-ink">{contentTitle}</span></p>}
+                  </div>
+                )}
 
                 {/* Selector de razón */}
                 <div className="mt-4">
@@ -117,9 +151,9 @@ export function ReportButton({ contentType, contentId }: ReportButtonProps) {
                     style={{ backgroundColor: "var(--gz-cream)" }}
                   >
                     <option value="">Selecciona una razón...</option>
-                    {REASONS.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
+                    {reasons.map((r) => (
+                      <option key={r.value} value={r.value}>
+                        {r.label}
                       </option>
                     ))}
                   </select>

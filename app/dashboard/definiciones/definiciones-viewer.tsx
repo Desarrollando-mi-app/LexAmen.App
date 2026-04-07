@@ -13,6 +13,8 @@ import { RAMA_LABELS } from "@/lib/curriculum-data";
 import { ShareSession } from "@/app/components/share-session";
 import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
 import { ReportButton } from "@/app/components/report-button";
+import { ExerciseWatermark } from "@/app/components/exercise-watermark";
+import { ExerciseCodeBadge } from "@/app/components/exercise-code-badge";
 
 /* ─── Types ─── */
 
@@ -350,7 +352,9 @@ export function DefinicionesViewer({
       </div>
 
       {/* Definition card */}
-      <div className="rounded-sm border border-gz-rule bg-white/60 p-6 sm:p-8">
+      <div className="relative isolate rounded-sm border border-gz-rule bg-white/60 p-6 sm:p-8">
+        <ExerciseWatermark />
+        <ExerciseCodeBadge type="DEFINICION" id={current.id} />
         {/* Definition text */}
         <div className="border-l-[3px] border-gz-gold pl-5 mb-6">
           <p className="font-cormorant text-xl sm:text-2xl italic text-gz-ink leading-relaxed">

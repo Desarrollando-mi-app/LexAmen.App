@@ -15,6 +15,9 @@ import { Confetti } from "@/app/dashboard/components/confetti";
 import { RAMA_LABELS, TITULO_LABELS } from "@/lib/curriculum-data";
 import { ShareSession } from "@/app/components/share-session";
 import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
+import { ReportButton } from "@/app/components/report-button";
+import { ExerciseWatermark } from "@/app/components/exercise-watermark";
+import { ExerciseCodeBadge } from "@/app/components/exercise-code-badge";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -463,10 +466,12 @@ export function MatchColumnsViewer({
       <Confetti active={showConfetti} color="gold" />
 
       <div
-        className={`rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${
+        className={`relative isolate rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${
           shakeCard ? " animate-shake" : ""
         }`}
       >
+        <ExerciseWatermark />
+        <ExerciseCodeBadge type="MATCH_COLUMNS" id={currentItem.id} />
         {/* Header info */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -678,6 +683,9 @@ export function MatchColumnsViewer({
                 </p>
               </div>
             )}
+            <div className="mt-3 flex justify-end">
+              <ReportButton contentType="MATCH_COLUMNS" contentId={currentItem.id} />
+            </div>
           </div>
         )}
 

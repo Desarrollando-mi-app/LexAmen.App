@@ -51,9 +51,13 @@ export async function GET(request: NextRequest) {
         id: r.id,
         contentType: r.contentType,
         contentId: r.contentId,
+        exerciseCode: r.exerciseCode,
+        exerciseSnapshot: r.exerciseSnapshot,
         reason: r.reason,
         description: r.description,
         status: r.status,
+        resolutionNote: r.resolutionNote,
+        resolvedAt: r.resolvedAt?.toISOString() ?? null,
         createdAt: r.createdAt.toISOString(),
         userName: `${r.user.firstName} ${r.user.lastName}`,
       })),
@@ -130,22 +134,33 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
-  const { reportId, action, tab } = (await request.json()) as {
+  const { reportId, action, tab, resolutionNote } = (await request.json()) as {
     reportId: string;
     action: string;
     tab: string;
+    resolutionNote?: string;
   };
 
   if (tab === "content") {
     if (action === "resolve") {
       await prisma.contentReport.update({
         where: { id: reportId },
-        data: { status: "RESOLVED" },
+        data: {
+          status: "RESOLVED",
+          resolvedAt: new Date(),
+          resolvedBy: authUser.id,
+          resolutionNote: resolutionNote || null,
+        },
       });
     } else if (action === "dismiss") {
       await prisma.contentReport.update({
         where: { id: reportId },
-        data: { status: "DISMISSED" },
+        data: {
+          status: "DISMISSED",
+          resolvedAt: new Date(),
+          resolvedBy: authUser.id,
+          resolutionNote: resolutionNote || null,
+        },
       });
     }
   } else if (tab === "ayudantia") {

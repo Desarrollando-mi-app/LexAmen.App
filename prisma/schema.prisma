@@ -578,16 +578,24 @@ model UserTrueFalseAttempt {
 }
 
 model ContentReport {
-  id          String   @id @default(cuid())
-  userId      String
-  contentType String
-  contentId   String
-  reason      String
-  description String?
-  status      String   @default("PENDING")
-  createdAt   DateTime @default(now())
+  id               String    @id @default(cuid())
+  userId           String
+  contentType      String
+  contentId        String
+  exerciseCode     String?   // "FC-q8r001" — código legible
+  reason           String
+  description      String?
+  exerciseSnapshot Json?     // copia del ejercicio al momento del reporte
+  status           String    @default("PENDING")
+  resolvedAt       DateTime?
+  resolvedBy       String?
+  resolutionNote   String?
+  createdAt        DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([contentType, contentId])
 }
 
 model CurriculumProgress {

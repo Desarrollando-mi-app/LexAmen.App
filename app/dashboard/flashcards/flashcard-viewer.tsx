@@ -4,6 +4,8 @@ import { useState, useMemo, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ReportButton } from "@/app/components/report-button";
+import { ExerciseWatermark } from "@/app/components/exercise-watermark";
+import { ExerciseCodeBadge } from "@/app/components/exercise-code-badge";
 import {
   RAMA_LABELS,
   LIBRO_LABELS,
@@ -572,7 +574,9 @@ export function FlashcardViewer({
       {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
 
       {/* Tarjeta flip */}
-      <div className="relative">
+      <div className="relative isolate">
+        <ExerciseWatermark />
+        <ExerciseCodeBadge type="FLASHCARD" id={currentCard.id} className="!left-2 !right-auto" />
         <div className="perspective cursor-pointer" onClick={() => { if (!isSubmitting) { setIsFlipped((prev) => !prev); playFlip(); } }}>
           <div className={`flip-card-inner min-h-[300px] sm:min-h-[350px] ${isFlipped ? "flipped" : ""}`}>
             <div className="flip-card-front flex flex-col items-center justify-center rounded-[4px] border border-gz-rule bg-white p-8 shadow-sm">

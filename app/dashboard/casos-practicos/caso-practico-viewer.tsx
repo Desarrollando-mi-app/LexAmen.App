@@ -7,6 +7,8 @@ import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
 import { RAMA_LABELS } from "@/lib/curriculum-data";
 import { ReportButton } from "@/app/components/report-button";
+import { ExerciseWatermark } from "@/app/components/exercise-watermark";
+import { ExerciseCodeBadge } from "@/app/components/exercise-code-badge";
 import { ShareSession } from "@/app/components/share-session";
 import Link from "next/link";
 
@@ -458,9 +460,11 @@ export function CasoPracticoViewer({
 
         {/* Hechos card */}
         <div
-          className="mt-4 rounded-[4px] border border-gz-rule p-5"
+          className="relative isolate mt-4 rounded-[4px] border border-gz-rule p-5"
           style={{ backgroundColor: "var(--gz-cream)" }}
         >
+          <ExerciseWatermark />
+          <ExerciseCodeBadge type="CASO_PRACTICO" id={selectedCaso.id} />
           <p className="mb-2 font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
             Hechos del caso
           </p>

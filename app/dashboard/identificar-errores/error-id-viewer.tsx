@@ -4,6 +4,8 @@ import { useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ReportButton } from "@/app/components/report-button";
+import { ExerciseWatermark } from "@/app/components/exercise-watermark";
+import { ExerciseCodeBadge } from "@/app/components/exercise-code-badge";
 import { RAMA_LABELS, LIBRO_LABELS, TITULO_LABELS } from "@/lib/curriculum-data";
 import {
   playCorrect,
@@ -510,10 +512,12 @@ export function ErrorIdViewer({
       <Confetti active={showConfetti} color="gold" />
 
       <div
-        className={`rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${
+        className={`relative isolate rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${
           shakeCard ? " animate-shake" : ""
         }`}
       >
+        <ExerciseWatermark />
+        <ExerciseCodeBadge type="ERROR_IDENTIFICATION" id={currentItem.id} />
         {/* Header info */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">

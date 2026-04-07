@@ -8,6 +8,8 @@ import { ShareSession } from "@/app/components/share-session";
 import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { ReportButton } from "@/app/components/report-button";
+import { ExerciseWatermark } from "@/app/components/exercise-watermark";
+import { ExerciseCodeBadge } from "@/app/components/exercise-code-badge";
 import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
 
 /* ─── Types ─── */
@@ -416,7 +418,9 @@ export function DictadoViewer({
       {current && (
         <>
           {/* ─── Exercise card ─── */}
-          <div className="rounded-[4px] border border-gz-rule p-5" style={{ backgroundColor: "var(--gz-cream)" }}>
+          <div className="relative isolate rounded-[4px] border border-gz-rule p-5" style={{ backgroundColor: "var(--gz-cream)" }}>
+            <ExerciseWatermark />
+            <ExerciseCodeBadge type="DICTADO" id={current.id} />
             {/* Title + metadata */}
             <div className="mb-4">
               <h2 className="font-cormorant text-[22px] font-bold text-gz-ink mb-1">

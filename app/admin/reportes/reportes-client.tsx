@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { isValidExerciseType, EXERCISE_TYPE_LABEL, type ExerciseType } from "@/lib/exercise-codes";
+import { ExerciseEditor } from "./exercise-editor";
 
 type ReportTab = "content" | "ayudantia" | "simulacro" | "usuarios";
 
@@ -8,9 +10,13 @@ interface ContentReportRow {
   id: string;
   contentType: string;
   contentId: string;
+  exerciseCode: string | null;
+  exerciseSnapshot: Record<string, unknown> | null;
   reason: string;
   description: string | null;
   status: string;
+  resolutionNote: string | null;
+  resolvedAt: string | null;
   createdAt: string;
   userName: string;
 }
@@ -77,6 +83,7 @@ const TIPO_BADGE: Record<string, string> = {
 export function ReportesClient() {
   const [tab, setTab] = useState<ReportTab>("content");
   const [data, setData] = useState<ReportesData | null>(null);
+  const [editing, setEditing] = useState<{ type: ExerciseType; id: string; snapshot: Record<string, unknown> | null } | null>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("PENDING");
@@ -471,11 +478,14 @@ export function ReportesClient() {
           </p>
         ) : tab === "content" ? (
           <ul className="divide-y divide-border">
-            {(data?.items as ContentReportRow[])?.map((r) => (
+            {(data?.items as ContentReportRow[])?.map((r) => {
+              const isExercise = isValidExerciseType(r.contentType);
+              const snap = r.exerciseSnapshot;
+              return (
               <li key={r.id} className="px-4 py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                           r.status === "PENDING"
@@ -487,8 +497,13 @@ export function ReportesClient() {
                       >
                         {r.status}
                       </span>
+                      {r.exerciseCode && (
+                        <span className="rounded bg-gz-gold/10 px-1.5 py-0.5 font-ibm-mono text-[10px] font-semibold text-gz-gold">
+                          🚩 {r.exerciseCode}
+                        </span>
+                      )}
                       <span className="rounded bg-navy/5 px-1.5 py-0.5 text-[10px] text-navy/60">
-                        {r.contentType}
+                        {isExercise ? EXERCISE_TYPE_LABEL[r.contentType as ExerciseType] : r.contentType}
                       </span>
                     </div>
                     <p className="mt-1 text-sm font-medium text-navy">
@@ -496,7 +511,7 @@ export function ReportesClient() {
                     </p>
                     {r.description && (
                       <p className="mt-0.5 text-xs text-navy/50">
-                        {r.description}
+                        &ldquo;{r.description}&rdquo;
                       </p>
                     )}
                     <p className="mt-1 text-[10px] text-navy/40">
@@ -508,26 +523,77 @@ export function ReportesClient() {
                         minute: "2-digit",
                       })}
                     </p>
+
+                    {/* Snapshot del ejercicio */}
+                    {snap && isExercise && (
+                      <details className="mt-2 rounded-[3px] border border-gz-rule/40 bg-white/40 p-2">
+                        <summary className="cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light">
+                          Ejercicio actual ▾
+                        </summary>
+                        <div className="mt-2 space-y-1 text-[12px] text-gz-ink">
+                          {snap.front !== undefined && <p><b>Front:</b> {String(snap.front)}</p>}
+                          {snap.back !== undefined && <p><b>Back:</b> {String(snap.back)}</p>}
+                          {snap.question !== undefined && <p><b>Pregunta:</b> {String(snap.question)}</p>}
+                          {snap.optionA !== undefined && (
+                            <div className="text-[11px] font-ibm-mono">
+                              <p>A. {String(snap.optionA)}</p>
+                              <p>B. {String(snap.optionB)}</p>
+                              <p>C. {String(snap.optionC)}</p>
+                              <p>D. {String(snap.optionD)}</p>
+                              <p className="text-gz-gold">Correcta: {String(snap.correctOption)}</p>
+                            </div>
+                          )}
+                          {snap.statement !== undefined && (
+                            <p><b>Afirmación:</b> {String(snap.statement)} ({snap.isTrue ? "VERDADERO" : "FALSO"})</p>
+                          )}
+                          {snap.concepto !== undefined && <p><b>{String(snap.concepto)}:</b> {String(snap.definicion)}</p>}
+                          {snap.titulo !== undefined && <p><b>Título:</b> {String(snap.titulo)}</p>}
+                          {snap.hechos !== undefined && <p><b>Hechos:</b> {String(snap.hechos).slice(0, 200)}...</p>}
+                          {snap.textoCompleto !== undefined && <p><b>Texto:</b> {String(snap.textoCompleto).slice(0, 200)}...</p>}
+                          {snap.textoConBlancos !== undefined && <p><b>Texto:</b> {String(snap.textoConBlancos)}</p>}
+                          {snap.textoConErrores !== undefined && <p><b>Texto:</b> {String(snap.textoConErrores)}</p>}
+                          {snap.explanation !== undefined && snap.explanation && <p className="italic text-gz-ink-mid"><b>Explicación:</b> {String(snap.explanation)}</p>}
+                          {snap.explicacion !== undefined && snap.explicacion && <p className="italic text-gz-ink-mid"><b>Explicación:</b> {String(snap.explicacion)}</p>}
+                        </div>
+                      </details>
+                    )}
+
+                    {r.resolutionNote && (
+                      <p className="mt-1 text-[11px] italic text-gz-ink-light">
+                        Nota: {r.resolutionNote}
+                      </p>
+                    )}
                   </div>
-                  {r.status === "PENDING" && (
-                    <div className="flex shrink-0 gap-2">
+                  <div className="flex shrink-0 flex-col gap-2">
+                    {isExercise && (
                       <button
-                        onClick={() => handleAction(r.id, "resolve")}
-                        className="rounded-lg bg-green-100 px-3 py-1 text-xs font-medium text-green-700 hover:bg-green-200"
+                        onClick={() => setEditing({ type: r.contentType as ExerciseType, id: r.contentId, snapshot: snap })}
+                        className="rounded-lg bg-gz-gold/10 px-3 py-1 text-xs font-medium text-gz-gold hover:bg-gz-gold/20"
                       >
-                        Resolver
+                        ✏️ Editar
                       </button>
-                      <button
-                        onClick={() => handleAction(r.id, "dismiss")}
-                        className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-navy/50 hover:bg-navy/5"
-                      >
-                        Descartar
-                      </button>
-                    </div>
-                  )}
+                    )}
+                    {r.status === "PENDING" && (
+                      <>
+                        <button
+                          onClick={() => handleAction(r.id, "resolve")}
+                          className="rounded-lg bg-green-100 px-3 py-1 text-xs font-medium text-green-700 hover:bg-green-200"
+                        >
+                          ✅ Resolver
+                        </button>
+                        <button
+                          onClick={() => handleAction(r.id, "dismiss")}
+                          className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-navy/50 hover:bg-navy/5"
+                        >
+                          ❌ Descartar
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         ) : (
           <ul className="divide-y divide-border">
@@ -598,6 +664,16 @@ export function ReportesClient() {
             </button>
           </div>
         </div>
+      )}
+
+      {editing && (
+        <ExerciseEditor
+          exerciseType={editing.type}
+          exerciseId={editing.id}
+          initialSnapshot={editing.snapshot}
+          onClose={() => setEditing(null)}
+          onSaved={() => fetchData()}
+        />
       )}
     </div>
   );

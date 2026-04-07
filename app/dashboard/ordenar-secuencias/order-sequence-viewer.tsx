@@ -32,6 +32,8 @@ import { useXpFloat } from "@/app/dashboard/components/xp-float-provider";
 import { useBadgeModal } from "@/app/dashboard/components/badge-modal-provider";
 import { Confetti } from "@/app/dashboard/components/confetti";
 import { ReportButton } from "@/app/components/report-button";
+import { ExerciseWatermark } from "@/app/components/exercise-watermark";
+import { ExerciseCodeBadge } from "@/app/components/exercise-code-badge";
 import { ShareSession } from "@/app/components/share-session";
 import { FilterBreadcrumb } from "@/app/dashboard/components/filter-breadcrumb";
 
@@ -552,10 +554,12 @@ export function OrderSequenceViewer({
       <Confetti active={showConfetti} color="gold" />
 
       <div
-        className={`rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${
+        className={`relative isolate rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${
           shakeCard ? " animate-shake" : ""
         }`}
       >
+        <ExerciseWatermark />
+        <ExerciseCodeBadge type="ORDER_SEQUENCE" id={currentItem.id} />
         {/* Session stats bar */}
         <div className="mb-6 flex items-center justify-between text-sm">
           <span className="font-ibm-mono text-[12px] text-gz-ink-mid">

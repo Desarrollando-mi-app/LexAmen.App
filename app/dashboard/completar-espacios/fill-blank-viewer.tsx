@@ -4,6 +4,8 @@ import { useState, useMemo, Fragment } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { ReportButton } from "@/app/components/report-button";
+import { ExerciseWatermark } from "@/app/components/exercise-watermark";
+import { ExerciseCodeBadge } from "@/app/components/exercise-code-badge";
 import {
   RAMA_LABELS,
   LIBRO_LABELS,
@@ -598,10 +600,12 @@ export function FillBlankViewer({
       <Confetti active={showConfetti} color="gold" />
 
       <div
-        className={`rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${
+        className={`relative isolate rounded-[4px] border border-gz-rule bg-white p-6 sm:p-8${
           shakeCard ? " animate-shake" : ""
         }`}
       >
+        <ExerciseWatermark />
+        <ExerciseCodeBadge type="FILLBLANK" id={currentItem.id} />
         {/* Session stats bar */}
         <div className="mb-6 flex items-center justify-between text-sm">
           <span className="font-ibm-mono text-[12px] text-gz-ink-mid">
