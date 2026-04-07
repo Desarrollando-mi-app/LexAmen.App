@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface InstitucionData {
   id: number;
@@ -79,9 +80,18 @@ export function InstitucionesClient({
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
         Índice Temático
       </p>
-      <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
-        Instituciones Jurídicas
-      </h1>
+      <div className="flex items-center gap-3 mb-1">
+        <Image
+          src="/brand/logo-sello.svg"
+          alt="Studio Iuris"
+          width={80}
+          height={80}
+          className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
+        />
+        <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+          Instituciones Jurídicas
+        </h1>
+      </div>
       <p className="font-archivo text-[14px] text-gz-ink-mid mt-1 mb-4">
         72 instituciones · Estudia por tema, no por artículo
       </p>

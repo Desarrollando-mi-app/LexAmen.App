@@ -261,9 +261,42 @@ textarea:focus {
   opacity: 0.015;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   Brand logos — invertir en modo noche
+   Las variantes PNG/SVG de Studio IURIS están diseñadas con
+   tinta oscura sobre fondo transparente. En dark mode hay que
+   invertir la luminancia para que sean legibles.
+   ═══════════════════════════════════════════════════════════ */
+[data-theme="dark"] img[src*="/brand/logo-"],
+[data-theme="dark"] img[src*="/brand/isotipo"],
+[data-theme="dark"] img[src*="/brand/sello"] {
+  filter: invert(1) hue-rotate(180deg) brightness(1.05);
+}
+
+/* Opt-out: agregar `data-no-invert` al <img> si el logo ya
+   está diseñado en claro (o es una variante color fija). */
+[data-theme="dark"] img[src*="/brand/"][data-no-invert] {
+  filter: none;
+}
+
 /* Gazette scrollbar hide */
 .gz-scrollbar-hide::-webkit-scrollbar { display: none; }
 .gz-scrollbar-hide { scrollbar-width: none; }
+
+/* ═══════════════════════════════════════════════════════════
+   Masthead — animación letter-by-letter al llegar al top
+   Cada letra hace fade + slide hacia arriba con delay escalonado.
+   Se replica cambiando el `key` del contenedor padre.
+   ═══════════════════════════════════════════════════════════ */
+@keyframes gz-letter-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.gz-letter {
+  display: inline-block;
+  opacity: 0;
+  animation: gz-letter-in 900ms ease-out forwards;
+}
 
 /* Gazette animations */
 @keyframes gz-slideUp {

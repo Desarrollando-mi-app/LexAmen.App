@@ -492,7 +492,7 @@ async function main() {
 
     // Detect module type from filename
     const match = file.match(
-      /sesion[\dA-Za-z]+_(flashcards|mcq|vf|definiciones|fill_blank|error_identification|order_sequence|match_columns|caso_practico|dictado|timeline)/
+      /^sesion[\w-]+?_(flashcards|mcq|vf|definiciones|fill_blank|error_identification|order_sequence|match_columns|caso_practico|dictado|timeline)\.csv$/
     );
 
     if (!match) {

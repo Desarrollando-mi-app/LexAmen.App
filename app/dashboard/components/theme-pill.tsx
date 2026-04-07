@@ -12,20 +12,28 @@ export function ThemePill() {
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const shouldBeDark = stored === "dark" || (!stored && prefersDark);
     setIsDark(shouldBeDark);
-    document.documentElement.classList.toggle("dark", shouldBeDark);
+    applyTheme(shouldBeDark);
   }, []);
+
+  function applyTheme(dark: boolean) {
+    if (dark) {
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+  }
 
   function toggle() {
     const next = !isDark;
     setIsDark(next);
     localStorage.setItem("studio-iuris-theme", next ? "dark" : "light");
-    document.documentElement.classList.toggle("dark", next);
+    applyTheme(next);
   }
 
   if (!mounted) return null;
 
   return (
-    <div className="fixed bottom-6 left-[88px] z-50">
+    <div className="fixed bottom-6 left-6 z-50">
       <button
         onClick={toggle}
         aria-label={isDark ? "Activar modo día" : "Activar modo noche"}
