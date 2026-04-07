@@ -93,7 +93,7 @@ export function InstitucionesClient({
         </h1>
       </div>
       <p className="font-archivo text-[14px] text-gz-ink-mid mt-1 mb-4">
-        72 instituciones · Estudia por tema, no por artículo
+        {instituciones.length} instituciones · Estudia por tema, no por artículo
       </p>
       <div className="h-[2px] mb-6" style={{ backgroundColor: "var(--gz-rule-dark)" }} />
 

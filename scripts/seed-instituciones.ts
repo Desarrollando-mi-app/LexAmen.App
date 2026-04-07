@@ -156,8 +156,8 @@ const TITULO_MAP: Record<string, number> = {
   COT_T1: 68, COT_T2: 68, COT_T3: 68, COT_T4: 68, COT_T5: 68, COT_T6: 68,
   COT_T6B: 68, COT_T7: 53, COT_T8: 68, COT_T9: 68,
   COT_T10: 68, COT_T11: 69, COT_T12: 69,
-  COT_T13: 69, COT_T14: 68, COT_T15: 69,
-  COT_T16: 70, COT_T17: 69, COT_TFINAL: 68,
+  COT_T13: 69, COT_T14: 68, COT_T15: 73,
+  COT_T16: 74, COT_T17: 69, COT_TFINAL: 68,
 };
 
 async function main() {
