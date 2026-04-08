@@ -5,6 +5,8 @@ import { ensureLeagueMembership } from "@/lib/league-assign";
 import { getGradoInfo } from "@/lib/league";
 // ensureLeagueMembership is needed to auto-assign league on first visit
 import { Toaster } from "sonner";
+import { BETA_MODE } from "@/lib/config";
+import { BetaBanner } from "./components/beta-banner";
 import { GzMasthead } from "./components/gz-masthead";
 import { GzUserBar } from "./components/gz-user-bar";
 import { GzFooter } from "./components/gz-footer";
@@ -100,6 +102,9 @@ export default async function DashboardLayout({
             className="gz-page min-h-screen"
             style={{ backgroundColor: "var(--gz-cream)" }}
           >
+            {/* Beta banner — visible mientras BETA_MODE sea true */}
+            {BETA_MODE && <BetaBanner />}
+
             {/* Gazette masthead — visible on all dashboard pages */}
             <GzMasthead />
             <GzUserBar
