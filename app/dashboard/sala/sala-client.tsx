@@ -344,9 +344,9 @@ export function SalaClient({
 
   return (
     <main className="min-h-screen">
-      {/* Sub-header de La Sala */}
-      <div className="border-b border-gz-rule px-4 sm:px-6 py-3" style={{ backgroundColor: "var(--gz-cream)" }}>
-        <div className="mx-auto flex max-w-5xl items-center justify-between">
+      {/* Sub-header de La Sala — full bleed */}
+      <div className="gz-section-header border-b border-gz-rule py-3" style={{ backgroundColor: "var(--gz-cream)" }}>
+        <div className="flex items-center justify-between">
           <div>
             <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">La Sala</h2>
             <p className="font-ibm-mono text-[10px] text-gz-ink-light">
@@ -362,7 +362,7 @@ export function SalaClient({
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-6 py-6">
+      <div className="px-6 py-6">
         {/* Streak banner */}
         {streak && streak.monthsActive >= 2 && (
           <div className="mb-6 rounded-[4px] border border-gz-gold/30 bg-gz-gold/[0.06] px-5 py-3 text-center">

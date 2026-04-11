@@ -666,7 +666,7 @@ export function AyudantiasClient({
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-6 py-6">
+      <div className="px-6 py-6">
         {/* Streak banner */}
         {streak && streak.monthsActive >= 2 && (
           <div className="mb-6 rounded-[4px] border border-gz-gold/30 bg-gz-gold/[0.06] px-5 py-3 text-center">

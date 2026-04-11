@@ -56,7 +56,7 @@ export default async function PerfilPage() {
       className="gz-page min-h-screen"
       style={{ backgroundColor: "var(--gz-cream)" }}
     >
-      <div className="mx-auto max-w-2xl px-4 lg:px-0 py-8 sm:py-12">
+      <div className="px-4 lg:px-0 py-8 sm:py-12">
         {/* Header */}
         <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
           Configuraci&oacute;n &middot; Perfil

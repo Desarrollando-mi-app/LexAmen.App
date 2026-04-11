@@ -24,12 +24,14 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const estado = searchParams.get("estado");
   const fuente = searchParams.get("fuente");
+  const rama = searchParams.get("rama");
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const limit = 25;
 
   const where: Record<string, unknown> = {};
   if (estado) where.estado = estado;
   if (fuente) where.fuente = fuente;
+  if (rama) where.rama = rama;
 
   const [noticias, total] = await Promise.all([
     prisma.noticiaJuridica.findMany({

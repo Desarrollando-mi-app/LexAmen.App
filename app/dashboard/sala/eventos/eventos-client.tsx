@@ -211,18 +211,20 @@ export function EventosClient({ initialEventos, userId, initialCalendarSourceIds
       className="gz-page min-h-screen pb-24"
       style={{ backgroundColor: "var(--gz-cream)" }}
     >
-      <div className="mx-auto max-w-4xl px-4 lg:px-0 pt-8 pb-10">
-        {/* Header */}
-        <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
-          La Sala &middot; Eventos Acad&eacute;micos
-        </p>
-        <div className="flex items-center gap-3 mb-1">
-          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
-          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-tight">
-            Eventos Acad&eacute;micos
-          </h1>
+      <div className="px-4 lg:px-0 pt-8 pb-10">
+        {/* Header — full bleed */}
+        <div className="gz-section-header mb-6">
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
+            La Sala &middot; Eventos Acad&eacute;micos
+          </p>
+          <div className="flex items-center gap-3 mb-1">
+            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
+            <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-tight">
+              Eventos Acad&eacute;micos
+            </h1>
+          </div>
+          <div className="border-b-2 border-gz-rule-dark mt-3" />
         </div>
-        <div className="border-b-2 border-gz-rule-dark mt-3 mb-6" />
 
         {/* Tabs + Create button */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">

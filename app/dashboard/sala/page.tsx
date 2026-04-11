@@ -55,7 +55,7 @@ export default async function SalaPage() {
 
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-5xl px-6 py-8">
+      <div className="px-6 py-8">
         {/* Header */}
         <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-1">
           COMUNIDAD &middot; LA SALA

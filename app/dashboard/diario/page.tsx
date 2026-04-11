@@ -32,7 +32,7 @@ export default async function DiarioPage({
   return (
     <div>
       {/* ── Page header ──────────────────────────────────────── */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+      <div className="px-4 sm:px-6 pt-8">
         <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-1">
           Publicaciones · El Diario
         </p>
@@ -44,7 +44,7 @@ export default async function DiarioPage({
       </div>
 
       {/* ── Tabbed content ───────────────────────────────────── */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="px-4 sm:px-6">
         <Suspense fallback={null}>
           <DiarioPageClient
             userId={authUser.id}

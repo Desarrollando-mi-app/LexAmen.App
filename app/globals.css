@@ -284,6 +284,14 @@ textarea:focus {
 .gz-scrollbar-hide { scrollbar-width: none; }
 
 /* ═══════════════════════════════════════════════════════════
+   Section header — consistent spacing for all page titles.
+   Used inside max-w containers to ensure uniform appearance.
+   ═══════════════════════════════════════════════════════════ */
+.gz-section-header {
+  margin-bottom: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
    Masthead — animación letter-by-letter al llegar al top
    Cada letra hace fade + slide hacia arriba con delay escalonado.
    Se replica cambiando el `key` del contenedor padre.

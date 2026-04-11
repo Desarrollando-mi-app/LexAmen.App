@@ -57,24 +57,26 @@ export default async function DebatesPage() {
   });
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-16 pt-8 sm:px-6">
-      {/* Header */}
-      <p className="mb-1 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
-        El Diario
-      </p>
-      <div className="mb-1 flex items-center gap-3">
-        <Image
-          src="/brand/logo-sello.svg"
-          alt="Studio Iuris"
-          width={80}
-          height={80}
-          className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
-        />
-        <h1 className="font-cormorant text-[38px] font-bold leading-none text-gz-ink lg:text-[44px]">
-          Debates Juridicos
-        </h1>
+    <div className="px-4 pb-16 pt-8 sm:px-6">
+      {/* Header — full bleed */}
+      <div className="gz-section-header mb-6">
+        <p className="mb-1 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
+          El Diario
+        </p>
+        <div className="mb-1 flex items-center gap-3">
+          <Image
+            src="/brand/logo-sello.svg"
+            alt="Studio Iuris"
+            width={80}
+            height={80}
+            className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
+          />
+          <h1 className="font-cormorant text-[38px] font-bold leading-none text-gz-ink lg:text-[44px]">
+            Debates Juridicos
+          </h1>
+        </div>
+        <div className="mt-3 h-[2px] bg-gz-rule-dark" />
       </div>
-      <div className="mt-3 h-[2px] bg-gz-rule-dark" />
 
       <div className="mt-6">
         <DebateList

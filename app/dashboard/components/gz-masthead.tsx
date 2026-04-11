@@ -102,8 +102,8 @@ export function GzMasthead() {
                     </span>
                   ))}
                 </div>
-                {/* "IURIS" — font-cormorant (serif), MAYÚSCULAS, ROJO */}
-                <div className="font-cormorant text-[26px] lg:text-[38px] !font-bold tracking-[4px] text-gz-red uppercase leading-none mt-[-2px]">
+                {/* "IURIS" — Playfair Display, MAYÚSCULAS, ROJO */}
+                <div className="text-[26px] lg:text-[38px] font-bold tracking-[4px] text-gz-red uppercase leading-none mt-[-2px]" style={{ fontFamily: "var(--font-playfair), serif" }}>
                   {LETTERS_IURIS.split("").map((c, i) => (
                     <span
                       key={i}

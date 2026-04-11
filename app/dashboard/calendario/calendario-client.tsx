@@ -516,7 +516,7 @@ export function CalendarioClient({
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="px-4 py-8 sm:px-6">
         <div className="flex gap-6">
         {/* ─── Calendar content ──────────────────────── */}
         <div className="min-w-0 flex-1">

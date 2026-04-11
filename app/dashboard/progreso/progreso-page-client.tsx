@@ -282,7 +282,7 @@ function SetupView({
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 lg:px-0 py-8 sm:py-12">
+    <div className="px-4 lg:px-0 py-8 sm:py-12">
       {/* Header */}
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
         Plan de Estudios &middot; Configuraci&oacute;n
@@ -649,7 +649,7 @@ function PdfSlot({
 
 function GeneratingView({ onRefresh }: { onRefresh: () => void }) {
   return (
-    <div className="mx-auto max-w-2xl px-4 lg:px-0 py-16 text-center">
+    <div className="px-4 lg:px-0 py-16 text-center">
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
         Plan de Estudios &middot; Generando
       </p>
@@ -757,7 +757,7 @@ function DashboardView({
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 lg:px-0 py-8 sm:py-12">
+    <div className="px-4 lg:px-0 py-8 sm:py-12">
       {/* Header */}
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
         Plan de Estudios &middot; Dashboard

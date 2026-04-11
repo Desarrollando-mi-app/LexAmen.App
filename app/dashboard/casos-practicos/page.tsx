@@ -90,7 +90,7 @@ export default async function CasosPracticosPage({
       className="min-h-screen"
       style={{ backgroundColor: "var(--gz-cream)" }}
     >
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="px-4 py-8">
         {/* ─── Gazette Header ─── */}
         <header className="mb-8 border-b-2 border-gz-rule pb-6 text-center">
           <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">

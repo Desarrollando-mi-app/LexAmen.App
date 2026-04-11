@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/noticias/cron",
-      "schedule": "0 12 * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/diario/fallo-semana/cron",

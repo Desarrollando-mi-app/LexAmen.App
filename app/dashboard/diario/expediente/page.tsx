@@ -86,7 +86,7 @@ export default async function ExpedientePage() {
       className="min-h-screen"
       style={{ backgroundColor: "var(--gz-cream)" }}
     >
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <div className="px-4 py-8 sm:px-6">
         {/* Back link */}
         <a
           href="/dashboard/diario"
@@ -95,8 +95,8 @@ export default async function ExpedientePage() {
           &larr; Volver al Diario
         </a>
 
-        {/* Header */}
-        <header className="mb-8">
+        {/* Header — full bleed */}
+        <header className="gz-section-header mb-8">
           <p className="mb-2 font-ibm-mono text-[9px] font-semibold uppercase tracking-[2.5px] text-gz-burgundy">
             Debate Juridico
           </p>
@@ -106,9 +106,8 @@ export default async function ExpedientePage() {
           <p className="mt-2 font-cormorant text-[17px] italic text-gz-ink-mid">
             Casos reales para argumentar y debatir con la comunidad.
           </p>
+          <div className="mt-4 h-[2px] bg-gz-rule-dark" />
         </header>
-
-        <div className="mb-8 h-[2px] bg-gz-rule-dark" />
 
         <Suspense
           fallback={

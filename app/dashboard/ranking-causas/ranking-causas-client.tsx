@@ -285,12 +285,11 @@ export function RankingCausasClient() {
   // ─── Render ───────────────────────────────────────────
 
   return (
-    <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
-      {/* Header */}
-      <div className="mb-6">
-        <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
-          Competencias · Causas
-        </p>
+    <div>
+    <div className="px-4 sm:px-6 pt-8 pb-4">
+      <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
+        Competencias · Causas
+      </p>
         <div className="flex items-center gap-3">
           <img src="/brand/logo-sello.svg" alt="Studio Iuris" className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
           <h1 className="font-cormorant text-[28px] lg:text-[36px] font-bold text-gz-ink">

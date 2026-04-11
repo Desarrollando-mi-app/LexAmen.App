@@ -3,8 +3,8 @@ import { prisma } from "@/lib/prisma";
 
 // ─── Constantes ─────────────────────────────────────────────
 
-export const OBITER_MAX_CHARS = 1000;
-export const OBITER_MAX_WORDS = 200;
+export const OBITER_MAX_CHARS = 128;
+export const OBITER_MAX_WORDS = 30;
 export const OBITER_DAILY_LIMIT_FREE = 5;
 export const OBITER_MAX_THREAD_PARTS = 10;
 

@@ -10,9 +10,12 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
 
+    const rama = searchParams.get("rama");
+
     const where: Record<string, unknown> = { estado: "aprobada" };
     if (fuente) where.fuente = fuente;
     if (categoria) where.categoria = categoria;
+    if (rama) where.rama = rama;
     if (destacada === "true") where.destacada = true;
 
     const [noticias, total] = await Promise.all([

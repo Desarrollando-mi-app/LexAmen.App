@@ -121,18 +121,20 @@ export default function EstudiosPage() {
       className="gz-page min-h-screen"
       style={{ backgroundColor: "var(--gz-cream)" }}
     >
-      <div className="mx-auto max-w-4xl px-4 lg:px-0 py-8 sm:py-12">
-        {/* Header */}
-        <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
-          Módulos · Estudio
-        </p>
-        <div className="flex items-center gap-3 mt-1">
-          <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
-          <h1 className="font-cormorant text-[28px] sm:text-[36px] !font-bold text-gz-ink leading-tight">
-            Módulos de Estudio
-          </h1>
+      <div className="px-4 lg:px-0 py-8 sm:py-12">
+        {/* Header — full bleed */}
+        <div className="gz-section-header mb-8">
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
+            Módulos · Estudio
+          </p>
+          <div className="flex items-center gap-3 mt-1">
+            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
+            <h1 className="font-cormorant text-[28px] sm:text-[36px] !font-bold text-gz-ink leading-tight">
+              Módulos de Estudio
+            </h1>
+          </div>
+          <div className="border-b-2 border-gz-rule-dark mt-3" />
         </div>
-        <div className="border-b-2 border-gz-rule-dark mt-3 mb-8" />
 
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

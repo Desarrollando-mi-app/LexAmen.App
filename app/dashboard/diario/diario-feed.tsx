@@ -8,7 +8,6 @@ import {
   MATERIAS_DIARIO,
   FORMATO_LABELS,
   VISIBILIDAD_LABELS,
-  OBITER_MAX_WORDS,
 } from "@/lib/diario-constants";
 import { parseNormas } from "@/lib/norma-parser";
 
@@ -77,10 +76,6 @@ function timeAgo(dateStr: string): string {
     day: "numeric",
     month: "short",
   });
-}
-
-function wordCount(text: string): number {
-  return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
 /** Renderiza texto con hashtags resaltados y normas como links */
@@ -381,7 +376,7 @@ function PublishModal({
     titulo.trim() &&
     formato &&
     (formato === "OBITER_DICTUM"
-      ? contenido.trim() && wordCount(contenido) <= OBITER_MAX_WORDS
+      ? contenido.trim() && contenido.length <= 128
       : hechos.trim() && ratio.trim() && opinion.trim());
 
   return (
@@ -422,7 +417,7 @@ function PublishModal({
                   Obiter Dictum
                 </div>
                 <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
-                  Reflexión jurídica breve (máx. {OBITER_MAX_WORDS} palabras)
+                  Reflexión jurídica breve (máx. 128 caracteres)
                 </p>
               </button>
               <button
@@ -502,19 +497,19 @@ function PublishModal({
                     Contenido *{" "}
                     <span
                       className={`ml-1 ${
-                        wordCount(contenido) > OBITER_MAX_WORDS
+                        contenido.length > 128
                           ? "text-gz-burgundy"
                           : "text-gz-ink-light"
                       }`}
                     >
-                      ({wordCount(contenido)}/{OBITER_MAX_WORDS} palabras)
+                      ({contenido.length}/128)
                     </span>
                   </label>
                   <textarea
                     value={contenido}
-                    onChange={(e) => setContenido(e.target.value)}
-                    placeholder="Escribe tu reflexión jurídica... Usa #hashtags para categorizar y Art. 1445 CC para referenciar normas."
-                    rows={6}
+                    onChange={(e) => { if (e.target.value.length <= 128) setContenido(e.target.value); }}
+                    placeholder="Reflexión jurídica breve (máx. 128 caracteres)"
+                    rows={3}
                     className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] focus:border-gz-gold focus:outline-none resize-none" style={{ backgroundColor: "var(--gz-cream)" }}
                   />
                 </div>

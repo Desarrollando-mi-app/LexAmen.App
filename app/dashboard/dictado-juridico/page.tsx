@@ -36,8 +36,8 @@ export default async function DictadoJuridicoPage({
   if (dbUser.plan === "FREE" && !dbUser.isAdmin) {
     return (
       <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
-          <div className="mb-6">
+        <div className="px-4 sm:px-6 py-8">
+          <div className="gz-section-header mb-6">
             <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
               Dictado Jur&iacute;dico &middot; Premium
             </span>
@@ -114,9 +114,9 @@ export default async function DictadoJuridicoPage({
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
+      <div className="px-4 sm:px-6 py-8">
         {/* Gazette page header */}
-        <div className="mb-6">
+        <div className="gz-section-header mb-6">
           <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
             Dictado Jur&iacute;dico &middot; Precisi&oacute;n Legal
           </span>

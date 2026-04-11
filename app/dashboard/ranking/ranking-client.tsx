@@ -484,11 +484,10 @@ export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean 
 
   return (
     <main className="min-h-screen pb-24" style={{ backgroundColor: "var(--gz-cream)" }}>
-      <div className="mx-auto max-w-4xl px-4 lg:px-10 py-8">
+      <div className="px-4 lg:px-10 pt-8 pb-4">
 
-        {/* ═══ HEADER ═══ */}
-        <div className="mb-6">
-          <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
+        {/* ═══ HEADER — full bleed ═══ */}
+                  <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
             Clasificación General
           </p>
           <div className="flex items-center gap-3">
@@ -497,8 +496,9 @@ export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean 
               Ranking
             </h1>
           </div>
-          <div className="border-b-2 border-gz-rule-dark mt-3" />
-        </div>
+      </div>
+      <div className="h-[2px]" style={{ backgroundColor: "var(--gz-rule-dark)" }} />
+      <div className="mx-auto max-w-4xl px-4 lg:px-10 py-6">
 
         {/* Visibility notice */}
         {!visibleEnRanking && (

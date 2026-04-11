@@ -448,24 +448,29 @@ export function IndiceMaestroClient({ materias }: Props) {
   const selectedMateria = activeMaterias.find((m) => m.id === selectedRama);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8">
-      {/* ── Page Header ──────────────────────────────── */}
-      <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
-        Índice Maestro
-      </p>
-      <div className="flex items-center gap-4 mb-1">
-        <Image
-          src="/brand/logo-sello.svg"
-          alt="Studio Iuris"
-          width={120}
-          height={120}
-          className="h-[80px] w-[80px] lg:h-[120px] lg:w-[120px]"
-        />
-        <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
-          Materias
-        </h1>
+    <div>
+      {/* ── Page Header — edge to edge ─────────────────── */}
+      <div className="px-4 sm:px-6 pt-8 pb-4">
+        <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
+          Índice Maestro
+        </p>
+        <div className="flex items-center gap-4 mb-1">
+          <Image
+            src="/brand/logo-sello.svg"
+            alt="Studio Iuris"
+            width={120}
+            height={120}
+            className="h-[80px] w-[80px] lg:h-[120px] lg:w-[120px]"
+          />
+          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+            Materias
+          </h1>
+        </div>
       </div>
-      <div className="h-[2px] mt-2 mb-6" style={{ backgroundColor: "var(--gz-rule-dark)" }} />
+      <div className="h-[2px]" style={{ backgroundColor: "var(--gz-rule-dark)" }} />
+
+      {/* ── Content with padding ─── */}
+      <div className="px-4 sm:px-6">
 
       {/* ── Mobile: Select dropdown ──────────────────── */}
       <div className="lg:hidden mb-4">
@@ -558,6 +563,7 @@ export function IndiceMaestroClient({ materias }: Props) {
 
         {/* Content Panel */}
         {selectedMateria && <ContentPanel materia={selectedMateria} />}
+      </div>
       </div>
     </div>
   );

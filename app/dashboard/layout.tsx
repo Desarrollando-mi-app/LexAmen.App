@@ -120,8 +120,33 @@ export default async function DashboardLayout({
               userId={authUser.id}
             />
 
-            {/* Page content */}
-            <div className="pb-16 lg:pb-0">{children}</div>
+            {/* Page content with ad sidebars */}
+            <div className="flex pb-16 lg:pb-0">
+              {/* Left ad sidebar — desktop XL only */}
+              <aside className="hidden xl:block w-[160px] shrink-0 px-2 py-6">
+                <div className="sticky top-[120px]">
+                  <div className="h-[600px] rounded-[3px] border border-dashed border-gz-rule/40 flex items-center justify-center">
+                    <span className="font-ibm-mono text-[8px] uppercase tracking-[1px] text-gz-ink-light/30 -rotate-90 whitespace-nowrap">
+                      Espacio publicitario
+                    </span>
+                  </div>
+                </div>
+              </aside>
+
+              {/* Main content */}
+              <div className="flex-1 min-w-0">{children}</div>
+
+              {/* Right ad sidebar — desktop XL only */}
+              <aside className="hidden xl:block w-[160px] shrink-0 px-2 py-6">
+                <div className="sticky top-[120px]">
+                  <div className="h-[600px] rounded-[3px] border border-dashed border-gz-rule/40 flex items-center justify-center">
+                    <span className="font-ibm-mono text-[8px] uppercase tracking-[1px] text-gz-ink-light/30 -rotate-90 whitespace-nowrap">
+                      Espacio publicitario
+                    </span>
+                  </div>
+                </div>
+              </aside>
+            </div>
 
             {/* Footer */}
             <GzFooter />

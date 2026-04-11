@@ -1233,8 +1233,8 @@ export function DiarioPageClient({
 
   return (
     <div>
-      {/* ── Header: Title + Tabs + Publish in one line ────────── */}
-      <div className="mb-6">
+      {/* ── Header: Title + Tabs + Publish — full bleed ────────── */}
+      <div className="gz-section-header mb-6">
         <div className="flex items-center gap-0 flex-wrap">
           {/* Title — hidden on mobile (kicker already identifies the page) */}
           <div className="mr-1 hidden flex-shrink-0 items-center gap-3 border-r border-gz-rule pr-4 sm:flex">

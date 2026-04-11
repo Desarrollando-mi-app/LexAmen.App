@@ -159,8 +159,7 @@ export default async function CausasPage() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
-        <div className="mb-6">
+      <div className="px-4 sm:px-6 pt-8 pb-4">
           <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
             Competici&oacute;n &middot; Causas
           </span>
@@ -168,8 +167,9 @@ export default async function CausasPage() {
             <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
             <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">Causas</h1>
           </div>
-          <div className="h-[2px] bg-gz-rule-dark" />
-        </div>
+      </div>
+      <div className="h-[2px] bg-gz-rule-dark" />
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6">
         <CausasHub
           causasGanadas={dbUser?.causasGanadas ?? 0}
           causasPerdidas={dbUser?.causasPerdidas ?? 0}

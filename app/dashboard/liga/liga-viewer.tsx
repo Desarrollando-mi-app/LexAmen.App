@@ -223,11 +223,10 @@ export function LigaViewer({
 
   return (
     <main className="min-h-screen pb-24" style={{ backgroundColor: "var(--gz-cream)" }}>
-      <div className="mx-auto max-w-5xl px-4 lg:px-10 py-8">
+      <div className="px-4 lg:px-10 pt-8 pb-4">
 
-        {/* ═══ MASTHEAD ═══ */}
-        <div className="mb-6">
-          <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
+        {/* ═══ MASTHEAD — full bleed ═══ */}
+                  <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
             Liga Semanal · {daysRemaining} día{daysRemaining !== 1 ? "s" : ""} restante{daysRemaining !== 1 ? "s" : ""}
           </p>
           <div className="flex items-center gap-3">
@@ -236,8 +235,9 @@ export function LigaViewer({
               La Vida del Derecho
             </h1>
           </div>
-          <div className="border-b-2 border-gz-rule-dark mt-3" />
-        </div>
+      </div>
+      <div className="h-[2px]" style={{ backgroundColor: "var(--gz-rule-dark)" }} />
+      <div className="mx-auto max-w-5xl px-4 lg:px-10 py-6">
 
         {/* Visibility notice */}
         {!visibleEnLiga && (

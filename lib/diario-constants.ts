@@ -24,4 +24,4 @@ export const VISIBILIDAD_LABELS: Record<string, string> = {
   COLEGAS: "Solo Colegas",
 };
 
-export const OBITER_MAX_WORDS = 200;
+export const OBITER_MAX_WORDS = 30;

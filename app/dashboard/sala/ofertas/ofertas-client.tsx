@@ -138,7 +138,7 @@ export function OfertasClient({ userId, initialOfertas }: OfertasClientProps) {
 
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-5xl px-6 py-8">
+      <div className="px-6 py-8">
         {/* Back */}
         <Link
           href="/dashboard/sala"
@@ -150,8 +150,8 @@ export function OfertasClient({ userId, initialOfertas }: OfertasClientProps) {
           La Sala
         </Link>
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Header — full bleed */}
+        <div className="gz-section-header flex items-center justify-between mb-6">
           <div>
             <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-1">
               LA SALA &middot; OFERTAS DE TRABAJO

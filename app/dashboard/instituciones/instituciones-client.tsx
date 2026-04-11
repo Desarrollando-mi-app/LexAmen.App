@@ -75,27 +75,29 @@ export function InstitucionesClient({
   }, [filtered]);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 pt-8">
-      {/* Header */}
+    <div>
+    <div className="px-4 sm:px-6 pt-8 pb-4">
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium mb-1">
         Índice Temático
       </p>
-      <div className="flex items-center gap-3 mb-1">
-        <Image
-          src="/brand/logo-sello.svg"
-          alt="Studio Iuris"
-          width={80}
-          height={80}
-          className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
-        />
-        <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
-          Instituciones Jurídicas
-        </h1>
+        <div className="flex items-center gap-3 mb-1">
+          <Image
+            src="/brand/logo-sello.svg"
+            alt="Studio Iuris"
+            width={80}
+            height={80}
+            className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
+          />
+          <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
+            Instituciones Jurídicas
+          </h1>
+        </div>
+        <p className="font-archivo text-[14px] text-gz-ink-mid mt-1 mb-4">
+          {instituciones.length} instituciones · Estudia por tema, no por artículo
+        </p>
       </div>
-      <p className="font-archivo text-[14px] text-gz-ink-mid mt-1 mb-4">
-        {instituciones.length} instituciones · Estudia por tema, no por artículo
-      </p>
-      <div className="h-[2px] mb-6" style={{ backgroundColor: "var(--gz-rule-dark)" }} />
+      <div className="h-[2px]" style={{ backgroundColor: "var(--gz-rule-dark)" }} />
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6">
 
       {/* Search + Filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -198,6 +200,7 @@ export function InstitucionesClient({
           No se encontraron instituciones para esta búsqueda.
         </p>
       )}
+    </div>
     </div>
   );
 }

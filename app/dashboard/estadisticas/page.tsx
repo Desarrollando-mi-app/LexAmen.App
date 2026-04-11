@@ -279,9 +279,9 @@ export default async function EstadisticasPage() {
       className="min-h-screen pb-20"
       style={{ backgroundColor: "var(--gz-cream)" }}
     >
-      <div className="mx-auto max-w-[960px] px-4 lg:px-10 py-8">
-        {/* ─── Header ──────────────────────────────────────── */}
-        <div className="mb-8">
+      <div className="px-4 lg:px-10 py-8">
+        {/* ─── Header — full bleed ──────────────────────────── */}
+        <div className="gz-section-header mb-8">
           <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-1">
             Panel de rendimiento
           </p>

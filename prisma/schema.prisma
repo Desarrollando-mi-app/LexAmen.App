@@ -430,6 +430,10 @@ model User {
   expedienteVotos        ExpedienteVoto[]      @relation("ExpedienteVotos")
   expedienteComentarios  ExpedienteComentario[] @relation("ExpedienteComentarios")
 
+  // Noticias
+  noticiaComentarios     NoticiaComentario[]   @relation("NoticiaComentarios")
+  noticiasGuardadas      NoticiaGuardada[]     @relation("NoticiasGuardadas")
+
   // Debates Jurídicos
   debatesComoAutor1      DebateJuridico[]      @relation("DebateAutor1")
   debatesComoAutor2      DebateJuridico[]      @relation("DebateAutor2")
@@ -2350,12 +2354,44 @@ model NoticiaJuridica {
   aprobadaPor            String?
   notasAdmin             String?
 
+  tituloSugerido         String?   // Título descriptivo generado por IA
+  motivoLey              String?   // Por qué se ingresa/publica (solo para nueva_ley)
+  numeroLey              String?   // "21.680" — extraído por IA
+  leyesModificadas       String?   // "Modifica Ley 19.496, deroga arts. 3-5 Ley 20.169"
+  comentarioAdmin        String?   // Explicación redactada por admin al aprobar
+
+  comentarios            NoticiaComentario[]
+  guardados              NoticiaGuardada[]
+
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
   @@index([estado, fechaAprobacion])
   @@index([fuente, fechaRecopilacion])
   @@index([destacada, estado])
+}
+
+model NoticiaComentario {
+  id         String          @id @default(cuid())
+  noticiaId  String
+  noticia    NoticiaJuridica @relation(fields: [noticiaId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User            @relation("NoticiaComentarios", fields: [userId], references: [id], onDelete: Cascade)
+  contenido  String
+  createdAt  DateTime        @default(now())
+
+  @@index([noticiaId, createdAt])
+}
+
+model NoticiaGuardada {
+  id         String          @id @default(cuid())
+  noticiaId  String
+  noticia    NoticiaJuridica @relation(fields: [noticiaId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User            @relation("NoticiasGuardadas", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime        @default(now())
+
+  @@unique([noticiaId, userId])
 }
 
 // ─── Fallo de la Semana ──────────────────────────────────

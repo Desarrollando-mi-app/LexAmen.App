@@ -123,7 +123,7 @@ export default async function CalendarioPage() {
 
   return (
     <div>
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-8">
+      <div className="gz-section-header px-4 sm:px-6 pt-8">
         <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-1">
           Planificación · Calendario
         </p>

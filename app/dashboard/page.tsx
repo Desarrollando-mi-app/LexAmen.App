@@ -18,7 +18,6 @@ import { GzLigaResumen } from "./components/gz-liga-resumen";
 import { OnboardingCard } from "./components/onboarding-card";
 import { OnboardingWizard } from "./components/onboarding-wizard";
 import { StreakDetector } from "./components/streak-detector";
-import { GzProgressGlobal } from "./components/gz-progress-global";
 import { ensureLeagueMembership } from "@/lib/league-assign";
 import { getDaysRemaining } from "@/lib/league";
 
@@ -124,6 +123,7 @@ export default async function DashboardPage() {
   await checkStreakPenalty(authUser.id, prisma);
 
   // ─── Consultas de estadísticas (en paralelo) ──────────────
+  const THIRTY_DAYS_AGO = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const [
     masteredCount,
     reviewDatesRaw,
@@ -133,6 +133,15 @@ export default async function DashboardPage() {
     flashcardReviews30d,
     mcqAttempts30d,
     tfAttempts30d,
+    // Módulos adicionales para actividad + racha
+    defAttempts30d,
+    fbAttempts30d,
+    eiAttempts30d,
+    osAttempts30d,
+    mcAttempts30d,
+    cpAttempts30d,
+    dictAttempts30d,
+    tlAttempts30d,
     // Gazette queries
     totalFlashcards,
     mcqTotal,
@@ -152,8 +161,9 @@ export default async function DashboardPage() {
     // Noticias jurídicas
     noticiasJuridicasRaw,
   ] = await Promise.all([
+    // "Flashcards estudiadas" — al menos una revisión con respuesta (repetitions >= 1)
     prisma.userFlashcardProgress.count({
-      where: { userId: authUser.id, repetitions: { gte: 3 } },
+      where: { userId: authUser.id, repetitions: { gte: 1 } },
     }),
 
     prisma.userFlashcardProgress.findMany({
@@ -167,7 +177,7 @@ export default async function DashboardPage() {
     }),
 
     prisma.userFlashcardProgress.findMany({
-      where: { userId: authUser.id, repetitions: { gte: 3 } },
+      where: { userId: authUser.id, repetitions: { gte: 1 } },
       select: {
         flashcard: { select: { rama: true, libro: true, titulo: true } },
       },
@@ -181,9 +191,7 @@ export default async function DashboardPage() {
     prisma.userFlashcardProgress.findMany({
       where: {
         userId: authUser.id,
-        lastReviewedAt: {
-          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-        },
+        lastReviewedAt: { gte: THIRTY_DAYS_AGO },
       },
       select: { lastReviewedAt: true },
     }),
@@ -191,9 +199,7 @@ export default async function DashboardPage() {
     prisma.userMCQAttempt.findMany({
       where: {
         userId: authUser.id,
-        attemptedAt: {
-          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-        },
+        attemptedAt: { gte: THIRTY_DAYS_AGO },
       },
       select: { attemptedAt: true },
     }),
@@ -201,11 +207,43 @@ export default async function DashboardPage() {
     prisma.userTrueFalseAttempt.findMany({
       where: {
         userId: authUser.id,
-        attemptedAt: {
-          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-        },
+        attemptedAt: { gte: THIRTY_DAYS_AGO },
       },
       select: { attemptedAt: true },
+    }),
+
+    // ── Módulos adicionales para actividad + racha ───────────
+    prisma.definicionIntento.findMany({
+      where: { userId: authUser.id, createdAt: { gte: THIRTY_DAYS_AGO } },
+      select: { createdAt: true },
+    }),
+    prisma.fillBlankAttempt.findMany({
+      where: { userId: authUser.id, createdAt: { gte: THIRTY_DAYS_AGO } },
+      select: { createdAt: true },
+    }),
+    prisma.errorIdentificationAttempt.findMany({
+      where: { userId: authUser.id, createdAt: { gte: THIRTY_DAYS_AGO } },
+      select: { createdAt: true },
+    }),
+    prisma.orderSequenceAttempt.findMany({
+      where: { userId: authUser.id, createdAt: { gte: THIRTY_DAYS_AGO } },
+      select: { createdAt: true },
+    }),
+    prisma.matchColumnsAttempt.findMany({
+      where: { userId: authUser.id, createdAt: { gte: THIRTY_DAYS_AGO } },
+      select: { createdAt: true },
+    }),
+    prisma.casoPracticoAttempt.findMany({
+      where: { userId: authUser.id, createdAt: { gte: THIRTY_DAYS_AGO } },
+      select: { createdAt: true },
+    }),
+    prisma.dictadoAttempt.findMany({
+      where: { userId: authUser.id, createdAt: { gte: THIRTY_DAYS_AGO } },
+      select: { createdAt: true },
+    }),
+    prisma.timelineAttempt.findMany({
+      where: { userId: authUser.id, createdAt: { gte: THIRTY_DAYS_AGO } },
+      select: { createdAt: true },
     }),
 
     // ── Gazette-specific ─────────────────────────────────────
@@ -354,10 +392,23 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  // ─── Calcular racha ───────────────────────────────────────
-  const streak = calculateStreak(
-    reviewDatesRaw.map((r) => r.lastReviewedAt)
-  );
+  // ─── Calcular racha — considera actividad en CUALQUIER módulo ──
+  // Recoge todas las fechas de los últimos 30 días (todos los módulos)
+  // + las fechas históricas de flashcards para detectar rachas largas.
+  const allStreakDates: (Date | null)[] = [
+    ...reviewDatesRaw.map((r) => r.lastReviewedAt),
+    ...mcqAttempts30d.map((a) => a.attemptedAt),
+    ...tfAttempts30d.map((a) => a.attemptedAt),
+    ...defAttempts30d.map((a) => a.createdAt),
+    ...fbAttempts30d.map((a) => a.createdAt),
+    ...eiAttempts30d.map((a) => a.createdAt),
+    ...osAttempts30d.map((a) => a.createdAt),
+    ...mcAttempts30d.map((a) => a.createdAt),
+    ...cpAttempts30d.map((a) => a.createdAt),
+    ...dictAttempts30d.map((a) => a.createdAt),
+    ...tlAttempts30d.map((a) => a.createdAt),
+  ];
+  const streak = calculateStreak(allStreakDates);
 
   // ─── Calcular progressData ────────────────────────────────
   const flashcardTotalByKey: Record<string, number> = {};
@@ -407,22 +458,26 @@ export default async function DashboardPage() {
   }));
 
   // ─── Construir actividad de 30 días ──────────────────────
+  // Ahora considera los 11 módulos: Flashcards + MCQ + V/F + Definiciones +
+  // FillBlank + ErrorIdentification + OrderSequence + MatchColumns +
+  // CasoPractico + Dictado + Timeline
   const activityMap: Record<string, number> = {};
-
-  for (const r of flashcardReviews30d) {
-    if (r.lastReviewedAt) {
-      const key = r.lastReviewedAt.toISOString().slice(0, 10);
-      activityMap[key] = (activityMap[key] ?? 0) + 1;
-    }
-  }
-  for (const a of mcqAttempts30d) {
-    const key = a.attemptedAt.toISOString().slice(0, 10);
+  const addToMap = (date: Date | null | undefined) => {
+    if (!date) return;
+    const key = date.toISOString().slice(0, 10);
     activityMap[key] = (activityMap[key] ?? 0) + 1;
-  }
-  for (const a of tfAttempts30d) {
-    const key = a.attemptedAt.toISOString().slice(0, 10);
-    activityMap[key] = (activityMap[key] ?? 0) + 1;
-  }
+  };
+  for (const r of flashcardReviews30d) addToMap(r.lastReviewedAt);
+  for (const a of mcqAttempts30d) addToMap(a.attemptedAt);
+  for (const a of tfAttempts30d) addToMap(a.attemptedAt);
+  for (const a of defAttempts30d) addToMap(a.createdAt);
+  for (const a of fbAttempts30d) addToMap(a.createdAt);
+  for (const a of eiAttempts30d) addToMap(a.createdAt);
+  for (const a of osAttempts30d) addToMap(a.createdAt);
+  for (const a of mcAttempts30d) addToMap(a.createdAt);
+  for (const a of cpAttempts30d) addToMap(a.createdAt);
+  for (const a of dictAttempts30d) addToMap(a.createdAt);
+  for (const a of tlAttempts30d) addToMap(a.createdAt);
 
   const activityDays: Array<{ date: string; count: number }> = [];
   for (let i = 29; i >= 0; i--) {
@@ -600,8 +655,6 @@ export default async function DashboardPage() {
   return (
     <main>
       <StreakDetector streak={streak} hadActivityYesterday={hadActivityYesterday} />
-
-      <GzProgressGlobal />
 
       <div className="mx-auto max-w-[1280px] px-4 lg:px-10 py-6 pb-20">
         {/* Onboarding for new users */}

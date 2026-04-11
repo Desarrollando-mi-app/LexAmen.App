@@ -111,8 +111,8 @@ export function EstadisticasClient() {
   return (
     <div className="gz-page min-h-screen bg-[var(--gz-cream)]">
       <div className="max-w-[1280px] mx-auto px-4 lg:px-10 py-8">
-        {/* Page Header */}
-        <div className="mb-8">
+        {/* Page Header — full bleed */}
+        <div className="gz-section-header mb-8">
           <div className="flex items-center gap-3 mb-2">
             <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-gold">
               Panel de análisis

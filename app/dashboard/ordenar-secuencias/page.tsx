@@ -68,10 +68,10 @@ export default async function OrdenarSecuenciasPage({
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-8">
-        {/* Gazette page header */}
-        <div className="mb-6">
-          <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
+              {/* Gazette page header */}
+        <div className="px-4 sm:px-6 pt-8 pb-4">
+
+            <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold mb-2 block">
             Ordenar Secuencias &middot; XP
           </span>
           <div className="flex items-center gap-3 mb-1">
@@ -87,7 +87,8 @@ export default async function OrdenarSecuenciasPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
-        </div>
+      </div>
+      
         <OrderSequenceViewer
           items={items}
           attemptsToday={attemptsToday}
@@ -99,7 +100,6 @@ export default async function OrdenarSecuenciasPage({
             titulo: searchParams.titulo,
           }}
         />
-      </div>
     </main>
   );
 }

@@ -32,7 +32,7 @@ export async function PATCH(
 
   try {
     const body = await request.json();
-    const { estado, destacada, categoria, rama, notasAdmin } = body;
+    const { estado, destacada, categoria, rama, notasAdmin, titulo, comentarioAdmin } = body;
 
     const data: Record<string, unknown> = {};
     if (estado !== undefined) data.estado = estado;
@@ -40,6 +40,8 @@ export async function PATCH(
     if (categoria !== undefined) data.categoria = categoria;
     if (rama !== undefined) data.rama = rama;
     if (notasAdmin !== undefined) data.notasAdmin = notasAdmin;
+    if (titulo !== undefined) data.titulo = titulo;
+    if (comentarioAdmin !== undefined) data.comentarioAdmin = comentarioAdmin;
 
     // When approving, set approval metadata
     if (estado === "aprobada") {
