@@ -10,7 +10,7 @@ const LETTER_STAGGER_MS = 40;
 const SHRINK_THRESHOLD_PX = 40;
 const TOP_THRESHOLD_PX = 4;
 
-export function GzMasthead() {
+export function GzMasthead({ userId }: { userId: string }) {
   // `isShrunk` controls the expanded/compact visual state
   const [isShrunk, setIsShrunk] = useState(false);
   // `animKey` is bumped every time the user returns to the top after having
@@ -136,7 +136,7 @@ export function GzMasthead() {
       </div>
 
       {/* Nav — siempre visible (también en estado comprimido) */}
-      <GzMastheadNav />
+      <GzMastheadNav userId={userId} />
     </header>
   );
 }

@@ -506,7 +506,7 @@ export function RankingClient({ visibleEnRanking }: { visibleEnRanking: boolean 
             <span className="text-sm">👁️‍🗨️</span>
             <p className="font-archivo text-[12px] text-gz-ink-mid">
               No apareces en el ranking.{" "}
-              <Link href="/dashboard/perfil" className="text-gz-gold underline underline-offset-2 hover:text-gz-gold-bright">
+              <Link href="/dashboard/perfil/configuracion" className="text-gz-gold underline underline-offset-2 hover:text-gz-gold-bright">
                 Cambiar en Preferencias
               </Link>
             </p>

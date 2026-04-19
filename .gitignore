@@ -37,3 +37,11 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+
+# local backups & large raw outputs (no versionamos)
+/backups/
+*.bak-*
+/outputs/fase-5-raw.json
+
+# claude code state
+/.claude/scheduled_tasks.lock

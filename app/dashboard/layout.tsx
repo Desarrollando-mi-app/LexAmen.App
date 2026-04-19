@@ -106,7 +106,7 @@ export default async function DashboardLayout({
             {BETA_MODE && <BetaBanner />}
 
             {/* Gazette masthead — visible on all dashboard pages */}
-            <GzMasthead />
+            <GzMasthead userId={authUser.id} />
             <GzUserBar
               userName={dbUser.firstName}
               email={dbUser.email ?? authUser.email ?? ""}
@@ -151,7 +151,7 @@ export default async function DashboardLayout({
             {/* Footer */}
             <GzFooter />
           </div>
-          <MobileNav />
+          <MobileNav userId={authUser.id} />
           <PomodoroPill />
           <ThemePill />
           <DiarioFab />

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { MCQViewer } from "./mcq-viewer";
 import Image from "next/image";
+import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 const DAILY_FREE_LIMIT = 10;
 
@@ -14,6 +15,7 @@ export default async function MCQPage({
     libro?: string;
     titulo?: string;
     dificultad?: string;
+    pool?: string;
   };
 }) {
   const supabase = await createClient();
@@ -37,7 +39,13 @@ export default async function MCQPage({
     where: { userId: authUser.id, attemptedAt: { gte: startOfToday } },
   });
 
-  const rawMCQs = await prisma.mCQ.findMany({ orderBy: { id: "asc" } });
+  const pool = resolveStudyPool(searchParams.pool);
+  const integradoresCount = await prisma.mCQ.count({ where: { esIntegrador: true } });
+
+  const rawMCQs = await prisma.mCQ.findMany({
+    where: { esIntegrador: pool === "integradores" },
+    orderBy: { id: "asc" },
+  });
 
   // correctOption in DB is already distributed across A/B/C/D (shuffled at import)
   // Pass data as-is — the API attempt route uses the same DB correctOption for grading
@@ -73,6 +81,14 @@ export default async function MCQPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
+          <div className="mt-4 flex items-center gap-3 flex-wrap">
+            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
+            {pool === "integradores" && (
+              <span className="font-cormorant italic text-sm text-gz-ink-mid">
+                Mostrando ejercicios marcados como integradores.
+              </span>
+            )}
+          </div>
       </div>
       
         <MCQViewer

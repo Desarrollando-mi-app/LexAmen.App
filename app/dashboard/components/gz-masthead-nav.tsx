@@ -24,6 +24,10 @@ const NAV_ITEMS: NavItem[] = [
     label: "Noticias",
   },
   {
+    href: "__PERFIL__",
+    label: "Perfil",
+  },
+  {
     href: "/dashboard",
     label: "Escritorio",
     children: [
@@ -43,10 +47,11 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    href: "/dashboard/liga",
+    href: "/dashboard/la-toga",
     label: "Competencias",
     children: [
-      { href: "/dashboard/liga", label: "Liga", emoji: "🏆" },
+      { href: "/dashboard/la-toga", label: "La Liga de la Toga", emoji: "🏆" },
+      { href: "/dashboard/vida-del-derecho", label: "La Vida del Derecho", emoji: "🎓" },
       { href: "/dashboard/ranking", label: "Ranking XP", emoji: "📊" },
       { href: "/dashboard/ranking-causas", label: "Ranking Causas", emoji: "🏅" },
       { href: "/dashboard/causas", label: "Causas", emoji: "⚔️" },
@@ -97,6 +102,8 @@ const STUDY_ROUTES = [
 ];
 
 const COMPETE_ROUTES = [
+  "/dashboard/la-toga",
+  "/dashboard/vida-del-derecho",
   "/dashboard/liga",
   "/dashboard/ranking",
   "/dashboard/ranking-causas",
@@ -107,6 +114,11 @@ function isItemActive(item: NavItem, pathname: string): boolean {
   // Noticias
   if (item.href === "/dashboard/noticias") {
     return pathname.startsWith("/dashboard/noticias") || pathname === "/portada";
+  }
+
+  // Perfil
+  if (item.label === "Perfil") {
+    return pathname.startsWith("/dashboard/perfil");
   }
 
   // Escritorio: exact match only
@@ -135,7 +147,7 @@ function isItemActive(item: NavItem, pathname: string): boolean {
 
 /* ─── Component ─── */
 
-export function GzMastheadNav() {
+export function GzMastheadNav({ userId }: { userId?: string }) {
   const pathname = usePathname();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -168,10 +180,13 @@ export function GzMastheadNav() {
       ref={containerRef}
       className="hidden lg:flex justify-center gap-0 mt-3.5 border-t border-gz-rule pt-2.5"
     >
-      {NAV_ITEMS.map((item, i) => {
+      {NAV_ITEMS
+        .filter((item) => !(item.href === "__PERFIL__" && !userId))
+        .map((item, i, arr) => {
         const active = isItemActive(item, pathname);
         const isOpen = openIndex === i && !!item.children;
-        const isLast = i === NAV_ITEMS.length - 1;
+        const isLast = i === arr.length - 1;
+        const resolvedHref = item.href === "__PERFIL__" ? `/dashboard/perfil/${userId}` : item.href;
 
         return (
           <div key={item.href + item.label} className="relative">
@@ -197,7 +212,7 @@ export function GzMastheadNav() {
               </button>
             ) : (
               <Link
-                href={item.href}
+                href={resolvedHref}
                 className={`
                   block font-archivo text-[11px] font-semibold uppercase tracking-[2px]
                   px-[18px] py-1 transition-colors hover:text-gz-gold

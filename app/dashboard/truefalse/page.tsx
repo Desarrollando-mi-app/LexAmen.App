@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { TrueFalseViewer } from "./truefalse-viewer";
 import Image from "next/image";
+import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 const DAILY_FREE_LIMIT = 20;
 
@@ -14,6 +15,7 @@ export default async function TrueFalsePage({
     libro?: string;
     titulo?: string;
     dificultad?: string;
+    pool?: string;
   };
 }) {
   const supabase = await createClient();
@@ -37,7 +39,13 @@ export default async function TrueFalsePage({
     where: { userId: authUser.id, attemptedAt: { gte: startOfToday } },
   });
 
-  const rawItems = await prisma.trueFalse.findMany({ orderBy: { id: "asc" } });
+  const pool = resolveStudyPool(searchParams.pool);
+  const integradoresCount = await prisma.trueFalse.count({ where: { esIntegrador: true } });
+
+  const rawItems = await prisma.trueFalse.findMany({
+    where: { esIntegrador: pool === "integradores" },
+    orderBy: { id: "asc" },
+  });
 
   const items = rawItems.map((tf) => ({
     id: tf.id,
@@ -67,8 +75,16 @@ export default async function TrueFalsePage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
+          <div className="mt-4 flex items-center gap-3 flex-wrap">
+            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
+            {pool === "integradores" && (
+              <span className="font-cormorant italic text-sm text-gz-ink-mid">
+                Mostrando ejercicios marcados como integradores.
+              </span>
+            )}
+          </div>
       </div>
-      
+
         <TrueFalseViewer
           items={items}
           attemptsToday={attemptsToday}

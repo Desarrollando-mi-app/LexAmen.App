@@ -322,6 +322,7 @@ model User {
   intereses       String?   // JSON array stored as string
   linkedinUrl     String?
   avatarUrl       String?
+  coverUrl        String?
   cvAvailable     Boolean   @default(false)
   region          String?   // "Región Metropolitana de Santiago", etc.
   corte           String?   // "Santiago", "Valparaíso", etc. (comuna sede de Corte)
@@ -400,6 +401,9 @@ model User {
   ensayoApoyos            EnsayoApoyo[]         @relation("EnsayoApoyos")
   ensayoGuardados         EnsayoGuardado[]      @relation("EnsayoGuardados")
   ensayoComuniquese       EnsayoComuniquese[]   @relation("EnsayoComuniquese")
+  columnasCreadas         ColumnaJuridica[]     @relation("ColumnasCreadas")
+  columnaApoyos           ColumnaApoyo[]        @relation("ColumnaApoyos")
+  columnaGuardados        ColumnaGuardado[]     @relation("ColumnaGuardados")
 
   // Definiciones
   definicionIntentos      DefinicionIntento[]   @relation("DefinicionIntentos")
@@ -468,6 +472,10 @@ model Flashcard {
   articuloRef String?
   dificultad  String  @default("BASICO")
 
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
+
   institucionId Int?
   institucion   InstitucionJuridica? @relation(fields: [institucionId], references: [id])
 
@@ -476,6 +484,9 @@ model Flashcard {
 
   @@index([rama, libro])
   @@index([rama, libro, titulo])
+  @@index([rama, libro, titulo, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -514,6 +525,10 @@ model MCQ {
   articuloRef   String?
   dificultad    String  @default("BASICO")
 
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
+
   institucionId Int?
   institucion   InstitucionJuridica? @relation(fields: [institucionId], references: [id])
 
@@ -524,6 +539,9 @@ model MCQ {
 
   @@index([rama, libro])
   @@index([rama, libro, titulo])
+  @@index([rama, libro, titulo, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -556,6 +574,10 @@ model TrueFalse {
   articuloRef String?
   dificultad  String  @default("BASICO")
 
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
+
   institucionId Int?
   institucion   InstitucionJuridica? @relation(fields: [institucionId], references: [id])
 
@@ -563,6 +585,9 @@ model TrueFalse {
 
   @@index([rama, libro])
   @@index([rama, libro, titulo])
+  @@index([rama, libro, titulo, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -1667,6 +1692,68 @@ model EnsayoComuniquese {
   @@index([userId])
 }
 
+// ─── Columnas de Opinión Jurídica ────────────────────────
+// Columnas editoriales — texto libre, no archivo. Más ligeras que Ensayo,
+// más largas que Obiter Dictum. Formato editorial de revista.
+
+model ColumnaJuridica {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation("ColumnasCreadas", fields: [userId], references: [id])
+
+  // === CONTENIDO ===
+  titulo          String
+  contenido       String   // markdown / texto largo
+  resumen         String?  // lead / bajada
+  materia         String?
+  tags            String?
+
+  // === VISIBILIDAD ===
+  showInFeed      Boolean  @default(true)
+  isActive        Boolean  @default(true)
+  isHidden        Boolean  @default(false)
+
+  // === CONTADORES DESNORMALIZADOS ===
+  apoyosCount     Int      @default(0)
+  citasCount      Int      @default(0)
+  guardadosCount  Int      @default(0)
+  viewsCount      Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  apoyos          ColumnaApoyo[]
+  guardados       ColumnaGuardado[]
+
+  @@index([userId])
+  @@index([materia])
+  @@index([isActive, isHidden, createdAt(sort: Desc)])
+}
+
+model ColumnaApoyo {
+  id        String          @id @default(uuid())
+  columnaId String
+  columna   ColumnaJuridica @relation(fields: [columnaId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation("ColumnaApoyos", fields: [userId], references: [id])
+  createdAt DateTime        @default(now())
+
+  @@unique([columnaId, userId])
+  @@index([userId])
+}
+
+model ColumnaGuardado {
+  id        String          @id @default(uuid())
+  columnaId String
+  columna   ColumnaJuridica @relation(fields: [columnaId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation("ColumnaGuardados", fields: [userId], references: [id])
+  createdAt DateTime        @default(now())
+
+  @@unique([columnaId, userId])
+  @@index([userId])
+}
+
 // ─── Mi Examen (Plan de Estudio Personalizado) ───────────
 
 model ExamenConfig {
@@ -1765,6 +1852,7 @@ model Definicion {
   rama          Rama
   libro         String?
   titulo        String?
+  parrafo       String?
 
   distractor1   String
   distractor2   String
@@ -1772,6 +1860,10 @@ model Definicion {
 
   explicacion   String?
   articuloRef   String?
+
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
 
   institucionId Int?
   institucion   InstitucionJuridica? @relation(fields: [institucionId], references: [id])
@@ -1784,6 +1876,9 @@ model Definicion {
 
   @@index([rama])
   @@index([isActive, rama])
+  @@index([rama, libro, titulo, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -1934,8 +2029,13 @@ model FillBlank {
   rama            String
   libro           String?
   titulo          String?
+  parrafo         String?
   materia         String?
   dificultad      Int      @default(2)
+
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
 
   institucionId   Int?
   institucion     InstitucionJuridica? @relation(fields: [institucionId], references: [id])
@@ -1946,6 +2046,9 @@ model FillBlank {
   attempts        FillBlankAttempt[]
 
   @@index([rama, activo])
+  @@index([rama, libro, titulo, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -1977,8 +2080,13 @@ model ErrorIdentification {
   rama              String
   libro             String?
   titulo            String?
+  parrafo           String?
   materia           String?
   dificultad        Int      @default(2)
+
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
 
   institucionId     Int?
   institucion       InstitucionJuridica? @relation(fields: [institucionId], references: [id])
@@ -1989,6 +2097,9 @@ model ErrorIdentification {
   attempts          ErrorIdentificationAttempt[]
 
   @@index([rama, activo])
+  @@index([rama, libro, titulo, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -2021,8 +2132,13 @@ model OrderSequence {
   rama           String
   libro          String?
   tituloMateria  String?
+  parrafo        String?
   materia        String?
   dificultad     Int      @default(2)
+
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
 
   institucionId  Int?
   institucion    InstitucionJuridica? @relation(fields: [institucionId], references: [id])
@@ -2033,6 +2149,9 @@ model OrderSequence {
   attempts       OrderSequenceAttempt[]
 
   @@index([rama, activo])
+  @@index([rama, libro, tituloMateria, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -2068,8 +2187,13 @@ model MatchColumns {
   rama            String
   libro           String?
   tituloMateria   String?
+  parrafo         String?
   materia         String?
   dificultad      Int      @default(2)
+
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
 
   institucionId   Int?
   institucion     InstitucionJuridica? @relation(fields: [institucionId], references: [id])
@@ -2080,6 +2204,9 @@ model MatchColumns {
   attempts        MatchColumnsAttempt[]
 
   @@index([rama, activo])
+  @@index([rama, libro, tituloMateria, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -2113,8 +2240,13 @@ model CasoPractico {
   rama           String
   libro          String?
   tituloMateria  String?
+  parrafo        String?
   materia        String?
   dificultad     Int      @default(2)
+
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
 
   institucionId  Int?
   institucion    InstitucionJuridica? @relation(fields: [institucionId], references: [id])
@@ -2125,6 +2257,9 @@ model CasoPractico {
   attempts       CasoPracticoAttempt[]
 
   @@index([rama, activo])
+  @@index([rama, libro, tituloMateria, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -2154,8 +2289,13 @@ model DictadoJuridico {
   rama           String
   libro          String?
   tituloMateria  String?
+  parrafo        String?
   materia        String?
   dificultad     Int      @default(2)
+
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
 
   institucionId  Int?
   institucion    InstitucionJuridica? @relation(fields: [institucionId], references: [id])
@@ -2166,6 +2306,9 @@ model DictadoJuridico {
   attempts       DictadoAttempt[]
 
   @@index([rama, activo])
+  @@index([rama, libro, tituloMateria, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 
@@ -2202,8 +2345,13 @@ model Timeline {
   rama           String
   libro          String?
   tituloMateria  String?
+  parrafo        String?
   materia        String?
   dificultad     Int      @default(2)
+
+  // ─── Fase 2: flags de reorganización ───
+  esIntegrador     Boolean @default(false)
+  sourceExerciseId String?
 
   institucionId  Int?
   institucion    InstitucionJuridica? @relation(fields: [institucionId], references: [id])
@@ -2214,6 +2362,9 @@ model Timeline {
   attempts       TimelineAttempt[]
 
   @@index([rama, activo])
+  @@index([rama, libro, tituloMateria, parrafo])
+  @@index([esIntegrador])
+  @@index([sourceExerciseId])
   @@index([institucionId])
 }
 

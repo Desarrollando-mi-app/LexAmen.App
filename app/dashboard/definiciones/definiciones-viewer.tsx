@@ -282,7 +282,7 @@ export function DefinicionesViewer({
             Volver al Indice
           </Link>
           <Link
-            href="/dashboard/perfil"
+            href="/dashboard/perfil/configuracion"
             className="rounded-sm bg-gz-gold px-5 py-2 font-archivo text-sm font-semibold text-white hover:bg-gz-gold-bright transition-colors"
           >
             Ver Premium

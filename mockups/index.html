@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mockups Perfil — Studio IURIS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Archivo:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+body { margin:0; padding:40px; background:#f5f0e6; color:#1c1814; font-family:'Archivo',sans-serif; }
+.label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#9a7230; }
+h1 { font-family:'Cormorant Garamond',serif; font-weight:600; font-size:48px; margin:0 0 8px; letter-spacing:-0.5px; }
+p { color:#4a433a; max-width:560px; margin-bottom:32px; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:1100px; }
+a.card { display:block; padding:28px; background:white; border:1px solid #c4b99a; border-radius:4px; text-decoration:none; color:#1c1814; transition:all .2s; }
+a.card:hover { border-color:#9a7230; transform:translateY(-2px); box-shadow:0 8px 24px rgba(154,114,48,0.12); }
+.card h2 { font-family:'Cormorant Garamond',serif; font-weight:600; font-size:32px; margin:12px 0 8px; }
+.card .preview { aspect-ratio:16/10; background:#e9e0cf; border-radius:3px; position:relative; overflow:hidden; margin-bottom:16px; }
+.v1-preview { background:linear-gradient(180deg,#f5f0e6 0%,#f5f0e6 100%); }
+.v1-preview::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:#9a7230; }
+.v1-preview::after { content:'BASTIÁN\A GUZMÁN'; white-space:pre; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:600; line-height:0.95; text-align:center; letter-spacing:-1px; }
+.v2-preview { background:linear-gradient(135deg,#12203a 0%,#6b1d2a 100%); }
+.v2-preview::before { content:''; position:absolute; bottom:-60px; left:20%; width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,#12203a,#6b1d2a); border:4px solid #f5f0e6; }
+.v2-preview::after { content:'§'; position:absolute; top:12px; right:16px; color:rgba(245,240,230,0.4); font-family:'Cormorant Garamond',serif; font-size:32px; font-style:italic; }
+.tag { display:inline-block; padding:3px 8px; background:rgba(154,114,48,0.12); color:#9a7230; border-radius:3px; margin-right:4px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<div class="label">Mockups de diseño</div>
+<h1>Perfil · Studio IURIS</h1>
+<p>Dos variantes para el nuevo tab <strong>Perfil</strong> entre Noticias y Escritorio. Ambas respetan la paleta cream/ink + gold, y las fuentes Cormorant Garamond / Archivo / IBM Plex Mono del proyecto.</p>
+
+<div class="grid">
+  <a class="card" href="perfil-v1-editorial.html">
+    <div class="preview v1-preview"></div>
+    <span class="tag">Variante A</span>
+    <h2>Editorial</h2>
+    <p style="margin:0; font-size:14px;">Masthead tipo periódico. Tipografía serif dominante, columnas con reglas, drop cap en la columna destacada. Densa, formal, académica.</p>
+  </a>
+  <a class="card" href="perfil-v2-moderno.html">
+    <div class="preview v2-preview"></div>
+    <span class="tag">Variante B</span>
+    <h2>Moderno</h2>
+    <p style="margin:0; font-size:14px;">Cover + avatar overlapping, cards con sombras sutiles, chips redondeados, compose box. Mantiene paleta editorial pero layout contemporáneo.</p>
+  </a>
+</div>
+</body>
+</html>

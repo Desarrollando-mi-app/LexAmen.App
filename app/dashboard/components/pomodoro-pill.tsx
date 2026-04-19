@@ -33,7 +33,7 @@ export function PomodoroPill() {
   }, [popoverOpen]);
 
   return (
-    <div ref={pillRef} className="fixed bottom-20 left-[76px] z-40 lg:bottom-6 lg:z-50">
+    <div ref={pillRef} className="hidden lg:block fixed bottom-20 left-[76px] z-40 lg:bottom-6 lg:z-50">
       {/* ── Popover (opens upward) ────────────────── */}
       {popoverOpen && (
         <div className="absolute bottom-full left-0 mb-2 w-[280px] rounded-[4px] border border-gz-rule bg-white shadow-sm">

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { FlashcardViewer } from "./flashcard-viewer";
 import Image from "next/image";
+import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 const DAILY_FREE_LIMIT = 30;
 
@@ -15,6 +16,7 @@ export default async function FlashcardsPage({
     titulo?: string;
     dificultad?: string;
     mode?: string;
+    pool?: string;
   };
 }) {
   // 1. Autenticar
@@ -49,8 +51,12 @@ export default async function FlashcardsPage({
   });
 
   // 4. Obtener todas las flashcards con progreso del usuario + favoritos
+  const pool = resolveStudyPool(searchParams.pool);
+  const integradoresCount = await prisma.flashcard.count({ where: { esIntegrador: true } });
+
   const [rawFlashcards, favorites] = await Promise.all([
     prisma.flashcard.findMany({
+      where: { esIntegrador: pool === "integradores" },
       include: {
         progress: {
           where: { userId: authUser.id },
@@ -112,6 +118,14 @@ export default async function FlashcardsPage({
         </div>
       </div>
       <div className="h-[2px] bg-gz-rule-dark" />
+      <div className="px-4 sm:px-6 pt-4 flex items-center gap-3 flex-wrap">
+        <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
+        {pool === "integradores" && (
+          <span className="font-cormorant italic text-sm text-gz-ink-mid">
+            Mostrando ejercicios marcados como integradores.
+          </span>
+        )}
+      </div>
       {/* Content */}
       <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6">
         <FlashcardViewer

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { DefinicionesViewer } from "./definiciones-viewer";
 import Image from "next/image";
+import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 const DAILY_FREE_LIMIT = 15;
 
@@ -13,6 +14,7 @@ export default async function DefinicionesPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    pool?: string;
   };
 }) {
   const supabase = await createClient();
@@ -37,9 +39,14 @@ export default async function DefinicionesPage({
     where: { userId: authUser.id, createdAt: { gte: startOfToday } },
   });
 
+  const pool = resolveStudyPool(searchParams.pool);
+  const integradoresCount = await prisma.definicion.count({
+    where: { isActive: true, esIntegrador: true },
+  });
+
   // Fetch all active definitions
   const rawDefs = await prisma.definicion.findMany({
-    where: { isActive: true },
+    where: { isActive: true, esIntegrador: pool === "integradores" },
     orderBy: { id: "asc" },
   });
 
@@ -91,8 +98,16 @@ export default async function DefinicionesPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
+          <div className="mt-4 flex items-center gap-3 flex-wrap">
+            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
+            {pool === "integradores" && (
+              <span className="font-cormorant italic text-sm text-gz-ink-mid">
+                Mostrando ejercicios marcados como integradores.
+              </span>
+            )}
+          </div>
       </div>
-      
+
 
         <DefinicionesViewer
           definiciones={definiciones}

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { DictadoViewer } from "./dictado-viewer";
 import Image from "next/image";
 import Link from "next/link";
+import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 const DAILY_LIMIT = 5;
 
@@ -16,6 +17,7 @@ export default async function DictadoJuridicoPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    pool?: string;
   };
 }) {
   const supabase = await createClient();
@@ -90,9 +92,14 @@ export default async function DictadoJuridicoPage({
     },
   });
 
+  const pool = resolveStudyPool(searchParams.pool);
+  const integradoresCount = await prisma.dictadoJuridico.count({
+    where: { activo: true, esIntegrador: true },
+  });
+
   // Fetch all active dictados (without textoCompleto)
   const rawItems = await prisma.dictadoJuridico.findMany({
-    where: { activo: true },
+    where: { activo: true, esIntegrador: pool === "integradores" },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -133,6 +140,14 @@ export default async function DictadoJuridicoPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
+          <div className="mt-4 flex items-center gap-3 flex-wrap">
+            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
+            {pool === "integradores" && (
+              <span className="font-cormorant italic text-sm text-gz-ink-mid">
+                Mostrando ejercicios marcados como integradores.
+              </span>
+            )}
+          </div>
         </div>
 
         <DictadoViewer

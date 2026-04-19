@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { MatchColumnsViewer } from "./match-columns-viewer";
 import Image from "next/image";
+import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 const DAILY_FREE_LIMIT = 5;
 
@@ -15,6 +16,7 @@ export default async function RelacionarColumnasPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    pool?: string;
   };
 }) {
   // 1. Autenticar
@@ -48,9 +50,14 @@ export default async function RelacionarColumnasPage({
     },
   });
 
+  const pool = resolveStudyPool(searchParams.pool);
+  const integradoresCount = await prisma.matchColumns.count({
+    where: { activo: true, esIntegrador: true },
+  });
+
   // 4. Obtener todos los ejercicios activos
   const rawItems = await prisma.matchColumns.findMany({
-    where: { activo: true },
+    where: { activo: true, esIntegrador: pool === "integradores" },
     orderBy: { createdAt: "desc" },
   });
 
@@ -90,8 +97,16 @@ export default async function RelacionarColumnasPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
+          <div className="mt-4 flex items-center gap-3 flex-wrap">
+            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
+            {pool === "integradores" && (
+              <span className="font-cormorant italic text-sm text-gz-ink-mid">
+                Mostrando ejercicios marcados como integradores.
+              </span>
+            )}
+          </div>
       </div>
-      
+
         <MatchColumnsViewer
           items={items}
           attemptsToday={attemptsToday}

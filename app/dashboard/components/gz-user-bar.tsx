@@ -35,6 +35,7 @@ export function GzUserBar({
   grado,
   gradoNombre,
   isAdmin,
+  userId,
 }: GzUserBarProps) {
   const initials = getInitials(userName);
 
@@ -65,6 +66,7 @@ export function GzUserBar({
           grado={grado}
           gradoNombre={gradoNombre}
           isAdmin={isAdmin}
+          userId={userId}
         />
 
         {/* Notification bell — inmediately after profile dropdown */}

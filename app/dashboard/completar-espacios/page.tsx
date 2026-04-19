@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { FillBlankViewer } from "./fill-blank-viewer";
 import Image from "next/image";
+import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 const DAILY_FREE_LIMIT = 5;
 
@@ -15,6 +16,7 @@ export default async function CompletarEspaciosPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    pool?: string;
   };
 }) {
   const supabase = await createClient();
@@ -41,8 +43,13 @@ export default async function CompletarEspaciosPage({
     },
   });
 
+  const pool = resolveStudyPool(searchParams.pool);
+  const integradoresCount = await prisma.fillBlank.count({
+    where: { activo: true, esIntegrador: true },
+  });
+
   const rawItems = await prisma.fillBlank.findMany({
-    where: { activo: true },
+    where: { activo: true, esIntegrador: pool === "integradores" },
     orderBy: { createdAt: "desc" },
   });
 
@@ -79,8 +86,16 @@ export default async function CompletarEspaciosPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
+          <div className="mt-4 flex items-center gap-3 flex-wrap">
+            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
+            {pool === "integradores" && (
+              <span className="font-cormorant italic text-sm text-gz-ink-mid">
+                Mostrando ejercicios marcados como integradores.
+              </span>
+            )}
+          </div>
       </div>
-      
+
         <FillBlankViewer
           items={items}
           attemptsToday={attemptsToday}

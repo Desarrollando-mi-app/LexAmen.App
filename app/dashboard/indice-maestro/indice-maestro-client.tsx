@@ -17,11 +17,17 @@ interface ModuleStats {
   done: number;
 }
 
+interface ParrafoData {
+  id: string;
+  label: string;
+  articulosRef?: string;
+}
+
 interface TituloData {
   id: string;
   label: string;
   articulosRef: string | null;
-  parrafos: string[];
+  parrafos: ParrafoData[];
   leyesAnexas: LeyAnexaData[];
   fc: ModuleStats;
   mcq: ModuleStats;
@@ -360,10 +366,10 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                             {/* Parrafos */}
                             {hasParrafos && (
                               <div className="pl-4 py-2 space-y-1">
-                                {titulo.parrafos.map((p, idx) => (
-                                  <div key={idx} className="flex items-baseline gap-2">
+                                {titulo.parrafos.map((p) => (
+                                  <div key={p.id} className="flex items-baseline gap-2">
                                     <span className="font-archivo text-[12px] text-gz-ink-light">
-                                      § {p}
+                                      {p.label}
                                     </span>
                                   </div>
                                 ))}

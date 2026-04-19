@@ -376,14 +376,14 @@ export function CurriculumProgress({
                                           <div className="mt-1.5 space-y-1 pl-6">
                                             {titulo.parrafos.map((par) => (
                                               <div
-                                                key={par}
+                                                key={par.id}
                                                 className="flex items-center gap-2 py-0.5"
                                               >
                                                 <span className="text-navy/20 text-[10px]">
                                                   &#8226;
                                                 </span>
                                                 <span className="text-[11px] text-navy/50">
-                                                  {par}
+                                                  {par.label}
                                                 </span>
                                               </div>
                                             ))}

@@ -68,7 +68,7 @@ export function DiarioFab() {
       {/* ── Floating editor panel ──────────────────────── */}
       {open && (
         <div
-          className="fixed bottom-20 right-6 z-50 w-[380px] max-w-[calc(100vw-3rem)] rounded-[4px] border border-gz-gold shadow-xl"
+          className="hidden lg:block fixed bottom-20 right-6 z-50 w-[380px] max-w-[calc(100vw-3rem)] rounded-[4px] border border-gz-gold shadow-xl"
           style={{ backgroundColor: "var(--gz-cream)" }}
         >
           {/* Header */}
@@ -149,7 +149,7 @@ export function DiarioFab() {
       {/* ── Pill button ────────────────────────────────── */}
       <button
         onClick={open ? handleClose : handleOpen}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-gold px-4 py-3 text-sm font-semibold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:shadow-2xl hover:bg-gold/90 active:scale-100"
+        className="hidden lg:flex fixed bottom-6 right-6 z-50 items-center gap-2 rounded-full bg-gold px-4 py-3 text-sm font-semibold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:shadow-2xl hover:bg-gold/90 active:scale-100"
       >
         <span>{open ? "✕" : "Obiter Dictum"}</span>
       </button>

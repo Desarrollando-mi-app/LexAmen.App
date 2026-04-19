@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Perfil — V1 Editorial · Studio IURIS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Archivo:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'gz-cream': '#f5f0e6',
+          'gz-cream-dark': '#e9e0cf',
+          'gz-ink': '#1c1814',
+          'gz-ink-mid': '#4a433a',
+          'gz-ink-light': '#8a8073',
+          'gz-gold': '#9a7230',
+          'gz-gold-bright': '#c49a50',
+          'gz-burgundy': '#6b1d2a',
+          'gz-navy': '#12203a',
+          'gz-sage': '#3a5a35',
+          'gz-rule': '#c4b99a',
+          'gz-rule-dark': '#a09580',
+          'gz-red': '#c41a1a',
+        },
+        fontFamily: {
+          cormorant: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+          archivo: ['Archivo', 'sans-serif'],
+          mono: ['"IBM Plex Mono"', 'monospace'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Archivo', sans-serif; background: #f5f0e6; color: #1c1814; }
+  .label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+  .serif { font-family: 'Cormorant Garamond', serif; }
+  .editorial-border { border-top: 3px double #9a7230; }
+  .rule-gold { border-color: #9a7230; }
+  .column-rule > * + * { border-left: 1px solid #c4b99a; }
+  .drop-cap::first-letter { font-family: 'Cormorant Garamond', serif; font-size: 3.8em; float: left; line-height: 0.85; padding: 0.1em 0.12em 0 0; color: #9a7230; font-weight: 600; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Top gold rule -->
+<div class="h-[3px] bg-gz-gold"></div>
+
+<!-- Masthead (simulating actual nav) -->
+<header class="border-b border-gz-rule bg-gz-cream">
+  <div class="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="label text-gz-gold">Studio</span>
+      <span class="serif text-2xl font-semibold tracking-tight">IURIS</span>
+    </div>
+    <nav class="hidden md:flex items-center gap-6 label text-gz-ink-mid">
+      <a href="#" class="hover:text-gz-ink">Noticias</a>
+      <a href="#" class="text-gz-ink border-b-2 border-gz-gold pb-0.5">Perfil</a>
+      <a href="#" class="hover:text-gz-ink">Escritorio</a>
+      <a href="#" class="hover:text-gz-ink">Estudiar</a>
+      <a href="#" class="hover:text-gz-ink">Competencias</a>
+      <a href="#" class="hover:text-gz-ink">La Sala</a>
+      <a href="#" class="hover:text-gz-ink">El Diario</a>
+    </nav>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-full bg-gz-navy text-gz-cream flex items-center justify-center text-xs font-semibold">BG</div>
+    </div>
+  </div>
+</header>
+
+<!-- Page title band -->
+<div class="border-b border-gz-rule bg-gz-cream">
+  <div class="max-w-[1280px] mx-auto px-6 py-5">
+    <div class="flex items-center gap-3">
+      <span class="label text-gz-gold">§</span>
+      <h1 class="label text-gz-ink">Perfil</h1>
+    </div>
+  </div>
+</div>
+
+<!-- HERO — Editorial Masthead Style -->
+<section class="border-b-2 border-gz-rule-dark bg-gz-cream">
+  <div class="max-w-[1280px] mx-auto px-6 py-10">
+
+    <!-- Top dateline -->
+    <div class="flex items-baseline justify-between border-b border-gz-rule pb-2 mb-8">
+      <div class="label text-gz-ink-mid">Estudio Nº 04 820 · Matrícula PUC 2023</div>
+      <div class="label text-gz-ink-mid">Santiago · Región Metropolitana · MMXXVI</div>
+    </div>
+
+    <!-- Main masthead row -->
+    <div class="grid grid-cols-12 gap-8 items-end">
+      <!-- Avatar + portrait label -->
+      <div class="col-span-3">
+        <div class="relative">
+          <div class="w-full aspect-[3/4] border border-gz-rule-dark bg-gradient-to-br from-gz-cream-dark to-gz-rule flex items-center justify-center">
+            <span class="serif text-7xl text-gz-ink font-semibold">BG</span>
+          </div>
+          <div class="label text-gz-ink-light mt-2 text-center">Retrato del estudiante</div>
+        </div>
+      </div>
+
+      <!-- Name + metadata -->
+      <div class="col-span-9">
+        <div class="label text-gz-gold mb-3">Grado XXIV — Corresponsal Jurisconsulto</div>
+        <h2 class="serif text-[84px] leading-[0.9] font-semibold tracking-tight mb-4">
+          Bastián<br />Guzmán Picand
+        </h2>
+        <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-gz-ink-mid border-t border-gz-rule pt-4">
+          <span class="serif italic text-xl">Estudiante</span>
+          <span class="text-gz-rule-dark">·</span>
+          <span class="archivo">Pontificia Universidad Católica de Chile</span>
+          <span class="text-gz-rule-dark">·</span>
+          <span class="archivo">Campus Casa Central</span>
+          <span class="text-gz-rule-dark">·</span>
+          <span class="archivo">III año</span>
+        </div>
+        <p class="serif italic text-lg text-gz-ink-mid mt-3 max-w-2xl leading-snug">
+          &laquo;Disertante en derecho civil, con interés particular en la teoría de la ley y sucesiones. Preparando examen de grado para octubre.&raquo;
+        </p>
+
+        <!-- Action row -->
+        <div class="flex items-center gap-2 mt-6">
+          <button class="label bg-gz-ink text-gz-cream px-4 py-2.5 rounded-[3px] hover:bg-gz-ink-mid transition-colors cursor-pointer">Editar perfil</button>
+          <button class="label border border-gz-rule-dark px-4 py-2.5 rounded-[3px] hover:bg-gz-cream-dark transition-colors cursor-pointer">Vista pública</button>
+          <button class="label border border-gz-rule-dark px-4 py-2.5 rounded-[3px] hover:bg-gz-cream-dark transition-colors cursor-pointer">Compartir</button>
+          <div class="ml-auto label text-gz-gold flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-gz-gold"></span>
+            Premium Anual
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<section class="border-b border-gz-rule bg-gz-cream">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="grid grid-cols-5 divide-x divide-gz-rule">
+      <div class="py-6 text-center">
+        <div class="label text-gz-ink-light mb-1">Experiencia</div>
+        <div class="serif text-4xl font-semibold">4.820 <span class="label text-gz-gold">XP</span></div>
+      </div>
+      <div class="py-6 text-center">
+        <div class="label text-gz-ink-light mb-1">Grado</div>
+        <div class="serif text-4xl font-semibold text-gz-gold">XXIV</div>
+        <div class="label text-gz-ink-mid text-[9px] mt-0.5">Disertante</div>
+      </div>
+      <div class="py-6 text-center">
+        <div class="label text-gz-ink-light mb-1">Causas</div>
+        <div class="serif text-4xl font-semibold">12 <span class="text-gz-rule-dark">—</span> 3</div>
+        <div class="label text-gz-sage text-[9px] mt-0.5">80% victoria</div>
+      </div>
+      <div class="py-6 text-center">
+        <div class="label text-gz-ink-light mb-1">Colegas</div>
+        <div class="serif text-4xl font-semibold">47</div>
+      </div>
+      <div class="py-6 text-center">
+        <div class="label text-gz-ink-light mb-1">Tier Liga</div>
+        <div class="serif text-4xl font-semibold text-gz-burgundy">Oro</div>
+        <div class="label text-gz-ink-mid text-[9px] mt-0.5">#12 nacional</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTERNAL TABS -->
+<section class="border-b border-gz-rule bg-gz-cream sticky top-0 z-10">
+  <div class="max-w-[1280px] mx-auto px-6">
+    <div class="flex items-center gap-1 overflow-x-auto">
+      <button class="label px-4 py-3.5 border-b-2 border-gz-gold text-gz-ink cursor-pointer">Publicaciones <span class="text-gz-ink-light ml-1">(38)</span></button>
+      <button class="label px-4 py-3.5 border-b-2 border-transparent text-gz-ink-mid hover:text-gz-ink cursor-pointer">Trayectoria</button>
+      <button class="label px-4 py-3.5 border-b-2 border-transparent text-gz-ink-mid hover:text-gz-ink cursor-pointer">Logros <span class="text-gz-ink-light ml-1">(24)</span></button>
+      <button class="label px-4 py-3.5 border-b-2 border-transparent text-gz-ink-mid hover:text-gz-ink cursor-pointer">Comunidad</button>
+      <button class="label px-4 py-3.5 border-b-2 border-transparent text-gz-ink-mid hover:text-gz-ink cursor-pointer">CV</button>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT GRID -->
+<main class="max-w-[1280px] mx-auto px-6 py-10 grid grid-cols-12 gap-10">
+
+  <!-- MAIN COLUMN: Publications Feed -->
+  <div class="col-span-8">
+
+    <!-- Filter strip -->
+    <div class="flex items-center justify-between border-b border-gz-rule pb-3 mb-8">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="label text-gz-ink-mid mr-2">Filtrar —</span>
+        <button class="label bg-gz-ink text-gz-cream px-2.5 py-1 rounded-[3px] cursor-pointer">Todos</button>
+        <button class="label border border-gz-rule px-2.5 py-1 rounded-[3px] hover:bg-gz-cream-dark cursor-pointer">Obiter Dictum</button>
+        <button class="label border border-gz-rule px-2.5 py-1 rounded-[3px] hover:bg-gz-cream-dark cursor-pointer">Análisis</button>
+        <button class="label border border-gz-rule px-2.5 py-1 rounded-[3px] hover:bg-gz-cream-dark cursor-pointer">Ensayos</button>
+        <button class="label border border-gz-rule px-2.5 py-1 rounded-[3px] hover:bg-gz-cream-dark cursor-pointer">Debates</button>
+        <button class="label border border-gz-rule px-2.5 py-1 rounded-[3px] hover:bg-gz-cream-dark cursor-pointer">Columnas</button>
+      </div>
+      <span class="label text-gz-ink-light">Orden: reciente ↓</span>
+    </div>
+
+    <!-- Featured Article (Columna de Opinión) -->
+    <article class="mb-12 pb-10 border-b-2 border-gz-ink">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="label bg-gz-burgundy text-gz-cream px-2 py-0.5 rounded-[2px]">Columna de Opinión</span>
+        <span class="label text-gz-ink-light">Civil</span>
+        <span class="label text-gz-ink-light">·</span>
+        <span class="label text-gz-ink-light">Hace 2 días · 6 min lectura</span>
+      </div>
+      <h3 class="serif text-5xl font-semibold leading-[1.05] mb-3 tracking-tight">La ficción de la ignorancia: el art. 8 del Código Civil y la alfabetización digital</h3>
+      <p class="serif italic text-xl text-gz-ink-mid mb-5 leading-snug">Una reflexión sobre cómo la presunción de conocimiento de la ley se vuelve cada vez más difícil de sostener en la era de los algoritmos opacos.</p>
+      <p class="text-gz-ink-mid leading-[1.75] drop-cap">
+        El artículo 8 del Código Civil chileno consagra una de las ficciones jurídicas más antiguas y persistentes: nadie podrá alegar ignorancia de la ley después de que ésta haya entrado en vigencia. La doctrina clásica la ha justificado sobre la base de que el orden jurídico sería impracticable si cada ciudadano pudiera excusarse apelando al desconocimiento. Sin embargo, la proliferación normativa del siglo XXI —sumada a la creciente opacidad de los sistemas algorítmicos que median nuestras interacciones legales— plantea preguntas incómodas sobre el sustento real de esta presunción...
+      </p>
+      <div class="flex items-center gap-5 mt-6 label text-gz-ink-mid">
+        <button class="flex items-center gap-1.5 hover:text-gz-burgundy cursor-pointer"><span class="text-gz-burgundy">♥</span> 142 apoyos</button>
+        <button class="flex items-center gap-1.5 hover:text-gz-gold cursor-pointer"><span>❝</span> 8 citas</button>
+        <button class="flex items-center gap-1.5 hover:text-gz-ink cursor-pointer"><span>💬</span> 23 comentarios</button>
+        <button class="flex items-center gap-1.5 hover:text-gz-ink cursor-pointer ml-auto"><span>⬇</span> Leer completo</button>
+      </div>
+    </article>
+
+    <!-- 2-column grid for smaller pieces -->
+    <div class="grid grid-cols-2 gap-8 column-rule">
+
+      <!-- Obiter Dictum -->
+      <article class="pr-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="label text-gz-gold">Obiter Dictum</span>
+          <span class="label text-gz-ink-light">· Civil · Hace 5 días</span>
+        </div>
+        <p class="serif text-2xl leading-[1.2] italic mb-3">&laquo;La buena fe no es un principio — es la gramática silenciosa sobre la que se escribe el contrato.&raquo;</p>
+        <div class="flex items-center gap-4 label text-gz-ink-mid pt-3 border-t border-gz-rule">
+          <span>♥ 67</span>
+          <span>❝ 3</span>
+          <span>💬 11</span>
+        </div>
+      </article>
+
+      <!-- Análisis de Sentencia -->
+      <article class="pl-8">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="label bg-gz-navy text-gz-cream px-2 py-0.5 rounded-[2px]">Análisis de Sentencia</span>
+          <span class="label text-gz-ink-light">Penal</span>
+        </div>
+        <h4 class="serif text-2xl font-semibold leading-tight mb-2">Rol 12.847-2025 — Corte Suprema revisa alcance del art. 10 nº 8 CP</h4>
+        <p class="text-gz-ink-mid text-sm leading-relaxed mb-3">La Segunda Sala unifica criterio sobre la exigibilidad de otra conducta en casos de error de prohibición vencible...</p>
+        <div class="flex items-center gap-4 label text-gz-ink-mid pt-3 border-t border-gz-rule">
+          <span>Hace 1 semana</span>
+          <span>·</span>
+          <span>♥ 89</span>
+          <span>❝ 12</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="border-t border-gz-rule my-8"></div>
+
+    <!-- Ensayo -->
+    <article class="mb-10">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="label bg-gz-sage text-gz-cream px-2 py-0.5 rounded-[2px]">Ensayo</span>
+        <span class="label text-gz-ink-light">Constitucional · Hace 2 semanas · 18 min</span>
+      </div>
+      <h4 class="serif text-3xl font-semibold leading-tight mb-2">De la igualdad ante la ley a la igualdad sustantiva: una relectura del art. 19 nº 2</h4>
+      <p class="text-gz-ink-mid leading-relaxed mb-3">Este ensayo propone que la tradicional interpretación formalista del principio de igualdad ha cedido progresivamente ante lecturas más sustantivas, particularmente en la jurisprudencia del TC a partir de 2008...</p>
+      <div class="flex items-center gap-4 label text-gz-ink-mid">
+        <span>♥ 56 apoyos</span>
+        <span>❝ 9 citas</span>
+        <span>💬 17</span>
+        <span class="ml-auto">📑 Descargar PDF</span>
+      </div>
+    </article>
+
+    <div class="border-t border-gz-rule my-8"></div>
+
+    <!-- Debate -->
+    <article class="mb-10">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="label bg-gz-red text-gz-cream px-2 py-0.5 rounded-[2px]">Debate Jurídico</span>
+        <span class="label text-gz-ink-light">vs. María Fernanda Rojas · Hace 3 semanas</span>
+      </div>
+      <h4 class="serif text-2xl font-semibold leading-tight mb-3">¿Debe el dolo eventual equipararse al dolo directo en delitos contra las personas?</h4>
+      <div class="grid grid-cols-2 gap-4 border border-gz-rule rounded-[3px] overflow-hidden">
+        <div class="p-4 bg-gz-cream-dark border-r border-gz-rule">
+          <div class="label text-gz-gold mb-1">A favor · BG</div>
+          <p class="text-sm text-gz-ink-mid leading-relaxed">La aceptación del resultado no puede tratarse como mera imprudencia cuando media representación clara del peligro concreto...</p>
+        </div>
+        <div class="p-4">
+          <div class="label text-gz-burgundy mb-1">En contra · MFR</div>
+          <p class="text-sm text-gz-ink-mid leading-relaxed">La equiparación diluiría la distinción entre las formas de culpabilidad que el legislador deliberadamente quiso mantener...</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 label text-gz-ink-mid mt-3">
+        <span class="text-gz-gold font-medium">Ganado · 68% votos</span>
+        <span>·</span>
+        <span>234 votantes</span>
+        <span>·</span>
+        <span>💬 45</span>
+      </div>
+    </article>
+
+    <!-- Load more -->
+    <div class="text-center pt-6 border-t border-gz-rule">
+      <button class="label border border-gz-rule-dark px-6 py-2.5 rounded-[3px] hover:bg-gz-cream-dark cursor-pointer">Cargar 33 publicaciones anteriores</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="col-span-4 space-y-8">
+
+    <!-- Acerca de -->
+    <div>
+      <div class="flex items-center gap-2 mb-3 pb-2 border-b-2 border-gz-ink">
+        <span class="label text-gz-gold">§</span>
+        <h3 class="label text-gz-ink">Acerca de</h3>
+      </div>
+      <dl class="space-y-2.5 text-sm">
+        <div class="flex justify-between gap-3">
+          <dt class="label text-gz-ink-light">Región</dt>
+          <dd class="text-gz-ink text-right">Metropolitana</dd>
+        </div>
+        <div class="flex justify-between gap-3">
+          <dt class="label text-gz-ink-light">Corte</dt>
+          <dd class="text-gz-ink text-right">C. de Ap. de Santiago</dd>
+        </div>
+        <div class="flex justify-between gap-3">
+          <dt class="label text-gz-ink-light">Universidad</dt>
+          <dd class="text-gz-ink text-right">PUC · III año</dd>
+        </div>
+        <div class="flex justify-between gap-3">
+          <dt class="label text-gz-ink-light">Ingreso</dt>
+          <dd class="text-gz-ink text-right">2023</dd>
+        </div>
+        <div class="flex justify-between gap-3">
+          <dt class="label text-gz-ink-light">Egreso est.</dt>
+          <dd class="text-gz-ink text-right">2028</dd>
+        </div>
+        <div class="flex justify-between gap-3 pt-2 border-t border-gz-rule">
+          <dt class="label text-gz-ink-light">LinkedIn</dt>
+          <dd class="text-gz-gold text-right hover:underline cursor-pointer">/bastianguzmanpicand</dd>
+        </div>
+      </dl>
+    </div>
+
+    <!-- Especialidades -->
+    <div>
+      <div class="flex items-center gap-2 mb-3 pb-2 border-b-2 border-gz-ink">
+        <span class="label text-gz-gold">§</span>
+        <h3 class="label text-gz-ink">Especialidades por XP</h3>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <div class="flex justify-between items-baseline mb-1">
+            <span class="serif text-base">Derecho Civil</span>
+            <span class="label text-gz-gold">2.024 XP · 42%</span>
+          </div>
+          <div class="h-[6px] bg-gz-cream-dark">
+            <div class="h-full bg-gz-gold" style="width: 42%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between items-baseline mb-1">
+            <span class="serif text-base">Derecho Penal</span>
+            <span class="label text-gz-ink-mid">1.350 XP · 28%</span>
+          </div>
+          <div class="h-[6px] bg-gz-cream-dark">
+            <div class="h-full bg-gz-burgundy" style="width: 28%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between items-baseline mb-1">
+            <span class="serif text-base">Constitucional</span>
+            <span class="label text-gz-ink-mid">723 XP · 15%</span>
+          </div>
+          <div class="h-[6px] bg-gz-cream-dark">
+            <div class="h-full bg-gz-navy" style="width: 15%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between items-baseline mb-1">
+            <span class="serif text-base">Comercial</span>
+            <span class="label text-gz-ink-mid">482 XP · 10%</span>
+          </div>
+          <div class="h-[6px] bg-gz-cream-dark">
+            <div class="h-full bg-gz-sage" style="width: 10%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex justify-between items-baseline mb-1">
+            <span class="serif text-base">Laboral</span>
+            <span class="label text-gz-ink-mid">241 XP · 5%</span>
+          </div>
+          <div class="h-[6px] bg-gz-cream-dark">
+            <div class="h-full bg-gz-rule-dark" style="width: 5%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colegas -->
+    <div>
+      <div class="flex items-center justify-between mb-3 pb-2 border-b-2 border-gz-ink">
+        <div class="flex items-center gap-2">
+          <span class="label text-gz-gold">§</span>
+          <h3 class="label text-gz-ink">Colegas · 47</h3>
+        </div>
+        <a href="#" class="label text-gz-gold hover:underline">Ver todos ›</a>
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <div class="aspect-square border border-gz-rule flex items-center justify-center serif text-lg text-gz-ink-mid hover:border-gz-gold cursor-pointer">MF</div>
+        <div class="aspect-square border border-gz-rule flex items-center justify-center serif text-lg text-gz-ink-mid hover:border-gz-gold cursor-pointer">JA</div>
+        <div class="aspect-square border border-gz-rule flex items-center justify-center serif text-lg text-gz-ink-mid hover:border-gz-gold cursor-pointer">CP</div>
+        <div class="aspect-square border border-gz-rule flex items-center justify-center serif text-lg text-gz-ink-mid hover:border-gz-gold cursor-pointer">RS</div>
+        <div class="aspect-square border border-gz-rule flex items-center justify-center serif text-lg text-gz-ink-mid hover:border-gz-gold cursor-pointer">DE</div>
+        <div class="aspect-square border border-gz-rule flex items-center justify-center serif text-lg text-gz-ink-mid hover:border-gz-gold cursor-pointer">VM</div>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div>
+      <div class="flex items-center justify-between mb-3 pb-2 border-b-2 border-gz-ink">
+        <div class="flex items-center gap-2">
+          <span class="label text-gz-gold">§</span>
+          <h3 class="label text-gz-ink">Distinciones · 24</h3>
+        </div>
+        <a href="#" class="label text-gz-gold hover:underline">Ver todas ›</a>
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="text-center">
+          <div class="aspect-square border-2 border-gz-gold rounded-full flex items-center justify-center serif text-2xl font-semibold text-gz-gold bg-gz-cream">★</div>
+          <div class="label text-[9px] text-gz-ink-mid mt-1.5 leading-tight">Disertante</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square border-2 border-gz-burgundy rounded-full flex items-center justify-center serif text-2xl font-semibold text-gz-burgundy bg-gz-cream">⚖</div>
+          <div class="label text-[9px] text-gz-ink-mid mt-1.5 leading-tight">Maestro Civil</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square border-2 border-gz-navy rounded-full flex items-center justify-center serif text-2xl font-semibold text-gz-navy bg-gz-cream">§</div>
+          <div class="label text-[9px] text-gz-ink-mid mt-1.5 leading-tight">Constituyente</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square border-2 border-gz-sage rounded-full flex items-center justify-center serif text-2xl font-semibold text-gz-sage bg-gz-cream">◆</div>
+          <div class="label text-[9px] text-gz-ink-mid mt-1.5 leading-tight">Racha 30</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square border-2 border-gz-rule-dark rounded-full flex items-center justify-center serif text-2xl font-semibold text-gz-ink-mid bg-gz-cream">◎</div>
+          <div class="label text-[9px] text-gz-ink-mid mt-1.5 leading-tight">Orador</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square border-2 border-gz-rule-dark rounded-full flex items-center justify-center serif text-2xl font-semibold text-gz-ink-mid bg-gz-cream">+18</div>
+          <div class="label text-[9px] text-gz-ink-mid mt-1.5 leading-tight">más</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trayectoria breve -->
+    <div>
+      <div class="flex items-center gap-2 mb-3 pb-2 border-b-2 border-gz-ink">
+        <span class="label text-gz-gold">§</span>
+        <h3 class="label text-gz-ink">Trayectoria</h3>
+      </div>
+      <ol class="relative border-l border-gz-rule pl-4 space-y-4">
+        <li>
+          <div class="absolute -left-[5px] w-[9px] h-[9px] bg-gz-gold rounded-full"></div>
+          <div class="label text-gz-ink-light">2023 · Marzo</div>
+          <div class="serif text-base">Ingreso a PUC — Derecho</div>
+        </li>
+        <li>
+          <div class="absolute -left-[5px] w-[9px] h-[9px] bg-gz-gold-bright rounded-full"></div>
+          <div class="label text-gz-ink-light">2024 · Abril</div>
+          <div class="serif text-base">Primera Causa Ganada</div>
+        </li>
+        <li>
+          <div class="absolute -left-[5px] w-[9px] h-[9px] bg-gz-burgundy rounded-full"></div>
+          <div class="label text-gz-ink-light">2025 · Agosto</div>
+          <div class="serif text-base">Alcanza Grado XX · Consejero</div>
+        </li>
+        <li>
+          <div class="absolute -left-[5px] w-[9px] h-[9px] bg-gz-navy rounded-full"></div>
+          <div class="label text-gz-ink-light">2026 · Abril</div>
+          <div class="serif text-base font-semibold">Ayudantía en Civil III</div>
+        </li>
+      </ol>
+    </div>
+
+  </aside>
+</main>
+
+<!-- Footer rule -->
+<div class="border-t border-gz-rule mt-10">
+  <div class="max-w-[1280px] mx-auto px-6 py-8 flex items-center justify-between label text-gz-ink-light">
+    <span>Studio IURIS · MMXXVI</span>
+    <span>Perfil — Variante editorial</span>
+  </div>
+</div>
+
+</body>
+</html>

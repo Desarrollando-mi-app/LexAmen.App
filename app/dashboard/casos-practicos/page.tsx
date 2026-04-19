@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { CasoPracticoViewer } from "./caso-practico-viewer";
+import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 const DAILY_FREE_LIMIT = 3;
 
@@ -12,6 +13,7 @@ export default async function CasosPracticosPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    pool?: string;
   };
 }) {
   // 1. Auth
@@ -45,10 +47,15 @@ export default async function CasosPracticosPage({
     },
   });
 
+  const pool = resolveStudyPool(searchParams.pool);
+  const integradoresCount = await prisma.casoPractico.count({
+    where: { activo: true, esIntegrador: true },
+  });
+
   // 4. Fetch all active casos + completed IDs
   const [rawCasos, completedAttempts] = await Promise.all([
     prisma.casoPractico.findMany({
-      where: { activo: true },
+      where: { activo: true, esIntegrador: pool === "integradores" },
       orderBy: { createdAt: "desc" },
     }),
     prisma.casoPracticoAttempt.findMany({
@@ -103,6 +110,14 @@ export default async function CasosPracticosPage({
             Analiza los hechos, identifica el problema y resuelve aplicando la norma.
           </p>
           <div className="mx-auto mt-3 h-[1px] w-16 bg-gz-gold" />
+          <div className="mt-4 flex items-center justify-center gap-3 flex-wrap">
+            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
+            {pool === "integradores" && (
+              <span className="font-cormorant italic text-sm text-gz-ink-mid">
+                Mostrando ejercicios marcados como integradores.
+              </span>
+            )}
+          </div>
         </header>
 
         <CasoPracticoViewer

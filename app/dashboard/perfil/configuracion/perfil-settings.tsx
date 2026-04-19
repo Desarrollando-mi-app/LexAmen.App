@@ -30,6 +30,7 @@ interface UserData {
   email: string;
   bio: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
   universidad: string | null;
   sede: string | null;
   universityYear: number | null;
@@ -170,6 +171,37 @@ function TabPerfil({
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [coverUrl, setCoverUrl] = useState(user.coverUrl);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverDeleting, setCoverDeleting] = useState(false);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  // Cropper state
+  const [coverRawUrl, setCoverRawUrl] = useState<string | null>(null);
+  const [coverImgSize, setCoverImgSize] = useState<{ w: number; h: number } | null>(null);
+  const [coverCropping, setCoverCropping] = useState(false);
+  const [cropZoom, setCropZoom] = useState(1);
+  const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 });
+  const [cropViewportSize, setCropViewportSize] = useState<{ w: number; h: number } | null>(null);
+  const cropViewportRef = useRef<HTMLDivElement>(null);
+  const cropDragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+
+  // Measure viewport when the cropper mounts / resizes
+  useEffect(() => {
+    if (!coverCropping) { setCropViewportSize(null); return; }
+    const el = cropViewportRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setCropViewportSize({ w: rect.width, h: rect.height });
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const r = entry.contentRect;
+        setCropViewportSize({ w: r.width, h: r.height });
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [coverCropping]);
 
   const sedesDisponibles = universidad
     ? getSedesForUniversidad(universidad)
@@ -184,6 +216,209 @@ function TabPerfil({
     if (!file) return;
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
+  }
+
+  function handleCoverSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    // Reset input so the same file can be re-selected later
+    if (e.target) e.target.value = "";
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("La portada excede 8 MB.");
+      return;
+    }
+    // HEIC/HEIF no puede renderizarse en cropper en la mayoría de navegadores:
+    // se sube tal cual (server convierte con sharp) y se omite el cropper.
+    const isHeic = /heic|heif/i.test(file.type) || /\.heic$|\.heif$/i.test(file.name);
+    if (isHeic) {
+      setCoverFile(file);
+      setCoverPreview(URL.createObjectURL(file));
+      toast.info("HEIC no permite reencuadre en el navegador; se subirá con encuadre centrado.");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      setCoverImgSize({ w: img.naturalWidth, h: img.naturalHeight });
+      setCoverRawUrl(url);
+      setCropZoom(1);
+      setCropOffset({ x: 0, y: 0 });
+      setCoverCropping(true);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      toast.error("No se pudo leer la imagen.");
+    };
+    img.src = url;
+  }
+
+  // Compute current effective scale (base * zoom) inside the 4:1 viewport.
+  function cropState() {
+    if (!cropViewportSize || !coverImgSize) return null;
+    const cw = cropViewportSize.w;
+    const ch = cropViewportSize.h;
+    if (cw <= 0 || ch <= 0) return null;
+    const base = Math.max(cw / coverImgSize.w, ch / coverImgSize.h);
+    const s = base * cropZoom;
+    return { cw, ch, s, iw: coverImgSize.w * s, ih: coverImgSize.h * s };
+  }
+
+  function clampOffset(next: { x: number; y: number }) {
+    const st = cropState();
+    if (!st) return next;
+    const minX = st.cw - st.iw;
+    const minY = st.ch - st.ih;
+    return {
+      x: Math.min(0, Math.max(minX, next.x)),
+      y: Math.min(0, Math.max(minY, next.y)),
+    };
+  }
+
+  function handleCropPointerDown(e: React.PointerEvent) {
+    e.preventDefault();
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+    cropDragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      baseX: cropOffset.x,
+      baseY: cropOffset.y,
+    };
+  }
+
+  function handleCropPointerMove(e: React.PointerEvent) {
+    const d = cropDragRef.current;
+    if (!d) return;
+    setCropOffset(clampOffset({
+      x: d.baseX + (e.clientX - d.startX),
+      y: d.baseY + (e.clientY - d.startY),
+    }));
+  }
+
+  function handleCropPointerUp() {
+    cropDragRef.current = null;
+  }
+
+  function handleZoomChange(nextZoom: number) {
+    const st = cropState();
+    if (!st) { setCropZoom(nextZoom); return; }
+    // Keep viewport center anchored during zoom.
+    const cx = st.cw / 2;
+    const cy = st.ch / 2;
+    // Point in natural-image coords currently at viewport center:
+    const px = (cx - cropOffset.x) / st.s;
+    const py = (cy - cropOffset.y) / st.s;
+    const base = st.s / cropZoom;
+    const newS = base * nextZoom;
+    const newOffset = { x: cx - px * newS, y: cy - py * newS };
+    setCropZoom(nextZoom);
+    // Re-clamp with new image dims
+    const newIw = coverImgSize!.w * newS;
+    const newIh = coverImgSize!.h * newS;
+    setCropOffset({
+      x: Math.min(0, Math.max(st.cw - newIw, newOffset.x)),
+      y: Math.min(0, Math.max(st.ch - newIh, newOffset.y)),
+    });
+  }
+
+  function cancelCrop() {
+    if (coverRawUrl) URL.revokeObjectURL(coverRawUrl);
+    setCoverRawUrl(null);
+    setCoverImgSize(null);
+    setCoverCropping(false);
+  }
+
+  async function confirmCrop() {
+    const st = cropState();
+    if (!st || !coverRawUrl || !coverImgSize) return;
+    const img = new Image();
+    img.src = coverRawUrl;
+    await new Promise<void>((resolve, reject) => {
+      if (img.complete) return resolve();
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("img load"));
+    }).catch(() => {
+      toast.error("No se pudo procesar la imagen.");
+    });
+
+    // Source region from the natural image that corresponds to the viewport
+    const sx = -cropOffset.x / st.s;
+    const sy = -cropOffset.y / st.s;
+    const sw = st.cw / st.s;
+    const sh = st.ch / st.s;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 400;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      toast.error("Canvas no disponible.");
+      return;
+    }
+    // Fill with cream in case of alpha leaks (WebP/PNG transparency)
+    ctx.fillStyle = "#f5eedc";
+    ctx.fillRect(0, 0, 1600, 400);
+    try {
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 1600, 400);
+    } catch {
+      toast.error("No se pudo renderizar el encuadre.");
+      return;
+    }
+
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob((b) => resolve(b), "image/jpeg", 0.92)
+    );
+    if (!blob) {
+      toast.error("No se pudo generar la imagen.");
+      return;
+    }
+    const croppedFile = new File([blob], "cover.jpg", { type: "image/jpeg" });
+
+    // Swap current preview
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
+    setCoverFile(croppedFile);
+    setCoverPreview(URL.createObjectURL(croppedFile));
+
+    // Keep raw URL around so user can Reencuadrar before saving
+    setCoverCropping(false);
+  }
+
+  function reopenCropper() {
+    if (!coverRawUrl || !coverImgSize) return;
+    setCropZoom(1);
+    setCropOffset({ x: 0, y: 0 });
+    setCoverCropping(true);
+  }
+
+  async function handleCoverDelete() {
+    if (!coverUrl && !coverPreview) return;
+    if (!confirm("¿Eliminar la portada? Volverás al diseño automático.")) return;
+    setCoverDeleting(true);
+    try {
+      // If there's a server-side cover, delete it
+      if (coverUrl) {
+        const res = await fetch("/api/user/cover", { method: "DELETE" });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          toast.error(data.error ?? "Error al eliminar portada");
+          return;
+        }
+      }
+      setCoverUrl(null);
+      setCoverFile(null);
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      setCoverPreview(null);
+      if (coverRawUrl) URL.revokeObjectURL(coverRawUrl);
+      setCoverRawUrl(null);
+      setCoverImgSize(null);
+      setCoverCropping(false);
+      onUpdate({ coverUrl: null });
+      toast.success("Portada eliminada");
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setCoverDeleting(false);
+    }
   }
 
   async function handleSave() {
@@ -213,6 +448,31 @@ function TabPerfil({
         setAvatarUrl(newAvatarUrl);
         setAvatarFile(null);
         setAvatarPreview(null);
+      }
+
+      // Upload cover if there's a new one
+      let newCoverUrl = coverUrl;
+      if (coverFile) {
+        const formData = new FormData();
+        formData.append("file", coverFile);
+        const coverRes = await fetch("/api/user/cover", {
+          method: "POST",
+          body: formData,
+        });
+        const coverData = await coverRes.json();
+        if (!coverRes.ok) {
+          toast.error(coverData.error ?? "Error al subir portada");
+          setSaving(false);
+          return;
+        }
+        newCoverUrl = coverData.coverUrl;
+        setCoverUrl(newCoverUrl);
+        setCoverFile(null);
+        if (coverPreview) URL.revokeObjectURL(coverPreview);
+        setCoverPreview(null);
+        if (coverRawUrl) URL.revokeObjectURL(coverRawUrl);
+        setCoverRawUrl(null);
+        setCoverImgSize(null);
       }
 
       // Update profile
@@ -250,6 +510,7 @@ function TabPerfil({
         lastName: lastName.trim(),
         bio: bio || null,
         avatarUrl: newAvatarUrl,
+        coverUrl: newCoverUrl,
         universidad: universidad || null,
         sede: sede || null,
         universityYear,
@@ -275,9 +536,184 @@ function TabPerfil({
   }
 
   const displayAvatar = avatarPreview ?? avatarUrl;
+  const displayCover = coverPreview ?? coverUrl;
 
   return (
     <div className="space-y-5">
+      {/* ─── Portada (banner) ─────────────────────────────── */}
+      <section id="portada" className="space-y-2 scroll-mt-20">
+        <div className="flex items-baseline justify-between gap-3 flex-wrap">
+          <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink">
+            Portada del perfil
+          </h3>
+          <span className="font-archivo text-[11px] text-gz-ink-light">
+            JPG, PNG, WebP o HEIC · 1600×400 recomendado · máx 8 MB
+          </span>
+        </div>
+
+        {coverCropping && coverRawUrl && coverImgSize ? (
+          // ── Cropper ──
+          <div className="space-y-2">
+            <div
+              ref={cropViewportRef}
+              className="relative w-full aspect-[4/1] rounded-[3px] border border-gz-gold overflow-hidden bg-gz-ink select-none touch-none"
+              onPointerDown={handleCropPointerDown}
+              onPointerMove={handleCropPointerMove}
+              onPointerUp={handleCropPointerUp}
+              onPointerCancel={handleCropPointerUp}
+              style={{ cursor: cropDragRef.current ? "grabbing" : "grab" }}
+            >
+              {(() => {
+                const st = cropState();
+                if (!st) return null;
+                return (
+                  <img
+                    src={coverRawUrl}
+                    alt=""
+                    draggable={false}
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      width: st.iw,
+                      height: st.ih,
+                      transform: `translate(${cropOffset.x}px, ${cropOffset.y}px)`,
+                      maxWidth: "none",
+                      userSelect: "none",
+                      pointerEvents: "none",
+                    }}
+                  />
+                );
+              })()}
+              <span className="absolute top-2 left-2 font-ibm-mono text-[10px] uppercase tracking-[2px] bg-gz-gold text-gz-ink px-2 py-0.5 rounded-[3px] pointer-events-none">
+                Arrastra para reencuadrar
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 flex-wrap">
+              <label className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
+                Zoom
+              </label>
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.02}
+                value={cropZoom}
+                onChange={(e) => handleZoomChange(Number(e.target.value))}
+                className="flex-1 min-w-[140px] accent-gz-gold cursor-pointer"
+              />
+              <span className="font-ibm-mono text-[10px] text-gz-ink-light w-10 text-right">
+                {cropZoom.toFixed(2)}×
+              </span>
+            </div>
+
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={confirmCrop}
+                className="font-ibm-mono text-[10px] uppercase tracking-[2px] bg-gz-navy text-white px-3 py-2 rounded-[3px] hover:bg-gz-gold hover:text-gz-navy transition-colors cursor-pointer"
+              >
+                ✓ Aplicar encuadre
+              </button>
+              <button
+                type="button"
+                onClick={cancelCrop}
+                className="font-ibm-mono text-[10px] uppercase tracking-[2px] border border-gz-rule-dark px-3 py-2 rounded-[3px] hover:bg-gz-cream-dark transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <span className="font-archivo text-[11px] text-gz-ink-light self-center">
+                Arrastra la imagen y ajusta el zoom hasta ver la parte que quieres mostrar.
+              </span>
+            </div>
+          </div>
+        ) : (
+          // ── Preview ──
+          <>
+            <div
+              className="relative w-full aspect-[4/1] rounded-[3px] border border-gz-rule overflow-hidden cursor-pointer group"
+              onClick={() => coverInputRef.current?.click()}
+              style={
+                displayCover
+                  ? {
+                      backgroundImage: `url(${displayCover})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }
+                  : {
+                      background:
+                        "repeating-linear-gradient(45deg, transparent 0 18px, rgba(154,114,48,0.08) 18px 36px), linear-gradient(135deg, #12203a 0%, #1e3155 35%, #6b1d2a 100%)",
+                    }
+              }
+            >
+              {!displayCover && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-gz-cream/70 font-ibm-mono text-[10px] uppercase tracking-[2px] pointer-events-none">
+                    Portada automática por grado
+                  </div>
+                </div>
+              )}
+
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-white bg-gz-ink/70 px-3 py-1.5 rounded-[3px] border border-white/25">
+                  ✎ Cambiar portada
+                </span>
+              </div>
+
+              {coverPreview && (
+                <span className="absolute top-2 left-2 font-ibm-mono text-[10px] uppercase tracking-[2px] bg-gz-gold text-gz-cream px-2 py-0.5 rounded-[3px]">
+                  Vista previa · guardar para aplicar
+                </span>
+              )}
+            </div>
+
+            <div className="flex gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => coverInputRef.current?.click()}
+                className="font-ibm-mono text-[10px] uppercase tracking-[2px] border border-gz-rule-dark px-3 py-2 rounded-[3px] hover:bg-gz-cream-dark transition-colors cursor-pointer"
+              >
+                {displayCover ? "Reemplazar" : "Subir portada"}
+              </button>
+              {coverRawUrl && coverImgSize && (
+                <button
+                  type="button"
+                  onClick={reopenCropper}
+                  className="font-ibm-mono text-[10px] uppercase tracking-[2px] border border-gz-gold text-gz-gold px-3 py-2 rounded-[3px] hover:bg-gz-gold/10 transition-colors cursor-pointer"
+                >
+                  Reencuadrar
+                </button>
+              )}
+              {(coverUrl || coverPreview) && (
+                <button
+                  type="button"
+                  onClick={handleCoverDelete}
+                  disabled={coverDeleting}
+                  className="font-ibm-mono text-[10px] uppercase tracking-[2px] border border-gz-burgundy text-gz-burgundy px-3 py-2 rounded-[3px] hover:bg-gz-burgundy/10 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {coverDeleting ? "Eliminando…" : "Eliminar"}
+                </button>
+              )}
+              <span className="font-archivo text-[11px] text-gz-ink-light self-center">
+                Si no subes portada, mostramos un banner editorial generado a partir de tu Grado.
+              </span>
+            </div>
+          </>
+        )}
+
+        <input
+          ref={coverInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
+          className="hidden"
+          onChange={handleCoverSelect}
+        />
+      </section>
+
+      <div className="border-t border-gz-rule" />
+
       {/* Avatar */}
       <div className="flex items-center gap-5">
         <button

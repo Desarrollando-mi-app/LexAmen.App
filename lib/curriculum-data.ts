@@ -18,11 +18,20 @@ export interface LeyAnexa {
   nombreCorto?: string;
 }
 
+export interface ParrafoNode {
+  /** id único, formato: `{tituloId}_P{n}`. Ej: `LI_T2_P1` */
+  id: string;
+  /** Label humano del párrafo. Ej: `§1. Del principio de la existencia de las personas` */
+  label: string;
+  /** Rango de artículos que cubre, opcional. Ej: `Arts. 74–78` */
+  articulosRef?: string;
+}
+
 export interface TituloNode {
   id: string;
   label: string;
   articulosRef?: string;
-  parrafos?: string[];
+  parrafos?: ParrafoNode[];
   leyesAnexas?: LeyAnexa[];
 }
 
@@ -62,9 +71,16 @@ export const CURRICULUM: CurriculumTree = {
             id: "MENSAJE_BELLO",
             label: "Andrés Bello al Congreso Nacional",
             parrafos: [
-              "Contexto histórico",
-              "Necesidad de la codificación",
-              "Fuentes del Código",
+              { id: "MENSAJE_BELLO_P1", label: "§1. Contexto histórico y crítica a la legislación colonial" },
+              { id: "MENSAJE_BELLO_P2", label: "§2. Justificación de la codificación" },
+              { id: "MENSAJE_BELLO_P3", label: "§3. Proceso de elaboración del Código" },
+              { id: "MENSAJE_BELLO_P4", label: "§4. Fuentes del Código y derecho comparado" },
+              { id: "MENSAJE_BELLO_P5", label: "§5. Consideraciones sobre el Título Preliminar" },
+              { id: "MENSAJE_BELLO_P6", label: "§6. Consideraciones sobre el Libro I — De las Personas" },
+              { id: "MENSAJE_BELLO_P7", label: "§7. Consideraciones sobre el Libro II — De los bienes y su dominio" },
+              { id: "MENSAJE_BELLO_P8", label: "§8. Consideraciones sobre el Libro III — De la sucesión por causa de muerte" },
+              { id: "MENSAJE_BELLO_P9", label: "§9. Consideraciones sobre el Libro IV — De las obligaciones y los contratos" },
+              { id: "MENSAJE_BELLO_P10", label: "§10. Valor interpretativo del Mensaje y conclusión" },
             ],
           },
         ],
@@ -134,20 +150,20 @@ export const CURRICULUM: CurriculumTree = {
             id: "LI_T1",
             label: "Título I: De las personas, en cuanto a su nombre, nacionalidad y domicilio",
             parrafos: [
-              "1. División de las personas",
-              "2. Nombre de las personas",
-              "3. Del domicilio en cuanto depende de la residencia y del ánimo de permanecer en ella",
-              "4. Del domicilio en cuanto depende de la condición o estado civil de la persona",
+              { id: "LI_T1_P1", label: "1. División de las personas" },
+              { id: "LI_T1_P2", label: "2. Nombre de las personas" },
+              { id: "LI_T1_P3", label: "3. Del domicilio en cuanto depende de la residencia y del ánimo de permanecer en ella" },
+              { id: "LI_T1_P4", label: "4. Del domicilio en cuanto depende de la condición o estado civil de la persona" },
             ],
           },
           {
             id: "LI_T2",
             label: "Título II: Del principio y fin de la existencia de las personas",
             parrafos: [
-              "1. Del principio de la existencia de las personas",
-              "2. Del fin de la existencia de las personas",
-              "3. De la presunción de muerte por desaparecimiento",
-              "4. De la comprobación judicial de la muerte",
+              { id: "LI_T2_P1", label: "1. Del principio de la existencia de las personas" },
+              { id: "LI_T2_P2", label: "2. Del fin de la existencia de las personas" },
+              { id: "LI_T2_P3", label: "3. De la presunción de muerte por desaparecimiento" },
+              { id: "LI_T2_P4", label: "4. De la comprobación judicial de la muerte" },
             ],
           },
           {
@@ -171,21 +187,21 @@ export const CURRICULUM: CurriculumTree = {
             id: "LI_T6",
             label: "Título VI: Obligaciones y derechos entre los cónyuges",
             parrafos: [
-              "1. Reglas generales",
-              "2. De los bienes familiares",
-              "3. Excepciones relativas a la profesión u oficio de la mujer",
-              "4. Excepciones relativas a la separación de bienes",
-              "5. Excepciones relativas a la separación judicial",
+              { id: "LI_T6_P1", label: "1. Reglas generales" },
+              { id: "LI_T6_P2", label: "2. De los bienes familiares" },
+              { id: "LI_T6_P3", label: "3. Excepciones relativas a la profesión u oficio de la mujer" },
+              { id: "LI_T6_P4", label: "4. Excepciones relativas a la separación de bienes" },
+              { id: "LI_T6_P5", label: "5. Excepciones relativas a la separación judicial" },
             ],
           },
           {
             id: "LI_T7",
             label: "Título VII: De la filiación",
             parrafos: [
-              "1. Reglas generales",
-              "2. De la determinación de la maternidad",
-              "3. De la determinación de la filiación matrimonial",
-              "4. De la determinación de la filiación no matrimonial",
+              { id: "LI_T7_P1", label: "1. Reglas generales" },
+              { id: "LI_T7_P2", label: "2. De la determinación de la maternidad" },
+              { id: "LI_T7_P3", label: "3. De la determinación de la filiación matrimonial" },
+              { id: "LI_T7_P4", label: "4. De la determinación de la filiación no matrimonial" },
             ],
             leyesAnexas: [{ ley: "Ley 19.585", label: "Filiación" }],
           },
@@ -193,9 +209,9 @@ export const CURRICULUM: CurriculumTree = {
             id: "LI_T8",
             label: "Título VIII: De las acciones de filiación",
             parrafos: [
-              "1. Reglas generales",
-              "2. De las acciones de reclamación",
-              "3. De las acciones de impugnación",
+              { id: "LI_T8_P1", label: "1. Reglas generales" },
+              { id: "LI_T8_P2", label: "2. De las acciones de reclamación" },
+              { id: "LI_T8_P3", label: "3. De las acciones de impugnación" },
             ],
           },
           {
@@ -206,11 +222,11 @@ export const CURRICULUM: CurriculumTree = {
             id: "LI_T10",
             label: "Título X: De la patria potestad",
             parrafos: [
-              "1. Reglas generales",
-              "2. Del derecho legal de goce sobre los bienes de los hijos y de su administración",
-              "3. De la representación legal de los hijos",
-              "4. De la suspensión de la patria potestad",
-              "5. De la emancipación",
+              { id: "LI_T10_P1", label: "1. Reglas generales" },
+              { id: "LI_T10_P2", label: "2. Del derecho legal de goce sobre los bienes de los hijos y de su administración" },
+              { id: "LI_T10_P3", label: "3. De la representación legal de los hijos" },
+              { id: "LI_T10_P4", label: "4. De la suspensión de la patria potestad" },
+              { id: "LI_T10_P5", label: "5. De la emancipación" },
             ],
           },
           {
@@ -232,10 +248,10 @@ export const CURRICULUM: CurriculumTree = {
             id: "LI_T19",
             label: "Título XIX: De las tutelas y curadurías en general",
             parrafos: [
-              "1. Definiciones y reglas generales",
-              "2. De la tutela o curaduría testamentaria",
-              "3. De la tutela o curaduría legítima",
-              "4. De la tutela o curaduría dativa",
+              { id: "LI_T19_P1", label: "1. Definiciones y reglas generales" },
+              { id: "LI_T19_P2", label: "2. De la tutela o curaduría testamentaria" },
+              { id: "LI_T19_P3", label: "3. De la tutela o curaduría legítima" },
+              { id: "LI_T19_P4", label: "4. De la tutela o curaduría dativa" },
             ],
           },
           {
@@ -282,9 +298,9 @@ export const CURRICULUM: CurriculumTree = {
             id: "LI_T30",
             label: "Título XXX: De las incapacidades y excusas para la tutela o curaduría",
             parrafos: [
-              "1. De las incapacidades",
-              "2. De las excusas",
-              "3. Reglas comunes a las incapacidades y a las excusas",
+              { id: "LI_T30_P1", label: "1. De las incapacidades" },
+              { id: "LI_T30_P2", label: "2. De las excusas" },
+              { id: "LI_T30_P3", label: "3. Reglas comunes a las incapacidades y a las excusas" },
             ],
           },
           {
@@ -299,8 +315,8 @@ export const CURRICULUM: CurriculumTree = {
             id: "LI_T33",
             label: "Título XXXIII: De las personas jurídicas",
             parrafos: [
-              "Corporaciones y fundaciones",
-              "Reglas especiales",
+              { id: "LI_T33_P1", label: "Corporaciones y fundaciones" },
+              { id: "LI_T33_P2", label: "Reglas especiales" },
             ],
             leyesAnexas: [
               { ley: "Ley 20.500", label: "Asociaciones y participación ciudadana" },
@@ -327,17 +343,17 @@ export const CURRICULUM: CurriculumTree = {
             id: "LII_T1",
             label: "Título I: De las varias clases de bienes",
             parrafos: [
-              "1. De las cosas corporales",
-              "2. De las cosas incorporales",
+              { id: "LII_T1_P1", label: "1. De las cosas corporales" },
+              { id: "LII_T1_P2", label: "2. De las cosas incorporales" },
             ],
           },
           {
             id: "LII_T2",
             label: "Título II: Del dominio",
             parrafos: [
-              "Definición y facultades",
-              "Copropiedad",
-              "Propiedad fiduciaria",
+              { id: "LII_T2_P1", label: "Definición y facultades" },
+              { id: "LII_T2_P2", label: "Copropiedad" },
+              { id: "LII_T2_P3", label: "Propiedad fiduciaria" },
             ],
             leyesAnexas: [
               { ley: "Ley 19.537", label: "Copropiedad inmobiliaria" },
@@ -355,27 +371,27 @@ export const CURRICULUM: CurriculumTree = {
             id: "LII_T5",
             label: "Título V: De la accesión",
             parrafos: [
-              "1. De las accesiones de frutos",
-              "2. De las accesiones del suelo",
-              "3. De la accesión de una cosa mueble a otra",
-              "4. De la accesión de las cosas muebles a inmuebles",
+              { id: "LII_T5_P1", label: "1. De las accesiones de frutos" },
+              { id: "LII_T5_P2", label: "2. De las accesiones del suelo" },
+              { id: "LII_T5_P3", label: "3. De la accesión de una cosa mueble a otra" },
+              { id: "LII_T5_P4", label: "4. De la accesión de las cosas muebles a inmuebles" },
             ],
           },
           {
             id: "LII_T6",
             label: "Título VI: De la tradición",
             parrafos: [
-              "1. Disposiciones generales",
-              "2. De la tradición de las cosas corporales muebles",
-              "3. De las otras especies de tradición",
+              { id: "LII_T6_P1", label: "1. Disposiciones generales" },
+              { id: "LII_T6_P2", label: "2. De la tradición de las cosas corporales muebles" },
+              { id: "LII_T6_P3", label: "3. De las otras especies de tradición" },
             ],
           },
           {
             id: "LII_T7",
             label: "Título VII: De la posesión",
             parrafos: [
-              "1. De la posesión y sus diferentes calidades",
-              "2. De los modos de adquirir y perder la posesión",
+              { id: "LII_T7_P1", label: "1. De la posesión y sus diferentes calidades" },
+              { id: "LII_T7_P2", label: "2. De los modos de adquirir y perder la posesión" },
             ],
             leyesAnexas: [
               { ley: "DL 2.695", label: "Regularización pequeña propiedad raíz" },
@@ -397,20 +413,20 @@ export const CURRICULUM: CurriculumTree = {
             id: "LII_T11",
             label: "Título XI: De las servidumbres",
             parrafos: [
-              "1. De las servidumbres naturales",
-              "2. De las servidumbres legales",
-              "3. De las servidumbres voluntarias",
-              "4. De la extinción de las servidumbres",
+              { id: "LII_T11_P1", label: "1. De las servidumbres naturales" },
+              { id: "LII_T11_P2", label: "2. De las servidumbres legales" },
+              { id: "LII_T11_P3", label: "3. De las servidumbres voluntarias" },
+              { id: "LII_T11_P4", label: "4. De la extinción de las servidumbres" },
             ],
           },
           {
             id: "LII_T12",
             label: "Título XII: De la reivindicación",
             parrafos: [
-              "1. Qué cosas pueden reivindicarse",
-              "2. Quién puede reivindicar",
-              "3. Contra quién se puede reivindicar",
-              "4. Prestaciones mutuas",
+              { id: "LII_T12_P1", label: "1. Qué cosas pueden reivindicarse" },
+              { id: "LII_T12_P2", label: "2. Quién puede reivindicar" },
+              { id: "LII_T12_P3", label: "3. Contra quién se puede reivindicar" },
+              { id: "LII_T12_P4", label: "4. Prestaciones mutuas" },
             ],
           },
           {
@@ -438,62 +454,62 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIII_T2",
             label: "Título II: Reglas relativas a la sucesión intestada",
             parrafos: [
-              "Órdenes de sucesión",
-              "Representación",
-              "Acrecimiento",
+              { id: "LIII_T2_P1", label: "Órdenes de sucesión" },
+              { id: "LIII_T2_P2", label: "Representación" },
+              { id: "LIII_T2_P3", label: "Acrecimiento" },
             ],
           },
           {
             id: "LIII_T3",
             label: "Título III: De la ordenación del testamento",
             parrafos: [
-              "1. Del testamento en general",
-              "2. Del testamento solemne y primeramente del otorgado en Chile",
-              "3. Del testamento solemne otorgado en país extranjero",
-              "4. De los testamentos privilegiados",
+              { id: "LIII_T3_P1", label: "1. Del testamento en general" },
+              { id: "LIII_T3_P2", label: "2. Del testamento solemne y primeramente del otorgado en Chile" },
+              { id: "LIII_T3_P3", label: "3. Del testamento solemne otorgado en país extranjero" },
+              { id: "LIII_T3_P4", label: "4. De los testamentos privilegiados" },
             ],
           },
           {
             id: "LIII_T4",
             label: "Título IV: De las asignaciones testamentarias",
             parrafos: [
-              "1. Reglas generales",
-              "2. De las asignaciones testamentarias condicionales",
-              "3. De las asignaciones testamentarias a día",
-              "4. De las asignaciones modales",
-              "5. De las asignaciones a título universal",
-              "6. De las asignaciones a título singular",
-              "7. De las donaciones revocables",
-              "8. Del derecho de acrecer",
-              "9. De las sustituciones",
+              { id: "LIII_T4_P1", label: "1. Reglas generales" },
+              { id: "LIII_T4_P2", label: "2. De las asignaciones testamentarias condicionales" },
+              { id: "LIII_T4_P3", label: "3. De las asignaciones testamentarias a día" },
+              { id: "LIII_T4_P4", label: "4. De las asignaciones modales" },
+              { id: "LIII_T4_P5", label: "5. De las asignaciones a título universal" },
+              { id: "LIII_T4_P6", label: "6. De las asignaciones a título singular" },
+              { id: "LIII_T4_P7", label: "7. De las donaciones revocables" },
+              { id: "LIII_T4_P8", label: "8. Del derecho de acrecer" },
+              { id: "LIII_T4_P9", label: "9. De las sustituciones" },
             ],
           },
           {
             id: "LIII_T5",
             label: "Título V: De las asignaciones forzosas",
             parrafos: [
-              "1. De las asignaciones alimenticias que se deben a ciertas personas",
-              "2. De la porción conyugal",
-              "3. De las legítimas y mejoras",
-              "4. De los desheredamientos",
+              { id: "LIII_T5_P1", label: "1. De las asignaciones alimenticias que se deben a ciertas personas" },
+              { id: "LIII_T5_P2", label: "2. De la porción conyugal" },
+              { id: "LIII_T5_P3", label: "3. De las legítimas y mejoras" },
+              { id: "LIII_T5_P4", label: "4. De los desheredamientos" },
             ],
           },
           {
             id: "LIII_T6",
             label: "Título VI: De la revocación y reforma del testamento",
             parrafos: [
-              "1. De la revocación del testamento",
-              "2. De la reforma del testamento",
+              { id: "LIII_T6_P1", label: "1. De la revocación del testamento" },
+              { id: "LIII_T6_P2", label: "2. De la reforma del testamento" },
             ],
           },
           {
             id: "LIII_T7",
             label: "Título VII: De la apertura de la sucesión y de su aceptación, repudiación e inventario",
             parrafos: [
-              "1. Reglas generales",
-              "2. Reglas particulares relativas a las herencias",
-              "3. Del beneficio de inventario",
-              "4. De la petición de herencia y de otras acciones del heredero",
+              { id: "LIII_T7_P1", label: "1. Reglas generales" },
+              { id: "LIII_T7_P2", label: "2. Reglas particulares relativas a las herencias" },
+              { id: "LIII_T7_P3", label: "3. Del beneficio de inventario" },
+              { id: "LIII_T7_P4", label: "4. De la petición de herencia y de otras acciones del heredero" },
             ],
           },
           {
@@ -507,7 +523,10 @@ export const CURRICULUM: CurriculumTree = {
           {
             id: "LIII_T10",
             label: "Título X: De la partición de los bienes",
-            parrafos: ["Reglas generales", "Del juicio de partición"],
+            parrafos: [
+              { id: "LIII_T10_P1", label: "Reglas generales" },
+              { id: "LIII_T10_P2", label: "Del juicio de partición" },
+            ],
             leyesAnexas: [
               { ley: "Ley 16.271", label: "Impuesto a las herencias" },
             ],
@@ -546,11 +565,11 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T2",
             label: "Título II: De los actos y declaraciones de voluntad",
             parrafos: [
-              "Del acto jurídico",
-              "De la capacidad",
-              "Del objeto",
-              "De la causa",
-              "De las formalidades",
+              { id: "LIV_T2_P1", label: "Del acto jurídico" },
+              { id: "LIV_T2_P2", label: "De la capacidad" },
+              { id: "LIV_T2_P3", label: "Del objeto" },
+              { id: "LIV_T2_P4", label: "De la causa" },
+              { id: "LIV_T2_P5", label: "De las formalidades" },
             ],
           },
           {
@@ -593,9 +612,9 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T12",
             label: "Título XII: Del efecto de las obligaciones",
             parrafos: [
-              "Cumplimiento forzado",
-              "Indemnización de perjuicios",
-              "Derechos auxiliares del acreedor",
+              { id: "LIV_T12_P1", label: "Cumplimiento forzado" },
+              { id: "LIV_T12_P2", label: "Indemnización de perjuicios" },
+              { id: "LIV_T12_P3", label: "Derechos auxiliares del acreedor" },
             ],
           },
           {
@@ -606,16 +625,16 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T14",
             label: "Título XIV: De los modos de extinguirse las obligaciones, y primeramente de la solución o pago efectivo",
             parrafos: [
-              "1. Del pago efectivo en general",
-              "2. Por quién puede hacerse el pago",
-              "3. A quién debe hacerse el pago",
-              "4. Dónde debe hacerse el pago",
-              "5. Cómo debe hacerse el pago",
-              "6. De la imputación del pago",
-              "7. Del pago por consignación",
-              "8. Del pago con subrogación",
-              "9. Del pago por cesión de bienes o por acción ejecutiva",
-              "10. Del pago con beneficio de competencia",
+              { id: "LIV_T14_P1", label: "1. Del pago efectivo en general" },
+              { id: "LIV_T14_P2", label: "2. Por quién puede hacerse el pago" },
+              { id: "LIV_T14_P3", label: "3. A quién debe hacerse el pago" },
+              { id: "LIV_T14_P4", label: "4. Dónde debe hacerse el pago" },
+              { id: "LIV_T14_P5", label: "5. Cómo debe hacerse el pago" },
+              { id: "LIV_T14_P6", label: "6. De la imputación del pago" },
+              { id: "LIV_T14_P7", label: "7. Del pago por consignación" },
+              { id: "LIV_T14_P8", label: "8. Del pago con subrogación" },
+              { id: "LIV_T14_P9", label: "9. Del pago por cesión de bienes o por acción ejecutiva" },
+              { id: "LIV_T14_P10", label: "10. Del pago con beneficio de competencia" },
             ],
           },
           {
@@ -650,43 +669,43 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T22",
             label: "Título XXII: De las convenciones matrimoniales y de la sociedad conyugal",
             parrafos: [
-              "1. Reglas generales",
-              "2. Del haber de la sociedad conyugal y de sus cargas",
-              "3. De la administración ordinaria de los bienes de la sociedad conyugal",
-              "4. De la administración extraordinaria de la sociedad conyugal",
-              "5. De la disolución de la sociedad conyugal y partición de gananciales",
-              "6. De la renuncia de los gananciales",
-              "7. De la dote y de las donaciones por causa de matrimonio",
+              { id: "LIV_T22_P1", label: "1. Reglas generales" },
+              { id: "LIV_T22_P2", label: "2. Del haber de la sociedad conyugal y de sus cargas" },
+              { id: "LIV_T22_P3", label: "3. De la administración ordinaria de los bienes de la sociedad conyugal" },
+              { id: "LIV_T22_P4", label: "4. De la administración extraordinaria de la sociedad conyugal" },
+              { id: "LIV_T22_P5", label: "5. De la disolución de la sociedad conyugal y partición de gananciales" },
+              { id: "LIV_T22_P6", label: "6. De la renuncia de los gananciales" },
+              { id: "LIV_T22_P7", label: "7. De la dote y de las donaciones por causa de matrimonio" },
             ],
           },
           {
             id: "LIV_T22A",
             label: "Título XXII-A: Régimen de la participación en los gananciales",
             parrafos: [
-              "1. Reglas generales",
-              "2. De la administración del patrimonio de los cónyuges",
-              "3. De la determinación y cálculo de los gananciales",
-              "4. Del crédito de participación en los gananciales",
-              "5. Del término del régimen de participación en los gananciales",
+              { id: "LIV_T22A_P1", label: "1. Reglas generales" },
+              { id: "LIV_T22A_P2", label: "2. De la administración del patrimonio de los cónyuges" },
+              { id: "LIV_T22A_P3", label: "3. De la determinación y cálculo de los gananciales" },
+              { id: "LIV_T22A_P4", label: "4. Del crédito de participación en los gananciales" },
+              { id: "LIV_T22A_P5", label: "5. Del término del régimen de participación en los gananciales" },
             ],
           },
           {
             id: "LIV_T23",
             label: "Título XXIII: De la compraventa",
             parrafos: [
-              "1. De la capacidad para el contrato de venta",
-              "2. Forma y requisitos del contrato de venta",
-              "3. Del precio",
-              "4. De la cosa vendida",
-              "5. De los efectos inmediatos del contrato de venta",
-              "6. De las obligaciones del vendedor y de la obligación de entregar",
-              "7. Del saneamiento por evicción",
-              "8. Del saneamiento por vicios redhibitorios",
-              "9. De las obligaciones del comprador",
-              "10. Del pacto comisorio",
-              "11. Del pacto de retroventa",
-              "12. De otros pactos accesorios al contrato de venta",
-              "13. De la rescisión de la venta por lesión enorme",
+              { id: "LIV_T23_P1", label: "1. De la capacidad para el contrato de venta" },
+              { id: "LIV_T23_P2", label: "2. Forma y requisitos del contrato de venta" },
+              { id: "LIV_T23_P3", label: "3. Del precio" },
+              { id: "LIV_T23_P4", label: "4. De la cosa vendida" },
+              { id: "LIV_T23_P5", label: "5. De los efectos inmediatos del contrato de venta" },
+              { id: "LIV_T23_P6", label: "6. De las obligaciones del vendedor y de la obligación de entregar" },
+              { id: "LIV_T23_P7", label: "7. Del saneamiento por evicción" },
+              { id: "LIV_T23_P8", label: "8. Del saneamiento por vicios redhibitorios" },
+              { id: "LIV_T23_P9", label: "9. De las obligaciones del comprador" },
+              { id: "LIV_T23_P10", label: "10. Del pacto comisorio" },
+              { id: "LIV_T23_P11", label: "11. Del pacto de retroventa" },
+              { id: "LIV_T23_P12", label: "12. De otros pactos accesorios al contrato de venta" },
+              { id: "LIV_T23_P13", label: "13. De la rescisión de la venta por lesión enorme" },
             ],
           },
           {
@@ -697,25 +716,25 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T25",
             label: "Título XXV: De la cesión de derechos",
             parrafos: [
-              "1. De los créditos personales",
-              "2. Del derecho de herencia",
-              "3. De los derechos litigiosos",
+              { id: "LIV_T25_P1", label: "1. De los créditos personales" },
+              { id: "LIV_T25_P2", label: "2. Del derecho de herencia" },
+              { id: "LIV_T25_P3", label: "3. De los derechos litigiosos" },
             ],
           },
           {
             id: "LIV_T26",
             label: "Título XXVI: Del contrato de arrendamiento",
             parrafos: [
-              "1. Del arrendamiento de cosas",
-              "2. De las obligaciones del arrendador",
-              "3. De las obligaciones del arrendatario",
-              "4. De la expiración del arrendamiento de cosas",
-              "5. Reglas particulares relativas al arrendamiento de casas y edificios",
-              "6. Reglas particulares relativas al arrendamiento de predios rústicos",
-              "7. Del arrendamiento de criados domésticos",
-              "8. De los contratos para la confección de una obra material",
-              "9. Del arrendamiento de servicios inmateriales",
-              "10. Del arrendamiento de transporte",
+              { id: "LIV_T26_P1", label: "1. Del arrendamiento de cosas" },
+              { id: "LIV_T26_P2", label: "2. De las obligaciones del arrendador" },
+              { id: "LIV_T26_P3", label: "3. De las obligaciones del arrendatario" },
+              { id: "LIV_T26_P4", label: "4. De la expiración del arrendamiento de cosas" },
+              { id: "LIV_T26_P5", label: "5. Reglas particulares relativas al arrendamiento de casas y edificios" },
+              { id: "LIV_T26_P6", label: "6. Reglas particulares relativas al arrendamiento de predios rústicos" },
+              { id: "LIV_T26_P7", label: "7. Del arrendamiento de criados domésticos" },
+              { id: "LIV_T26_P8", label: "8. De los contratos para la confección de una obra material" },
+              { id: "LIV_T26_P9", label: "9. Del arrendamiento de servicios inmateriales" },
+              { id: "LIV_T26_P10", label: "10. Del arrendamiento de transporte" },
             ],
           },
           {
@@ -726,23 +745,23 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T28",
             label: "Título XXVIII: De la sociedad",
             parrafos: [
-              "1. Reglas generales",
-              "2. De las diferentes especies de sociedad",
-              "3. De las principales cláusulas del contrato de sociedad",
-              "4. De la administración de la sociedad colectiva",
-              "5. De las obligaciones de los socios entre sí",
-              "6. De las obligaciones de los socios respecto de terceros",
-              "7. De la disolución de la sociedad",
+              { id: "LIV_T28_P1", label: "1. Reglas generales" },
+              { id: "LIV_T28_P2", label: "2. De las diferentes especies de sociedad" },
+              { id: "LIV_T28_P3", label: "3. De las principales cláusulas del contrato de sociedad" },
+              { id: "LIV_T28_P4", label: "4. De la administración de la sociedad colectiva" },
+              { id: "LIV_T28_P5", label: "5. De las obligaciones de los socios entre sí" },
+              { id: "LIV_T28_P6", label: "6. De las obligaciones de los socios respecto de terceros" },
+              { id: "LIV_T28_P7", label: "7. De la disolución de la sociedad" },
             ],
           },
           {
             id: "LIV_T29",
             label: "Título XXIX: Del mandato",
             parrafos: [
-              "1. Definiciones y reglas generales",
-              "2. De la administración del mandato",
-              "3. De las obligaciones del mandante",
-              "4. De la terminación del mandato",
+              { id: "LIV_T29_P1", label: "1. Definiciones y reglas generales" },
+              { id: "LIV_T29_P2", label: "2. De la administración del mandato" },
+              { id: "LIV_T29_P3", label: "3. De las obligaciones del mandante" },
+              { id: "LIV_T29_P4", label: "4. De la terminación del mandato" },
             ],
           },
           {
@@ -757,27 +776,27 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T32",
             label: "Título XXXII: Del depósito y del secuestro",
             parrafos: [
-              "1. Del depósito propiamente dicho",
-              "2. Del depósito necesario",
-              "3. Del secuestro",
+              { id: "LIV_T32_P1", label: "1. Del depósito propiamente dicho" },
+              { id: "LIV_T32_P2", label: "2. Del depósito necesario" },
+              { id: "LIV_T32_P3", label: "3. Del secuestro" },
             ],
           },
           {
             id: "LIV_T33",
             label: "Título XXXIII: De los contratos aleatorios",
             parrafos: [
-              "1. Del juego y de la apuesta",
-              "2. De la constitución de renta vitalicia",
-              "3. De la constitución del censo vitalicio",
+              { id: "LIV_T33_P1", label: "1. Del juego y de la apuesta" },
+              { id: "LIV_T33_P2", label: "2. De la constitución de renta vitalicia" },
+              { id: "LIV_T33_P3", label: "3. De la constitución del censo vitalicio" },
             ],
           },
           {
             id: "LIV_T34",
             label: "Título XXXIV: De los cuasicontratos",
             parrafos: [
-              "1. De la agencia oficiosa o gestión de negocios ajenos",
-              "2. Del pago de lo no debido",
-              "3. Del cuasicontrato de comunidad",
+              { id: "LIV_T34_P1", label: "1. De la agencia oficiosa o gestión de negocios ajenos" },
+              { id: "LIV_T34_P2", label: "2. Del pago de lo no debido" },
+              { id: "LIV_T34_P3", label: "3. Del cuasicontrato de comunidad" },
             ],
           },
           {
@@ -788,11 +807,11 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T36",
             label: "Título XXXVI: De la fianza",
             parrafos: [
-              "1. De la constitución y requisitos de la fianza",
-              "2. De los efectos de la fianza entre el acreedor y el fiador",
-              "3. De los efectos de la fianza entre el fiador y el deudor",
-              "4. De los efectos de la fianza entre los cofiadores",
-              "5. De la extinción de la fianza",
+              { id: "LIV_T36_P1", label: "1. De la constitución y requisitos de la fianza" },
+              { id: "LIV_T36_P2", label: "2. De los efectos de la fianza entre el acreedor y el fiador" },
+              { id: "LIV_T36_P3", label: "3. De los efectos de la fianza entre el fiador y el deudor" },
+              { id: "LIV_T36_P4", label: "4. De los efectos de la fianza entre los cofiadores" },
+              { id: "LIV_T36_P5", label: "5. De la extinción de la fianza" },
             ],
           },
           {
@@ -819,10 +838,10 @@ export const CURRICULUM: CurriculumTree = {
             id: "LIV_T42",
             label: "Título XLII: De la prescripción",
             parrafos: [
-              "1. De la prescripción en general",
-              "2. De la prescripción con que se adquieren las cosas",
-              "3. De la prescripción como medio de extinguir las acciones judiciales",
-              "4. De ciertas acciones que prescriben en corto tiempo",
+              { id: "LIV_T42_P1", label: "1. De la prescripción en general" },
+              { id: "LIV_T42_P2", label: "2. De la prescripción con que se adquieren las cosas" },
+              { id: "LIV_T42_P3", label: "3. De la prescripción como medio de extinguir las acciones judiciales" },
+              { id: "LIV_T42_P4", label: "4. De ciertas acciones que prescriben en corto tiempo" },
             ],
           },
           {
@@ -894,8 +913,8 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LI_T19",
             label: "Título XIX: De la ejecución de las resoluciones",
             parrafos: [
-              "1. De las resoluciones pronunciadas por tribunales chilenos",
-              "2. De las resoluciones pronunciadas por tribunales extranjeros",
+              { id: "CPC_LI_T19_P1", label: "1. De las resoluciones pronunciadas por tribunales chilenos" },
+              { id: "CPC_LI_T19_P2", label: "2. De las resoluciones pronunciadas por tribunales extranjeros" },
             ],
           },
           { id: "CPC_LI_T20", label: "Título XX: De las multas" },
@@ -922,14 +941,14 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LII_T11",
             label: "Título XI: De los medios de prueba en particular",
             parrafos: [
-              "1. Disposiciones generales",
-              "2. De los instrumentos",
-              "3. De los testigos y de las tachas",
-              "4. De la confesión en juicio",
-              "5. De la inspección personal del tribunal",
-              "6. Del informe de peritos",
-              "7. De las presunciones",
-              "8. De la apreciación comparativa de los medios de prueba",
+              { id: "CPC_LII_T11_P1", label: "1. Disposiciones generales" },
+              { id: "CPC_LII_T11_P2", label: "2. De los instrumentos" },
+              { id: "CPC_LII_T11_P3", label: "3. De los testigos y de las tachas" },
+              { id: "CPC_LII_T11_P4", label: "4. De la confesión en juicio" },
+              { id: "CPC_LII_T11_P5", label: "5. De la inspección personal del tribunal" },
+              { id: "CPC_LII_T11_P6", label: "6. Del informe de peritos" },
+              { id: "CPC_LII_T11_P7", label: "7. De las presunciones" },
+              { id: "CPC_LII_T11_P8", label: "8. De la apreciación comparativa de los medios de prueba" },
             ],
           },
           { id: "CPC_LII_T12", label: "Título XII: De los procedimientos posteriores a la prueba" },
@@ -949,9 +968,9 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LIII_T1",
             label: "Título I: Del juicio ejecutivo en las obligaciones de dar",
             parrafos: [
-              "1. Del procedimiento ejecutivo",
-              "2. De la administración de los bienes embargados y del procedimiento de apremio",
-              "3. De las tercerías",
+              { id: "CPC_LIII_T1_P1", label: "1. Del procedimiento ejecutivo" },
+              { id: "CPC_LIII_T1_P2", label: "2. De la administración de los bienes embargados y del procedimiento de apremio" },
+              { id: "CPC_LIII_T1_P3", label: "3. De las tercerías" },
             ],
           },
           { id: "CPC_LIII_T2", label: "Título II: Del procedimiento ejecutivo en las obligaciones de hacer y de no hacer" },
@@ -960,12 +979,12 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LIII_T4",
             label: "Título IV: De los interdictos",
             parrafos: [
-              "1. Definiciones y reglas generales",
-              "2. De las querellas posesorias en particular",
-              "3. De la denuncia de obra nueva",
-              "4. De la denuncia de obra ruinosa",
-              "5. De los interdictos especiales",
-              "6. Disposiciones comunes",
+              { id: "CPC_LIII_T4_P1", label: "1. Definiciones y reglas generales" },
+              { id: "CPC_LIII_T4_P2", label: "2. De las querellas posesorias en particular" },
+              { id: "CPC_LIII_T4_P3", label: "3. De la denuncia de obra nueva" },
+              { id: "CPC_LIII_T4_P4", label: "4. De la denuncia de obra ruinosa" },
+              { id: "CPC_LIII_T4_P5", label: "5. De los interdictos especiales" },
+              { id: "CPC_LIII_T4_P6", label: "6. Disposiciones comunes" },
             ],
           },
           { id: "CPC_LIII_T5", label: "Título V: De la citación de evicción" },
@@ -973,9 +992,9 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LIII_T6",
             label: "Título VI: De los juicios especiales del contrato de arrendamiento",
             parrafos: [
-              "1. Del desahucio, del lanzamiento y de la retención",
-              "2. De la terminación inmediata del arrendamiento",
-              "3. Disposiciones comunes",
+              { id: "CPC_LIII_T6_P1", label: "1. Del desahucio, del lanzamiento y de la retención" },
+              { id: "CPC_LIII_T6_P2", label: "2. De la terminación inmediata del arrendamiento" },
+              { id: "CPC_LIII_T6_P3", label: "3. Disposiciones comunes" },
             ],
           },
           { id: "CPC_LIII_T7", label: "Título VII: De los juicios sobre consentimiento para el matrimonio" },
@@ -983,9 +1002,9 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LIII_T8",
             label: "Título VIII: Del juicio arbitral",
             parrafos: [
-              "1. Del juicio seguido ante árbitros de derecho",
-              "2. Del juicio seguido ante arbitradores",
-              "3. Disposición común",
+              { id: "CPC_LIII_T8_P1", label: "1. Del juicio seguido ante árbitros de derecho" },
+              { id: "CPC_LIII_T8_P2", label: "2. Del juicio seguido ante arbitradores" },
+              { id: "CPC_LIII_T8_P3", label: "3. Disposición común" },
             ],
           },
           { id: "CPC_LIII_T9", label: "Título IX: De los juicios sobre partición de bienes" },
@@ -997,8 +1016,8 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LIII_T14",
             label: "Título XIV: De los juicios de menor y de mínima cuantía",
             parrafos: [
-              "1. De los juicios de menor cuantía",
-              "2. De los juicios de mínima cuantía",
+              { id: "CPC_LIII_T14_P1", label: "1. De los juicios de menor cuantía" },
+              { id: "CPC_LIII_T14_P2", label: "2. De los juicios de mínima cuantía" },
             ],
           },
           { id: "CPC_LIII_T15", label: "Título XV: Del juicio sobre arreglo de la avería común" },
@@ -1009,10 +1028,10 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LIII_T19",
             label: "Título XIX: Del recurso de casación",
             parrafos: [
-              "1. Disposiciones generales",
-              "2. Disposiciones especiales del recurso de casación en juicios de mínima cuantía",
-              "3. Disposiciones especiales en primera o única instancia en juicios de mayor o menor cuantía",
-              "4. Disposiciones especiales en segunda instancia",
+              { id: "CPC_LIII_T19_P1", label: "1. Disposiciones generales" },
+              { id: "CPC_LIII_T19_P2", label: "2. Disposiciones especiales del recurso de casación en juicios de mínima cuantía" },
+              { id: "CPC_LIII_T19_P3", label: "3. Disposiciones especiales en primera o única instancia en juicios de mayor o menor cuantía" },
+              { id: "CPC_LIII_T19_P4", label: "4. Disposiciones especiales en segunda instancia" },
             ],
           },
           { id: "CPC_LIII_T20", label: "Título XX: Del recurso de revisión" },
@@ -1034,8 +1053,8 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LIV_T6",
             label: "Título VI: Del nombramiento de tutores y curadores y del discernimiento",
             parrafos: [
-              "1. Del nombramiento de tutores y curadores",
-              "2. Del discernimiento de la tutela o curaduría",
+              { id: "CPC_LIV_T6_P1", label: "1. Del nombramiento de tutores y curadores" },
+              { id: "CPC_LIV_T6_P2", label: "2. Del discernimiento de la tutela o curaduría" },
             ],
           },
           { id: "CPC_LIV_T7", label: "Título VII: Del inventario solemne" },
@@ -1043,11 +1062,11 @@ export const CURRICULUM: CurriculumTree = {
             id: "CPC_LIV_T8",
             label: "Título VIII: De los procedimientos a que da lugar la sucesión por causa de muerte",
             parrafos: [
-              "1. De los procedimientos especiales de la sucesión testamentaria",
-              "2. De la guarda de los muebles y papeles de la sucesión",
-              "3. De la dación de la posesión efectiva de la herencia",
-              "4. De la declaración de herencia yacente",
-              "5. Disposiciones comunes",
+              { id: "CPC_LIV_T8_P1", label: "1. De los procedimientos especiales de la sucesión testamentaria" },
+              { id: "CPC_LIV_T8_P2", label: "2. De la guarda de los muebles y papeles de la sucesión" },
+              { id: "CPC_LIV_T8_P3", label: "3. De la dación de la posesión efectiva de la herencia" },
+              { id: "CPC_LIV_T8_P4", label: "4. De la declaración de herencia yacente" },
+              { id: "CPC_LIV_T8_P5", label: "5. Disposiciones comunes" },
             ],
           },
           { id: "CPC_LIV_T9", label: "Título IX: De la insinuación de donaciones" },
@@ -1101,11 +1120,11 @@ export const CURRICULUM: CurriculumTree = {
             id: "COT_T2",
             label: "Título II: De los Juzgados de Garantía y de los Tribunales de Juicio Oral en lo Penal",
             parrafos: [
-              "§1. De los Juzgados de Garantía",
-              "§2. De los Tribunales de Juicio Oral en lo Penal",
-              "§3. Del Comité de Jueces",
-              "§4. Del Juez Presidente del Comité de Jueces",
-              "§5. De la organización administrativa de los Juzgados de Garantía y de los Tribunales de Juicio Oral en lo Penal",
+              { id: "COT_T2_P1", label: "§1. De los Juzgados de Garantía" },
+              { id: "COT_T2_P2", label: "§2. De los Tribunales de Juicio Oral en lo Penal" },
+              { id: "COT_T2_P3", label: "§3. Del Comité de Jueces" },
+              { id: "COT_T2_P4", label: "§4. Del Juez Presidente del Comité de Jueces" },
+              { id: "COT_T2_P5", label: "§5. De la organización administrativa de los Juzgados de Garantía y de los Tribunales de Juicio Oral en lo Penal" },
             ],
           },
           {
@@ -1120,17 +1139,17 @@ export const CURRICULUM: CurriculumTree = {
             id: "COT_T5",
             label: "Título V: Las Cortes de Apelaciones",
             parrafos: [
-              "1. Su organización y atribuciones",
-              "2. Los acuerdos de las Cortes de Apelaciones",
-              "3. Los Presidentes de las Cortes de Apelaciones",
+              { id: "COT_T5_P1", label: "1. Su organización y atribuciones" },
+              { id: "COT_T5_P2", label: "2. Los acuerdos de las Cortes de Apelaciones" },
+              { id: "COT_T5_P3", label: "3. Los Presidentes de las Cortes de Apelaciones" },
             ],
           },
           {
             id: "COT_T6",
             label: "Título VI: La Corte Suprema",
             parrafos: [
-              "1. Su organización y atribuciones",
-              "2. El Presidente de la Corte Suprema",
+              { id: "COT_T6_P1", label: "1. Su organización y atribuciones" },
+              { id: "COT_T6_P2", label: "2. El Presidente de la Corte Suprema" },
             ],
           },
           {
@@ -1141,17 +1160,17 @@ export const CURRICULUM: CurriculumTree = {
             id: "COT_T7",
             label: "Título VII: La Competencia",
             parrafos: [
-              "1. Reglas generales",
-              "2. Reglas que determinan la cuantía de las materias judiciales",
-              "3. Supresión del fuero personal en algunos negocios judiciales",
-              "4. Reglas que determinan la competencia en materias civiles entre tribunales de igual jerarquía",
-              "5. Reglas que determinan la competencia en materias criminales entre tribunales de igual jerarquía",
-              "6. Reglas sobre competencia civil de los tribunales en lo criminal",
-              "7. Reglas que determinan la distribución de causas",
-              "8. De la prórroga de la competencia",
-              "9. De la competencia para fallar en única o en primera instancia",
-              "10. De los tribunales que deben conocer en las contiendas y cuestiones de competencia",
-              "11. De la implicancia y recusación de los jueces y de los abogados integrantes",
+              { id: "COT_T7_P1", label: "1. Reglas generales" },
+              { id: "COT_T7_P2", label: "2. Reglas que determinan la cuantía de las materias judiciales" },
+              { id: "COT_T7_P3", label: "3. Supresión del fuero personal en algunos negocios judiciales" },
+              { id: "COT_T7_P4", label: "4. Reglas que determinan la competencia en materias civiles entre tribunales de igual jerarquía" },
+              { id: "COT_T7_P5", label: "5. Reglas que determinan la competencia en materias criminales entre tribunales de igual jerarquía" },
+              { id: "COT_T7_P6", label: "6. Reglas sobre competencia civil de los tribunales en lo criminal" },
+              { id: "COT_T7_P7", label: "7. Reglas que determinan la distribución de causas" },
+              { id: "COT_T7_P8", label: "8. De la prórroga de la competencia" },
+              { id: "COT_T7_P9", label: "9. De la competencia para fallar en única o en primera instancia" },
+              { id: "COT_T7_P10", label: "10. De los tribunales que deben conocer en las contiendas y cuestiones de competencia" },
+              { id: "COT_T7_P11", label: "11. De la implicancia y recusación de los jueces y de los abogados integrantes" },
             ],
           },
           {
@@ -1166,45 +1185,45 @@ export const CURRICULUM: CurriculumTree = {
             id: "COT_T10",
             label: "Título X: De los Magistrados y del Nombramiento y Escalafón de los Funcionarios Judiciales",
             parrafos: [
-              "1. Calidades en que pueden ser nombrados los jueces",
-              "2. Requisitos, inhabilidades e incompatibilidades",
-              "3. De los nombramientos y del escalafón de los funcionarios judiciales",
-              "4. De la instalación de los jueces",
-              "5. De los honores y prerrogativas de los jueces",
-              "6. De las permutas y traslados",
-              "7. De los deberes y prohibiciones a que están sujetos los jueces",
-              "8. De la responsabilidad de los jueces",
-              "9. La expiración y suspensión de las funciones de los jueces. De las licencias",
+              { id: "COT_T10_P1", label: "1. Calidades en que pueden ser nombrados los jueces" },
+              { id: "COT_T10_P2", label: "2. Requisitos, inhabilidades e incompatibilidades" },
+              { id: "COT_T10_P3", label: "3. De los nombramientos y del escalafón de los funcionarios judiciales" },
+              { id: "COT_T10_P4", label: "4. De la instalación de los jueces" },
+              { id: "COT_T10_P5", label: "5. De los honores y prerrogativas de los jueces" },
+              { id: "COT_T10_P6", label: "6. De las permutas y traslados" },
+              { id: "COT_T10_P7", label: "7. De los deberes y prohibiciones a que están sujetos los jueces" },
+              { id: "COT_T10_P8", label: "8. De la responsabilidad de los jueces" },
+              { id: "COT_T10_P9", label: "9. La expiración y suspensión de las funciones de los jueces. De las licencias" },
             ],
           },
           {
             id: "COT_T11",
             label: "Título XI: Los Auxiliares de la Administración de Justicia",
             parrafos: [
-              "1. Fiscalía Judicial",
-              "2. Los Defensores Públicos",
-              "3. Los Relatores",
-              "4. Los Secretarios",
-              "4 bis. Los administradores de tribunales con competencia en lo criminal",
-              "5. Los Receptores",
-              "6. De los Procuradores y especialmente de los Procuradores del Número",
-              "7. Los Notarios",
-              "8. Los Conservadores",
-              "9. Los Archiveros",
-              "10. De los Consejos Técnicos",
-              "11. Los Bibliotecarios Judiciales",
+              { id: "COT_T11_P1", label: "1. Fiscalía Judicial" },
+              { id: "COT_T11_P2", label: "2. Los Defensores Públicos" },
+              { id: "COT_T11_P3", label: "3. Los Relatores" },
+              { id: "COT_T11_P4", label: "4. Los Secretarios" },
+              { id: "COT_T11_P5", label: "4 bis. Los administradores de tribunales con competencia en lo criminal" },
+              { id: "COT_T11_P6", label: "5. Los Receptores" },
+              { id: "COT_T11_P7", label: "6. De los Procuradores y especialmente de los Procuradores del Número" },
+              { id: "COT_T11_P8", label: "7. Los Notarios" },
+              { id: "COT_T11_P9", label: "8. Los Conservadores" },
+              { id: "COT_T11_P10", label: "9. Los Archiveros" },
+              { id: "COT_T11_P11", label: "10. De los Consejos Técnicos" },
+              { id: "COT_T11_P12", label: "11. Los Bibliotecarios Judiciales" },
             ],
           },
           {
             id: "COT_T12",
             label: "Título XII: Disposiciones generales aplicables a los Auxiliares de la Administración de Justicia",
             parrafos: [
-              "1. Nombramiento, requisitos, inhabilidades e incompatibilidades",
-              "2. Juramento e instalación",
-              "3. Obligaciones y prohibiciones",
-              "4. De las implicancias y recusaciones",
-              "5. De su remuneración y de su previsión",
-              "6. Suspensión y expiración de funciones. De las licencias",
+              { id: "COT_T12_P1", label: "1. Nombramiento, requisitos, inhabilidades e incompatibilidades" },
+              { id: "COT_T12_P2", label: "2. Juramento e instalación" },
+              { id: "COT_T12_P3", label: "3. Obligaciones y prohibiciones" },
+              { id: "COT_T12_P4", label: "4. De las implicancias y recusaciones" },
+              { id: "COT_T12_P5", label: "5. De su remuneración y de su previsión" },
+              { id: "COT_T12_P6", label: "6. Suspensión y expiración de funciones. De las licencias" },
             ],
           },
           {
@@ -1223,9 +1242,9 @@ export const CURRICULUM: CurriculumTree = {
             id: "COT_T16",
             label: "Título XVI: De la Jurisdicción Disciplinaria y de la Inspección y Vigilancia de los Servicios Judiciales",
             parrafos: [
-              "1. Las facultades disciplinarias",
-              "2. De las visitas",
-              "3. Estados y publicaciones",
+              { id: "COT_T16_P1", label: "1. Las facultades disciplinarias" },
+              { id: "COT_T16_P2", label: "2. De las visitas" },
+              { id: "COT_T16_P3", label: "3. Estados y publicaciones" },
             ],
           },
           {
@@ -1292,7 +1311,7 @@ export function getParrafosForTitulo(
   ramaKey: string,
   libroKey: string,
   tituloId: string
-): string[] {
+): ParrafoNode[] {
   const titulos = getTitulosForLibro(ramaKey, libroKey);
   const titulo = titulos.find((t) => t.id === tituloId);
   return titulo?.parrafos ?? [];
@@ -1330,4 +1349,45 @@ export function findTituloLabel(tituloId: string): string | undefined {
     }
   }
   return undefined;
+}
+
+
+// ─── Helpers de navegación por párrafo ─────────────────────────────
+/**
+ * Busca un párrafo por su id absoluto (formato `{tituloId}_P{n}`).
+ * Retorna { rama, seccion, titulo, parrafo } o null si no existe.
+ */
+export function findParrafo(parrafoId: string): {
+  ramaKey: string;
+  seccion: SeccionNode;
+  titulo: TituloNode;
+  parrafo: ParrafoNode;
+} | null {
+  for (const [ramaKey, rama] of Object.entries(CURRICULUM)) {
+    for (const seccion of rama.secciones) {
+      for (const titulo of seccion.titulos) {
+        if (!titulo.parrafos) continue;
+        const parrafo = titulo.parrafos.find((p) => p.id === parrafoId);
+        if (parrafo) return { ramaKey, seccion, titulo, parrafo };
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Busca un título por su id. Retorna { ramaKey, seccion, titulo } o null.
+ */
+export function findTitulo(tituloId: string): {
+  ramaKey: string;
+  seccion: SeccionNode;
+  titulo: TituloNode;
+} | null {
+  for (const [ramaKey, rama] of Object.entries(CURRICULUM)) {
+    for (const seccion of rama.secciones) {
+      const titulo = seccion.titulos.find((t) => t.id === tituloId);
+      if (titulo) return { ramaKey, seccion, titulo };
+    }
+  }
+  return null;
 }

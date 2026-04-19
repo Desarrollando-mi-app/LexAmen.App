@@ -13,6 +13,7 @@ interface ProfileDropdownProps {
   grado: number;
   gradoNombre: string;
   isAdmin: boolean;
+  userId: string;
 }
 
 function getInitials(name: string): string {
@@ -31,6 +32,7 @@ export function ProfileDropdown({
   grado,
   gradoNombre,
   isAdmin,
+  userId,
 }: ProfileDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -119,8 +121,8 @@ export function ProfileDropdown({
 
           {/* Navigation links */}
           <div className="py-1">
-            <DropdownLink href="/dashboard/perfil" icon="👤" label="Mi Perfil" onClick={() => setOpen(false)} />
-            <DropdownLink href="/dashboard/perfil" icon="⚙️" label="Configuración" onClick={() => setOpen(false)} />
+            <DropdownLink href={`/dashboard/perfil/${userId}`} icon="👤" label="Mi Perfil" onClick={() => setOpen(false)} />
+            <DropdownLink href="/dashboard/perfil/configuracion" icon="⚙️" label="Configuración" onClick={() => setOpen(false)} />
             <DropdownLink href="/privacidad" icon="🔒" label="Privacidad" onClick={() => setOpen(false)} />
             {isAdmin && (
               <DropdownLink href="/admin/resumen" icon="📊" label="Panel Admin" onClick={() => setOpen(false)} />

@@ -28,6 +28,11 @@ const NAV_ITEMS: MobileNavItem[] = [
     label: "Noticias",
   },
   {
+    href: "__PERFIL__",
+    icon: "👤",
+    label: "Perfil",
+  },
+  {
     href: "/dashboard",
     icon: "🏠",
     label: "Inicio",
@@ -49,11 +54,12 @@ const NAV_ITEMS: MobileNavItem[] = [
     ],
   },
   {
-    href: "/dashboard/liga",
+    href: "/dashboard/la-toga",
     icon: "🏆",
     label: "Competir",
     children: [
-      { href: "/dashboard/liga", label: "Liga" },
+      { href: "/dashboard/la-toga", label: "La Liga de la Toga" },
+      { href: "/dashboard/vida-del-derecho", label: "La Vida del Derecho" },
       { href: "/dashboard/ranking", label: "Ranking XP" },
       { href: "/dashboard/ranking-causas", label: "Ranking Causas" },
       { href: "/dashboard/causas", label: "Causas" },
@@ -94,11 +100,14 @@ const STUDY_ROUTES = [
   "/dashboard/dictado-juridico", "/dashboard/linea-de-tiempo", "/dashboard/simulacro",
   "/dashboard/sesion-mixta",
 ];
-const COMPETE_ROUTES = ["/dashboard/liga", "/dashboard/ranking", "/dashboard/causas"];
+const COMPETE_ROUTES = ["/dashboard/la-toga", "/dashboard/vida-del-derecho", "/dashboard/liga", "/dashboard/ranking", "/dashboard/causas"];
 
 function isItemActive(item: MobileNavItem, pathname: string): boolean {
   if (item.href === "/dashboard/noticias") {
     return pathname.startsWith("/dashboard/noticias") || pathname === "/portada";
+  }
+  if (item.label === "Perfil") {
+    return pathname.startsWith("/dashboard/perfil");
   }
   if (item.href === "/dashboard") {
     return pathname === "/dashboard" || pathname === "/dashboard/progreso" ||
@@ -115,7 +124,7 @@ function isItemActive(item: MobileNavItem, pathname: string): boolean {
 
 /* ─── Component ─── */
 
-export function MobileNav() {
+export function MobileNav({ userId }: { userId: string }) {
   const pathname = usePathname();
   const [sheetIndex, setSheetIndex] = useState<number | null>(null);
 
@@ -239,12 +248,13 @@ export function MobileNav() {
             const isActive = isItemActive(item, pathname);
             const isSheetActive = sheetIndex === idx;
 
-            // For items WITH children, use button. For Perfil (no children), use Link.
+            // For items WITH children, use button. For top-level links (Noticias, Perfil), use Link.
             if (!item.children) {
+              const resolvedHref = item.href === "__PERFIL__" ? `/dashboard/perfil/${userId}` : item.href;
               return (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={resolvedHref}
                   className={`
                     relative flex flex-1 flex-col items-center gap-0.5 py-2 transition-colors
                     ${isActive ? "text-gz-gold" : "text-gz-ink-light hover:text-gz-ink-mid"}
