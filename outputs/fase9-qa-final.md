@@ -10,7 +10,7 @@ _Auditoría generada el 2026-04-21_
 | Total rows (11 modelos) | 15.681 |
 | Total integradores (`esIntegrador=true`) | 1.647 |
 | % integradores sobre total | 10.5% |
-| Orphans libro (agrupaciones) | 90 |
+| Orphans libro (agrupaciones) | 11 |
 | Orphans parrafo (agrupaciones) | 0 |
 | LEY_17336 fuera de estructura | 0 |
 
@@ -53,23 +53,11 @@ _Auditoría generada el 2026-04-21_
 
 ---
 
-## Orphans · `libro` no existente en CURRICULUM (90)
+## Orphans · `libro` no existente en CURRICULUM (11)
 
 | Rama | Libro | Rows afectadas |
 |------|-------|---------------:|
-| DERECHO_CIVIL | CODIGO_CIVIL | 1798 |
-| DERECHO_PROCESAL_CIVIL | CPC | 733 |
-| DERECHO_PROCESAL_CIVIL | CPC_LIBRO_II | 306 |
-| DERECHO_PROCESAL_CIVIL | CPC_LIBRO_I | 257 |
-| DERECHO_ORGANICO | COT | 238 |
-| DERECHO_PROCESAL_CIVIL | CPC_LIBRO_III | 191 |
-| DERECHO_PROCESAL_CIVIL | MODULO_DIARIO | 187 |
-| DERECHO_PROCESAL_CIVIL | CPC_LIBRO_IV | 95 |
-| DERECHO_PROCESAL_CIVIL | LIBRO_COT | 88 |
-| DERECHO_PROCESAL_CIVIL | COT | 83 |
-| DERECHO_CIVIL | CPC | 39 |
-| DERECHO_PROCESAL_CIVIL | CPC_INTEGRADOR | 15 |
-| DERECHO_PROCESAL_CIVIL | LIBRO_I | 2 |
+| DERECHO_PROCESAL_CIVIL | MODULO_DIARIO | 179 |
 
 ---
 
