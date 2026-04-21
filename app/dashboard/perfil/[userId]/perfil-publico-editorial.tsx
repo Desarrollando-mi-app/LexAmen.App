@@ -9,7 +9,7 @@
  * Tabs rendered as section tabs in a "section strip" (Artes · Deportes · Opinión).
  */
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
@@ -454,7 +454,7 @@ export function PerfilEditorial({
                 ) : (
                   <div className="divide-y-[2px] divide-gz-ink">
                     {filteredPubs.map((p) => (
-                      <EditorialArticle key={p.id} pub={p} authorName={`${user.firstName} ${user.lastName}`} authorAvatar={user.avatarUrl} />
+                      <EditorialArticle key={p.id} pub={p} authorName={`${user.firstName} ${user.lastName}`} />
                     ))}
                   </div>
                 )}
@@ -772,8 +772,8 @@ function EmptyState({ isOwnProfile, firstName }: { isOwnProfile: boolean; firstN
 }
 
 function EditorialArticle({
-  pub, authorName, authorAvatar,
-}: { pub: Publication; authorName: string; authorAvatar: string | null }) {
+  pub, authorName,
+}: { pub: Publication; authorName: string }) {
   const kindMeta: Record<PublicationKind, { label: string; href: string; color: string }> = {
     obiter: { label: "Obiter Dictum", href: `/dashboard/diario/${pub.id}`, color: "text-gz-gold" },
     analisis: { label: "Análisis de Sentencia", href: `/dashboard/diario/analisis/${pub.id}`, color: "text-gz-navy" },

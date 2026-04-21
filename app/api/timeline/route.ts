@@ -19,10 +19,7 @@ export async function GET(request: Request) {
   const rama = searchParams.get("rama");
 
   // 3. Build where clause — respeta ramasAdicionales (Fase 7)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = { activo: true };
-  const ramaFilter = buildRamaFilter(rama);
-  if (ramaFilter) Object.assign(where, ramaFilter);
+  const where = { activo: true, ...buildRamaFilter(rama) };
 
   // 4. Fetch timelines
   const timelines = await prisma.timeline.findMany({

@@ -25,9 +25,7 @@ export async function GET(request: Request) {
 
   // 3. Fetch active casos — respeta ramasAdicionales (Fase 7)
   /* eslint-disable @typescript-eslint/no-explicit-any */
-  const where: any = { activo: true };
-  const ramaFilter = buildRamaFilter(rama);
-  if (ramaFilter) Object.assign(where, ramaFilter);
+  const where = { activo: true, ...buildRamaFilter(rama) };
 
   const casos = await prisma.casoPractico.findMany({
     where,

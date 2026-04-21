@@ -177,9 +177,9 @@ export async function calculateTemaProgress(
   // Un ejercicio con rama primaria X + ramasAdicionales=[Y] cuenta para el
   // progreso en ambas ramas.
   const ramaFilter = buildRamaFilter(rama);
-  const flashcardWhere: Record<string, unknown> = ramaFilter ? { ...ramaFilter } : {};
-  const mcqWhere: Record<string, unknown> = ramaFilter ? { ...ramaFilter } : {};
-  const vfWhere: Record<string, unknown> = ramaFilter ? { ...ramaFilter } : {};
+  const flashcardWhere: Record<string, unknown> = { ...ramaFilter };
+  const mcqWhere: Record<string, unknown> = { ...ramaFilter };
+  const vfWhere: Record<string, unknown> = { ...ramaFilter };
 
   if (libro) {
     flashcardWhere.libro = libro as never;
@@ -277,8 +277,7 @@ export async function countContentForMapping(
   titulo?: string | null
 ): Promise<{ flashcards: number; mcq: number; vf: number }> {
   // Respeta ramasAdicionales (Fase 7)
-  const ramaFilter = buildRamaFilter(rama);
-  const where: Record<string, unknown> = ramaFilter ? { ...ramaFilter } : {};
+  const where: Record<string, unknown> = { ...buildRamaFilter(rama) };
   if (libro) where.libro = libro as never;
   if (titulo) where.titulo = titulo;
 

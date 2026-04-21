@@ -24,9 +24,7 @@ export async function GET(request: Request) {
   const titulo = searchParams.get("titulo");
 
   // Build filter — respeta ramasAdicionales (Fase 7)
-  const where: Record<string, unknown> = { isActive: true };
-  const ramaFilter = buildRamaFilter(rama);
-  if (ramaFilter) Object.assign(where, ramaFilter);
+  const where: Record<string, unknown> = { isActive: true, ...buildRamaFilter(rama) };
   if (libro) where.libro = libro;
   if (titulo) where.titulo = titulo;
 

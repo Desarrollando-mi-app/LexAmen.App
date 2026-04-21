@@ -22,9 +22,7 @@ export async function GET(request: Request) {
 
   // 3. Build where clause — respeta ramasAdicionales (Fase 7)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = { activo: true };
-  const ramaFilter = buildRamaFilter(rama);
-  if (ramaFilter) Object.assign(where, ramaFilter);
+  const where: any = { activo: true, ...buildRamaFilter(rama) };
   if (libro && libro !== "ALL") where.libro = libro;
   if (titulo && titulo !== "ALL") where.titulo = titulo;
 

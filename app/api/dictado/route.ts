@@ -40,10 +40,7 @@ export async function GET(request: NextRequest) {
   const rama = searchParams.get("rama");
 
   // Respeta ramasAdicionales (Fase 7)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: any = { activo: true };
-  const ramaFilter = buildRamaFilter(rama);
-  if (ramaFilter) Object.assign(where, ramaFilter);
+  const where = { activo: true, ...buildRamaFilter(rama) };
 
   const items = await prisma.dictadoJuridico.findMany({
     where,

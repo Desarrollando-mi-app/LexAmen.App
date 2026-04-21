@@ -16,9 +16,7 @@ export async function GET(request: Request) {
   const rama = searchParams.get("rama");
 
   // Filter — respeta ramasAdicionales (Fase 7)
-  const where: Record<string, unknown> = { activo: true };
-  const ramaFilter = buildRamaFilter(rama);
-  if (ramaFilter) Object.assign(where, ramaFilter);
+  const where = { activo: true, ...buildRamaFilter(rama) };
 
   const items = await prisma.errorIdentification.findMany({
     where,

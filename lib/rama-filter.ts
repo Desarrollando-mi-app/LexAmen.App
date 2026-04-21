@@ -5,17 +5,15 @@
  * (`ramasAdicionales`) donde también aplica. Para las queries de browse,
  * queremos mostrar el ejercicio cuando cualquiera de las dos coincida.
  *
- * Uso:
- *   const where = { isActive: true };
- *   const ramaFilter = buildRamaFilter(rama);
- *   if (ramaFilter) Object.assign(where, ramaFilter);
+ * Devuelve siempre un objeto spreadable — vacío si no aplica filtro.
  *
- * Devuelve null si `rama` es falsy o "ALL" — no aplica filtro.
+ * Uso:
+ *   const where = { activo: true, ...buildRamaFilter(rama) };
  */
 export function buildRamaFilter(
   rama: string | null | undefined,
-): { OR: Array<Record<string, unknown>> } | null {
-  if (!rama || rama === "ALL") return null;
+): Record<string, unknown> {
+  if (!rama || rama === "ALL") return {};
   return {
     OR: [
       { rama },
