@@ -1,6 +1,6 @@
 # Fase 5 — Plan de clasificación LLM (DRY-RUN · resumed)
 
-_Generado 2026-04-20T17:18:51.641Z. Sin escrituras en DB._
+_Generado 2026-04-21T20:18:38.104Z. Sin escrituras en DB._
 
 **Candidatos procesados: 4361**
 - P5 (parrafo ambiguo): 2446
@@ -10,5 +10,5 @@ _Generado 2026-04-20T17:18:51.641Z. Sin escrituras en DB._
 
 | Tipo | Alta | Media | Baja | UNKNOWN | Sin asignar | Error |
 |------|-----:|------:|-----:|--------:|------------:|------:|
-| **P5** | 2052 | 56 | 96 | 0 | 104 | 138 |
-| **R8** | 1036 | 4 | 0 | 0 | 7 | 868 |
+| **P5** | 2180 | 57 | 99 | 0 | 110 | 0 |
+| **R8** | 1894 | 6 | 0 | 0 | 15 | 0 |

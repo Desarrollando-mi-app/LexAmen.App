@@ -7,12 +7,12 @@ _Auditoría generada el 2026-04-21_
 
 | Métrica | Valor |
 |---------|-------|
-| Total rows (11 modelos) | 15.681 |
+| Total rows (11 modelos) | 15.756 |
 | Total integradores (`esIntegrador=true`) | 1.647 |
 | % integradores sobre total | 10.5% |
 | Orphans libro (agrupaciones) | 11 |
-| Orphans parrafo (agrupaciones) | 0 |
-| LEY_17336 fuera de estructura | 0 |
+| Orphans parrafo (agrupaciones) | 7 |
+| LEY_17336 fuera de estructura | 93 |
 
 ---
 
@@ -20,10 +20,10 @@ _Auditoría generada el 2026-04-21_
 
 | Módulo | Total rows | Integradores | % |
 |--------|-----------:|-------------:|--:|
-| Flashcard | 4327 | 418 | 9.7% |
-| MCQ | 2945 | 313 | 10.6% |
-| TrueFalse | 2486 | 303 | 12.2% |
-| Definicion | 1728 | 187 | 10.8% |
+| Flashcard | 4371 | 418 | 9.6% |
+| MCQ | 2957 | 313 | 10.6% |
+| TrueFalse | 2495 | 303 | 12.1% |
+| Definicion | 1738 | 187 | 10.8% |
 | FillBlank | 1048 | 126 | 12.0% |
 | ErrorIdentification | 689 | 70 | 10.2% |
 | OrderSequence | 320 | 4 | 1.3% |
@@ -31,7 +31,7 @@ _Auditoría generada el 2026-04-21_
 | CasoPractico | 489 | 64 | 13.1% |
 | DictadoJuridico | 713 | 70 | 9.8% |
 | Timeline | 242 | 6 | 2.5% |
-| **Total** | **15681** | **1647** | **10.5%** |
+| **Total** | **15756** | **1647** | **10.5%** |
 
 ---
 
@@ -39,17 +39,18 @@ _Auditoría generada el 2026-04-21_
 
 | Título/Párrafo | Rows |
 |----------------|-----:|
-| L17336_T1/L17336_T1_P1 | 38 |
-| L17336_T1/L17336_T1_P2 | 2 |
-| L17336_T1/L17336_T1_P3 | 6 |
-| L17336_T1/L17336_T1_P4 | 8 |
-| L17336_T1/L17336_T1_P5 | 31 |
-| L17336_T3 | 16 |
-| L17336_T4 | 11 |
-| L17336_T5 | 3 |
-| **Total** | **115** |
+| L17336_T1/L17336_T1_P1 | 2 |
+| L17336_T1/L17336_T1_P2 | 1 |
+| L17336_T1/L17336_T1_P4 | 2 |
+| L17336_T1/L17336_T1_P5 | 4 |
+| L17336_T1/LIV_T25_P1 | 3 |
+| L17336_T1/LIV_T25_P3 | 3 |
+| L17336_T3 | 5 |
+| L17336_T3/LIV_T42_P2 | 1 |
+| L17336_T5 | 1 |
+| **Total** | **22** |
 
-✓ Todos los registros con libro=LEY_17336 apuntan correctamente a L17336_T*.
+⚠ **93** registros con libro=LEY_17336 apuntan a un título fuera de L17336_*.
 
 ---
 
@@ -61,6 +62,10 @@ _Auditoría generada el 2026-04-21_
 
 ---
 
-## Orphans · `parrafo` no existente en CURRICULUM para su título (0)
+## Orphans · `parrafo` no existente en CURRICULUM para su título (7)
 
-_Todos los valores de `parrafo` son válidos para su (rama, título)._
+| Rama | Título | Párrafo | Rows afectadas |
+|------|--------|---------|---------------:|
+| DERECHO_CIVIL | L17336_T1 | LIV_T25_P3 | 3 |
+| DERECHO_CIVIL | L17336_T1 | LIV_T25_P1 | 3 |
+| DERECHO_CIVIL | L17336_T3 | LIV_T42_P2 | 1 |
