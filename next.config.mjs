@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ["sharp", "pdf-parse", "pdfkit"],
+  // Next 14 usa experimental.serverComponentsExternalPackages (renombrado en Next 15).
+  experimental: {
+    serverComponentsExternalPackages: ["sharp", "pdf-parse", "pdfkit"],
+  },
   images: {
     remotePatterns: [
       {

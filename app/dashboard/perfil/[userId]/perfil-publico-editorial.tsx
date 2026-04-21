@@ -147,6 +147,10 @@ export function PerfilEditorial({
   const [loading, setLoading] = useState(false);
   const [activeSection, setActiveSection] = useState<"publicaciones" | "trayectoria" | "logros" | "comunidad" | "cv">("publicaciones");
   const [pubFilter, setPubFilter] = useState<string>("TODOS");
+  const [showCvModal, setShowCvModal] = useState(false);
+  const [cvMessage, setCvMessage] = useState("");
+  const [cvLoading, setCvLoading] = useState(false);
+  const [cvStatus, setCvStatus] = useState<string | null | undefined>(cvRequestStatus);
 
   const gradoInfo = user.grado ? getGradoInfo(user.grado) : null;
   const gradoRoman = user.grado ? toRoman(user.grado) : null;
@@ -223,6 +227,22 @@ export function PerfilEditorial({
     } catch { toast.error("Error de conexión"); } finally { setLoading(false); }
   }
 
+  async function handleCvRequest() {
+    setCvLoading(true);
+    try {
+      const res = await fetch("/api/cv-requests", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ toUserId: user.id, message: cvMessage || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) return toast.error(data.error ?? "Error al enviar solicitud");
+      setCvStatus("pending");
+      setShowCvModal(false);
+      setCvMessage("");
+      toast.success("Solicitud de CV enviada");
+    } catch { toast.error("Error de conexión"); } finally { setCvLoading(false); }
+  }
+
   return (
     <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-4 pb-16">
@@ -248,7 +268,8 @@ export function PerfilEditorial({
           style={
             user.coverUrl
               ? {
-                  backgroundImage: `linear-gradient(to bottom, color-mix(in srgb, var(--gz-cream) 88%, transparent), var(--gz-cream) 90%), url(${user.coverUrl})`,
+                  // rgba fallback (no color-mix) — cream is #F5F0E6 ≈ rgb(245,240,230)
+                  backgroundImage: `linear-gradient(to bottom, rgba(245,240,230,0.88), rgba(245,240,230,1) 90%), url(${user.coverUrl})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }
@@ -551,32 +572,32 @@ export function PerfilEditorial({
                   <div className="font-cormorant italic text-2xl text-gz-ink-mid mb-2">
                     {isOwnProfile
                       ? "Tu CV está disponible para el claustro."
-                      : cvRequestStatus === "APPROVED"
+                      : cvStatus === "approved" || cvStatus === "APPROVED"
                       ? "Tu solicitud fue aprobada."
-                      : cvRequestStatus === "PENDING"
+                      : cvStatus === "pending" || cvStatus === "PENDING"
                       ? "Solicitud en trámite."
-                      : cvRequestStatus === "REJECTED"
+                      : cvStatus === "rejected" || cvStatus === "REJECTED"
                       ? "Solicitud rechazada."
                       : "CV disponible bajo solicitud."}
                   </div>
                   <p className="font-archivo text-sm text-gz-ink-mid mb-5 max-w-md mx-auto">
                     {isOwnProfile
                       ? "Otros colegas pueden requerir acceso. Aprobarás cada solicitud individualmente."
-                      : cvRequestStatus === "APPROVED"
+                      : cvStatus === "approved" || cvStatus === "APPROVED"
                       ? `Puedes descargar el CV de ${user.firstName} desde el menú de colegas.`
-                      : cvRequestStatus === "PENDING"
+                      : cvStatus === "pending" || cvStatus === "PENDING"
                       ? `${user.firstName} recibió tu solicitud. Te avisaremos cuando responda.`
-                      : cvRequestStatus === "REJECTED"
+                      : cvStatus === "rejected" || cvStatus === "REJECTED"
                       ? `${user.firstName} no autorizó el acceso esta vez.`
                       : `Envía una solicitud a ${user.firstName} para revisar su CV completo.`}
                   </p>
-                  {!isOwnProfile && !cvRequestStatus && (
-                    <Link
-                      href={`/dashboard/perfil/${user.id}?tab=cv#solicitar`}
+                  {!isOwnProfile && !cvStatus && (
+                    <button
+                      onClick={() => setShowCvModal(true)}
                       className="font-ibm-mono text-[10px] uppercase tracking-[2px] bg-gz-ink text-gz-cream px-5 py-2.5 hover:bg-gz-burgundy transition-colors cursor-pointer inline-block"
                     >
                       Requerir acceso al CV
-                    </Link>
+                    </button>
                   )}
                 </div>
               </article>
@@ -603,6 +624,16 @@ export function PerfilEditorial({
                 {user.empleoActual && <InfoLine label="Empleo" value={user.empleoActual} />}
                 <InfoLine label="Miembro desde" value={new Date(user.memberSince).toLocaleDateString("es-CL", { month: "long", year: "numeric" })} />
               </dl>
+              {user.linkedinUrl && (
+                <a
+                  href={user.linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-block font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold hover:underline"
+                >
+                  LinkedIn →
+                </a>
+              )}
             </div>
 
             {/* Especialidades */}
@@ -697,6 +728,52 @@ export function PerfilEditorial({
           </aside>
         </div>
       </div>
+
+      {/* ═══ CV MODAL (editorial-style) ═══════════════════════ */}
+      {showCvModal && (
+        <div
+          className="fixed inset-0 z-50 bg-gz-ink/50 flex items-center justify-center p-4"
+          onClick={() => setShowCvModal(false)}
+        >
+          <div
+            className="bg-gz-cream border-t-[3px] border-b border-gz-ink max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="font-ibm-mono text-[9px] uppercase tracking-[3px] text-gz-ink-mid border-b border-gz-rule pb-2 mb-4 flex justify-between">
+              <span>Requerimiento</span>
+              <span>{mastheadDate().day} · {mastheadDate().month} · {mastheadDate().year}</span>
+            </div>
+            <h3 className="font-cormorant text-3xl font-semibold leading-tight mb-2">
+              Solicitar el <span className="italic">Curriculum Vitae</span>
+            </h3>
+            <p className="font-archivo text-sm text-gz-ink-mid mb-4 leading-relaxed">
+              Envía un mensaje a <span className="text-gz-ink font-medium">{user.firstName}</span> para solicitar acceso a su CV.
+            </p>
+            <textarea
+              value={cvMessage}
+              onChange={(e) => setCvMessage(e.target.value)}
+              placeholder="Ej: Hola, me interesó tu perfil para una oportunidad laboral…"
+              className="w-full border border-gz-rule p-3 text-sm mb-4 min-h-[100px] bg-gz-cream-dark/30 font-archivo leading-relaxed focus:outline-none focus:border-gz-ink"
+              maxLength={500}
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setShowCvModal(false)}
+                className="font-ibm-mono text-[10px] uppercase tracking-[2px] border border-gz-rule-dark px-4 py-2.5 hover:bg-gz-cream-dark cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCvRequest}
+                disabled={cvLoading}
+                className="font-ibm-mono text-[10px] uppercase tracking-[2px] bg-gz-ink text-gz-cream px-4 py-2.5 hover:bg-gz-burgundy transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {cvLoading ? "Enviando…" : "Enviar solicitud"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

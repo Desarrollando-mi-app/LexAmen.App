@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Evitar prerender/SSG en build: esta ruta consulta la DB en cada request.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // ─── GET: Contingencias publicas (top hashtags trending) ──
 
 export async function GET() {
