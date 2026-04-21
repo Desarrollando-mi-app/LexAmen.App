@@ -51,6 +51,7 @@ const NAV_ITEMS: MobileNavItem[] = [
       { href: "/dashboard/indice-maestro", label: "Índice Maestro" },
       { href: "/dashboard/instituciones", label: "Instituciones" },
       { href: "/dashboard/integradores", label: "Ejercicios integradores" },
+      { href: "/dashboard/flashcards?mode=FAVORITES", label: "Favoritas" },
     ],
   },
   {

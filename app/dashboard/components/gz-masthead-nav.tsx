@@ -44,6 +44,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/dashboard/indice-maestro", label: "Índice Maestro", emoji: "📚" },
       { href: "/dashboard/instituciones", label: "Instituciones", emoji: "🏛️" },
       { href: "/dashboard/integradores", label: "Ejercicios integradores", emoji: "📝" },
+      { href: "/dashboard/flashcards?mode=FAVORITES", label: "Favoritas", emoji: "⭐" },
     ],
   },
   {
