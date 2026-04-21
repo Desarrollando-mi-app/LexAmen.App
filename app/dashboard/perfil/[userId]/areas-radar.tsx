@@ -68,19 +68,41 @@ export function AreasRadar({ data, height = 220, accent = "gold" }: AreasRadarPr
 }
 
 /**
- * Convierte labels internos (DERECHO_CIVIL) o titulos largos
- * ("Definición de varias palabras de uso frecuente") en labels cortos.
+ * Convierte labels de rama canónica ("Derecho Civil"), enums crudos
+ * ("DERECHO_CIVIL") o sub-materias largas en labels cortos para los ejes
+ * del radar. Mantenemos acentos y prefijamos con "D." cuando aplica.
  */
 function prettifyMateria(raw: string): string {
-  // Normaliza Rama enums
+  // 1) Mapa explícito para ramas conocidas — labels cortos y consistentes
   const ramaMap: Record<string, string> = {
+    // Enums crudos (por compatibilidad con otras fuentes)
     DERECHO_CIVIL: "D. Civil",
-    DERECHO_PROCESAL_CIVIL: "D. Procesal",
+    DERECHO_PROCESAL_CIVIL: "D. Procesal Civil",
+    DERECHO_PROCESAL_PENAL: "D. Procesal Penal",
     DERECHO_ORGANICO: "D. Orgánico",
+    // Labels canónicos producidos por page.tsx
+    "Derecho Civil": "D. Civil",
+    "Derecho Penal": "D. Penal",
+    "Derecho Procesal": "D. Procesal",
+    "Derecho Procesal Civil": "D. Procesal Civil",
+    "Derecho Procesal Penal": "D. Procesal Penal",
+    "Derecho Constitucional": "D. Constitucional",
+    "Derecho Administrativo": "D. Administrativo",
+    "Derecho Orgánico": "D. Orgánico",
+    "Derecho Comercial": "D. Comercial",
+    "Derecho del Trabajo": "D. Trabajo",
+    "Derecho Internacional": "D. Internacional",
+    "Derecho Tributario": "D. Tributario",
+    "Derecho Económico": "D. Económico",
   };
   if (ramaMap[raw]) return ramaMap[raw];
 
-  // Trunca con … si es muy largo
+  // 2) Heurística general: "Derecho X" → "D. X"
+  if (/^derecho\s+/i.test(raw)) {
+    return "D. " + raw.replace(/^derecho\s+/i, "");
+  }
+
+  // 3) Trunca con … si es muy largo
   if (raw.length > 18) return raw.slice(0, 16).trim() + "…";
   return raw;
 }

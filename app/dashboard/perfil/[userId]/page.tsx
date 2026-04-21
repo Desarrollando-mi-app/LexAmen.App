@@ -111,13 +111,17 @@ export default async function PerfilPage({ params, searchParams }: Props) {
           evaluador: { select: { firstName: true } },
         },
       }),
-      // XP by materia for especialidades calculadas
+      // XP by materia for especialidades calculadas.
+      // No limitamos aquí: necesitamos TODAS las materias practicadas para luego
+      // canonicalizarlas en ramas. Si limitamos a 5 materias, podríamos estar
+      // viendo sólo sub-unidades de una misma rama (e.g. todo "Civil") y perder
+      // ramas con menos XP (Constitucional, Procesal, etc.) que deben aparecer
+      // dinámicamente en el radar cuando el usuario empiece a practicarlas.
       prisma.xpLog.groupBy({
         by: ["materia"],
         where: { userId: params.userId, materia: { not: null }, amount: { gt: 0 } },
         _sum: { amount: true },
         orderBy: { _sum: { amount: "desc" } },
-        take: 5,
       }),
       // Publicaciones: los 4 tipos (ObiterDictum legacy, AnalisisSentencia, Ensayo, DebateJuridico)
       prisma.obiterDictum.findMany({
@@ -236,8 +240,15 @@ export default async function PerfilPage({ params, searchParams }: Props) {
       : 0;
 
   // Especialidades: agrupar XP por rama canónica (top-level) para evitar duplicación
-  // entre "Derecho Civil" y sus sub-unidades ("Obligaciones", "Actos Jurídicos", etc.)
+  // entre "Derecho Civil" y sus sub-unidades ("Obligaciones", "Actos Jurídicos", etc.).
+  // Objetivo: el radar muestra ramas del derecho dinámicamente — aparece una nueva
+  // rama (ej. "Derecho Constitucional") en cuanto el usuario registra actividad en ella.
   const CANONICAL_RAMAS: Record<string, string> = {
+    // Enum Rama (valor crudo del schema)
+    derecho_civil: "Derecho Civil",
+    derecho_procesal_civil: "Derecho Procesal Civil",
+    derecho_organico: "Derecho Orgánico",
+    // Civil y sub-unidades
     civil: "Derecho Civil",
     obligaciones: "Derecho Civil",
     contratos: "Derecho Civil",
@@ -247,29 +258,43 @@ export default async function PerfilPage({ params, searchParams }: Props) {
     acto_juridico: "Derecho Civil",
     actos_juridicos: "Derecho Civil",
     responsabilidad: "Derecho Civil",
+    // Penal
     penal: "Derecho Penal",
     penal_general: "Derecho Penal",
     penal_especial: "Derecho Penal",
+    derecho_penal: "Derecho Penal",
+    // Procesal
     procesal: "Derecho Procesal",
     procesal_civil: "Derecho Procesal Civil",
     procesal_penal: "Derecho Procesal Penal",
+    // Orgánico / Estado
+    organico: "Derecho Orgánico",
     constitucional: "Derecho Constitucional",
+    derecho_constitucional: "Derecho Constitucional",
     administrativo: "Derecho Administrativo",
+    derecho_administrativo: "Derecho Administrativo",
+    // Otras
     comercial: "Derecho Comercial",
+    derecho_comercial: "Derecho Comercial",
     laboral: "Derecho del Trabajo",
     trabajo: "Derecho del Trabajo",
+    derecho_laboral: "Derecho del Trabajo",
     internacional: "Derecho Internacional",
+    derecho_internacional: "Derecho Internacional",
     tributario: "Derecho Tributario",
+    derecho_tributario: "Derecho Tributario",
     economico: "Derecho Económico",
+    derecho_economico: "Derecho Económico",
   };
   const ramaBuckets = new Map<string, number>();
   for (const m of xpByMateria) {
     if (!m.materia || !m._sum.amount) continue;
-    const key = m.materia.toLowerCase().trim();
+    const key = m.materia.toLowerCase().trim().replace(/\s+/g, "_");
     const canonical = CANONICAL_RAMAS[key] ?? m.materia;
     ramaBuckets.set(canonical, (ramaBuckets.get(canonical) ?? 0) + m._sum.amount);
   }
-  const ramaEntries = Array.from(ramaBuckets.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  // Top 8 ramas para que el radar respire (más de eso se amontona).
+  const ramaEntries = Array.from(ramaBuckets.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
   const maxXp = ramaEntries[0]?.[1] ?? 1;
   const especialidadesCalculadas = ramaEntries.map(([materia, xp]) => ({
     materia,
