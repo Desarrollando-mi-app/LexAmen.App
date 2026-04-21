@@ -51,6 +51,7 @@ type MCQViewerProps = {
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
     dificultad?: string;
   };
 };
@@ -69,11 +70,11 @@ export function MCQViewer({
   const router = useRouter();
   const pathname = usePathname();
 
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo || initialFilters?.parrafo);
 
   // Show source selector unless URL has specific filters
   const [showSelector, setShowSelector] = useState(
-    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo
+    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo && !initialFilters?.parrafo
   );
 
   const [selectedRama, setSelectedRama] = useState<string>(
@@ -84,6 +85,9 @@ export function MCQViewer({
   );
   const [selectedTitulo, setSelectedTitulo] = useState<string>(
     initialFilters?.titulo || "ALL"
+  );
+  const [selectedParrafo, setSelectedParrafo] = useState<string>(
+    initialFilters?.parrafo || "ALL"
   );
   const [selectedDificultad, setSelectedDificultad] = useState<string>(
     initialFilters?.dificultad || "ALL"
@@ -145,8 +149,9 @@ export function MCQViewer({
     if (selectedRama !== "ALL") cards = cards.filter((m) => m.rama === selectedRama);
     if (selectedLibro !== "ALL") cards = cards.filter((m) => m.libro === selectedLibro);
     if (selectedTitulo !== "ALL") cards = cards.filter((m) => m.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL") cards = cards.filter((m) => m.parrafo === selectedParrafo);
     return Array.from(new Set(cards.map((m) => m.dificultad)));
-  }, [mcqs, selectedRama, selectedLibro, selectedTitulo]);
+  }, [mcqs, selectedRama, selectedLibro, selectedTitulo, selectedParrafo]);
 
   // ─── Filtrado ────────────────────────────────────────────
 
@@ -155,9 +160,10 @@ export function MCQViewer({
     if (selectedRama !== "ALL") cards = cards.filter((m) => m.rama === selectedRama);
     if (selectedLibro !== "ALL") cards = cards.filter((m) => m.libro === selectedLibro);
     if (selectedTitulo !== "ALL") cards = cards.filter((m) => m.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL") cards = cards.filter((m) => m.parrafo === selectedParrafo);
     if (selectedDificultad !== "ALL") cards = cards.filter((m) => m.dificultad === selectedDificultad);
     return cards;
-  }, [mcqs, selectedRama, selectedLibro, selectedTitulo, selectedDificultad]);
+  }, [mcqs, selectedRama, selectedLibro, selectedTitulo, selectedParrafo, selectedDificultad]);
 
   const totalCards = filteredMCQs.length;
   const currentMCQ = filteredMCQs[currentIndex];
@@ -175,6 +181,7 @@ export function MCQViewer({
     setSelectedRama(value);
     setSelectedLibro("ALL");
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetQuestionState();
     updateUrl({ rama: value });
@@ -183,6 +190,7 @@ export function MCQViewer({
   function handleLibroChange(value: string) {
     setSelectedLibro(value);
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetQuestionState();
     updateUrl({ rama: selectedRama, libro: value });
@@ -190,6 +198,7 @@ export function MCQViewer({
 
   function handleTituloChange(value: string) {
     setSelectedTitulo(value);
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetQuestionState();
     updateUrl({ rama: selectedRama, libro: selectedLibro, titulo: value });
@@ -202,6 +211,7 @@ export function MCQViewer({
       rama: selectedRama,
       libro: selectedLibro,
       titulo: selectedTitulo,
+      parrafo: selectedParrafo,
       dificultad: value,
     });
   }
@@ -370,15 +380,17 @@ export function MCQViewer({
           setSelectedRama(sel.rama);
           setSelectedLibro(sel.libro);
           setSelectedTitulo(sel.titulo);
+          setSelectedParrafo(sel.parrafo);
           setSelectedDificultad("ALL");
           resetQuestionState();
-          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo });
+          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo, parrafo: sel.parrafo });
           setShowSelector(false);
         }}
         onStudyAll={() => {
           setSelectedRama("ALL");
           setSelectedLibro("ALL");
           setSelectedTitulo("ALL");
+          setSelectedParrafo("ALL");
           setSelectedDificultad("ALL");
           resetQuestionState();
           setShowSelector(false);
@@ -430,7 +442,7 @@ export function MCQViewer({
   if (totalCards === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">No hay preguntas disponibles para estos filtros.</p>
         <Link href="/dashboard/indice-maestro" className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Indice</Link>
       </div>
@@ -444,7 +456,7 @@ export function MCQViewer({
         <span className="font-ibm-mono text-[12px] text-gz-ink-light">Pregunta {currentIndex + 1} de {totalCards}</span>
       </div>
 
-      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
 
       <Confetti active={showConfetti} color="gold" />
 

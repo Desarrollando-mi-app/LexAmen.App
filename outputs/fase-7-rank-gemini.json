@@ -1,0 +1,180 @@
+{
+  "cands": [
+    {
+      "model": "flashcard",
+      "id": "cmnnwzjc705i2540zrlhbeqr0",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 6,
+      "ratio": 6,
+      "excerpt": "En un litigio civil complejo, ¿en qué orden lógico debe un abogado analizar las instituciones del COT antes de presentar la demanda? Orden: (1) Jurisdicción: ¿es un conflicto justiciable o un equivale",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 6
+    },
+    {
+      "model": "definicion",
+      "id": "cmnnwzitk05hs540zlnnaqr1t",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 6,
+      "ratio": 6,
+      "excerpt": "Análisis orgánico previo a la demanda Proceso intelectual que todo abogado debe realizar antes de presentar una demanda: verificar jurisdicción (¿es justiciable?), competencia absoluta (fuero > materi",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 6
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwxtuf04l2540z19i6yhe6",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 6,
+      "ratio": 0,
+      "excerpt": "¿Qué es la integración y cuándo opera? Es el mecanismo para completar el QUÓRUM de un tribunal COLEGIADO (Cortes de Apelaciones, Corte Suprema) cuando faltan ministros para formar sala. Opera cuando: ",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 6
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnww6do03pc540zelskch9r",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 5,
+      "ratio": 5,
+      "excerpt": "¿Cuáles son las excepciones al principio de territorialidad? Casos donde un tribunal puede actuar fuera de su territorio: 1) EXHORTOS: un tribunal pide a otro de distinto territorio que practique dili",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 5
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwxl7t04gl540znrhfjkv4",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 5,
+      "ratio": 0,
+      "excerpt": "[INTEGRADOR] ¿Qué prepara el Tema 5 para los Temas 6-12? Los Temas 1-5 son el MARCO CONCEPTUAL: bases + jurisdicción + competencia + reglas de operación. Los Temas 6-12 son las INSTITUCIONES CONCRETAS",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 5
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwxxz204nb540zll2ka49s",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 0,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 5,
+      "ratio": 0,
+      "excerpt": "¿Cuál es la competencia de los tribunales de familia? Art. 8 Ley 19.968 — competencia AMPLÍSIMA: 1) ALIMENTOS (fijación, aumento, rebaja, cese). 2) CUIDADO PERSONAL de hijos. 3) RELACIÓN DIRECTA Y REG",
+      "civilHits": 5,
+      "procesalHits": 0,
+      "organicoHits": 0
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwzjfx05i4540z81bx6z8q",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 4,
+      "ratio": 4,
+      "excerpt": "Cuando un caso transita de primera instancia a segunda instancia y eventualmente a casación, ¿qué reglas del COT operan en cada nivel? Primera instancia: competencia absoluta (fuero, materia, cuantía)",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 4
+    },
+    {
+      "model": "flashcard",
+      "id": "cmno43uvh0097os0zx0m4q4er",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 4,
+      "ratio": 4,
+      "excerpt": "¿Qué diferencia hay entre las excepciones del art. 234 CPC (cumplimiento incidental) y las del art. 464 CPC (juicio ejecutivo)? Las del art. 234 son 7 y más restringidas: pago, remisión, esperas, nova",
+      "civilHits": 4,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "flashcard",
+      "id": "cmn3wjx1p01q9310z2frlxk9j",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 4,
+      "ratio": 4,
+      "excerpt": "¿Cuáles son las excepciones del juicio ejecutivo (art. 464)? 18 excepciones taxativas: 1) Incompetencia, 2) Falta capacidad, 3) Litis pendencia, 4) Ineptitud libelo, 5) Beneficio excusión, 6) Falsedad",
+      "civilHits": 4,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "mcq",
+      "id": "cmno43v3f009aos0zhiwwabpi",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 4,
+      "ratio": 4,
+      "excerpt": "Las excepciones del art. 234 CPC en el cumplimiento incidental son: 18 excepciones, igual que en el juicio ejecutivo 7 excepciones taxativas: pago, remisión, esperas, novación, compensación, transacci",
+      "civilHits": 4,
+      "procesalHits": 1,
+      "organicoHits": 0
+    }
+  ],
+  "decisions": [
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "El ejercicio se centra en el análisis de instituciones fundamentales del COT (jurisdicción, competencia, implicancias) que son base para el proceso civil."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "El análisis de jurisdicción, competencia (absoluta y relativa), arbitraje e implicancias/recusaciones son materias sustancialmente reguladas por el COT."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "La integración de tribunales colegiados es un tema central del COT, que regula la organización y funcionamiento de los tribunales, incluyendo su composición."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "El principio de territorialidad y las reglas de competencia (nacional, prórroga) son materias fundamentales del Código Orgánico de Tribunales."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "El ejercicio describe la estructura y tipos de tribunales (ordinarios, especiales, arbitrales) y auxiliares, temas centrales del Código Orgánico de Tribunales."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "La competencia de los tribunales de familia abarca materias sustantivas del Derecho de Familia, que es una rama del Derecho Civil."
+    },
+    {
+      "error": "503 status code (no body)"
+    },
+    {
+      "error": "429 status code (no body)"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Varias excepciones (pago, novación, compensación, nulidad, prescripción, etc.) son modos de extinguir obligaciones o instituciones propias del Código Civil."
+    },
+    {
+      "error": "429 status code (no body)"
+    }
+  ]
+}

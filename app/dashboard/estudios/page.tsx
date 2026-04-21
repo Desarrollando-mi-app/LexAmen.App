@@ -2,8 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { InfoTooltip } from "@/app/components/info-tooltip";
 import { FEATURE_INFO } from "@/lib/feature-info";
-import { prisma } from "@/lib/prisma";
-import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
 
 export const metadata = {
   title: "Módulos de Estudio — Studio Iuris",
@@ -117,38 +115,7 @@ const MODULOS: Array<{
   },
 ];
 
-export default async function EstudiosPage({
-  searchParams,
-}: {
-  searchParams: { pool?: string };
-}) {
-  const pool = resolveStudyPool(searchParams.pool);
-
-  // Conteo agregado de integradores across los 11 módulos con pool
-  // (simulacro no aplica). Las queries corren en paralelo con índice en esIntegrador.
-  const [
-    flashcards, mcq, truefalse, definiciones, fillBlank, errorId,
-    orderSeq, matchCol, casos, dictado, timeline,
-  ] = await Promise.all([
-    prisma.flashcard.count({ where: { esIntegrador: true } }),
-    prisma.mCQ.count({ where: { esIntegrador: true } }),
-    prisma.trueFalse.count({ where: { esIntegrador: true } }),
-    prisma.definicion.count({ where: { isActive: true, esIntegrador: true } }),
-    prisma.fillBlank.count({ where: { activo: true, esIntegrador: true } }),
-    prisma.errorIdentification.count({ where: { activo: true, esIntegrador: true } }),
-    prisma.orderSequence.count({ where: { activo: true, esIntegrador: true } }),
-    prisma.matchColumns.count({ where: { activo: true, esIntegrador: true } }),
-    prisma.casoPractico.count({ where: { activo: true, esIntegrador: true } }),
-    prisma.dictadoJuridico.count({ where: { activo: true, esIntegrador: true } }),
-    prisma.timeline.count({ where: { activo: true, esIntegrador: true } }),
-  ]);
-
-  const integradoresTotal =
-    flashcards + mcq + truefalse + definiciones + fillBlank + errorId +
-    orderSeq + matchCol + casos + dictado + timeline;
-
-  const poolSuffix = pool === "integradores" ? "?pool=integradores" : "";
-
+export default function EstudiosPage() {
   return (
     <div
       className="gz-page min-h-screen"
@@ -167,14 +134,17 @@ export default async function EstudiosPage({
             </h1>
           </div>
           <div className="border-b-2 border-gz-rule-dark mt-3" />
-          <div className="mt-4 flex items-center gap-3 flex-wrap">
-            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresTotal} />
-            {pool === "integradores" && (
-              <span className="font-cormorant italic text-sm text-gz-ink-mid">
-                Filtrando cada módulo por ejercicios integradores.
-              </span>
-            )}
-          </div>
+          <p className="mt-4 font-cormorant italic text-[15px] text-gz-ink-mid max-w-[56ch]">
+            Cada módulo practica un formato distinto. Para ejercicios de síntesis que
+            cruzan varios títulos, visita{" "}
+            <Link
+              href="/dashboard/integradores"
+              className="text-gz-gold hover:underline"
+            >
+              Ejercicios Integradores
+            </Link>
+            .
+          </p>
         </div>
 
         {/* Grid */}
@@ -190,7 +160,7 @@ export default async function EstudiosPage({
                 <div className="absolute top-4 right-4">
                   <InfoTooltip title={info.title} description={info.description} />
                 </div>
-                <Link href={mod.href === "/dashboard/simulacro" ? mod.href : `${mod.href}${poolSuffix}`} className="block">
+                <Link href={mod.href} className="block">
                   <span
                     className="font-ibm-mono text-[10px] uppercase tracking-[2px] font-medium"
                     style={{ color: mod.color }}

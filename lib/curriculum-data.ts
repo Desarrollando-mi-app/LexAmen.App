@@ -93,34 +93,17 @@ export const CURRICULUM: CurriculumTree = {
         label: "Título Preliminar (Arts. 1–53)",
         titulos: [
           {
-            id: "TP_1",
-            label: "§1. De la Ley",
-            articulosRef: "Arts. 1–5",
-          },
-          {
-            id: "TP_2",
-            label: "§2. Promulgación de la Ley",
-            articulosRef: "Arts. 6–8",
-          },
-          {
-            id: "TP_3",
-            label: "§3. Efectos de la Ley",
-            articulosRef: "Arts. 9–18",
-          },
-          {
-            id: "TP_4",
-            label: "§4. Interpretación de la Ley",
-            articulosRef: "Arts. 19–24",
-          },
-          {
-            id: "TP_5",
-            label: "§5. Definición de varias palabras de uso frecuente en las leyes",
-            articulosRef: "Arts. 25–51",
-          },
-          {
-            id: "TP_6",
-            label: "§6. Derogación de las leyes",
-            articulosRef: "Arts. 52–53",
+            id: "TP_MAIN",
+            label: "Disposiciones Generales",
+            articulosRef: "Arts. 1–53",
+            parrafos: [
+              { id: "TP_1", label: "§1. De la Ley", articulosRef: "Arts. 1–5" },
+              { id: "TP_2", label: "§2. Promulgación de la Ley", articulosRef: "Arts. 6–8" },
+              { id: "TP_3", label: "§3. Efectos de la Ley", articulosRef: "Arts. 9–18" },
+              { id: "TP_4", label: "§4. Interpretación de la Ley", articulosRef: "Arts. 19–24" },
+              { id: "TP_5", label: "§5. Definición de varias palabras de uso frecuente en las leyes", articulosRef: "Arts. 25–51" },
+              { id: "TP_6", label: "§6. Derogación de las leyes", articulosRef: "Arts. 52–53" },
+            ],
           },
         ],
         leyesAnexas: [
@@ -850,6 +833,33 @@ export const CURRICULUM: CurriculumTree = {
           },
         ],
       },
+
+      // ─── Ley 17.336: Propiedad Intelectual (ley anexa rendereada como libro) ─────
+      {
+        id: "LEY_17336",
+        libro: "LEY_17336",
+        label: "Ley 17.336 — Propiedad Intelectual",
+        titulos: [
+          {
+            id: "L17336_T1",
+            label: "Título I: Derecho de Autor",
+            articulosRef: "Arts. 1–64",
+            parrafos: [
+              { id: "L17336_T1_P1", label: "§I. Naturaleza y objeto de la protección. Definiciones", articulosRef: "Arts. 1–7" },
+              { id: "L17336_T1_P2", label: "§II. Sujetos del derecho", articulosRef: "Arts. 8–9" },
+              { id: "L17336_T1_P3", label: "§III. Duración de la protección", articulosRef: "Arts. 10–12" },
+              { id: "L17336_T1_P4", label: "§IV. Derecho moral", articulosRef: "Arts. 14–16" },
+              { id: "L17336_T1_P5", label: "§V. Derecho patrimonial, su ejercicio y limitaciones", articulosRef: "Arts. 17–47" },
+              { id: "L17336_T1_P6", label: "§VI. Contrato de edición", articulosRef: "Arts. 48–55" },
+              { id: "L17336_T1_P7", label: "§VII. Contrato de representación", articulosRef: "Arts. 56–64" },
+            ],
+          },
+          { id: "L17336_T2", label: "Título II: Derechos Conexos al Derecho de Autor", articulosRef: "Arts. 65–71I" },
+          { id: "L17336_T3", label: "Título III: De las Excepciones al Derecho de Autor", articulosRef: "Arts. 71A–71S" },
+          { id: "L17336_T4", label: "Título IV: Disposiciones Generales y Registro", articulosRef: "Arts. 72–78" },
+          { id: "L17336_T5", label: "Título V: Contravenciones y Sanciones", articulosRef: "Arts. 79–85" },
+        ],
+      },
     ],
   },
 
@@ -1373,6 +1383,15 @@ export function findParrafo(parrafoId: string): {
     }
   }
   return null;
+}
+
+/**
+ * Label humano de un párrafo por su id absoluto.
+ * Si no existe, devuelve el id crudo como fallback.
+ */
+export function getParrafoLabel(parrafoId: string): string {
+  const found = findParrafo(parrafoId);
+  return found?.parrafo.label ?? parrafoId;
 }
 
 /**

@@ -47,6 +47,7 @@ type TrueFalseViewerProps = {
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
     dificultad?: string;
   };
 };
@@ -64,7 +65,7 @@ export function TrueFalseViewer({
   const pathname = usePathname();
 
   const [showSelector, setShowSelector] = useState(
-    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo
+    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo && !initialFilters?.parrafo
   );
 
   const [selectedRama, setSelectedRama] = useState<string>(
@@ -75,6 +76,9 @@ export function TrueFalseViewer({
   );
   const [selectedTitulo, setSelectedTitulo] = useState<string>(
     initialFilters?.titulo || "ALL"
+  );
+  const [selectedParrafo, setSelectedParrafo] = useState<string>(
+    initialFilters?.parrafo || "ALL"
   );
   const [selectedDificultad, setSelectedDificultad] = useState<string>(
     initialFilters?.dificultad || "ALL"
@@ -110,7 +114,7 @@ export function TrueFalseViewer({
   const [showConfetti, setShowConfetti] = useState(false);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo || initialFilters?.parrafo);
 
   // ─── Derived filter options ────────────────────────────
 
@@ -136,8 +140,9 @@ export function TrueFalseViewer({
     if (selectedRama !== "ALL") cards = cards.filter((i) => i.rama === selectedRama);
     if (selectedLibro !== "ALL") cards = cards.filter((i) => i.libro === selectedLibro);
     if (selectedTitulo !== "ALL") cards = cards.filter((i) => i.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL") cards = cards.filter((i) => i.parrafo === selectedParrafo);
     return Array.from(new Set(cards.map((i) => i.dificultad)));
-  }, [items, selectedRama, selectedLibro, selectedTitulo]);
+  }, [items, selectedRama, selectedLibro, selectedTitulo, selectedParrafo]);
 
   // ─── Filtrado ────────────────────────────────────────────
 
@@ -146,9 +151,10 @@ export function TrueFalseViewer({
     if (selectedRama !== "ALL") cards = cards.filter((i) => i.rama === selectedRama);
     if (selectedLibro !== "ALL") cards = cards.filter((i) => i.libro === selectedLibro);
     if (selectedTitulo !== "ALL") cards = cards.filter((i) => i.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL") cards = cards.filter((i) => i.parrafo === selectedParrafo);
     if (selectedDificultad !== "ALL") cards = cards.filter((i) => i.dificultad === selectedDificultad);
     return cards;
-  }, [items, selectedRama, selectedLibro, selectedTitulo, selectedDificultad]);
+  }, [items, selectedRama, selectedLibro, selectedTitulo, selectedParrafo, selectedDificultad]);
 
   const totalCards = filteredItems.length;
   const currentItem = filteredItems[currentIndex];
@@ -165,6 +171,7 @@ export function TrueFalseViewer({
     setSelectedRama(value);
     setSelectedLibro("ALL");
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetQuestionState();
     updateUrl({ rama: value });
@@ -173,6 +180,7 @@ export function TrueFalseViewer({
   function handleLibroChange(value: string) {
     setSelectedLibro(value);
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetQuestionState();
     updateUrl({ rama: selectedRama, libro: value });
@@ -180,6 +188,7 @@ export function TrueFalseViewer({
 
   function handleTituloChange(value: string) {
     setSelectedTitulo(value);
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetQuestionState();
     updateUrl({ rama: selectedRama, libro: selectedLibro, titulo: value });
@@ -192,6 +201,7 @@ export function TrueFalseViewer({
       rama: selectedRama,
       libro: selectedLibro,
       titulo: selectedTitulo,
+      parrafo: selectedParrafo,
       dificultad: value,
     });
   }
@@ -345,15 +355,17 @@ export function TrueFalseViewer({
           setSelectedRama(sel.rama);
           setSelectedLibro(sel.libro);
           setSelectedTitulo(sel.titulo);
+          setSelectedParrafo(sel.parrafo);
           setSelectedDificultad("ALL");
           resetQuestionState();
-          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo });
+          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo, parrafo: sel.parrafo });
           setShowSelector(false);
         }}
         onStudyAll={() => {
           setSelectedRama("ALL");
           setSelectedLibro("ALL");
           setSelectedTitulo("ALL");
+          setSelectedParrafo("ALL");
           setSelectedDificultad("ALL");
           resetQuestionState();
           setShowSelector(false);
@@ -405,7 +417,7 @@ export function TrueFalseViewer({
   if (totalCards === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">No hay afirmaciones disponibles para estos filtros.</p>
         <Link href="/dashboard/indice-maestro" className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-gz-navy px-5 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy">Volver al Indice</Link>
       </div>
@@ -419,7 +431,7 @@ export function TrueFalseViewer({
         <span className="font-ibm-mono text-[12px] text-gz-ink-light">Afirmacion {currentIndex + 1} de {totalCards}</span>
       </div>
 
-      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
 
       <Confetti active={showConfetti} color="gold" />
 

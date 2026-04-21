@@ -26,8 +26,9 @@ import dotenv from "dotenv";
 import fs from "node:fs";
 import path from "node:path";
 
-dotenv.config({ path: ".env.local", quiet: true });
-if (!process.env.DATABASE_URL && !process.env.DIRECT_URL) dotenv.config({ path: ".env", quiet: true });
+// override: true → .env.local es fuente de verdad aunque el shell tenga la var vacía.
+dotenv.config({ path: ".env.local", quiet: true, override: true });
+if (!process.env.DATABASE_URL && !process.env.DIRECT_URL) dotenv.config({ path: ".env", quiet: true, override: true });
 const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 if (!connectionString) { console.error("ERROR: DIRECT_URL/DATABASE_URL no encontrado"); process.exit(1); }
 
@@ -40,22 +41,67 @@ const getArg = (name: string, def: string): string => {
   const i = argv.indexOf(name);
   return i >= 0 && argv[i + 1] ? argv[i + 1] : def;
 };
-const PROVIDER = (getArg("--provider", "ollama") as "ollama" | "openai");
-const MODEL = getArg("--model", PROVIDER === "ollama" ? "qwen2.5:3b" : "gpt-4o-mini");
-const CONCURRENCY = parseInt(getArg("--concurrency", PROVIDER === "ollama" ? "3" : "10"), 10);
+const PROVIDER = (getArg("--provider", "ollama") as "ollama" | "openai" | "gemini" | "anthropic");
+const MODEL = getArg(
+  "--model",
+  PROVIDER === "ollama" ? "qwen2.5:3b"
+  : PROVIDER === "gemini" ? "gemini-2.5-flash"
+  : PROVIDER === "anthropic" ? "claude-haiku-4-5"
+  : "gpt-4o-mini",
+);
+// Gemini 2.5 Flash free tier: 10 RPM / 500 RPD. Concurrency 1 respeta el límite.
+// (gemini-2.0-flash tiene free tier=0 en proyectos nuevos; usamos 2.5-flash)
+const CONCURRENCY = parseInt(
+  getArg("--concurrency",
+    PROVIDER === "ollama" ? "3"
+    : PROVIDER === "gemini" ? "1"
+    : PROVIDER === "anthropic" ? "5"
+    : "10"),
+  10,
+);
 const SAMPLE = parseInt(getArg("--sample", "0"), 10);
 const INPUT = getArg("--input", "outputs/fase-7-candidatos.csv");
+// Sufijo para archivos de salida (default: -<provider>). Permite correr varias
+// pasadas con el mismo provider sin sobreescribir (ej: -gemini-pass2).
+const SUFFIX = getArg("--suffix", `-${PROVIDER}`);
+// Pausa mínima entre requests consecutivos. Default 7s para Gemini free tier
+// (límite 10 RPM ⇒ 6s teóricos + margen). Otros providers no throttlean.
+const THROTTLE_MS = parseInt(
+  getArg("--throttle-ms", PROVIDER === "gemini" ? "7000" : "0"),
+  10,
+);
+// Reintentos ante 429/503 transitorios (Gemini y OpenAI no-RPD).
+const MAX_RETRIES = parseInt(
+  getArg("--max-retries", PROVIDER === "gemini" ? "4" : "1"),
+  10,
+);
 
-// ─── Cliente dual ───
+// ─── Cliente tri-provider ───
+// Gemini expone endpoint OpenAI-compatible: reutilizamos el cliente OpenAI
+// cambiando baseURL + apiKey. Sin dependencias extras.
 let llm: OpenAI;
 if (PROVIDER === "ollama") {
   llm = new OpenAI({ baseURL: "http://localhost:11434/v1", apiKey: "ollama" });
+} else if (PROVIDER === "gemini") {
+  if (!process.env.GEMINI_API_KEY) { console.error("ERROR: GEMINI_API_KEY no encontrado"); process.exit(1); }
+  llm = new OpenAI({
+    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+    apiKey: process.env.GEMINI_API_KEY,
+  });
+} else if (PROVIDER === "anthropic") {
+  // Endpoint OpenAI-compatible de Anthropic. La compatibilidad acepta
+  // response_format json_object; los nombres de modelo usan el formato Anthropic.
+  if (!process.env.ANTHROPIC_API_KEY) { console.error("ERROR: ANTHROPIC_API_KEY no encontrado"); process.exit(1); }
+  llm = new OpenAI({
+    baseURL: "https://api.anthropic.com/v1/",
+    apiKey: process.env.ANTHROPIC_API_KEY,
+  });
 } else {
   if (!process.env.OPENAI_API_KEY) { console.error("ERROR: OPENAI_API_KEY no encontrado"); process.exit(1); }
   llm = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
-console.log(`Config: provider=${PROVIDER}, model=${MODEL}, concurrency=${CONCURRENCY}, sample=${SAMPLE || "all"}, input=${INPUT}`);
+console.log(`Config: provider=${PROVIDER}, model=${MODEL}, concurrency=${CONCURRENCY}, sample=${SAMPLE || "all"}, input=${INPUT}, suffix=${SUFFIX}, throttle=${THROTTLE_MS}ms, retries=${MAX_RETRIES}`);
 
 // ═══════════════════════════════════════════════════════════════
 // CSV parsing
@@ -197,6 +243,8 @@ ${content}
 
 ¿Este ejercicio aplica también a ${ramaHuman(c.targetRama)}?`;
 
+  // Anthropic OpenAI-compat no acepta response_format: json_object (requiere
+  // json_schema). Confiamos en que el SYSTEM pide JSON estricto.
   const resp = await llm.chat.completions.create({
     model: MODEL,
     messages: [
@@ -204,12 +252,22 @@ ${content}
       { role: "user", content: user },
     ],
     temperature: 0,
-    response_format: { type: "json_object" },
+    ...(PROVIDER === "anthropic" ? {} : { response_format: { type: "json_object" as const } }),
   });
 
   const txt = resp.choices[0]?.message?.content ?? "{}";
+  // Claude a veces envuelve en markdown aunque el prompt pida JSON puro.
+  // Extraemos el primer objeto {...} balanceado.
+  const extractJson = (s: string): string => {
+    const fenceMatch = s.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+    if (fenceMatch) return fenceMatch[1];
+    const start = s.indexOf("{");
+    const end = s.lastIndexOf("}");
+    if (start >= 0 && end > start) return s.slice(start, end + 1);
+    return s;
+  };
   let parsed: { aplica?: unknown; confidence?: unknown; razon?: unknown } = {};
-  try { parsed = JSON.parse(txt); } catch { parsed = {}; }
+  try { parsed = JSON.parse(extractJson(txt)); } catch { parsed = {}; }
 
   const rawConf = String(parsed.confidence ?? "").toLowerCase();
   const confidence: Decision["confidence"] =
@@ -222,6 +280,37 @@ ${content}
     confidence,
     razon: String(parsed.razon ?? "").slice(0, 200),
   };
+}
+
+// ─── Throttle + retry con backoff ───
+// Gemini free tier: 10 RPM → 1 req cada ≥6s. Con concurrency 1 y THROTTLE_MS
+// garantizamos espacio entre llamadas. Retry en 429/503 con backoff lineal.
+let lastCallAt = 0;
+async function classifyWithRetry(c: Candidate): Promise<Decision> {
+  if (THROTTLE_MS > 0) {
+    const elapsed = Date.now() - lastCallAt;
+    const wait = THROTTLE_MS - elapsed;
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    lastCallAt = Date.now();
+  }
+  let lastErr: unknown = null;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await classify(c);
+    } catch (e) {
+      lastErr = e;
+      const msg = e instanceof Error ? e.message : String(e);
+      const isRetriable = /\b(429|503)\b/.test(msg);
+      // RPD de OpenAI no se reintenta (día perdido hasta reset)
+      const isRPD = PROVIDER === "openai" && /per day|RPD/i.test(msg);
+      if (!isRetriable || isRPD || attempt === MAX_RETRIES) throw e;
+      const backoff = 15000 * attempt; // 15s, 30s, 45s…
+      console.log(`  ⚠ ${msg.slice(0, 80)} → retry ${attempt}/${MAX_RETRIES - 1} en ${backoff / 1000}s`);
+      await new Promise((r) => setTimeout(r, backoff));
+      lastCallAt = Date.now(); // reinicia ventana de throttle post-backoff
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }
 
 // ─── Concurrencia + abort RPD ───
@@ -272,7 +361,7 @@ async function main() {
   console.log(`Procesando: ${selected.length}`);
 
   const lastLog = { t: Date.now() };
-  const decisions = await runWithLimit(selected, CONCURRENCY, classify, (done, total) => {
+  const decisions = await runWithLimit(selected, CONCURRENCY, classifyWithRetry, (done, total) => {
     const now = Date.now();
     if (now - lastLog.t > 3000 || done === total) {
       const pct = ((done / total) * 100).toFixed(1);
@@ -288,10 +377,9 @@ async function main() {
   // ─── Output ───
   const outDir = path.join(process.cwd(), "outputs");
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
-  const suffix = `-${PROVIDER}`;
-  const jsonPath = path.join(outDir, `fase-7-rank${suffix}.json`);
-  const csvPath = path.join(outDir, `fase-7-rank${suffix}.csv`);
-  const mdPath = path.join(outDir, `fase-7-rank${suffix}.md`);
+  const jsonPath = path.join(outDir, `fase-7-rank${SUFFIX}.json`);
+  const csvPath = path.join(outDir, `fase-7-rank${SUFFIX}.csv`);
+  const mdPath = path.join(outDir, `fase-7-rank${SUFFIX}.md`);
 
   // Backup raw antes de CSV (por si crashea)
   fs.writeFileSync(jsonPath, JSON.stringify({ cands: selected, decisions }, null, 2));

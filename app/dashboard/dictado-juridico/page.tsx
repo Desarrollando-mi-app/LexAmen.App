@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { DictadoViewer } from "./dictado-viewer";
 import Image from "next/image";
 import Link from "next/link";
-import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
+import { PoolIndicator } from "@/app/dashboard/components/pool-indicator";
+import { resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle.utils";
 
 const DAILY_LIMIT = 5;
 
@@ -17,6 +18,7 @@ export default async function DictadoJuridicoPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
     pool?: string;
   };
 }) {
@@ -93,9 +95,6 @@ export default async function DictadoJuridicoPage({
   });
 
   const pool = resolveStudyPool(searchParams.pool);
-  const integradoresCount = await prisma.dictadoJuridico.count({
-    where: { activo: true, esIntegrador: true },
-  });
 
   // Fetch all active dictados (without textoCompleto)
   const rawItems = await prisma.dictadoJuridico.findMany({
@@ -107,17 +106,19 @@ export default async function DictadoJuridicoPage({
       rama: true,
       libro: true,
       tituloMateria: true,
+      parrafo: true,
       materia: true,
       dificultad: true,
     },
   });
 
   // Filter by searchParams if provided
-  const { rama, libro, titulo } = searchParams;
+  const { rama, libro, titulo, parrafo } = searchParams;
   let filteredItems = [...rawItems];
   if (rama) filteredItems = filteredItems.filter((i) => i.rama === rama);
   if (libro) filteredItems = filteredItems.filter((i) => (i.libro ?? i.tituloMateria) === libro || i.libro === libro);
   if (titulo) filteredItems = filteredItems.filter((i) => (i.tituloMateria) === titulo);
+  if (parrafo) filteredItems = filteredItems.filter((i) => i.parrafo === parrafo);
 
   return (
     <main className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
@@ -140,21 +141,14 @@ export default async function DictadoJuridicoPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
-          <div className="mt-4 flex items-center gap-3 flex-wrap">
-            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
-            {pool === "integradores" && (
-              <span className="font-cormorant italic text-sm text-gz-ink-mid">
-                Mostrando ejercicios marcados como integradores.
-              </span>
-            )}
-          </div>
+          <PoolIndicator pool={pool} className="mt-4" />
         </div>
 
         <DictadoViewer
           items={filteredItems}
           attemptsToday={attemptsToday}
           dailyLimit={DAILY_LIMIT}
-          initialFilters={{ rama, libro, titulo }}
+          initialFilters={{ rama, libro, titulo, parrafo }}
         />
       </div>
     </main>

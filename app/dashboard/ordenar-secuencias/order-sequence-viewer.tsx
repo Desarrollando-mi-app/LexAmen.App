@@ -54,6 +54,7 @@ type OrderSequenceExercise = {
   rama: string;
   libro: string | null;
   tituloMateria: string | null;
+  parrafo: string | null;
   materia: string | null;
   dificultad: number;
 };
@@ -67,6 +68,7 @@ type OrderSequenceViewerProps = {
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
   };
 };
 
@@ -226,7 +228,7 @@ export function OrderSequenceViewer({
   const [showConfetti, setShowConfetti] = useState(false);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo || initialFilters?.parrafo);
 
   // ─── DnD sensors ────────────────────────────────────────
   const sensors = useSensors(
@@ -259,6 +261,8 @@ export function OrderSequenceViewer({
       cards = cards.filter((m) => (m.libro ?? m.tituloMateria) === initialFilters.libro || m.libro === initialFilters.libro);
     if (initialFilters?.titulo)
       cards = cards.filter((m) => m.tituloMateria === initialFilters.titulo);
+    if (initialFilters?.parrafo)
+      cards = cards.filter((m) => m.parrafo === initialFilters.parrafo);
     // Shuffle for variety
     return cards.sort(() => Math.random() - 0.5);
   }, [items, selectedRama, initialFilters]);
@@ -511,7 +515,7 @@ export function OrderSequenceViewer({
   if (totalCards === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">
           No hay ejercicios disponibles para estos filtros.
         </p>
@@ -549,7 +553,7 @@ export function OrderSequenceViewer({
         </span>
       </div>
 
-      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
 
       <Confetti active={showConfetti} color="gold" />
 

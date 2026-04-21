@@ -1,0 +1,654 @@
+{
+  "cands": [
+    {
+      "model": "definicion",
+      "id": "cmnnwzitk05hs540zlnnaqr1t",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 6,
+      "ratio": 6,
+      "excerpt": "Análisis orgánico previo a la demanda Proceso intelectual que todo abogado debe realizar antes de presentar una demanda: verificar jurisdicción (¿es justiciable?), competencia absoluta (fuero > materi",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 6
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwxtuf04l2540z19i6yhe6",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 6,
+      "ratio": 0,
+      "excerpt": "¿Qué es la integración y cuándo opera? Es el mecanismo para completar el QUÓRUM de un tribunal COLEGIADO (Cortes de Apelaciones, Corte Suprema) cuando faltan ministros para formar sala. Opera cuando: ",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 6
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnww6do03pc540zelskch9r",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 5,
+      "ratio": 5,
+      "excerpt": "¿Cuáles son las excepciones al principio de territorialidad? Casos donde un tribunal puede actuar fuera de su territorio: 1) EXHORTOS: un tribunal pide a otro de distinto territorio que practique dili",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 5
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwxl7t04gl540znrhfjkv4",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 5,
+      "ratio": 0,
+      "excerpt": "[INTEGRADOR] ¿Qué prepara el Tema 5 para los Temas 6-12? Los Temas 1-5 son el MARCO CONCEPTUAL: bases + jurisdicción + competencia + reglas de operación. Los Temas 6-12 son las INSTITUCIONES CONCRETAS",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 5
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwxxz204nb540zll2ka49s",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 0,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 5,
+      "ratio": 0,
+      "excerpt": "¿Cuál es la competencia de los tribunales de familia? Art. 8 Ley 19.968 — competencia AMPLÍSIMA: 1) ALIMENTOS (fijación, aumento, rebaja, cese). 2) CUIDADO PERSONAL de hijos. 3) RELACIÓN DIRECTA Y REG",
+      "civilHits": 5,
+      "procesalHits": 0,
+      "organicoHits": 0
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwtgci029s540zzq01dt42",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 4,
+      "ratio": 0,
+      "excerpt": "¿Qué ocurre si el tribunal requerido en la inhibitoria se niega a inhibirse? Se produce una CONTIENDA DE COMPETENCIA: dos tribunales reclaman competencia sobre el mismo asunto. La contienda se resuelv",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 4
+    },
+    {
+      "model": "mcq",
+      "id": "cmnnwtgwq02a3540z01u8hw34",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 4,
+      "ratio": 0,
+      "excerpt": "Si el tribunal requerido en la inhibitoria se niega a inhibirse: El juicio se anula Se produce una CONTIENDA DE COMPETENCIA que resuelve el tribunal superior común a ambos (Corte de Apelaciones o Cort",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 4
+    },
+    {
+      "model": "definicion",
+      "id": "cmnnwtfhg029b540znhexuoqk",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 4,
+      "ratio": 0,
+      "excerpt": "Contienda de competencia Conflicto entre dos tribunales que reclaman o rechazan competencia sobre un mismo asunto. Surge cuando el tribunal requerido en la inhibitoria se niega a inhibirse. La resuelv",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 4
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwwqla0404540zb2dwppnq",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 3,
+      "ratio": 3,
+      "excerpt": "¿Cómo se determina la cuantía en asuntos SIN valor determinado? Los asuntos NO SUSCEPTIBLES de apreciación pecuniaria se reputan de MAYOR CUANTÍA → procedimiento ordinario, doble instancia. Incluye: e",
+      "civilHits": 3,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwwcyv03sw540zauega4b1",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 3,
+      "ratio": 3,
+      "excerpt": "[INTEGRADOR] ¿Cuáles bases tienen EXCEPCIONES importantes? 1) TERRITORIALIDAD: excepciones → exhortos, Corte Suprema (nacional), prórroga de competencia. 2) PASIVIDAD: excepciones → casación de oficio",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 3
+    },
+    {
+      "model": "mcq",
+      "id": "cmnnwwr5f040f540zf88n5gja",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 3,
+      "ratio": 3,
+      "excerpt": "Los asuntos no susceptibles de apreciación pecuniaria se reputan de: Mínima cuantía MAYOR CUANTÍA: procedimiento ordinario y doble instancia. Incluye estado civil, filiación, validez de testamento. La",
+      "civilHits": 3,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "trueFalse",
+      "id": "cmnnwwrnp040p540z97ssj1pv",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 3,
+      "ratio": 3,
+      "excerpt": "Los asuntos de estado civil se reputan de mayor cuantía. Los asuntos no susceptibles de apreciación pecuniaria (estado civil, filiación, validez de testamento) se reputan de MAYOR CUANTÍA. Procedimien",
+      "civilHits": 3,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "trueFalse",
+      "id": "cmnnwwkyz03x3540z31c84rds",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 3,
+      "ratio": 3,
+      "excerpt": "Los equivalentes jurisdiccionales pueden usarse para resolver cuestiones de estado civil. NO: el estado civil es materia de ORDEN PÚBLICO e indisponible. Solo la jurisdicción estatal puede resolver so",
+      "civilHits": 3,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "definicion",
+      "id": "cmnnwx50m047y540zlqdyt8zu",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 3,
+      "ratio": 3,
+      "excerpt": "Competencia relativa en no contenciosos (art. 134 COT) Domicilio del SOLICITANTE. Regla INVERSA a la contenciosa (demandado). Sin contraparte → se protege al solicitante. Aplica a: muerte presunta, ca",
+      "civilHits": 3,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwwsq2041a540z2u3aagdb",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 0,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 3,
+      "ratio": 0,
+      "excerpt": "¿Cómo determina la materia si un asunto es civil o de otra naturaleza? La materia se determina por la NATURALEZA DE LA PRETENSIÓN, no por la calidad de las partes: 1) Si la pretensión es CONTRACTUAL c",
+      "civilHits": 3,
+      "procesalHits": 0,
+      "organicoHits": 0
+    },
+    {
+      "model": "mcq",
+      "id": "cmn174uie00yrp50zl20xx33k",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 3,
+      "ratio": 0,
+      "excerpt": "La casación en el fondo procede ante: El tribunal arbitral El mismo tribunal que dictó la sentencia Cualquier Corte de Apelaciones La Corte Suprema exclusivamente (art. 767 CPC) Art. 767 CPC: la casac",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 3
+    },
+    {
+      "model": "mcq",
+      "id": "cmn3wjsuz01o0310zxexljklx",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 3,
+      "ratio": 0,
+      "excerpt": "La casación en el fondo solo la conoce: La Corte de Apelaciones El mismo tribunal La CORTE SUPREMA. Solo contra definitivas/interlocutorias inapelables de CA. Por infracción de ley (art. 767) Un tribu",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 3
+    },
+    {
+      "model": "trueFalse",
+      "id": "cmnnwth9j02aa540z3cs9udpz",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 3,
+      "ratio": 0,
+      "excerpt": "La contienda de competencia se resuelve por el tribunal superior común a los tribunales en conflicto. Si dependen de la misma Corte de Apelaciones, ella resuelve. Si dependen de distintas Cortes, resu",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 3
+    },
+    {
+      "model": "trueFalse",
+      "id": "cmnnwwtrz041u540zwr1pi24z",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 0,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 3,
+      "ratio": 0,
+      "excerpt": "Los tribunales de familia conocen violencia intrafamiliar. VIF es materia de tribunal de familia (Ley 19.968). También conocen: matrimonio, filiación, adopción, alimentos, cuidado personal, guardas, p",
+      "civilHits": 3,
+      "procesalHits": 0,
+      "organicoHits": 0
+    },
+    {
+      "model": "definicion",
+      "id": "cmnnwtfdu0299540zh4zmugzk",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 3,
+      "ratio": 0,
+      "excerpt": "Vía inhibitoria (cuestión de competencia) Mecanismo para cuestionar la competencia presentándose ante el tribunal que se CREE COMPETENTE para que solicite al tribunal que está conociendo que se INHIBA",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 3
+    },
+    {
+      "model": "flashcard",
+      "id": "cmn3wjm7q01kh310zzic52dpy",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "¿Cuál es el plazo para interponer recurso de casación en el fondo? Art. 770 CPC: 15 DÍAS hábiles desde la notificación. Se interpone ante la Corte de Apelaciones (tribunal que dictó la sentencia). Con",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 2
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwtndq02dg540zcdzr6084",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "[GRAN INTEGRADOR] ¿Cuáles son las 3 distinciones que más reprueban en grado? 1) DESISTIMIENTO vs. ABANDONO: desistimiento extingue pretensión (cosa juzgada); abandono extingue solo procedimiento (pued",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 2
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwxnt904hu540zv5lop2w9",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "[CONEXIÓN] ¿Los juzgados de letras son los tribunales del CPC? SÍ: prácticamente todo el CPC estudiado (Bloques 5-8) se aplica ante juzgados de letras: 1) JUICIO ORDINARIO (Bloque 6): juzgado de letra",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 2
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwwhix03v8540zqtekow4u",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "¿Qué es la jurisdicción no contenciosa (voluntaria)? Es el ejercicio de la jurisdicción cuando NO existe conflicto entre partes. El tribunal interviene porque la ley lo exige, no porque haya litigio. ",
+      "civilHits": 2,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwwk8z03wp540zz6xl5q1c",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "¿Los equivalentes jurisdiccionales pueden usarse en todo tipo de conflictos? NO: solo en conflictos sobre derechos DISPONIBLES. No proceden para: 1) ESTADO CIVIL (filiación, matrimonio): solo el tribu",
+      "civilHits": 2,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwyas704u5540zzdvwdtc0",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "¿Cuáles son las principales materias de arbitraje PROHIBIDO? Materias que NUNCA van a arbitraje: 1) Causas PENALES (el ius puniendi es del Estado). 2) Causas de ALIMENTOS (derecho indisponible del ali",
+      "civilHits": 2,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwt0650214540zqc2wmx8z",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "¿Quién practica la notificación personal en persona? La practica un ministro de fe: 1) El RECEPTOR JUDICIAL: funcionario auxiliar de la administración de justicia cuya función específica es practicar ",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 2
+    },
+    {
+      "model": "mcq",
+      "id": "cmn3wjspi01nx310z47fd7qtb",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "La reposición se interpone ante: El MISMO tribunal que dictó la resolución. Para que reconsidere (art. 181) Un tribunal arbitral La Corte Suprema El tribunal superior Art. 181: ante el mismo tribunal.",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 2
+    },
+    {
+      "model": "mcq",
+      "id": "cmnnwugfq02sc540zvmn50vg2",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "El recurso de apelación se interpone ante: La Corte de Apelaciones directamente El MISMO tribunal que dictó la resolución apelada (primera instancia), que controla admisibilidad y eleva los autos a la",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 2
+    },
+    {
+      "model": "mcq",
+      "id": "cmnnwtgt102a1540z5l0wh12l",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "La vía DECLINATORIA para cuestionar la competencia consiste en: Presentarse ante el tribunal que se cree competente Presentarse ante el MISMO TRIBUNAL que está conociendo y pedirle que se declare INCO",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 2
+    },
+    {
+      "model": "mcq",
+      "id": "cmnnwx6nb048u540z35xbfnzn",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "La posesión efectiva intestada se tramita: Ante el tribunal del domicilio del causante Ante el REGISTRO CIVIL (Ley 19.903), no ante tribunal. Es excepción a la competencia territorial judicial: se des",
+      "civilHits": 2,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "definicion",
+      "id": "cmnnwya5u04tt540zxgkriwub",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "Arbitraje prohibido (arts. 229-230 COT) Materias que NUNCA pueden ir a arbitraje: causas penales (ius puniendi del Estado), alimentos (derecho indisponible), estado civil (filiación, matrimonio), caus",
+      "civilHits": 2,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "definicion",
+      "id": "cmnnwszek020p540zmv999by3",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "Notificación personal en persona (art. 40 CPC) La forma más completa: entrega a la persona misma del notificado de copia íntegra de la resolución y solicitud. La practica un ministro de fe (receptor j",
+      "civilHits": 1,
+      "procesalHits": 1,
+      "organicoHits": 2
+    },
+    {
+      "model": "definicion",
+      "id": "cmnnwxxey04n0540zy3w1dt2d",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "Tribunales de familia (Ley 19.968) Tribunales ESPECIALES con jueces especializados y procedimiento ORAL. Creados en 2004, reemplazaron juzgados de menores. Competencia amplísima: alimentos, VIF, cuida",
+      "civilHits": 2,
+      "procesalHits": 0,
+      "organicoHits": 1
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwyd6j04vg540za5fu3kpt",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 2,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 1,
+      "excerpt": "[CONEXIÓN] ¿Cómo conecta el procedimiento arbitral con todo lo estudiado? 1) CPC (Bloques 5-8): el árbitro de derecho aplica el CPC completo (demanda, prueba, sentencia). 2) TRIBUNALES ORDINARIOS (Tem",
+      "civilHits": 0,
+      "procesalHits": 2,
+      "organicoHits": 2
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwtghy029v540zkblzrm9g",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 2,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 1,
+      "excerpt": "[CONEXIÓN] ¿Por qué la acumulación de autos y las cuestiones de competencia son incidentes ESPECIALES? Porque tienen tramitación PROPIA distinta al incidente ordinario (3 días traslado + 8 días prueba",
+      "civilHits": 0,
+      "procesalHits": 2,
+      "organicoHits": 2
+    }
+  ],
+  "decisions": [
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Jurisdicción, competencia absoluta/relativa, implicancia y recusación son instituciones sustanciales del COT. El análisis previo a demanda es aplicación práctica de normas orgánicas."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Integración es institución de COT (arts. 196-198). Define estructura y funcionamiento de tribunales colegiados. CPC solo aplica procedimentalmente estos principios."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Territorialidad, exhortos, competencia nacional y prórroga son institutos fundamentales del COT. El ejercicio trata estructura orgánica y competencia territorial de tribunales, materia sustancial del "
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "El ejercicio estructura la organización judicial chilena (tribunales ordinarios, especiales, arbitrales, auxiliares, implicancias, recusaciones). Estos temas son sustancia del COT, no solo del CPC."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Los temas sustantivos (alimentos, filiación, patria potestad, separación, divorcio, bienes familiares) son regulados por CC. COT solo define competencia; CC define derechos y obligaciones."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Contienda de competencia es institución procesal regulada sustancialmente en COT (arts. 187-192), que establece competencia de Cortes para resolver conflictos entre tribunales. CPC solo remite a COT."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Contienda de competencia es institución sustancial del COT (arts. 191-192). El ejercicio trata competencia jurisdiccional y su resolución, temas centrales de COT, no solo procedimiento."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Contienda de competencia es institución procesal regulada sustancialmente en COT (arts. 187-192), que establece procedimiento, tribunales competentes y resolución. CPC solo remite a COT."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "La determinación de cuantía en asuntos sin valor pecuniario es sustancial en ambas ramas: COT regula competencia y procedimiento; CC define qué materias son insusceptibles de apreciación (estado civil"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Las bases de la administración de justicia (territorialidad, pasividad, publicidad, etc.) son principios fundamentales del COT. El ejercicio trata sustancialmente ambas ramas."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Asuntos no susceptibles de apreciación pecuniaria (estado civil, filiación, validez testamento) son materias sustanciales del CC. La clasificación de cuantía afecta procedimiento en CPC pero los derec"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Estado civil, filiación y validez de testamento son instituciones sustanciales del CC. Su clasificación como mayor cuantía en COT depende de su naturaleza civil, no solo procesal."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "El estado civil es materia de orden público e indisponibilidad regulada en CC arts. 1, 8, 12. La prohibición de transigir sobre estado civil es sustancia compartida entre COT y CC."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Competencia relativa en no contenciosos regula procedimientos civiles (muerte presunta, cambio nombre, inventario, sucesión) que son institutos sustantivos del CC. COT y CC se complementan."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "La determinación de competencia por naturaleza de la pretensión es regla fundamental en CC (arts. 1-3, 104-112) y COT. Ambas ramas sustancialmente tratan cómo clasificar pretensiones civiles."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Competencia de la Corte Suprema es materia sustancial de COT. Art. 767 CPC remite a estructura orgánica y competencia definida en COT."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Casación en el fondo es competencia exclusiva de CS (art. 767 CPC), pero su regulación orgánica y competencia están en COT arts. 82-83. Ambas ramas sustancialmente."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Contienda de competencia es institución procesal regulada sustancialmente en COT (arts. 187-192). El ejercicio trata reglas de competencia de tribunales, materia propia de COT."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "VIF involucra relaciones familiares (matrimonio, convivencia) reguladas sustancialmente en CC. Competencia (COT) y sustancia (CC) son inseparables aquí."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "La vía inhibitoria es un mecanismo procesal de competencia regulado sustancialmente en COT (arts. 102-109), no solo en CPC. Pertenece al régimen orgánico de competencia."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Casación es recurso procesal (CPC) pero su conocimiento corresponde a Corte Suprema, cuya competencia, composición y funcionamiento se regulan en COT. Ambas ramas sustancialmente relevantes."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Implicancia/recusación y auto/interlocutoria son instituciones procesales reguladas sustancialmente en COT (arts. 195-214 y 181-182). El ejercicio integrador toca núcleo de ambas ramas."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Los juzgados de letras son órganos jurisdiccionales regulados sustancialmente en COT (arts. 13-17, 32-33). El ejercicio trata su competencia y estructura, temas centrales de COT."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Jurisdicción voluntaria regula actos civiles (muerte presunta, posesión efectiva, cambio de nombre, inventario) cuya sustancia está en CC. CPC solo fija procedimiento; CC define derechos y efectos civ"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Los equivalentes jurisdiccionales (arbitraje, mediación) se regulan en CPC pero su aplicabilidad depende de derechos disponibles/indisponibles, concepto sustancial del CC (estado civil, alimentos, der"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Arbitraje prohibido es materia sustancial del CC (arts. 227, 230, 2670-2680). Estado civil, alimentos y representación legal son instituciones civiles cuya arbitrabilidad se regula en ambos códigos."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Receptor judicial es figura regulada en COT (arts. 318-329) como auxiliar de justicia. Notificaciones son procedimiento tanto CPC como COT."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "La reposición es recurso procesal regulado en CPC (art. 181), pero su competencia y tramitación dependen de la estructura de tribunales y jerarquía establecida en COT. Ambas ramas se entrelazan sustan"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "La apelación es procedimiento CPC, pero su estructura (tribunal a quo, ad quem, competencia) está regulada sustancialmente en COT. Ambas ramas son necesarias."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Declinatoria es institución procesal que regula competencia de tribunales. COT define competencia y jurisdicción; CPC regula su ejercicio procesal. Ambas ramas sustancialmente aplican."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Posesión efectiva intestada es institución sustancial del CC (arts. 135-168). Su tramitación ante Registro Civil (Ley 19.903) es procedimiento que modifica competencia judicial, pero el derecho materi"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Arbitraje prohibido trata materias indisponibles (alimentos, estado civil, filiación) que son conceptos sustanciales del CC. La nulidad del compromiso arbitral sobre estas materias es aplicable en amb"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Receptores judiciales y notificaciones son instituciones del COT (arts. 318-330). El art. 40 CPC remite a competencias y deberes de ministros de fe regulados en COT."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Tribunales de familia resuelven materias sustancialmente civiles (alimentos, divorcio, filiación, adopción, cuidado personal). CC regula estas instituciones; CPC es supletorio. Pertenece a ambas ramas"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "El arbitraje requiere COT: nombramiento de árbitro por tribunal ordinario (art. 222 COT), competencia del tribunal para conocer excepciones previas, y jurisdicción ordinaria en ejecución del laudo son"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Competencia y acumulación de autos son temas sustanciales del COT. COT regula jurisdicción, competencia, inhibitoria y declinatoria. CPC solo regula tramitación procesal de estos incidentes."
+    }
+  ]
+}

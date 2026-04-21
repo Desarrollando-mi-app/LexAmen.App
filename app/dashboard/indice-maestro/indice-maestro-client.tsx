@@ -20,7 +20,22 @@ interface ModuleStats {
 interface ParrafoData {
   id: string;
   label: string;
-  articulosRef?: string;
+  articulosRef: string | null;
+  fc: ModuleStats;
+  mcq: ModuleStats;
+  tf: ModuleStats;
+  def: ModuleStats;
+  fill: ModuleStats;
+  error: ModuleStats;
+  order: ModuleStats;
+  match: ModuleStats;
+  caso: ModuleStats;
+  dictado: ModuleStats;
+  timeline: ModuleStats;
+  totalExercicios: number;
+  totalDone: number;
+  cycles: number;
+  percent: number;
 }
 
 interface TituloData {
@@ -173,15 +188,18 @@ function StudyButtons({
   rama,
   libro,
   titulo,
+  parrafo,
   stats,
 }: {
   rama: string;
   libro: string;
   titulo: string;
-  stats: TituloData;
+  parrafo?: string;
+  stats: TituloData | ParrafoData;
 }) {
   const enc = encodeURIComponent(titulo);
-  const qs = `rama=${rama}&libro=${libro}&titulo=${enc}`;
+  const baseQs = `rama=${rama}&libro=${libro}&titulo=${enc}`;
+  const qs = parrafo ? `${baseQs}&parrafo=${encodeURIComponent(parrafo)}` : baseQs;
 
   // Only show buttons for modules with content
   const activeModules = MODULE_LABELS.filter((m) => {
@@ -225,7 +243,7 @@ function StudyButtons({
 
 // ─── Stats Line ─────────────────────────────────────────────
 
-function StatsLine({ stats }: { stats: TituloData }) {
+function StatsLine({ stats }: { stats: TituloData | ParrafoData }) {
   const parts: string[] = [];
   for (const m of MODULE_LABELS) {
     const s = stats[m.key] as ModuleStats;
@@ -246,6 +264,7 @@ function StatsLine({ stats }: { stats: TituloData }) {
 function ContentPanel({ materia }: { materia: MateriaData }) {
   const [expandedLibros, setExpandedLibros] = useState<Set<string>>(new Set());
   const [expandedTitulos, setExpandedTitulos] = useState<Set<string>>(new Set());
+  const [expandedParrafos, setExpandedParrafos] = useState<Set<string>>(new Set());
 
   const toggleLibro = (id: string) => {
     setExpandedLibros((prev) => {
@@ -258,6 +277,15 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
 
   const toggleTitulo = (id: string) => {
     setExpandedTitulos((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleParrafo = (id: string) => {
+    setExpandedParrafos((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -363,18 +391,78 @@ function ContentPanel({ materia }: { materia: MateriaData }) {
                         {/* Parrafos + study buttons + leyes (level 3) */}
                         {tituloOpen && isExpandable && (
                           <div className="ml-4 border-l-2 pl-0" style={{ borderColor: "var(--gz-cream-dark)" }}>
-                            {/* Parrafos */}
+                            {/* Parrafos (expandibles, con stats propias) */}
                             {hasParrafos && (
-                              <div className="pl-4 py-2 space-y-1">
-                                {titulo.parrafos.map((p) => (
-                                  <div key={p.id} className="flex items-baseline gap-2">
-                                    <span className="font-archivo text-[12px] text-gz-ink-light">
-                                      {p.label}
-                                    </span>
-                                  </div>
-                                ))}
+                              <div className="pl-4 py-2">
+                                {titulo.parrafos.map((p) => {
+                                  const parrafoOpen = expandedParrafos.has(`${titulo.id}|${p.id}`);
+                                  const pHasContent = p.totalExercicios > 0;
+                                  return (
+                                    <div key={p.id}>
+                                      <button
+                                        onClick={() => pHasContent && toggleParrafo(`${titulo.id}|${p.id}`)}
+                                        className={`w-full flex items-center gap-2 py-1.5 pl-2 pr-2 rounded-[3px] transition-colors ${
+                                          pHasContent
+                                            ? "hover:bg-[var(--gz-gold)]/[0.04] cursor-pointer"
+                                            : "opacity-50 cursor-default"
+                                        }`}
+                                      >
+                                        {pHasContent ? (
+                                          <span className="text-gz-ink-light text-[9px] w-3 flex-shrink-0">
+                                            {parrafoOpen ? "▾" : "▸"}
+                                          </span>
+                                        ) : (
+                                          <span className="w-3 flex-shrink-0" />
+                                        )}
+                                        <span className="font-archivo text-[12px] text-gz-ink-light text-left flex-1 min-w-0">
+                                          {p.label}
+                                        </span>
+                                        {p.cycles > 0 && (
+                                          <span
+                                            className={`font-ibm-mono text-[10px] font-bold px-1.5 py-0.5 rounded-full border flex-shrink-0 ${
+                                              p.cycles >= 10
+                                                ? "bg-gz-navy/20 text-gz-navy border-gz-navy/40"
+                                                : p.cycles >= 5
+                                                ? "bg-gz-burgundy/20 text-gz-burgundy border-gz-burgundy/40"
+                                                : "bg-gz-gold/20 text-gz-gold border-gz-gold"
+                                            }`}
+                                          >
+                                            {p.cycles >= 10 ? "⭐ " : ""}×{p.cycles}
+                                          </span>
+                                        )}
+                                        {pHasContent && (
+                                          <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
+                                            <MiniBar percent={p.percent} cycles={p.cycles} className="w-14 h-1" />
+                                            <span className="font-ibm-mono text-[9px] text-gz-ink-light w-7 text-right">
+                                              {p.percent}%
+                                            </span>
+                                          </div>
+                                        )}
+                                      </button>
+                                      {parrafoOpen && pHasContent && (
+                                        <div className="pl-5 pb-2 border-l" style={{ borderColor: "var(--gz-cream-dark)" }}>
+                                          {p.articulosRef && (
+                                            <p className="font-ibm-mono text-[10px] text-gz-ink-light/60 mt-1 pl-3">
+                                              {p.articulosRef}
+                                            </p>
+                                          )}
+                                          <div className="pl-3 pt-1">
+                                            <StatsLine stats={p} />
+                                          </div>
+                                          <StudyButtons
+                                            rama={materia.id}
+                                            libro={libro.libro}
+                                            titulo={titulo.id}
+                                            parrafo={p.id}
+                                            stats={p}
+                                          />
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                                 {titulo.articulosRef && (
-                                  <p className="font-ibm-mono text-[10px] text-gz-ink-light/60 mt-1">
+                                  <p className="font-ibm-mono text-[10px] text-gz-ink-light/60 mt-1 pl-2">
                                     {titulo.articulosRef}
                                   </p>
                                 )}

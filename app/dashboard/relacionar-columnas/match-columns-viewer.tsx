@@ -38,6 +38,7 @@ interface MatchColumnsItem {
   rama: string;
   libro: string | null;
   tituloMateria: string | null;
+  parrafo: string | null;
   materia: string | null;
   dificultad: number;
 }
@@ -47,7 +48,7 @@ interface MatchColumnsViewerProps {
   attemptsToday: number;
   dailyLimit: number;
   isPremium: boolean;
-  initialFilters?: { rama?: string; libro?: string; titulo?: string };
+  initialFilters?: { rama?: string; libro?: string; titulo?: string; parrafo?: string };
 }
 
 interface Resultado {
@@ -124,6 +125,8 @@ export function MatchColumnsViewer({
       pool = pool.filter((i) => (i.libro ?? i.tituloMateria) === initialFilters.libro || i.libro === initialFilters.libro);
     if (initialFilters?.titulo)
       pool = pool.filter((i) => i.tituloMateria === initialFilters.titulo);
+    if (initialFilters?.parrafo)
+      pool = pool.filter((i) => i.parrafo === initialFilters.parrafo);
     return pool;
   }, [items, selectedRama, initialFilters]);
 
@@ -144,7 +147,7 @@ export function MatchColumnsViewer({
   const [showConfetti, setShowConfetti] = useState(false);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo || initialFilters?.parrafo);
 
   const totalCards = filteredItems.length;
   const currentItem = filteredItems[currentIndex];
@@ -431,7 +434,7 @@ export function MatchColumnsViewer({
   if (totalCards === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">
           No hay ejercicios disponibles para estos filtros.
         </p>
@@ -461,7 +464,7 @@ export function MatchColumnsViewer({
         </span>
       </div>
 
-      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
 
       <Confetti active={showConfetti} color="gold" />
 

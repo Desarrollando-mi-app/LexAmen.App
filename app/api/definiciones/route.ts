@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { buildRamaFilter } from "@/lib/rama-filter";
 
 /**
  * GET /api/definiciones
@@ -22,9 +23,10 @@ export async function GET(request: Request) {
   const libro = searchParams.get("libro");
   const titulo = searchParams.get("titulo");
 
-  // Build filter
+  // Build filter — respeta ramasAdicionales (Fase 7)
   const where: Record<string, unknown> = { isActive: true };
-  if (rama) where.rama = rama;
+  const ramaFilter = buildRamaFilter(rama);
+  if (ramaFilter) Object.assign(where, ramaFilter);
   if (libro) where.libro = libro;
   if (titulo) where.titulo = titulo;
 

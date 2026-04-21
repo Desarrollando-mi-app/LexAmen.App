@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { FillBlankViewer } from "./fill-blank-viewer";
 import Image from "next/image";
-import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
+import { PoolIndicator } from "@/app/dashboard/components/pool-indicator";
+import { resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle.utils";
 
 const DAILY_FREE_LIMIT = 5;
 
@@ -16,6 +17,7 @@ export default async function CompletarEspaciosPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
     pool?: string;
   };
 }) {
@@ -44,9 +46,6 @@ export default async function CompletarEspaciosPage({
   });
 
   const pool = resolveStudyPool(searchParams.pool);
-  const integradoresCount = await prisma.fillBlank.count({
-    where: { activo: true, esIntegrador: true },
-  });
 
   const rawItems = await prisma.fillBlank.findMany({
     where: { activo: true, esIntegrador: pool === "integradores" },
@@ -61,6 +60,7 @@ export default async function CompletarEspaciosPage({
     rama: item.rama,
     libro: item.libro,
     titulo: item.titulo,
+    parrafo: item.parrafo,
     materia: item.materia,
     dificultad: item.dificultad,
   }));
@@ -86,14 +86,7 @@ export default async function CompletarEspaciosPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
-          <div className="mt-4 flex items-center gap-3 flex-wrap">
-            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
-            {pool === "integradores" && (
-              <span className="font-cormorant italic text-sm text-gz-ink-mid">
-                Mostrando ejercicios marcados como integradores.
-              </span>
-            )}
-          </div>
+          <PoolIndicator pool={pool} className="mt-4" />
       </div>
 
         <FillBlankViewer
@@ -105,6 +98,7 @@ export default async function CompletarEspaciosPage({
             rama: searchParams.rama,
             libro: searchParams.libro,
             titulo: searchParams.titulo,
+            parrafo: searchParams.parrafo,
           }}
         />
     </main>

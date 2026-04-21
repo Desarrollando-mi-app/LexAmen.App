@@ -41,6 +41,7 @@ interface ErrorIdItem {
   rama: string;
   libro: string | null;
   titulo: string | null;
+  parrafo: string | null;
   materia: string | null;
   dificultad: number;
 }
@@ -50,7 +51,7 @@ interface ErrorIdViewerProps {
   attemptsToday: number;
   dailyLimit: number;
   isPremium: boolean;
-  initialFilters?: { rama?: string; libro?: string; titulo?: string };
+  initialFilters?: { rama?: string; libro?: string; titulo?: string; parrafo?: string };
 }
 
 interface Feedback {
@@ -90,6 +91,9 @@ export function ErrorIdViewer({
   const [selectedTitulo, setSelectedTitulo] = useState<string>(
     initialFilters?.titulo || "ALL"
   );
+  const [selectedParrafo, setSelectedParrafo] = useState<string>(
+    initialFilters?.parrafo || "ALL"
+  );
 
   function updateUrl(params: Record<string, string>) {
     const sp = new URLSearchParams();
@@ -125,8 +129,10 @@ export function ErrorIdViewer({
       pool = pool.filter((i) => i.libro === selectedLibro);
     if (selectedTitulo !== "ALL")
       pool = pool.filter((i) => i.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL")
+      pool = pool.filter((i) => i.parrafo === selectedParrafo);
     return pool;
-  }, [items, selectedRama, selectedLibro, selectedTitulo]);
+  }, [items, selectedRama, selectedLibro, selectedTitulo, selectedParrafo]);
 
   // ---- Estado de ejercicio ----
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -145,7 +151,7 @@ export function ErrorIdViewer({
   const [showConfetti, setShowConfetti] = useState(false);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo || initialFilters?.parrafo);
 
   const totalCards = filteredItems.length;
   const currentItem = filteredItems[currentIndex];
@@ -166,6 +172,7 @@ export function ErrorIdViewer({
     setSelectedRama(value);
     setSelectedLibro("ALL");
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     resetExerciseState();
     updateUrl({ rama: value });
   }
@@ -173,12 +180,14 @@ export function ErrorIdViewer({
   function handleLibroChange(value: string) {
     setSelectedLibro(value);
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     resetExerciseState();
     updateUrl({ rama: selectedRama, libro: value });
   }
 
   function handleTituloChange(value: string) {
     setSelectedTitulo(value);
+    setSelectedParrafo("ALL");
     resetExerciseState();
     updateUrl({ rama: selectedRama, libro: selectedLibro, titulo: value });
   }
@@ -477,7 +486,7 @@ export function ErrorIdViewer({
   if (totalCards === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">
           No hay ejercicios disponibles para estos filtros.
         </p>
@@ -507,7 +516,7 @@ export function ErrorIdViewer({
         </span>
       </div>
 
-      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
 
       <Confetti active={showConfetti} color="gold" />
 

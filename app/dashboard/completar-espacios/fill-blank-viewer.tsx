@@ -44,6 +44,7 @@ type FillBlankItem = {
   rama: string;
   libro: string | null;
   titulo: string | null;
+  parrafo: string | null;
   materia: string | null;
   dificultad: number;
 };
@@ -57,6 +58,7 @@ type FillBlankViewerProps = {
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
   };
 };
 
@@ -83,7 +85,7 @@ export function FillBlankViewer({
 
   // ─── Source selector state ──────────────────────────────
   const [showSelector, setShowSelector] = useState(
-    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo,
+    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo && !initialFilters?.parrafo,
   );
 
   // ─── Filter state ──────────────────────────────────────
@@ -95,6 +97,9 @@ export function FillBlankViewer({
   );
   const [selectedTitulo, setSelectedTitulo] = useState<string>(
     initialFilters?.titulo || "ALL",
+  );
+  const [selectedParrafo, setSelectedParrafo] = useState<string>(
+    initialFilters?.parrafo || "ALL",
   );
 
   // ─── Question state ─────────────────────────────────────
@@ -119,7 +124,7 @@ export function FillBlankViewer({
   const [showConfetti, setShowConfetti] = useState(false);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo || initialFilters?.parrafo);
 
   // ─── URL sync ──────────────────────────────────────────
   function updateUrl(params: Record<string, string>) {
@@ -158,9 +163,10 @@ export function FillBlankViewer({
     if (selectedRama !== "ALL") cards = cards.filter((m) => m.rama === selectedRama);
     if (selectedLibro !== "ALL") cards = cards.filter((m) => m.libro === selectedLibro);
     if (selectedTitulo !== "ALL") cards = cards.filter((m) => m.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL") cards = cards.filter((m) => m.parrafo === selectedParrafo);
     // Shuffle for variety
     return cards.sort(() => Math.random() - 0.5);
-  }, [items, selectedRama, selectedLibro, selectedTitulo]);
+  }, [items, selectedRama, selectedLibro, selectedTitulo, selectedParrafo]);
 
   const totalCards = filteredItems.length;
   const currentItem = filteredItems[currentIndex];
@@ -215,6 +221,7 @@ export function FillBlankViewer({
     setSelectedRama(value);
     setSelectedLibro("ALL");
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     resetQuestionState();
     updateUrl({ rama: value });
   }
@@ -222,12 +229,14 @@ export function FillBlankViewer({
   function handleLibroChange(value: string) {
     setSelectedLibro(value);
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     resetQuestionState();
     updateUrl({ rama: selectedRama, libro: value });
   }
 
   function handleTituloChange(value: string) {
     setSelectedTitulo(value);
+    setSelectedParrafo("ALL");
     resetQuestionState();
     updateUrl({ rama: selectedRama, libro: selectedLibro, titulo: value });
   }
@@ -448,14 +457,16 @@ export function FillBlankViewer({
           setSelectedRama(sel.rama);
           setSelectedLibro(sel.libro);
           setSelectedTitulo(sel.titulo);
+          setSelectedParrafo(sel.parrafo);
           resetQuestionState();
-          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo });
+          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo, parrafo: sel.parrafo });
           setShowSelector(false);
         }}
         onStudyAll={() => {
           setSelectedRama("ALL");
           setSelectedLibro("ALL");
           setSelectedTitulo("ALL");
+          setSelectedParrafo("ALL");
           resetQuestionState();
           setShowSelector(false);
         }}
@@ -563,7 +574,7 @@ export function FillBlankViewer({
   if (totalCards === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
         <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">
           No hay ejercicios disponibles para estos filtros.
         </p>
@@ -595,7 +606,7 @@ export function FillBlankViewer({
         </span>
       </div>
 
-      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
 
       <Confetti active={showConfetti} color="gold" />
 

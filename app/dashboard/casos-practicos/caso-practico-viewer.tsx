@@ -21,6 +21,7 @@ interface CasoSummary {
   rama: string;
   libro: string | null;
   tituloMateria: string | null;
+  parrafo: string | null;
   materia: string | null;
   dificultad: number;
   preguntasCount: number;

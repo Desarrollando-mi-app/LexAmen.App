@@ -2,7 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { CasoPracticoViewer } from "./caso-practico-viewer";
-import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
+import { PoolIndicator } from "@/app/dashboard/components/pool-indicator";
+import { resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle.utils";
 
 const DAILY_FREE_LIMIT = 3;
 
@@ -13,6 +14,7 @@ export default async function CasosPracticosPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
     pool?: string;
   };
 }) {
@@ -48,9 +50,6 @@ export default async function CasosPracticosPage({
   });
 
   const pool = resolveStudyPool(searchParams.pool);
-  const integradoresCount = await prisma.casoPractico.count({
-    where: { activo: true, esIntegrador: true },
-  });
 
   // 4. Fetch all active casos + completed IDs
   const [rawCasos, completedAttempts] = await Promise.all([
@@ -75,6 +74,7 @@ export default async function CasosPracticosPage({
     rama: c.rama,
     libro: c.libro,
     tituloMateria: c.tituloMateria,
+    parrafo: c.parrafo,
     materia: c.materia,
     dificultad: c.dificultad,
     preguntasCount: (() => {
@@ -87,10 +87,11 @@ export default async function CasosPracticosPage({
   }));
 
   // Filter by searchParams if provided
-  const { rama, libro, titulo } = searchParams;
+  const { rama, libro, titulo, parrafo } = searchParams;
   if (rama) casos = casos.filter((c) => c.rama === rama);
   if (libro) casos = casos.filter((c) => (c.libro ?? c.tituloMateria) === libro || c.libro === libro);
   if (titulo) casos = casos.filter((c) => (c.tituloMateria) === titulo);
+  if (parrafo) casos = casos.filter((c) => c.parrafo === parrafo);
 
   return (
     <main
@@ -110,14 +111,7 @@ export default async function CasosPracticosPage({
             Analiza los hechos, identifica el problema y resuelve aplicando la norma.
           </p>
           <div className="mx-auto mt-3 h-[1px] w-16 bg-gz-gold" />
-          <div className="mt-4 flex items-center justify-center gap-3 flex-wrap">
-            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
-            {pool === "integradores" && (
-              <span className="font-cormorant italic text-sm text-gz-ink-mid">
-                Mostrando ejercicios marcados como integradores.
-              </span>
-            )}
-          </div>
+          <PoolIndicator pool={pool} className="mt-4 justify-center" />
         </header>
 
         <CasoPracticoViewer

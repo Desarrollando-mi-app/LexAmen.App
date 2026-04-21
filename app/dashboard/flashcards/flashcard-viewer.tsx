@@ -59,6 +59,7 @@ type FlashcardViewerProps = {
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
     dificultad?: string;
     mode?: string;
   };
@@ -78,7 +79,10 @@ export function FlashcardViewer({
   const pathname = usePathname();
 
   const [showSelector, setShowSelector] = useState(
-    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo
+    !initialFilters?.rama &&
+      !initialFilters?.libro &&
+      !initialFilters?.titulo &&
+      !initialFilters?.parrafo
   );
 
   const [selectedRama, setSelectedRama] = useState<string>(
@@ -89,6 +93,9 @@ export function FlashcardViewer({
   );
   const [selectedTitulo, setSelectedTitulo] = useState<string>(
     initialFilters?.titulo || "ALL"
+  );
+  const [selectedParrafo, setSelectedParrafo] = useState<string>(
+    initialFilters?.parrafo || "ALL"
   );
   const [selectedDificultad, setSelectedDificultad] = useState<string>(
     initialFilters?.dificultad || "ALL"
@@ -118,7 +125,12 @@ export function FlashcardViewer({
     () => new Set(favoriteIds)
   );
   const { showXpFloat } = useXpFloat();
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(
+    initialFilters?.rama ||
+    initialFilters?.libro ||
+    initialFilters?.titulo ||
+    initialFilters?.parrafo
+  );
 
   // Derive available options based on selections
   const availableRamas = useMemo(
@@ -151,8 +163,10 @@ export function FlashcardViewer({
       cards = cards.filter((c) => c.libro === selectedLibro);
     if (selectedTitulo !== "ALL")
       cards = cards.filter((c) => c.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL")
+      cards = cards.filter((c) => c.parrafo === selectedParrafo);
     return Array.from(new Set(cards.map((c) => c.dificultad)));
-  }, [flashcards, selectedRama, selectedLibro, selectedTitulo]);
+  }, [flashcards, selectedRama, selectedLibro, selectedTitulo, selectedParrafo]);
 
   // Filter and sort cards
   const filteredCards = useMemo(() => {
@@ -165,6 +179,8 @@ export function FlashcardViewer({
       cards = cards.filter((c) => c.libro === selectedLibro);
     if (selectedTitulo !== "ALL")
       cards = cards.filter((c) => c.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL")
+      cards = cards.filter((c) => c.parrafo === selectedParrafo);
     if (selectedDificultad !== "ALL")
       cards = cards.filter((c) => c.dificultad === selectedDificultad);
 
@@ -193,6 +209,7 @@ export function FlashcardViewer({
     selectedRama,
     selectedLibro,
     selectedTitulo,
+    selectedParrafo,
     selectedDificultad,
     viewMode,
     favoriteSet,
@@ -210,6 +227,8 @@ export function FlashcardViewer({
       cards = cards.filter((c) => c.libro === selectedLibro);
     if (selectedTitulo !== "ALL")
       cards = cards.filter((c) => c.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL")
+      cards = cards.filter((c) => c.parrafo === selectedParrafo);
     if (selectedDificultad !== "ALL")
       cards = cards.filter((c) => c.dificultad === selectedDificultad);
     return cards.filter((c) => !c.progress || c.progress.nextReviewAt <= now)
@@ -219,6 +238,7 @@ export function FlashcardViewer({
     selectedRama,
     selectedLibro,
     selectedTitulo,
+    selectedParrafo,
     selectedDificultad,
   ]);
 
@@ -230,6 +250,8 @@ export function FlashcardViewer({
       cards = cards.filter((c) => c.libro === selectedLibro);
     if (selectedTitulo !== "ALL")
       cards = cards.filter((c) => c.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL")
+      cards = cards.filter((c) => c.parrafo === selectedParrafo);
     if (selectedDificultad !== "ALL")
       cards = cards.filter((c) => c.dificultad === selectedDificultad);
     return cards.filter((c) => favoriteSet.has(c.id)).length;
@@ -238,6 +260,7 @@ export function FlashcardViewer({
     selectedRama,
     selectedLibro,
     selectedTitulo,
+    selectedParrafo,
     selectedDificultad,
     favoriteSet,
   ]);
@@ -329,6 +352,7 @@ export function FlashcardViewer({
     setSelectedRama(value);
     setSelectedLibro("ALL");
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetView();
     updateUrl({ rama: value });
@@ -337,6 +361,7 @@ export function FlashcardViewer({
   function handleLibroChange(value: string) {
     setSelectedLibro(value);
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetView();
     updateUrl({ rama: selectedRama, libro: value });
@@ -344,6 +369,7 @@ export function FlashcardViewer({
 
   function handleTituloChange(value: string) {
     setSelectedTitulo(value);
+    setSelectedParrafo("ALL");
     setSelectedDificultad("ALL");
     resetView();
     updateUrl({
@@ -360,6 +386,7 @@ export function FlashcardViewer({
       rama: selectedRama,
       libro: selectedLibro,
       titulo: selectedTitulo,
+      parrafo: selectedParrafo,
       dificultad: value,
     });
   }
@@ -371,6 +398,7 @@ export function FlashcardViewer({
       rama: selectedRama,
       libro: selectedLibro,
       titulo: selectedTitulo,
+      parrafo: selectedParrafo,
       dificultad: selectedDificultad,
       mode,
     });
@@ -435,24 +463,31 @@ export function FlashcardViewer({
             </select>
           )}
         </div>
-        <div className="flex gap-2">
-          {(["ALL", "FAVORITES", "PENDING"] as ViewMode[]).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => handleViewModeChange(mode)}
-              className={`rounded-full font-archivo text-[12px] px-3 py-1.5 transition-colors ${
-                viewMode === mode
-                  ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold border"
-                  : "text-gz-ink-mid border border-gz-rule hover:border-gz-gold"
-              }`}
-            >
-              {mode === "ALL" && "Todas"}
-              {mode === "FAVORITES" && `Favoritas (${favoritesCount})`}
-              {mode === "PENDING" && `Pendientes (${pendingCount})`}
-            </button>
-          ))}
-        </div>
       </>
+    );
+  }
+
+  // Toggle de modo de vista (Todas/Favoritas/Pendientes). Se renderiza siempre,
+  // tanto si los filtros vienen del FiltersUI como del FilterBreadcrumb (URL).
+  function ViewModeToggle() {
+    return (
+      <div className="flex gap-2 flex-wrap">
+        {(["ALL", "FAVORITES", "PENDING"] as ViewMode[]).map((mode) => (
+          <button
+            key={mode}
+            onClick={() => handleViewModeChange(mode)}
+            className={`rounded-full font-archivo text-[12px] px-3 py-1.5 transition-colors cursor-pointer ${
+              viewMode === mode
+                ? "border-gz-gold bg-gz-gold/[0.08] text-gz-ink font-semibold border"
+                : "text-gz-ink-mid border border-gz-rule hover:border-gz-gold"
+            }`}
+          >
+            {mode === "ALL" && "Todas"}
+            {mode === "FAVORITES" && `Favoritas (${favoritesCount})`}
+            {mode === "PENDING" && `Pendientes (${pendingCount})`}
+          </button>
+        ))}
+      </div>
     );
   }
 
@@ -467,15 +502,22 @@ export function FlashcardViewer({
           setSelectedRama(sel.rama);
           setSelectedLibro(sel.libro);
           setSelectedTitulo(sel.titulo);
+          setSelectedParrafo(sel.parrafo);
           setSelectedDificultad("ALL");
           resetView();
-          updateUrl({ rama: sel.rama, libro: sel.libro, titulo: sel.titulo });
+          updateUrl({
+            rama: sel.rama,
+            libro: sel.libro,
+            titulo: sel.titulo,
+            parrafo: sel.parrafo,
+          });
           setShowSelector(false);
         }}
         onStudyAll={() => {
           setSelectedRama("ALL");
           setSelectedLibro("ALL");
           setSelectedTitulo("ALL");
+          setSelectedParrafo("ALL");
           setSelectedDificultad("ALL");
           resetView();
           setShowSelector(false);
@@ -547,7 +589,8 @@ export function FlashcardViewer({
             Volver
           </Link>
         </div>
-        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+        {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
+        <ViewModeToggle />
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <p className="font-cormorant italic text-[17px] text-gz-ink-light text-center">
             {viewMode === "FAVORITES" ? "No tienes tarjetas favoritas en esta seleccion." : viewMode === "PENDING" ? "No tienes tarjetas pendientes de revision." : "No hay tarjetas disponibles para esta seleccion."}
@@ -571,7 +614,8 @@ export function FlashcardViewer({
         <span className="font-ibm-mono text-[12px] text-gz-ink-light">Tarjeta {currentIndex + 1} de {totalCards}</span>
       </div>
 
-      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} /> : <FiltersUI />}
+      {hasFiltersFromUrl ? <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} /> : <FiltersUI />}
+      <ViewModeToggle />
 
       {/* Tarjeta flip */}
       <div className="relative isolate">

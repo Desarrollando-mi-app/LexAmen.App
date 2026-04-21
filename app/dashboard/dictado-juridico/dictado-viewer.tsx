@@ -20,6 +20,7 @@ interface DictadoItem {
   rama: string;
   libro: string | null;
   tituloMateria: string | null;
+  parrafo: string | null;
   materia: string | null;
   dificultad: number;
 }
@@ -48,6 +49,7 @@ interface Props {
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
   };
 }
 
@@ -63,7 +65,7 @@ export function DictadoViewer({
   initialFilters,
 }: Props) {
   const [selectedRama, setSelectedRama] = useState<string>(initialFilters?.rama || "ALL");
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo || initialFilters?.parrafo);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [attempts, setAttempts] = useState(initialAttempts);
 
@@ -367,7 +369,7 @@ export function DictadoViewer({
 
       {/* ─── Rama filter ─── */}
       {hasFiltersFromUrl ? (
-        <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} />
+        <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} />
       ) : (
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mr-1">

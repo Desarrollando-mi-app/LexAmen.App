@@ -13,6 +13,10 @@ export default defineConfig({
     seed: "npx tsx prisma/seed.ts",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Operaciones CLI (migrate, db push, introspect) usan el session pooler
+    // (puerto 5432) porque el transaction pooler (6543 + pgbouncer) rompe
+    // los prepared statements que necesita migrate.
+    // Runtime PrismaClient sigue leyendo DATABASE_URL del env directamente.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });

@@ -43,7 +43,7 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { href: "/dashboard/indice-maestro", label: "Índice Maestro", emoji: "📚" },
       { href: "/dashboard/instituciones", label: "Instituciones", emoji: "🏛️" },
-      { href: "/dashboard/estudios", label: "Ejercicios (11 módulos)", emoji: "📝" },
+      { href: "/dashboard/integradores", label: "Ejercicios integradores", emoji: "📝" },
     ],
   },
   {
@@ -86,6 +86,7 @@ const STUDY_ROUTES = [
   "/dashboard/indice-maestro",
   "/dashboard/instituciones",
   "/dashboard/estudios",
+  "/dashboard/integradores",
   "/dashboard/flashcards",
   "/dashboard/mcq",
   "/dashboard/truefalse",

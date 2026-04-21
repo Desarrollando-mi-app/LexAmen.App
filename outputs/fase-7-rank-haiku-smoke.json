@@ -1,0 +1,42 @@
+{
+  "cands": [
+    {
+      "model": "definicion",
+      "id": "cmnnwzitk05hs540zlnnaqr1t",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 6,
+      "ratio": 6,
+      "excerpt": "Análisis orgánico previo a la demanda Proceso intelectual que todo abogado debe realizar antes de presentar una demanda: verificar jurisdicción (¿es justiciable?), competencia absoluta (fuero > materi",
+      "civilHits": 0,
+      "procesalHits": 1,
+      "organicoHits": 6
+    },
+    {
+      "model": "flashcard",
+      "id": "cmnnwxtuf04l2540z19i6yhe6",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 6,
+      "ratio": 0,
+      "excerpt": "¿Qué es la integración y cuándo opera? Es el mecanismo para completar el QUÓRUM de un tribunal COLEGIADO (Cortes de Apelaciones, Corte Suprema) cuando faltan ministros para formar sala. Opera cuando: ",
+      "civilHits": 0,
+      "procesalHits": 0,
+      "organicoHits": 6
+    }
+  ],
+  "decisions": [
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Jurisdicción, competencia absoluta/relativa, implicancia y recusación son instituciones sustanciales del COT. El análisis previo a demanda es aplicación práctica de normas orgánicas."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Integración es institución de COT (arts. 196-198). Define estructura y funcionamiento de tribunales colegiados. CPC solo aplica procedimentalmente estos principios."
+    }
+  ]
+}

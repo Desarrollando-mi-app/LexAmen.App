@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { ErrorIdViewer } from "./error-id-viewer";
 import Image from "next/image";
-import { StudyPoolToggle, resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle";
+import { PoolIndicator } from "@/app/dashboard/components/pool-indicator";
+import { resolveStudyPool } from "@/app/dashboard/components/study-mode-toggle.utils";
 
 const DAILY_FREE_LIMIT = 5;
 
@@ -16,6 +17,7 @@ export default async function IdentificarErroresPage({
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
     pool?: string;
   };
 }) {
@@ -42,9 +44,6 @@ export default async function IdentificarErroresPage({
   });
 
   const pool = resolveStudyPool(searchParams.pool);
-  const integradoresCount = await prisma.errorIdentification.count({
-    where: { activo: true, esIntegrador: true },
-  });
 
   const rawItems = await prisma.errorIdentification.findMany({
     where: { activo: true, esIntegrador: pool === "integradores" },
@@ -67,6 +66,7 @@ export default async function IdentificarErroresPage({
       rama: item.rama,
       libro: item.libro,
       titulo: item.titulo,
+      parrafo: item.parrafo,
       materia: item.materia,
       dificultad: item.dificultad,
     };
@@ -93,14 +93,7 @@ export default async function IdentificarErroresPage({
             </h1>
           </div>
           <div className="h-[2px] bg-gz-rule-dark" />
-          <div className="mt-4 flex items-center gap-3 flex-wrap">
-            <StudyPoolToggle currentPool={pool} integradoresCount={integradoresCount} />
-            {pool === "integradores" && (
-              <span className="font-cormorant italic text-sm text-gz-ink-mid">
-                Mostrando ejercicios marcados como integradores.
-              </span>
-            )}
-          </div>
+          <PoolIndicator pool={pool} className="mt-4" />
       </div>
 
         <ErrorIdViewer
@@ -112,6 +105,7 @@ export default async function IdentificarErroresPage({
             rama: searchParams.rama,
             libro: searchParams.libro,
             titulo: searchParams.titulo,
+            parrafo: searchParams.parrafo,
           }}
         />
     </main>

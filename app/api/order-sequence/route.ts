@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { buildRamaFilter } from "@/lib/rama-filter";
 
 export async function GET(request: Request) {
   // 1. Auth
@@ -17,10 +18,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rama = searchParams.get("rama");
 
-  // 3. Build where clause
+  // 3. Build where clause — respeta ramasAdicionales (Fase 7)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = { activo: true };
-  if (rama && rama !== "ALL") where.rama = rama;
+  const ramaFilter = buildRamaFilter(rama);
+  if (ramaFilter) Object.assign(where, ramaFilter);
 
   // 4. Fetch items
   const items = await prisma.orderSequence.findMany({

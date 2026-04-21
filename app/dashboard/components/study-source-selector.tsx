@@ -5,6 +5,7 @@ import {
   CURRICULUM,
   RAMA_LABELS,
   getTitulosForLibro,
+  getParrafosForTitulo,
 } from "@/lib/curriculum-data";
 
 /* ─── Types ─── */
@@ -16,12 +17,14 @@ export interface FilterableItem {
   rama: string | null;
   libro?: string | null;
   titulo?: string | null;
+  parrafo?: string | null;
 }
 
 export interface SourceSelection {
   rama: string; // "ALL" or a specific rama key
   libro: string; // "ALL" or a specific libro key
   titulo: string; // "ALL" or a specific titulo key
+  parrafo: string; // "ALL" or a specific parrafo id
 }
 
 interface Props {
@@ -51,6 +54,7 @@ export function StudySourceSelector({
   const [selectedRama, setSelectedRama] = useState("ALL");
   const [selectedLibro, setSelectedLibro] = useState("ALL");
   const [selectedTitulo, setSelectedTitulo] = useState("ALL");
+  const [selectedParrafo, setSelectedParrafo] = useState("ALL");
 
   const labels = CONTENT_LABELS[contentType];
 
@@ -94,6 +98,36 @@ export function StudySourceSelector({
       .map((t) => ({ key: t.id, label: t.label }));
   }, [items, selectedRama, selectedLibro]);
 
+  // Available párrafos — from curriculum filtered by actual content in the selected título
+  const availableParrafos = useMemo(() => {
+    if (
+      selectedRama === "ALL" ||
+      selectedLibro === "ALL" ||
+      selectedTitulo === "ALL"
+    ) {
+      return [];
+    }
+    const parrafos = getParrafosForTitulo(
+      selectedRama,
+      selectedLibro,
+      selectedTitulo
+    );
+    const contentParrafos = new Set(
+      items
+        .filter(
+          (i) =>
+            i.rama === selectedRama &&
+            i.libro === selectedLibro &&
+            i.titulo === selectedTitulo &&
+            i.parrafo
+        )
+        .map((i) => i.parrafo as string)
+    );
+    return parrafos
+      .filter((p) => contentParrafos.has(p.id))
+      .map((p) => ({ key: p.id, label: p.label }));
+  }, [items, selectedRama, selectedLibro, selectedTitulo]);
+
   // Count matching items
   const matchingCount = useMemo(() => {
     let filtered = items;
@@ -103,8 +137,10 @@ export function StudySourceSelector({
       filtered = filtered.filter((i) => i.libro === selectedLibro);
     if (selectedTitulo !== "ALL")
       filtered = filtered.filter((i) => i.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL")
+      filtered = filtered.filter((i) => i.parrafo === selectedParrafo);
     return filtered.length;
-  }, [items, selectedRama, selectedLibro, selectedTitulo]);
+  }, [items, selectedRama, selectedLibro, selectedTitulo, selectedParrafo]);
 
   const hasSelection = selectedRama !== "ALL";
   const canStart = hasSelection && matchingCount > 0;
@@ -113,11 +149,18 @@ export function StudySourceSelector({
     setSelectedRama(value);
     setSelectedLibro("ALL");
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
   }
 
   function handleLibroChange(value: string) {
     setSelectedLibro(value);
     setSelectedTitulo("ALL");
+    setSelectedParrafo("ALL");
+  }
+
+  function handleTituloChange(value: string) {
+    setSelectedTitulo(value);
+    setSelectedParrafo("ALL");
   }
 
   function handleStart() {
@@ -126,6 +169,7 @@ export function StudySourceSelector({
       rama: selectedRama,
       libro: selectedLibro,
       titulo: selectedTitulo,
+      parrafo: selectedParrafo,
     });
   }
 
@@ -196,13 +240,34 @@ export function StudySourceSelector({
               </label>
               <select
                 value={selectedTitulo}
-                onChange={(e) => setSelectedTitulo(e.target.value)}
+                onChange={(e) => handleTituloChange(e.target.value)}
                 className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors"
               >
                 <option value="ALL">Todos los t&iacute;tulos</option>
                 {availableTitulos.map((t) => (
                   <option key={t.key} value={t.key}>
                     {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Párrafo */}
+          {availableParrafos.length > 0 && (
+            <div>
+              <label className="block font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-1.5">
+                P&aacute;rrafo
+              </label>
+              <select
+                value={selectedParrafo}
+                onChange={(e) => setSelectedParrafo(e.target.value)}
+                className="w-full rounded-[3px] border border-gz-rule bg-white px-3 py-2.5 font-archivo text-[14px] text-gz-ink focus:border-gz-gold focus:outline-none focus:ring-1 focus:ring-gz-gold/20 transition-colors"
+              >
+                <option value="ALL">Todos los p&aacute;rrafos</option>
+                {availableParrafos.map((p) => (
+                  <option key={p.key} value={p.key}>
+                    {p.label}
                   </option>
                 ))}
               </select>

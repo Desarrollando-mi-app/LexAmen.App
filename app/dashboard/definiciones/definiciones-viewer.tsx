@@ -28,6 +28,7 @@ interface DefinicionItem {
   rama: string | null;
   libro: string | null;
   titulo: string | null;
+  parrafo: string | null;
 }
 
 interface Props {
@@ -39,6 +40,7 @@ interface Props {
     rama?: string;
     libro?: string;
     titulo?: string;
+    parrafo?: string;
   };
 }
 
@@ -61,7 +63,7 @@ export function DefinicionesViewer({
 }: Props) {
   // Show source selector unless URL has specific filters
   const [showSelector, setShowSelector] = useState(
-    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo
+    !initialFilters?.rama && !initialFilters?.libro && !initialFilters?.titulo && !initialFilters?.parrafo
   );
 
   const [selectedRama, setSelectedRama] = useState<string>(
@@ -72,6 +74,9 @@ export function DefinicionesViewer({
   );
   const [selectedTitulo, setSelectedTitulo] = useState<string>(
     initialFilters?.titulo || "ALL"
+  );
+  const [selectedParrafo, setSelectedParrafo] = useState<string>(
+    initialFilters?.parrafo || "ALL"
   );
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -84,9 +89,9 @@ export function DefinicionesViewer({
   const [scaleCorrectOpt, setScaleCorrectOpt] = useState<string | null>(null);
   const { showXpFloat } = useXpFloat();
   const { showBadgeModal } = useBadgeModal();
-  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo);
+  const hasFiltersFromUrl = !!(initialFilters?.rama || initialFilters?.libro || initialFilters?.titulo || initialFilters?.parrafo);
 
-  // Filter definitions by selected rama/libro/titulo
+  // Filter definitions by selected rama/libro/titulo/parrafo
   const filteredDefiniciones = useMemo(() => {
     let defs = definiciones;
     if (selectedRama !== "ALL")
@@ -95,8 +100,10 @@ export function DefinicionesViewer({
       defs = defs.filter((d) => d.libro === selectedLibro);
     if (selectedTitulo !== "ALL")
       defs = defs.filter((d) => d.titulo === selectedTitulo);
+    if (selectedParrafo !== "ALL")
+      defs = defs.filter((d) => d.parrafo === selectedParrafo);
     return defs;
-  }, [definiciones, selectedRama, selectedLibro, selectedTitulo]);
+  }, [definiciones, selectedRama, selectedLibro, selectedTitulo, selectedParrafo]);
 
   // Shuffle order for variety
   const shuffledIndices = useMemo(() => {
@@ -218,6 +225,7 @@ export function DefinicionesViewer({
           setSelectedRama(sel.rama);
           setSelectedLibro(sel.libro);
           setSelectedTitulo(sel.titulo);
+          setSelectedParrafo(sel.parrafo);
           resetState();
           setShowSelector(false);
         }}
@@ -225,6 +233,7 @@ export function DefinicionesViewer({
           setSelectedRama("ALL");
           setSelectedLibro("ALL");
           setSelectedTitulo("ALL");
+          setSelectedParrafo("ALL");
           resetState();
           setShowSelector(false);
         }}
@@ -328,7 +337,7 @@ export function DefinicionesViewer({
 
   return (
     <div className="space-y-6">
-      {hasFiltersFromUrl && <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} />}
+      {hasFiltersFromUrl && <FilterBreadcrumb rama={initialFilters?.rama} libro={initialFilters?.libro} titulo={initialFilters?.titulo} parrafo={initialFilters?.parrafo} />}
 
       {/* Progress bar + score */}
       <div className="flex items-center justify-between text-xs text-gz-ink-mid font-ibm-mono">

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { buildRamaFilter } from "@/lib/rama-filter";
 
 /**
  * GET /api/caso-practico — fetch active casos practicos
@@ -22,10 +23,11 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rama = searchParams.get("rama");
 
-  // 3. Fetch active casos
+  // 3. Fetch active casos — respeta ramasAdicionales (Fase 7)
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const where: any = { activo: true };
-  if (rama) where.rama = rama;
+  const ramaFilter = buildRamaFilter(rama);
+  if (ramaFilter) Object.assign(where, ramaFilter);
 
   const casos = await prisma.casoPractico.findMany({
     where,

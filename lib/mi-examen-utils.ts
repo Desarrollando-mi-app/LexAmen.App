@@ -7,6 +7,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { CURRICULUM, RAMA_LABELS } from "@/lib/curriculum-data";
+import { buildRamaFilter } from "@/lib/rama-filter";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -172,10 +173,13 @@ export async function calculateTemaProgress(
   libro?: string | null,
   titulo?: string | null
 ): Promise<TemaProgress> {
-  // Build where clauses
-  const flashcardWhere: Record<string, unknown> = { rama: rama as never };
-  const mcqWhere: Record<string, unknown> = { rama: rama as never };
-  const vfWhere: Record<string, unknown> = { rama: rama as never };
+  // Build where clauses — respeta ramasAdicionales (Fase 7)
+  // Un ejercicio con rama primaria X + ramasAdicionales=[Y] cuenta para el
+  // progreso en ambas ramas.
+  const ramaFilter = buildRamaFilter(rama);
+  const flashcardWhere: Record<string, unknown> = ramaFilter ? { ...ramaFilter } : {};
+  const mcqWhere: Record<string, unknown> = ramaFilter ? { ...ramaFilter } : {};
+  const vfWhere: Record<string, unknown> = ramaFilter ? { ...ramaFilter } : {};
 
   if (libro) {
     flashcardWhere.libro = libro as never;
@@ -272,7 +276,9 @@ export async function countContentForMapping(
   libro?: string | null,
   titulo?: string | null
 ): Promise<{ flashcards: number; mcq: number; vf: number }> {
-  const where: Record<string, unknown> = { rama: rama as never };
+  // Respeta ramasAdicionales (Fase 7)
+  const ramaFilter = buildRamaFilter(rama);
+  const where: Record<string, unknown> = ramaFilter ? { ...ramaFilter } : {};
   if (libro) where.libro = libro as never;
   if (titulo) where.titulo = titulo;
 

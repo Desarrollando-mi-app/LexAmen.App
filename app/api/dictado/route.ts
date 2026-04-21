@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { isFreePlan } from "@/lib/plan-utils";
+import { buildRamaFilter } from "@/lib/rama-filter";
 
 /**
  * GET /api/dictado — list active dictados (PAID ONLY)
@@ -38,9 +39,11 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const rama = searchParams.get("rama");
 
+  // Respeta ramasAdicionales (Fase 7)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = { activo: true };
-  if (rama) where.rama = rama;
+  const ramaFilter = buildRamaFilter(rama);
+  if (ramaFilter) Object.assign(where, ramaFilter);
 
   const items = await prisma.dictadoJuridico.findMany({
     where,

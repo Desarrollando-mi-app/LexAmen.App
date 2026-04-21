@@ -50,7 +50,7 @@ const NAV_ITEMS: MobileNavItem[] = [
     children: [
       { href: "/dashboard/indice-maestro", label: "Índice Maestro" },
       { href: "/dashboard/instituciones", label: "Instituciones" },
-      { href: "/dashboard/estudios", label: "Ejercicios (11 módulos)" },
+      { href: "/dashboard/integradores", label: "Ejercicios integradores" },
     ],
   },
   {
@@ -94,7 +94,7 @@ const NAV_ITEMS: MobileNavItem[] = [
 
 const STUDY_ROUTES = [
   "/dashboard/indice-maestro", "/dashboard/instituciones", "/dashboard/estudios",
-  "/dashboard/flashcards", "/dashboard/mcq", "/dashboard/truefalse",
+  "/dashboard/integradores", "/dashboard/flashcards", "/dashboard/mcq", "/dashboard/truefalse",
   "/dashboard/definiciones", "/dashboard/completar-espacios", "/dashboard/identificar-errores",
   "/dashboard/ordenar-secuencias", "/dashboard/relacionar-columnas", "/dashboard/casos-practicos",
   "/dashboard/dictado-juridico", "/dashboard/linea-de-tiempo", "/dashboard/simulacro",

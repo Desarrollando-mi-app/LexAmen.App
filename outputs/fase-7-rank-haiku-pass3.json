@@ -1,0 +1,276 @@
+{
+  "cands": [
+    {
+      "model": "flashcard",
+      "id": "cmno43uvh0097os0zx0m4q4er",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 4,
+      "ratio": 4,
+      "excerpt": "¿Qué diferencia hay entre las excepciones del art. 234 CPC (cumplimiento incidental) y las del art. 464 CPC (juicio ejecutivo)? Las del art. 234 son 7 y más restringidas: pago, remisión, esperas, nova",
+      "civilHits": 4,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "mcq",
+      "id": "cmno43v3f009aos0zhiwwabpi",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 4,
+      "ratio": 4,
+      "excerpt": "Las excepciones del art. 234 CPC en el cumplimiento incidental son: 18 excepciones, igual que en el juicio ejecutivo 7 excepciones taxativas: pago, remisión, esperas, novación, compensación, transacci",
+      "civilHits": 4,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "definicion",
+      "id": "cmno43tzo008ros0zgi1z8e9m",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 4,
+      "ratio": 4,
+      "excerpt": "Excepciones del art. 234 CPC Defensas taxativas del ejecutado en el cumplimiento incidental: pago, remisión, concesión de esperas, novación, compensación, transacción, y pérdida del carácter ejecutori",
+      "civilHits": 4,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "flashcard",
+      "id": "cmno43uaq008xos0zj93z9b8u",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 2,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 4,
+      "ratio": 2,
+      "excerpt": "¿Cuáles son las excepciones que puede oponer el ejecutado en el cumplimiento incidental (art. 234 CPC)? Son taxativas: (1) Pago de la deuda. (2) Remisión de la deuda. (3) Concesión de esperas o prórro",
+      "civilHits": 4,
+      "procesalHits": 2,
+      "organicoHits": 0
+    },
+    {
+      "model": "mcq",
+      "id": "cmn172y8i007up50zen82gu07",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 0,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 3,
+      "ratio": 0,
+      "excerpt": "En los interdictos posesorios el tribunal: Ordena la inscripción del dominio Declara quién es el dueño Resuelve sobre la prescripción adquisitiva No discute dominio, solo posesión. Protección rápida d",
+      "civilHits": 3,
+      "procesalHits": 0,
+      "organicoHits": 0
+    },
+    {
+      "model": "mcq",
+      "id": "cmn17dmry007hy40zfiv7mo5p",
+      "ownRama": "DERECHO_ORGANICO",
+      "ownHits": 0,
+      "targetRama": "DERECHO_PROCESAL_CIVIL",
+      "targetHits": 3,
+      "ratio": 0,
+      "excerpt": "Contra la sentencia del TOP procede: Recurso de apelación Recurso de reposición Recurso de casación en la forma Recurso de nulidad ante la CA o CS (arts. 372-387 CPP) Arts. 372-387 CPP: nulidad por ca",
+      "civilHits": 0,
+      "procesalHits": 3,
+      "organicoHits": 0
+    },
+    {
+      "model": "flashcard",
+      "id": "cmn172vq6006rp50z0fkrt7jl",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "¿Cuándo procede el juicio sumario? 1) Cuando la acción requiere tramitación rápida por su naturaleza (art. 680 inc. 1 CPC), 2) En los casos expresamente enumerados en el art. 680 inc. 2 (depósito nece",
+      "civilHits": 2,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "flashcard",
+      "id": "cmn172qct004fp50zmlp8dt52",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "¿Cómo se tramitan las tercerías de prelación y pago? Como incidentes del juicio ejecutivo (art. 524 CPC): traslado 3 días + eventual prueba 8 días. Son más simples que las de dominio/posesión.",
+      "civilHits": 2,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "flashcard",
+      "id": "cmn172wqf0075p50zckc5l4gt",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "¿Cómo se tramitan los interdictos posesorios? Procedimiento sumario especial: demanda → audiencia (5° día) → prueba (8 días) → sentencia. No se discute dominio, solo posesión. El tribunal puede decret",
+      "civilHits": 2,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "mcq",
+      "id": "cmn1741lb00n5p50zc1bsl7wh",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "El abandono del procedimiento NO procede en: Juicios sumarios Juicios de arrendamiento Juicios ordinarios de mayor cuantía Juicios de quiebra (concursal) ni en procedimientos ejecutivos de realización",
+      "civilHits": 2,
+      "procesalHits": 1,
+      "organicoHits": 1
+    },
+    {
+      "model": "mcq",
+      "id": "cmn3wkiz3021z310zg0f2m7iq",
+      "ownRama": "DERECHO_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_ORGANICO",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "La subrogación legal opera: Solo por acuerdo De PLENO DERECHO en 6 casos del art. 1610. Ej: codeudor que paga, fiador, tercer poseedor Solo por testamento Solo por sentencia Art. 1610: 6 casos de subr",
+      "civilHits": 1,
+      "procesalHits": 0,
+      "organicoHits": 2
+    },
+    {
+      "model": "mcq",
+      "id": "cmn172yur0083p50zkzdgahqz",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "El juicio sumario del art. 680 inc. 2 Nº 6 CPC cubre: Solo interdictos posesorios Los casos en que la ley ordene proceder sumariamente o breve y sumariamente Solo comodato precario Solo depósito neces",
+      "civilHits": 2,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "mcq",
+      "id": "cmn172rb8004vp50zc3tgzfi6",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "Las cuatro tercerías del juicio ejecutivo son: Dominio, posesión, prelación y pago Solo prelación y pago Dominio, evicción, prelación y pago Solo dominio y posesión Arts. 518-529 CPC: cuatro tipos tax",
+      "civilHits": 2,
+      "procesalHits": 1,
+      "organicoHits": 0
+    },
+    {
+      "model": "trueFalse",
+      "id": "cmn16ppue00udfp0z60j6b5lz",
+      "ownRama": "DERECHO_CIVIL",
+      "ownHits": 1,
+      "targetRama": "DERECHO_PROCESAL_CIVIL",
+      "targetHits": 2,
+      "ratio": 2,
+      "excerpt": "El poseedor de buena fe no debe restituir los frutos percibidos antes de la contestación de la demanda reivindicatoria. Art. 907 inc. 3 CC: el poseedor de buena fe hace suyos los frutos percibidos ant",
+      "civilHits": 1,
+      "procesalHits": 2,
+      "organicoHits": 0
+    },
+    {
+      "model": "trueFalse",
+      "id": "cmn172sz8005kp50z5cwzavtr",
+      "ownRama": "DERECHO_PROCESAL_CIVIL",
+      "ownHits": 3,
+      "targetRama": "DERECHO_CIVIL",
+      "targetHits": 2,
+      "ratio": 0.67,
+      "excerpt": "Las cuatro tercerías del juicio ejecutivo son: dominio, posesión, prelación y pago. Arts. 518-529 CPC: cuatro tipos taxativos. Dominio y posesión atacan el embargo; prelación y pago atacan el producto",
+      "civilHits": 2,
+      "procesalHits": 3,
+      "organicoHits": 0
+    }
+  ],
+  "decisions": [
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "Ejercicio sobre procedimiento y excepciones procesales (arts. 234 y 464 CPC). No trata sustancialmente temas de CC; solo menciona conceptos civiles (pago, compensación) como contenido de excepciones, "
+    },
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "Ejercicio sobre procedimiento de cumplimiento incidental (CPC art. 234). Aunque toca excepciones sustantivas (pago, prescripción), el núcleo es procesal: régimen de defensas en ejecución de sentencia."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Las excepciones del art. 234 CPC se fundan en instituciones civiles sustantivas (pago, remisión, novación, compensación, transacción). Su comprensión requiere conocimiento del CC."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Las excepciones del art. 234 CPC (pago, remisión, novación, compensación, transacción) son instituciones sustantivas del CC que regulan extinción de obligaciones. El CPC solo regula su procedimiento."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Interdictos posesorios son institución dual: regulados en CPC (procedimiento) pero sustancialmente en CC (arts. 916-922). Requiere conocimiento de ambas ramas."
+    },
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "Ejercicio específico sobre recursos contra sentencias del TOP (Tribunal Oral en lo Penal). Regulación sustancial en CPP arts. 372-387. CPC tiene régimen distinto de recursos (apelación, casación). Sin"
+    },
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "El ejercicio trata exclusivamente procedimiento sumario (CPC art. 680). CC no regula tramitación procesal, solo sustancia de contratos y derechos."
+    },
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "Las tercerías de prelación y pago son institutos procesales puros (tramitación, plazos, procedimiento). El CC solo define derechos sustantivos de acreedores; la regulación procesal es exclusiva del CP"
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "Interdictos posesorios son acciones reales civiles (CC arts. 916-928) cuya tramitación procesal se regula en CPC. Ambas ramas son sustanciales."
+    },
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "Ejercicio sobre procedimiento y abandono (institución procesal pura del CPC). No trata sustancia civil; solo menciona CPC. Clasificación correcta en CPC."
+    },
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "Subrogación legal es institución sustantiva del CC. COT no regula subrogación. Solo menciona COT si hay proceso judicial, pero eso es accidental."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "El art. 680 inc. 2 Nº 6 CPC remite a leyes civiles que ordenan tramitación sumaria. Requiere conocer instituciones civiles (interdictos, comodato, depósito) para resolver correctamente."
+    },
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "Las tercerías son un instituto procesal regulado exclusivamente en CPC arts. 518-529. El CC no regula tercerías; solo CPC las tipifica como mecanismo de intervención en ejecución."
+    },
+    {
+      "aplica": true,
+      "confidence": "high",
+      "razon": "La contestación de demanda es acto procesal (CPC art. 309). El efecto sustantivo del art. 907 CC depende del momento procesal específico, haciendo inseparable ambas ramas."
+    },
+    {
+      "aplica": false,
+      "confidence": "high",
+      "razon": "Las tercerías son institutos procesales puros del CPC. Aunque invocan conceptos civiles (dominio, posesión, pago), su regulación, naturaleza y función son exclusivamente procedimentales."
+    }
+  ]
+}
