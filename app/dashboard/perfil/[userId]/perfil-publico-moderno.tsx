@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 import { TIER_LABELS, TIER_EMOJIS, getGradoInfo } from "@/lib/league";
 import { ReportModal } from "@/app/components/report-modal";
+import { AreasRadar } from "./areas-radar";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -78,6 +79,7 @@ interface PerfilModernoProps {
   obiterApoyosReceived: number;
   cvRequestStatus?: string | null;
   especialidadesCalculadas?: Array<{ materia: string; porcentaje: number }>;
+  especialidadesDeclaradas?: string[];
   trayectoria?: Array<{ tipo: string; anio: number; detalle?: string }>;
   topBadges?: Array<{ slug: string; emoji: string; label: string; tier: string }>;
 }
@@ -153,6 +155,7 @@ export function PerfilModerno({
   obiterCitasReceived,
   cvRequestStatus,
   especialidadesCalculadas,
+  especialidadesDeclaradas,
   trayectoria,
   topBadges,
 }: PerfilModernoProps) {
@@ -703,27 +706,63 @@ export function PerfilModerno({
               </dl>
             </SidebarCard>
 
-            {/* Especialidades */}
+            {/* Áreas practicadas (auto — radar) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
-              <SidebarCard title="Especialidades" eyebrow="top 5 · por XP">
-                <ul className="space-y-2.5">
-                  {especialidadesCalculadas.slice(0, 5).map((esp, i) => {
-                    const colors = ["bg-gz-gold", "bg-gz-burgundy", "bg-gz-navy", "bg-gz-sage", "bg-gz-rule-dark"];
-                    return (
-                      <li key={esp.materia}>
-                        <div className="flex justify-between items-baseline mb-1">
-                          <span className="font-archivo text-sm font-medium truncate">{esp.materia}</span>
-                          <span className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-mid shrink-0">{esp.porcentaje}%</span>
-                        </div>
-                        <div className="h-1.5 bg-gz-cream-dark rounded-[3px] overflow-hidden">
-                          <div className={`h-full ${colors[i] ?? "bg-gz-rule-dark"} rounded-[3px] transition-all`} style={{ width: `${esp.porcentaje}%` }} />
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
+              <SidebarCard title="Áreas practicadas" eyebrow="por XP">
+                {especialidadesCalculadas.length >= 3 ? (
+                  <AreasRadar data={especialidadesCalculadas} height={210} accent="gold" />
+                ) : (
+                  <ul className="space-y-2.5">
+                    {especialidadesCalculadas.slice(0, 5).map((esp, i) => {
+                      const colors = ["bg-gz-gold", "bg-gz-burgundy"];
+                      return (
+                        <li key={esp.materia}>
+                          <div className="flex justify-between items-baseline mb-1">
+                            <span className="font-archivo text-sm font-medium truncate">{esp.materia}</span>
+                            <span className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-mid shrink-0">{esp.porcentaje}%</span>
+                          </div>
+                          <div className="h-1.5 bg-gz-cream-dark rounded-[3px] overflow-hidden">
+                            <div className={`h-full ${colors[i] ?? "bg-gz-rule-dark"} rounded-[3px] transition-all`} style={{ width: `${esp.porcentaje}%` }} />
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </SidebarCard>
             )}
+
+            {/* Especialidades (declaradas por el usuario) */}
+            <SidebarCard
+              title="Especialidades"
+              action={isOwnProfile ? { label: "Editar", href: "/dashboard/perfil/configuracion#especialidades" } : undefined}
+            >
+              {especialidadesDeclaradas && especialidadesDeclaradas.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {especialidadesDeclaradas.map((esp) => (
+                    <span
+                      key={esp}
+                      className="font-archivo text-[12px] text-gz-navy bg-gz-gold/15 border border-gz-gold/30 px-2.5 py-1 rounded-[3px]"
+                    >
+                      {esp}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="font-archivo text-[13px] text-gz-ink-light italic">
+                  {isOwnProfile ? (
+                    <>
+                      Aún sin declarar.{" "}
+                      <Link href="/dashboard/perfil/configuracion#especialidades" className="text-gz-gold hover:underline not-italic">
+                        Declara tus áreas →
+                      </Link>
+                    </>
+                  ) : (
+                    "Sin declarar."
+                  )}
+                </p>
+              )}
+            </SidebarCard>
 
             {/* Colegas preview */}
             <SidebarCard

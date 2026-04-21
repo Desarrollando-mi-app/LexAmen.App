@@ -276,6 +276,19 @@ export default async function PerfilPage({ params, searchParams }: Props) {
     porcentaje: Math.round((xp / maxXp) * 100),
   }));
 
+  // Especialidades declaradas (self-reported) — parse User.especialidades JSON
+  let especialidadesDeclaradas: string[] = [];
+  if (targetUser.especialidades) {
+    try {
+      const parsed = JSON.parse(targetUser.especialidades);
+      if (Array.isArray(parsed)) {
+        especialidadesDeclaradas = parsed.filter((x): x is string => typeof x === "string");
+      }
+    } catch {
+      /* ignore malformed JSON */
+    }
+  }
+
   // Trayectoria timeline
   const trayectoria: Array<{ tipo: string; anio: number; detalle?: string }> = [];
   if (targetUser.anioIngreso) {
@@ -443,6 +456,7 @@ export default async function PerfilPage({ params, searchParams }: Props) {
         obiterApoyosReceived={obiterStats._sum.apoyosCount ?? 0}
         cvRequestStatus={cvRequest?.status ?? null}
         especialidadesCalculadas={especialidadesCalculadas}
+        especialidadesDeclaradas={especialidadesDeclaradas}
         trayectoria={trayectoria}
         topBadges={topBadges}
       />
@@ -465,6 +479,7 @@ export default async function PerfilPage({ params, searchParams }: Props) {
         obiterApoyosReceived={obiterStats._sum.apoyosCount ?? 0}
         cvRequestStatus={cvRequest?.status ?? null}
         especialidadesCalculadas={especialidadesCalculadas}
+        especialidadesDeclaradas={especialidadesDeclaradas}
         trayectoria={trayectoria}
         topBadges={topBadges}
       />
@@ -493,6 +508,7 @@ export default async function PerfilPage({ params, searchParams }: Props) {
         evaluadorNombre: e.evaluador.firstName,
       }))}
       especialidadesCalculadas={especialidadesCalculadas}
+      especialidadesDeclaradas={especialidadesDeclaradas}
       trayectoria={trayectoria}
       topBadges={topBadges}
     />

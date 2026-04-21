@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 import { TIER_LABELS, TIER_EMOJIS, getGradoInfo } from "@/lib/league";
 import { ReportModal } from "@/app/components/report-modal";
+import { AreasRadar } from "./areas-radar";
 
 // ─── Types (shared shape with perfil-publico.tsx) ────────
 
@@ -77,6 +78,7 @@ interface PerfilEditorialProps {
   obiterApoyosReceived: number;
   cvRequestStatus?: string | null;
   especialidadesCalculadas?: Array<{ materia: string; porcentaje: number }>;
+  especialidadesDeclaradas?: string[];
   trayectoria?: Array<{ tipo: string; anio: number; detalle?: string }>;
   topBadges?: Array<{ slug: string; emoji: string; label: string; tier: string }>;
 }
@@ -139,6 +141,7 @@ export function PerfilEditorial({
   obiterCitasReceived,
   cvRequestStatus,
   especialidadesCalculadas,
+  especialidadesDeclaradas,
   trayectoria,
   topBadges,
 }: PerfilEditorialProps) {
@@ -636,30 +639,73 @@ export function PerfilEditorial({
               )}
             </div>
 
-            {/* Especialidades */}
+            {/* Áreas practicadas (auto — radar editorial) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
               <div>
                 <div className="font-ibm-mono text-[10px] uppercase tracking-[3px] text-gz-ink border-b border-gz-ink pb-1 mb-3">
-                  Especialidades · <span className="text-gz-ink-light">por XP</span>
+                  Áreas practicadas · <span className="text-gz-ink-light">por XP</span>
                 </div>
-                <ol className="space-y-3">
-                  {especialidadesCalculadas.map((esp, i) => (
-                    <li key={esp.materia}>
-                      <div className="flex items-baseline justify-between gap-2 mb-1">
-                        <div className="flex items-baseline gap-2 min-w-0">
-                          <span className="font-ibm-mono text-[10px] text-gz-ink-light">{toRoman(i + 1)}.</span>
-                          <span className="font-cormorant text-base truncate">{esp.materia}</span>
+                {especialidadesCalculadas.length >= 3 ? (
+                  <div className="border border-gz-rule bg-gz-cream px-2 py-2">
+                    <AreasRadar data={especialidadesCalculadas} height={220} accent="gold" />
+                  </div>
+                ) : (
+                  <ol className="space-y-3">
+                    {especialidadesCalculadas.map((esp, i) => (
+                      <li key={esp.materia}>
+                        <div className="flex items-baseline justify-between gap-2 mb-1">
+                          <div className="flex items-baseline gap-2 min-w-0">
+                            <span className="font-ibm-mono text-[10px] text-gz-ink-light">{toRoman(i + 1)}.</span>
+                            <span className="font-cormorant text-base truncate">{esp.materia}</span>
+                          </div>
+                          <span className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-gold shrink-0">{esp.porcentaje}%</span>
                         </div>
-                        <span className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-gold shrink-0">{esp.porcentaje}%</span>
-                      </div>
-                      <div className="h-[3px] bg-gz-rule">
-                        <div className="h-full bg-gz-ink" style={{ width: `${esp.porcentaje}%` }} />
-                      </div>
-                    </li>
-                  ))}
-                </ol>
+                        <div className="h-[3px] bg-gz-rule">
+                          <div className="h-full bg-gz-ink" style={{ width: `${esp.porcentaje}%` }} />
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                )}
               </div>
             )}
+
+            {/* Especialidades declaradas (user-curated) */}
+            <div>
+              <div className="font-ibm-mono text-[10px] uppercase tracking-[3px] text-gz-ink border-b border-gz-ink pb-1 mb-3 flex justify-between">
+                <span>Especialidades</span>
+                {isOwnProfile && (
+                  <Link href="/dashboard/perfil/configuracion#especialidades" className="text-gz-gold hover:underline cursor-pointer">
+                    editar →
+                  </Link>
+                )}
+              </div>
+              {especialidadesDeclaradas && especialidadesDeclaradas.length > 0 ? (
+                <ul className="flex flex-wrap gap-1.5">
+                  {especialidadesDeclaradas.map((esp) => (
+                    <li
+                      key={esp}
+                      className="font-archivo text-[12px] text-gz-ink border border-gz-ink px-2 py-0.5"
+                    >
+                      {esp}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="font-archivo text-xs text-gz-ink-light italic">
+                  {isOwnProfile ? (
+                    <>
+                      Aún sin declarar.{" "}
+                      <Link href="/dashboard/perfil/configuracion#especialidades" className="text-gz-gold hover:underline not-italic">
+                        Declara tus áreas →
+                      </Link>
+                    </>
+                  ) : (
+                    "Sin declarar."
+                  )}
+                </p>
+              )}
+            </div>
 
             {/* Claustro preview */}
             <div>

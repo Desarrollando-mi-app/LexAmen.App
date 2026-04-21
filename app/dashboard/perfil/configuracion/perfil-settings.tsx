@@ -1015,7 +1015,7 @@ function TabPerfil({
       )}
 
       {/* Especialidades declaradas */}
-      <div>
+      <div id="especialidades" className="scroll-mt-24">
         <label className={LABEL}>Especialidades declaradas</label>
         <div className="flex flex-wrap gap-2 mt-1">
           {ESPECIALIDAD_OPTIONS.map((esp) => {

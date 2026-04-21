@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 import { getGradoInfo, NIVELES, getNivel } from "@/lib/league";
 import { ReportModal } from "@/app/components/report-modal";
+import { AreasRadar } from "./areas-radar";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -103,6 +104,7 @@ interface PerfilPublicoProps {
   tutorStats?: TutorStats;
   recentEvaluations?: RecentEvaluation[];
   especialidadesCalculadas?: Array<{ materia: string; porcentaje: number }>;
+  especialidadesDeclaradas?: string[];
   trayectoria?: Array<{ tipo: string; anio: number; detalle?: string }>;
   topBadges?: Array<{ slug: string; emoji: string; label: string; tier: string }>;
 }
@@ -178,6 +180,7 @@ export function PerfilPublico({
   tutorStats,
   recentEvaluations,
   especialidadesCalculadas,
+  especialidadesDeclaradas,
   trayectoria,
   topBadges,
 }: PerfilPublicoProps) {
@@ -773,32 +776,74 @@ export function PerfilPublico({
               </dl>
             </div>
 
-            {/* Especialidades */}
+            {/* Áreas practicadas (auto — radar) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
               <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink">Especialidades</h3>
+                  <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink">Áreas practicadas</h3>
                   <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">por XP</span>
                 </div>
-                <div className="space-y-3">
-                  {especialidadesCalculadas.map((esp, i) => {
-                    const color = materiaColor(esp.materia);
-                    const bars = ["bg-gz-gold", "bg-gz-burgundy", "bg-gz-navy", "bg-gz-sage", "bg-gz-rule-dark"];
-                    return (
-                      <div key={esp.materia}>
-                        <div className="flex justify-between items-baseline mb-1.5">
-                          <span className="font-cormorant text-base font-medium">{esp.materia}</span>
-                          <span className={`font-ibm-mono text-[10px] uppercase tracking-[1.5px] ${color.text}`}>{esp.porcentaje}%</span>
+                {especialidadesCalculadas.length >= 3 ? (
+                  <AreasRadar data={especialidadesCalculadas} height={220} accent="gold" />
+                ) : (
+                  // Fallback: con 1-2 materias el radar no tiene sentido, mostramos barras
+                  <div className="space-y-3">
+                    {especialidadesCalculadas.map((esp, i) => {
+                      const color = materiaColor(esp.materia);
+                      const bars = ["bg-gz-gold", "bg-gz-burgundy"];
+                      return (
+                        <div key={esp.materia}>
+                          <div className="flex justify-between items-baseline mb-1.5">
+                            <span className="font-cormorant text-base font-medium">{esp.materia}</span>
+                            <span className={`font-ibm-mono text-[10px] uppercase tracking-[1.5px] ${color.text}`}>{esp.porcentaje}%</span>
+                          </div>
+                          <div className="h-2 bg-gz-cream-dark rounded-full overflow-hidden">
+                            <div className={`h-full ${bars[i] ?? "bg-gz-rule-dark"} rounded-full transition-all`} style={{ width: `${esp.porcentaje}%` }} />
+                          </div>
                         </div>
-                        <div className="h-2 bg-gz-cream-dark rounded-full overflow-hidden">
-                          <div className={`h-full ${bars[i] ?? "bg-gz-rule-dark"} rounded-full transition-all`} style={{ width: `${esp.porcentaje}%` }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
+
+            {/* Especialidades (declaradas por el usuario) */}
+            <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink">Especialidades</h3>
+                {isOwnProfile && (
+                  <Link href="/dashboard/perfil/configuracion#especialidades" className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold hover:underline">
+                    Editar →
+                  </Link>
+                )}
+              </div>
+              {especialidadesDeclaradas && especialidadesDeclaradas.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {especialidadesDeclaradas.map((esp) => (
+                    <span
+                      key={esp}
+                      className="font-archivo text-[12px] text-gz-navy bg-gz-gold/15 border border-gz-gold/30 px-2.5 py-1 rounded-[3px]"
+                    >
+                      {esp}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="font-archivo text-sm text-gz-ink-light italic">
+                  {isOwnProfile ? (
+                    <>
+                      Aún sin declarar.{" "}
+                      <Link href="/dashboard/perfil/configuracion#especialidades" className="text-gz-gold hover:underline not-italic">
+                        Declara las áreas donde destacas →
+                      </Link>
+                    </>
+                  ) : (
+                    "Sin especialidades declaradas."
+                  )}
+                </p>
+              )}
+            </div>
 
             {/* Colegas preview */}
             <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-5">
