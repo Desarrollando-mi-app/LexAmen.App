@@ -751,10 +751,10 @@ export function PerfilPublico({
           {/* ─── SIDEBAR ─────────────────────────────────────── */}
           <aside className="lg:col-span-4 space-y-4">
 
-            {/* Acerca de */}
+            {/* Presentación */}
             <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-5">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink">Acerca de</h3>
+                <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink">Presentación</h3>
                 {isOwnProfile && (
                   <Link href="/dashboard/perfil/configuracion" className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold hover:underline">
                     Editar
@@ -775,6 +775,30 @@ export function PerfilPublico({
                 <InfoRow label="Miembro desde" value={new Date(user.memberSince).toLocaleDateString("es-CL", { month: "long", year: "numeric" })} />
               </dl>
             </div>
+
+            {/* Trayectoria (directamente bajo Presentación) */}
+            {trayectoria && trayectoria.length > 0 && (
+              <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink">Trayectoria</h3>
+                  {isOwnProfile && (
+                    <Link href="/dashboard/perfil/configuracion#trayectoria" className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold hover:underline">
+                      Editar
+                    </Link>
+                  )}
+                </div>
+                <ol className="relative border-l-2 border-gz-rule pl-4 space-y-3">
+                  {trayectoria.slice(0, 4).map((t, i) => (
+                    <li key={i} className="relative">
+                      <div className="absolute -left-[22px] w-[10px] h-[10px] bg-gz-gold rounded-full border-2 border-gz-cream" />
+                      <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">{t.anio}</div>
+                      <div className="font-archivo text-sm font-medium">{trayectoriaLabel(t.tipo)}</div>
+                      {t.detalle && <div className="font-archivo text-xs text-gz-ink-mid">{t.detalle}</div>}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
 
             {/* Áreas practicadas (auto — radar) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
@@ -897,23 +921,6 @@ export function PerfilPublico({
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* Trayectoria mini */}
-            {trayectoria && trayectoria.length > 0 && (
-              <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-5">
-                <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink mb-4">Trayectoria</h3>
-                <ol className="relative border-l-2 border-gz-rule pl-4 space-y-3">
-                  {trayectoria.slice(0, 4).map((t, i) => (
-                    <li key={i} className="relative">
-                      <div className="absolute -left-[22px] w-[10px] h-[10px] bg-gz-gold rounded-full border-2 border-gz-cream" />
-                      <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">{t.anio}</div>
-                      <div className="font-archivo text-sm font-medium">{trayectoriaLabel(t.tipo)}</div>
-                      {t.detalle && <div className="font-archivo text-xs text-gz-ink-mid">{t.detalle}</div>}
-                    </li>
-                  ))}
-                </ol>
               </div>
             )}
 

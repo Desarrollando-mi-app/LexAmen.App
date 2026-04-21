@@ -78,7 +78,71 @@ const BTN_SECONDARY =
 const BTN_DESTRUCTIVE =
   "bg-gz-burgundy text-white font-archivo text-[13px] font-semibold px-6 py-2.5 rounded-[3px] hover:bg-gz-burgundy/90 transition-colors disabled:opacity-50";
 
-const ESPECIALIDAD_OPTIONS = ["Derecho Civil", "Derecho Procesal Civil", "Derecho Orgánico"];
+// Áreas del derecho chileno — lista curada y alfabética para el picker de especialidades.
+// Si quieres agregar una que no esté, sumala respetando el orden alfabético.
+const ESPECIALIDAD_OPTIONS = [
+  "Arbitraje",
+  "Criminología",
+  "Derecho Administrativo",
+  "Derecho Aduanero",
+  "Derecho Aeronáutico",
+  "Derecho Agrario",
+  "Derecho Ambiental",
+  "Derecho Bancario y Financiero",
+  "Derecho Canónico",
+  "Derecho Civil",
+  "Derecho Comercial",
+  "Derecho Concursal",
+  "Derecho Constitucional",
+  "Derecho Corporativo",
+  "Derecho de Aguas",
+  "Derecho de Datos Personales",
+  "Derecho de Familia",
+  "Derecho de la Integración",
+  "Derecho de la Seguridad Social",
+  "Derecho de Propiedad Industrial",
+  "Derecho de Propiedad Intelectual",
+  "Derecho de Seguros",
+  "Derecho de Telecomunicaciones",
+  "Derecho del Consumidor",
+  "Derecho del Mercado de Valores",
+  "Derecho del Transporte",
+  "Derecho Deportivo",
+  "Derecho Digital y TIC",
+  "Derecho Económico",
+  "Derecho Electoral",
+  "Derecho Energético",
+  "Derecho Inmobiliario",
+  "Derecho Internacional Privado",
+  "Derecho Internacional Público",
+  "Derecho Laboral",
+  "Derecho Marítimo",
+  "Derecho Militar",
+  "Derecho Minero",
+  "Derecho Municipal",
+  "Derecho Notarial",
+  "Derecho Orgánico",
+  "Derecho Penal",
+  "Derecho Penal Económico",
+  "Derecho Previsional",
+  "Derecho Procesal Civil",
+  "Derecho Procesal de Familia",
+  "Derecho Procesal Laboral",
+  "Derecho Procesal Penal",
+  "Derecho Registral",
+  "Derecho Sanitario",
+  "Derecho Societario",
+  "Derecho Sucesorio",
+  "Derecho Tributario",
+  "Derecho Urbanístico",
+  "Derechos Humanos",
+  "Filosofía del Derecho",
+  "Historia del Derecho",
+  "Libre Competencia",
+  "Litigación",
+  "Mediación y ADR",
+  "Teoría del Derecho",
+];
 
 const INTERES_OPTIONS = [
   "Obligaciones", "Bienes", "Acto Jurídico", "Responsabilidad", "Contratos",
@@ -159,6 +223,7 @@ function TabPerfil({
     try { return user.especialidades ? JSON.parse(user.especialidades) : []; }
     catch { return []; }
   });
+  const [especialidadesQuery, setEspecialidadesQuery] = useState("");
   const [interesesState, setInteresesState] = useState<string[]>(() => {
     try { return user.intereses ? JSON.parse(user.intereses) : []; }
     catch { return []; }
@@ -1016,29 +1081,78 @@ function TabPerfil({
 
       {/* Especialidades declaradas */}
       <div id="especialidades" className="scroll-mt-24">
-        <label className={LABEL}>Especialidades declaradas</label>
-        <div className="flex flex-wrap gap-2 mt-1">
-          {ESPECIALIDAD_OPTIONS.map((esp) => {
-            const selected = especialidades.includes(esp);
-            return (
+        <label className={LABEL}>
+          Especialidades declaradas
+          {especialidades.length > 0 && (
+            <span className="ml-2 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold">
+              {especialidades.length} seleccionada{especialidades.length !== 1 ? "s" : ""}
+            </span>
+          )}
+        </label>
+
+        {/* Seleccionadas al tope (si hay) para que se vean primero */}
+        {especialidades.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-1 mb-3 p-3 rounded-[3px] border border-gz-gold/30 bg-gz-gold/5">
+            {especialidades.map((esp) => (
               <button
                 key={esp}
                 type="button"
-                onClick={() =>
-                  setEspecialidades((prev) =>
-                    selected ? prev.filter((e) => e !== esp) : [...prev, esp]
-                  )
-                }
-                className={`px-3 py-1.5 rounded-full font-archivo text-[13px] transition-colors cursor-pointer ${
-                  selected
-                    ? "bg-gz-gold text-gz-navy font-semibold"
-                    : "border border-gz-rule text-gz-ink-mid hover:border-gz-gold"
-                }`}
+                onClick={() => setEspecialidades((prev) => prev.filter((e) => e !== esp))}
+                className="px-3 py-1.5 rounded-full font-archivo text-[13px] bg-gz-gold text-gz-navy font-semibold cursor-pointer hover:bg-gz-gold/80 transition-colors inline-flex items-center gap-1.5"
+                title="Quitar de mis especialidades"
               >
                 {esp}
+                <span className="text-gz-navy/70 text-[15px] leading-none">×</span>
               </button>
-            );
-          })}
+            ))}
+          </div>
+        )}
+
+        {/* Buscador */}
+        <input
+          type="search"
+          value={especialidadesQuery}
+          onChange={(e) => setEspecialidadesQuery(e.target.value)}
+          placeholder="Buscar área del derecho…"
+          className={`${INPUT} mt-1 mb-3`}
+        />
+
+        {/* Picker */}
+        <div className="flex flex-wrap gap-2 max-h-[300px] overflow-y-auto p-1 border border-gz-rule rounded-[3px] bg-gz-cream/40">
+          {(() => {
+            const q = especialidadesQuery.trim().toLowerCase();
+            const filtered = q
+              ? ESPECIALIDAD_OPTIONS.filter((e) => e.toLowerCase().includes(q))
+              : ESPECIALIDAD_OPTIONS;
+            if (filtered.length === 0) {
+              return (
+                <p className="font-archivo text-sm text-gz-ink-light italic p-2">
+                  Sin resultados para «{especialidadesQuery}».
+                </p>
+              );
+            }
+            return filtered.map((esp) => {
+              const selected = especialidades.includes(esp);
+              return (
+                <button
+                  key={esp}
+                  type="button"
+                  onClick={() =>
+                    setEspecialidades((prev) =>
+                      selected ? prev.filter((e) => e !== esp) : [...prev, esp]
+                    )
+                  }
+                  className={`px-3 py-1.5 rounded-full font-archivo text-[13px] transition-colors cursor-pointer ${
+                    selected
+                      ? "bg-gz-gold text-gz-navy font-semibold"
+                      : "border border-gz-rule text-gz-ink-mid hover:border-gz-gold bg-white"
+                  }`}
+                >
+                  {esp}
+                </button>
+              );
+            });
+          })()}
         </div>
       </div>
 

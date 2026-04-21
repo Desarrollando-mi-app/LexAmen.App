@@ -610,10 +610,10 @@ export function PerfilEditorial({
           {/* ─── SIDEBAR (editorial column) ─────────────────── */}
           <aside className="lg:col-span-4 space-y-6 lg:border-l lg:border-gz-rule lg:pl-6">
 
-            {/* Acerca de */}
+            {/* Presentación */}
             <div>
               <div className="font-ibm-mono text-[10px] uppercase tracking-[3px] text-gz-ink border-b border-gz-ink pb-1 mb-3">
-                Acerca de
+                Presentación
               </div>
               {user.bio ? (
                 <p className="font-cormorant italic text-base leading-snug text-gz-ink mb-4">«{user.bio}»</p>
@@ -638,6 +638,31 @@ export function PerfilEditorial({
                 </a>
               )}
             </div>
+
+            {/* Trayectoria (mini — editorial) */}
+            {trayectoria && trayectoria.length > 0 && (
+              <div>
+                <div className="font-ibm-mono text-[10px] uppercase tracking-[3px] text-gz-ink border-b border-gz-ink pb-1 mb-3 flex justify-between">
+                  <span>Trayectoria</span>
+                  <button
+                    onClick={() => setActiveSection("trayectoria")}
+                    className="text-gz-gold hover:underline cursor-pointer"
+                  >
+                    ver todo →
+                  </button>
+                </div>
+                <ol className="relative border-l border-gz-ink pl-4 space-y-3">
+                  {trayectoria.slice(0, 4).map((t, i) => (
+                    <li key={i} className="relative">
+                      <div className="absolute -left-[19px] top-[6px] w-[7px] h-[7px] bg-gz-ink border border-gz-cream" />
+                      <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">{t.anio}</div>
+                      <div className="font-cormorant text-base text-gz-ink leading-tight">{trayectoriaLabel(t.tipo)}</div>
+                      {t.detalle && <div className="font-archivo text-[12px] text-gz-ink-mid">{t.detalle}</div>}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
 
             {/* Áreas practicadas (auto — radar editorial) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (

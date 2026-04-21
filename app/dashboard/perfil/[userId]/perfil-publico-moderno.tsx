@@ -684,8 +684,8 @@ export function PerfilModerno({
           {/* ─── SIDEBAR ──────────────────────────────────────── */}
           <aside className="lg:col-span-4 space-y-3">
 
-            {/* Acerca de */}
-            <SidebarCard title="Acerca de" action={isOwnProfile ? { label: "Editar", href: "/dashboard/perfil/configuracion" } : undefined}>
+            {/* Presentación */}
+            <SidebarCard title="Presentación" action={isOwnProfile ? { label: "Editar", href: "/dashboard/perfil/configuracion" } : undefined}>
               {user.bio ? (
                 <p className="font-cormorant italic text-[15px] text-gz-ink leading-snug">«{user.bio}»</p>
               ) : (
@@ -705,6 +705,25 @@ export function PerfilModerno({
                 )}
               </dl>
             </SidebarCard>
+
+            {/* Trayectoria (mini — directamente bajo Presentación) */}
+            {trayectoria && trayectoria.length > 0 && (
+              <SidebarCard
+                title="Trayectoria"
+                action={{ label: "Ver todo", onClick: () => setActiveTab("trayectoria") }}
+              >
+                <ol className="relative border-l-2 border-gz-rule pl-4 space-y-3">
+                  {trayectoria.slice(0, 4).map((t, i) => (
+                    <li key={i} className="relative">
+                      <div className="absolute -left-[22px] w-[10px] h-[10px] bg-gz-gold rounded-full border-2 border-gz-cream" />
+                      <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">{t.anio}</div>
+                      <div className="font-archivo text-sm font-medium text-gz-ink">{trayectoriaLabel(t.tipo)}</div>
+                      {t.detalle && <div className="font-archivo text-xs text-gz-ink-mid">{t.detalle}</div>}
+                    </li>
+                  ))}
+                </ol>
+              </SidebarCard>
+            )}
 
             {/* Áreas practicadas (auto — radar) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
