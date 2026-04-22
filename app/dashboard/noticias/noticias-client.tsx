@@ -868,13 +868,13 @@ function NoticiaActions({
                 <div className="mb-3">
                   <label className="mb-1 block font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-ink-light">
                     Tu reflexión{" "}
-                    <span className={odText.length > 128 ? "text-gz-burgundy" : "text-gz-ink-light"}>
-                      ({odText.length}/128)
+                    <span className={odText.length > 256 ? "text-gz-burgundy" : "text-gz-ink-light"}>
+                      ({odText.length}/256)
                     </span>
                   </label>
                   <textarea
                     value={odText}
-                    onChange={(e) => { if (e.target.value.length <= 128) setOdText(e.target.value); }}
+                    onChange={(e) => { if (e.target.value.length <= 256) setOdText(e.target.value); }}
                     placeholder="Escribe tu reflexión sobre esta noticia..."
                     rows={2}
                     className="w-full resize-none rounded-[3px] border border-gz-rule bg-white px-3 py-2 font-archivo text-[13px] text-gz-ink placeholder:text-gz-ink-light/50 focus:border-gz-gold focus:outline-none"

@@ -376,7 +376,7 @@ function PublishModal({
     titulo.trim() &&
     formato &&
     (formato === "OBITER_DICTUM"
-      ? contenido.trim() && contenido.length <= 128
+      ? contenido.trim() && contenido.length <= 256
       : hechos.trim() && ratio.trim() && opinion.trim());
 
   return (
@@ -417,7 +417,7 @@ function PublishModal({
                   Obiter Dictum
                 </div>
                 <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">
-                  Reflexión jurídica breve (máx. 128 caracteres)
+                  Reflexión jurídica breve (máx. 256 caracteres)
                 </p>
               </button>
               <button
@@ -497,18 +497,18 @@ function PublishModal({
                     Contenido *{" "}
                     <span
                       className={`ml-1 ${
-                        contenido.length > 128
+                        contenido.length > 256
                           ? "text-gz-burgundy"
                           : "text-gz-ink-light"
                       }`}
                     >
-                      ({contenido.length}/128)
+                      ({contenido.length}/256)
                     </span>
                   </label>
                   <textarea
                     value={contenido}
-                    onChange={(e) => { if (e.target.value.length <= 128) setContenido(e.target.value); }}
-                    placeholder="Reflexión jurídica breve (máx. 128 caracteres)"
+                    onChange={(e) => { if (e.target.value.length <= 256) setContenido(e.target.value); }}
+                    placeholder="Reflexión jurídica breve (máx. 256 caracteres)"
                     rows={3}
                     className="w-full rounded-[3px] border border-gz-rule px-3 py-2 font-archivo text-[13px] focus:border-gz-gold focus:outline-none resize-none" style={{ backgroundColor: "var(--gz-cream)" }}
                   />
