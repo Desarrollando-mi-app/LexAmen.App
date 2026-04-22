@@ -10,16 +10,21 @@ export default function GlobalError({
   return (
     <main className="flex min-h-screen flex-col items-center justify-center px-4" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="text-center max-w-md">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/brand/logo-horizontal.svg"
-          alt="Studio Iuris"
-          width={200}
-          height={44}
-          className="h-[40px] w-auto mx-auto mb-4"
-        />
+        <div className="flex flex-col items-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/logo-sello.svg"
+            alt="Studio Iuris"
+            width={192}
+            height={192}
+            className="h-[192px] w-[192px]"
+          />
+          <span className="mt-3 font-cormorant text-[26px] !font-bold text-gz-ink leading-none tracking-[-0.01em]">
+            Studio <span className="italic font-normal text-gz-red">IURIS</span>
+          </span>
+        </div>
 
-        <div className="mt-8">
+        <div className="mt-10">
           <h2 className="font-cormorant text-[22px] !font-bold text-gz-ink">Algo salio mal</h2>
           <p className="mt-2 font-archivo text-[14px] text-gz-ink-light">
             Ocurrio un error inesperado. Puedes intentar de nuevo o volver al
