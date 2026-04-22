@@ -805,7 +805,7 @@ export function PerfilPublico({
               <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink">Áreas practicadas</h3>
-                  <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">por XP</span>
+                  <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">ratio · últ. 100</span>
                 </div>
                 {especialidadesCalculadas.length >= 3 ? (
                   <AreasRadar data={especialidadesCalculadas} height={220} accent="gold" />

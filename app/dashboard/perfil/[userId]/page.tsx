@@ -27,7 +27,7 @@ export default async function PerfilPage({ params, searchParams }: Props) {
   const isOwnProfile = params.userId === authUser.id;
 
   // Buscar usuario
-  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest, diarioPostCount, obiterStats, tutorStats, recentEvaluations, xpByMateria, obitersRaw, analisisRaw, ensayosRaw, debatesRaw, columnasRaw] =
+  const [targetUser, colegaStatus, colegaCount, targetBadges, targetColegas, cvRequest, diarioPostCount, obiterStats, tutorStats, recentEvaluations, obitersRaw, analisisRaw, ensayosRaw, debatesRaw, columnasRaw] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: params.userId },
@@ -110,18 +110,6 @@ export default async function PerfilPage({ params, searchParams }: Props) {
           comentario: true,
           evaluador: { select: { firstName: true } },
         },
-      }),
-      // XP by materia for especialidades calculadas.
-      // No limitamos aquí: necesitamos TODAS las materias practicadas para luego
-      // canonicalizarlas en ramas. Si limitamos a 5 materias, podríamos estar
-      // viendo sólo sub-unidades de una misma rama (e.g. todo "Civil") y perder
-      // ramas con menos XP (Constitucional, Procesal, etc.) que deben aparecer
-      // dinámicamente en el radar cuando el usuario empiece a practicarlas.
-      prisma.xpLog.groupBy({
-        by: ["materia"],
-        where: { userId: params.userId, materia: { not: null }, amount: { gt: 0 } },
-        _sum: { amount: true },
-        orderBy: { _sum: { amount: "desc" } },
       }),
       // Publicaciones: los 4 tipos (ObiterDictum legacy, AnalisisSentencia, Ensayo, DebateJuridico)
       prisma.obiterDictum.findMany({
@@ -239,67 +227,99 @@ export default async function PerfilPage({ params, searchParams }: Props) {
       ? Math.round((targetUser.causasGanadas / totalCausas) * 100)
       : 0;
 
-  // Especialidades: agrupar XP por rama canónica (top-level) para evitar duplicación
-  // entre "Derecho Civil" y sus sub-unidades ("Obligaciones", "Actos Jurídicos", etc.).
-  // Objetivo: el radar muestra ramas del derecho dinámicamente — aparece una nueva
-  // rama (ej. "Derecho Constitucional") en cuanto el usuario registra actividad en ella.
-  const CANONICAL_RAMAS: Record<string, string> = {
-    // Enum Rama (valor crudo del schema)
-    derecho_civil: "Derecho Civil",
-    derecho_procesal_civil: "Derecho Procesal Civil",
-    derecho_organico: "Derecho Orgánico",
-    // Civil y sub-unidades
-    civil: "Derecho Civil",
-    obligaciones: "Derecho Civil",
-    contratos: "Derecho Civil",
-    bienes: "Derecho Civil",
-    familia: "Derecho Civil",
-    sucesiones: "Derecho Civil",
-    acto_juridico: "Derecho Civil",
-    actos_juridicos: "Derecho Civil",
-    responsabilidad: "Derecho Civil",
-    // Penal
-    penal: "Derecho Penal",
-    penal_general: "Derecho Penal",
-    penal_especial: "Derecho Penal",
-    derecho_penal: "Derecho Penal",
-    // Procesal
-    procesal: "Derecho Procesal",
-    procesal_civil: "Derecho Procesal Civil",
-    procesal_penal: "Derecho Procesal Penal",
-    // Orgánico / Estado
-    organico: "Derecho Orgánico",
-    constitucional: "Derecho Constitucional",
-    derecho_constitucional: "Derecho Constitucional",
-    administrativo: "Derecho Administrativo",
-    derecho_administrativo: "Derecho Administrativo",
-    // Otras
-    comercial: "Derecho Comercial",
-    derecho_comercial: "Derecho Comercial",
-    laboral: "Derecho del Trabajo",
-    trabajo: "Derecho del Trabajo",
-    derecho_laboral: "Derecho del Trabajo",
-    internacional: "Derecho Internacional",
-    derecho_internacional: "Derecho Internacional",
-    tributario: "Derecho Tributario",
-    derecho_tributario: "Derecho Tributario",
-    economico: "Derecho Económico",
-    derecho_economico: "Derecho Económico",
+  // ─── Áreas practicadas (radar) ─────────────────────────────────
+  // Métrica: RATIO DE ACIERTO SUAVIZADO (Bayesiano) sobre los últimos 100
+  // ejercicios realizados POR RAMA. Cada rama se evalúa con su propia
+  // evidencia — actividad en Procesal no contamina el puntaje de Civil.
+  //
+  // Fuentes (todas con isCorrect + vínculo a Rama vía MCQ/TrueFalse):
+  //   · UserMCQAttempt       → MCQ.rama
+  //   · UserTrueFalseAttempt → TrueFalse.rama
+  //   · CausaAnswer          → MCQ.rama  (causa individual)
+  //   · CausaRoomAnswer      → MCQ.rama  (causa multiplayer)
+  //
+  // Suavizado: (correctas + 5) / (total + 10). Con 0 intentos la rama no
+  // aparece; con 1-10 intentos el % converge desde 50% evitando falsos
+  // máximos; con 100 intentos el resultado se acerca al ratio real.
+  const RAMAS_ENUM = ["DERECHO_CIVIL", "DERECHO_PROCESAL_CIVIL", "DERECHO_ORGANICO"] as const;
+  const RAMA_LABELS: Record<(typeof RAMAS_ENUM)[number], string> = {
+    DERECHO_CIVIL: "Derecho Civil",
+    DERECHO_PROCESAL_CIVIL: "Derecho Procesal Civil",
+    DERECHO_ORGANICO: "Derecho Orgánico",
   };
-  const ramaBuckets = new Map<string, number>();
-  for (const m of xpByMateria) {
-    if (!m.materia || !m._sum.amount) continue;
-    const key = m.materia.toLowerCase().trim().replace(/\s+/g, "_");
-    const canonical = CANONICAL_RAMAS[key] ?? m.materia;
-    ramaBuckets.set(canonical, (ramaBuckets.get(canonical) ?? 0) + m._sum.amount);
-  }
-  // Top 8 ramas para que el radar respire (más de eso se amontona).
-  const ramaEntries = Array.from(ramaBuckets.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  const maxXp = ramaEntries[0]?.[1] ?? 1;
-  const especialidadesCalculadas = ramaEntries.map(([materia, xp]) => ({
-    materia,
-    porcentaje: Math.round((xp / maxXp) * 100),
-  }));
+  const BAYES_PRIOR_CORRECT = 5;
+  const BAYES_PRIOR_TOTAL = 10;
+  const WINDOW_PER_RAMA = 100;
+
+  const especialidadesCalculadas = (
+    await Promise.all(
+      RAMAS_ENUM.map(async (rama) => {
+        // Para cada rama, traemos hasta 100 intentos por fuente, mezclamos
+        // en una misma lista ordenada por fecha desc, y nos quedamos con
+        // los 100 más recientes (ya dentro de esta rama).
+        const [mcq, tf, causa, causaRoom] = await Promise.all([
+          prisma.userMCQAttempt.findMany({
+            where: { userId: params.userId, mcq: { rama } },
+            orderBy: { attemptedAt: "desc" },
+            take: WINDOW_PER_RAMA,
+            select: { isCorrect: true, attemptedAt: true },
+          }),
+          prisma.userTrueFalseAttempt.findMany({
+            where: { userId: params.userId, trueFalse: { rama } },
+            orderBy: { attemptedAt: "desc" },
+            take: WINDOW_PER_RAMA,
+            select: { isCorrect: true, attemptedAt: true },
+          }),
+          prisma.causaAnswer.findMany({
+            where: {
+              userId: params.userId,
+              isCorrect: { not: null },
+              mcq: { rama },
+            },
+            orderBy: { answeredAt: "desc" },
+            take: WINDOW_PER_RAMA,
+            select: { isCorrect: true, answeredAt: true },
+          }),
+          prisma.causaRoomAnswer.findMany({
+            where: {
+              userId: params.userId,
+              isCorrect: { not: null },
+              mcq: { rama },
+            },
+            orderBy: { answeredAt: "desc" },
+            take: WINDOW_PER_RAMA,
+            select: { isCorrect: true, answeredAt: true },
+          }),
+        ]);
+
+        const merged: Array<{ isCorrect: boolean; at: Date }> = [
+          ...mcq.map((a) => ({ isCorrect: a.isCorrect, at: a.attemptedAt })),
+          ...tf.map((a) => ({ isCorrect: a.isCorrect, at: a.attemptedAt })),
+          ...causa
+            .filter((a) => a.isCorrect !== null)
+            .map((a) => ({ isCorrect: a.isCorrect as boolean, at: a.answeredAt })),
+          ...causaRoom
+            .filter((a) => a.isCorrect !== null)
+            .map((a) => ({ isCorrect: a.isCorrect as boolean, at: a.answeredAt })),
+        ]
+          .sort((a, b) => b.at.getTime() - a.at.getTime())
+          .slice(0, WINDOW_PER_RAMA);
+
+        const total = merged.length;
+        const correct = merged.filter((a) => a.isCorrect).length;
+        return { rama, total, correct };
+      })
+    )
+  )
+    .filter((r) => r.total > 0) // solo ramas efectivamente practicadas
+    .map((r) => ({
+      materia: RAMA_LABELS[r.rama],
+      porcentaje: Math.round(
+        ((r.correct + BAYES_PRIOR_CORRECT) / (r.total + BAYES_PRIOR_TOTAL)) * 100
+      ),
+    }))
+    .sort((a, b) => b.porcentaje - a.porcentaje)
+    .slice(0, 8);
 
   // Especialidades declaradas (self-reported) — parse User.especialidades JSON
   let especialidadesDeclaradas: string[] = [];
