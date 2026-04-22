@@ -190,7 +190,7 @@ export function GzCommunity({
         </h2>
         <div className="flex-1 h-px bg-gz-rule" />
         <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold whitespace-nowrap">
-          Insignias &middot; Colegas &middot; La Sala
+          Insignias &middot; Colegas &middot; Profesi&oacute;n
         </span>
       </div>
 
@@ -247,7 +247,7 @@ export function GzCommunity({
           </div>
         </div>
 
-        {/* Row 3: La Sala */}
+        {/* Row 3: Profesión */}
         <div className={expedienteActivo ? "border-b border-gz-rule pb-6 mb-6" : ""}>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
             <div>
@@ -255,7 +255,7 @@ export function GzCommunity({
                 Novedades
               </p>
               <h3 className="font-cormorant text-[20px] !font-bold text-gz-ink mb-3">
-                La Sala
+                Profesi&oacute;n
               </h3>
 
               {/* Próximo evento */}
@@ -295,7 +295,7 @@ export function GzCommunity({
                 href="/dashboard/sala"
                 className="font-archivo text-[12px] font-semibold text-gz-gold border-b border-gz-gold pb-0.5 hover:text-gz-ink hover:border-gz-ink transition-colors inline-block mt-2"
               >
-                Entrar a La Sala →
+                Entrar a Profesi&oacute;n →
               </Link>
             </div>
             <div>
@@ -327,7 +327,7 @@ export function GzCommunity({
                 </div>
               ) : !salaResumen?.proximoEvento ? (
                 <p className="text-[13px] text-gz-ink-light italic font-cormorant">
-                  No hay novedades en La Sala.
+                  No hay novedades en Profesi&oacute;n.
                 </p>
               ) : null}
             </div>

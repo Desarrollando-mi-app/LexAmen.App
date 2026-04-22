@@ -52,7 +52,7 @@ export async function PATCH(
       await sendNotification({
         type: "SYSTEM_INDIVIDUAL",
         title: "¡Tu evento ha sido aprobado!",
-        body: `Tu evento "${evento.titulo}" ha sido aprobado y ya está publicado en La Sala.`,
+        body: `Tu evento "${evento.titulo}" ha sido aprobado y ya está publicado en Academia · Eventos.`,
         targetUserId: evento.userId,
       });
     } catch { /* silent */ }

@@ -61,7 +61,7 @@ export default async function DebatesPage() {
       {/* Header — full bleed */}
       <div className="gz-section-header mb-6">
         <p className="mb-1 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
-          El Diario
+          Academia
         </p>
         <div className="mb-1 flex items-center gap-3">
           <Image

@@ -645,7 +645,7 @@ export function AyudantiasClient({
               href="/dashboard/sala"
               className="font-archivo text-[12px] text-gz-ink-light hover:text-gz-gold transition-colors"
             >
-              &larr; La Sala
+              &larr; Profesi&oacute;n
             </Link>
             <div className="flex items-center gap-3 mb-1">
               <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />

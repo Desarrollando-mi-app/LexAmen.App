@@ -56,7 +56,7 @@ export default async function ColumnaDetailPage({ params }: Props) {
       <div className="mx-auto max-w-[760px] px-4 sm:px-6 pt-6 pb-16">
         {/* Breadcrumb */}
         <nav className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-6">
-          <Link href="/dashboard/diario" className="hover:text-gz-gold">El Diario</Link>
+          <Link href="/dashboard/diario" className="hover:text-gz-gold">Publicaciones</Link>
           {" / "}
           <Link href="/dashboard/diario/columnas" className="hover:text-gz-gold">Columnas</Link>
         </nav>

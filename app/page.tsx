@@ -155,7 +155,7 @@ const PILARES: Array<{
     icon: Icon.Newspaper,
     roman: "III",
     eyebrow: "Imprenta",
-    title: "El Diario",
+    title: "Publicaciones",
     items: [
       "Obiter Dictum · opinión breve",
       "Análisis de sentencia",
@@ -171,8 +171,8 @@ const PILARES: Array<{
     title: "Comunidad",
     items: [
       "Red de colegas",
-      "La Sala · ayudantías y eventos",
-      "Conversación entre pares",
+      "Profesión · ayudantías, pasantías, ofertas",
+      "Academia · debates, peer review, eventos",
     ],
     available: false,
   },

@@ -37,7 +37,7 @@ export function PlanInstitucionalCard() {
             <span className="text-gz-gold">✦</span> Perfil institucional verificado
           </li>
           <li className="flex items-center gap-2">
-            <span className="text-gz-gold">✦</span> Publicaciones con sello en El Diario
+            <span className="text-gz-gold">✦</span> Publicaciones con sello institucional
           </li>
           <li className="flex items-center gap-2">
             <span className="text-gz-gold">✦</span> Acceso premium para todos los miembros

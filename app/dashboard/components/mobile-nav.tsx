@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useCallback, useEffect } from "react";
+import { NavIcons, type NavIconKey } from "./nav-icons";
 
-/* ─── Sub-item type ─── */
+/* ─── Tipos ─── */
 
 interface SubItem {
   href: string;
@@ -14,7 +15,7 @@ interface SubItem {
 
 interface MobileNavItem {
   href: string;
-  icon: string;
+  icon: NavIconKey;
   label: string;
   children?: SubItem[];
 }
@@ -24,17 +25,17 @@ interface MobileNavItem {
 const NAV_ITEMS: MobileNavItem[] = [
   {
     href: "/dashboard/noticias",
-    icon: "📰",
+    icon: "newspaper",
     label: "Noticias",
   },
   {
     href: "__PERFIL__",
-    icon: "👤",
+    icon: "user",
     label: "Perfil",
   },
   {
     href: "/dashboard",
-    icon: "🏠",
+    icon: "home",
     label: "Inicio",
     children: [
       { href: "/dashboard", label: "Escritorio" },
@@ -45,7 +46,7 @@ const NAV_ITEMS: MobileNavItem[] = [
   },
   {
     href: "/dashboard/estudios",
-    icon: "📚",
+    icon: "book-open",
     label: "Estudiar",
     children: [
       { href: "/dashboard/indice-maestro", label: "Índice Maestro" },
@@ -56,7 +57,7 @@ const NAV_ITEMS: MobileNavItem[] = [
   },
   {
     href: "/dashboard/la-toga",
-    icon: "🏆",
+    icon: "trophy",
     label: "Competir",
     children: [
       { href: "/dashboard/la-toga", label: "La Liga de la Toga" },
@@ -68,25 +69,36 @@ const NAV_ITEMS: MobileNavItem[] = [
   },
   {
     href: "/dashboard/sala",
-    icon: "🏫",
-    label: "La Sala",
+    icon: "briefcase-users",
+    label: "Profesión",
     children: [
-      { href: "/dashboard/sala", label: "Ayudantías" },
+      { href: "/dashboard/sala/ayudantias", label: "Ayudantías" },
       { href: "/dashboard/sala/pasantias", label: "Pasantías" },
+      { href: "/dashboard/sala/ofertas", label: "Ofertas Laborales" },
+      { href: "/dashboard/sala/networking", label: "Networking" },
+    ],
+  },
+  {
+    href: "/dashboard/diario/debates",
+    icon: "academic-cap",
+    label: "Academia",
+    children: [
+      { href: "/dashboard/diario/debates", label: "Debates" },
+      { href: "/dashboard/diario/expediente", label: "Expediente Abierto" },
+      { href: "/dashboard/diario/peer-review", label: "Peer Review" },
+      { href: "/dashboard/diario/ranking", label: "Ranking de Autores" },
       { href: "/dashboard/sala/eventos", label: "Eventos" },
-      { href: "/dashboard/sala/ofertas", label: "Ofertas de Trabajo" },
     ],
   },
   {
     href: "/dashboard/diario",
-    icon: "✍️",
-    label: "Diario",
+    icon: "document-stack",
+    label: "Publica",
     children: [
-      { href: "/dashboard/diario", label: "Feed" },
-      { href: "/dashboard/diario?tab=analisis", label: "Análisis" },
-      { href: "/dashboard/diario?tab=ensayos", label: "Ensayos" },
-      { href: "/dashboard/diario/debates", label: "Debates" },
-      { href: "/dashboard/diario/expediente", label: "Expediente Abierto" },
+      { href: "/dashboard/diario", label: "Obiter Dictum" },
+      { href: "/dashboard/diario/analisis", label: "Análisis de Fallos" },
+      { href: "/dashboard/diario/ensayos", label: "Ensayos" },
+      { href: "/dashboard/diario/revista", label: "Revista" },
     ],
   },
 ];
@@ -101,7 +113,10 @@ const STUDY_ROUTES = [
   "/dashboard/dictado-juridico", "/dashboard/linea-de-tiempo", "/dashboard/simulacro",
   "/dashboard/sesion-mixta",
 ];
-const COMPETE_ROUTES = ["/dashboard/la-toga", "/dashboard/vida-del-derecho", "/dashboard/liga", "/dashboard/ranking", "/dashboard/causas"];
+const COMPETE_ROUTES = ["/dashboard/la-toga", "/dashboard/vida-del-derecho", "/dashboard/liga", "/dashboard/ranking", "/dashboard/ranking-causas", "/dashboard/causas"];
+const PROFESION_ROUTES = ["/dashboard/sala/ayudantias", "/dashboard/sala/pasantias", "/dashboard/sala/ofertas", "/dashboard/sala/networking"];
+const ACADEMIA_ROUTES = ["/dashboard/diario/debates", "/dashboard/diario/expediente", "/dashboard/diario/peer-review", "/dashboard/diario/ranking", "/dashboard/sala/eventos"];
+const PUBLICACIONES_ROUTES = ["/dashboard/diario/analisis", "/dashboard/diario/ensayos", "/dashboard/diario/revista", "/dashboard/diario/columnas", "/dashboard/diario/obiter", "/dashboard/diario/colaboracion"];
 
 function isItemActive(item: MobileNavItem, pathname: string): boolean {
   if (item.href === "/dashboard/noticias") {
@@ -119,6 +134,19 @@ function isItemActive(item: MobileNavItem, pathname: string): boolean {
   }
   if (item.label === "Competir") {
     return COMPETE_ROUTES.some((r) => pathname.startsWith(r));
+  }
+  if (item.label === "Profesión") {
+    return PROFESION_ROUTES.some((r) => pathname.startsWith(r));
+  }
+  if (item.label === "Academia") {
+    return ACADEMIA_ROUTES.some((r) => pathname.startsWith(r));
+  }
+  if (item.label === "Publica") {
+    if (ACADEMIA_ROUTES.some((r) => pathname.startsWith(r))) return false;
+    return (
+      pathname === "/dashboard/diario" ||
+      PUBLICACIONES_ROUTES.some((r) => pathname.startsWith(r))
+    );
   }
   return pathname.startsWith(item.href);
 }
@@ -147,11 +175,9 @@ export function MobileNav({ userId }: { userId: string }) {
   const handleTap = useCallback(
     (idx: number, item: MobileNavItem) => {
       if (!item.children) {
-        // No sub-items — navigate directly (Link handles this)
         setSheetIndex(null);
         return;
       }
-      // Toggle sheet
       setSheetIndex((prev) => (prev === idx ? null : idx));
     },
     []
@@ -193,10 +219,12 @@ export function MobileNav({ userId }: { userId: string }) {
               </span>
               <button
                 onClick={() => setSheetIndex(null)}
-                className="text-gz-ink-light hover:text-gz-ink text-lg leading-none p-1"
+                className="text-gz-ink-light hover:text-gz-ink p-1"
                 aria-label="Cerrar"
               >
-                ✕
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4 w-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
 
@@ -205,7 +233,7 @@ export function MobileNav({ userId }: { userId: string }) {
               {activeSheet.children.map((sub) => {
                 const subActive =
                   sub.href.includes("?")
-                    ? false // Query-based sub-items can't reliably detect active in SSR
+                    ? false
                     : pathname === sub.href || pathname.startsWith(sub.href + "/");
 
                 return (
@@ -236,7 +264,7 @@ export function MobileNav({ userId }: { userId: string }) {
         )}
       </div>
 
-      {/* Bottom bar */}
+      {/* Bottom bar — 8 items, tight but legible */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-50 border-t lg:hidden"
         style={{
@@ -244,12 +272,12 @@ export function MobileNav({ userId }: { userId: string }) {
           borderColor: "var(--gz-rule, #c4b99a)",
         }}
       >
-        <div className="mx-auto flex max-w-lg items-stretch">
+        <div className="mx-auto flex max-w-xl items-stretch">
           {NAV_ITEMS.map((item, idx) => {
             const isActive = isItemActive(item, pathname);
             const isSheetActive = sheetIndex === idx;
+            const IconComp = NavIcons[item.icon];
 
-            // For items WITH children, use button. For top-level links (Noticias, Perfil), use Link.
             if (!item.children) {
               const resolvedHref = item.href === "__PERFIL__" ? `/dashboard/perfil/${userId}` : item.href;
               return (
@@ -261,8 +289,8 @@ export function MobileNav({ userId }: { userId: string }) {
                     ${isActive ? "text-gz-gold" : "text-gz-ink-light hover:text-gz-ink-mid"}
                   `}
                 >
-                  <span className="text-lg leading-none">{item.icon}</span>
-                  <span className="text-[10px] font-medium leading-none font-archivo">
+                  <IconComp className="h-5 w-5" />
+                  <span className="text-[9px] font-medium leading-none font-archivo uppercase tracking-[0.5px]">
                     {item.label}
                   </span>
                 </Link>
@@ -276,16 +304,14 @@ export function MobileNav({ userId }: { userId: string }) {
                 className={`
                   relative flex flex-1 flex-col items-center gap-0.5 py-2 transition-colors
                   ${
-                    isSheetActive
+                    isSheetActive || isActive
                       ? "text-gz-gold"
-                      : isActive
-                        ? "text-gz-gold"
-                        : "text-gz-ink-light hover:text-gz-ink-mid"
+                      : "text-gz-ink-light hover:text-gz-ink-mid"
                   }
                 `}
               >
-                <span className="text-lg leading-none">{item.icon}</span>
-                <span className="text-[10px] font-medium leading-none font-archivo">
+                <IconComp className="h-5 w-5" />
+                <span className="text-[9px] font-medium leading-none font-archivo uppercase tracking-[0.5px]">
                   {item.label}
                 </span>
               </button>

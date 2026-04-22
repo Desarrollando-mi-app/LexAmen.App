@@ -1240,7 +1240,7 @@ export function DiarioPageClient({
           <div className="mr-1 hidden flex-shrink-0 items-center gap-3 border-r border-gz-rule pr-4 sm:flex">
             <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
             <span className="font-cormorant text-[38px] lg:text-[44px] font-bold leading-none text-gz-ink">
-              El Diario
+              Publicaciones
             </span>
           </div>
 

@@ -913,7 +913,7 @@ function EmptyState({ isOwnProfile, firstName }: { isOwnProfile: boolean; firstN
         {isOwnProfile ? "Aún no has ido a imprenta." : "Sin publicaciones aún."}
       </p>
       <p className="font-archivo text-sm text-gz-ink-light">
-        {isOwnProfile ? "Comparte tu primer Obiter Dictum en El Diario." : `${firstName} no ha publicado en este ejemplar.`}
+        {isOwnProfile ? "Comparte tu primer Obiter Dictum para ir a imprenta." : `${firstName} no ha publicado en este ejemplar.`}
       </p>
     </div>
   );

@@ -43,7 +43,7 @@ export default async function ColumnasIndexPage() {
         <header className="border-t-[3px] border-b border-gz-ink pt-3 pb-2 mb-8">
           <div className="flex items-baseline justify-between gap-4">
             <div className="font-ibm-mono text-[9px] uppercase tracking-[3px] text-gz-ink-mid">
-              <Link href="/dashboard/diario" className="hover:text-gz-gold">El Diario</Link>
+              <Link href="/dashboard/diario" className="hover:text-gz-gold">Publicaciones</Link>
               {" · "}
               Columnas de Opinión
             </div>

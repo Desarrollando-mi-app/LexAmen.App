@@ -344,11 +344,11 @@ export function SalaClient({
 
   return (
     <main className="min-h-screen">
-      {/* Sub-header de La Sala — full bleed */}
+      {/* Sub-header de Profesión — full bleed */}
       <div className="gz-section-header border-b border-gz-rule py-3" style={{ backgroundColor: "var(--gz-cream)" }}>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">La Sala</h2>
+            <h2 className="font-cormorant text-[20px] !font-bold text-gz-ink">Profesi&oacute;n</h2>
             <p className="font-ibm-mono text-[10px] text-gz-ink-light">
               Conecta con tutores y estudiantes de Derecho
             </p>

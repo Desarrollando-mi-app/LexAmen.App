@@ -298,7 +298,7 @@ export default async function ObiterDetailPage({
         {/* Page header */}
         <div className="mb-6">
           <p className="mb-1 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
-            Publicaciones · El Diario · Obiter Dictum
+            Publicaciones · Obiter Dictum
           </p>
           <h1 className="font-cormorant text-[28px] !font-bold leading-none text-gz-ink">
             Obiter Dictum

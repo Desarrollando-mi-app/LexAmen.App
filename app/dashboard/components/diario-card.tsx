@@ -37,7 +37,7 @@ export function DiarioCard() {
     <div className="rounded-[4px] border border-gz-rule bg-white p-5">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-bold text-navy font-cormorant flex items-center gap-1.5">
-          <span>📰</span> El Diario
+          <span>📰</span> Publicaciones
         </h3>
         <Link href="/dashboard/diario"
           className="text-[10px] font-semibold text-gold hover:text-gold/80 transition-colors">
@@ -88,7 +88,7 @@ export function DiarioCard() {
       <div className="mt-3 border-t border-gz-rule pt-3">
         <Link href="/dashboard/diario"
           className="block text-center rounded-[3px] bg-navy/5 px-3 py-2 text-xs font-semibold text-navy hover:bg-navy/10 transition-colors">
-          Publicar en El Diario
+          Publicar
         </Link>
       </div>
     </div>

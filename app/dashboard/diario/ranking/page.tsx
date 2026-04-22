@@ -122,7 +122,7 @@ export default function RankingAutoresPage() {
               Ranking de Autores
             </h1>
             <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mt-1">
-              El Diario &middot; Studio Iuris
+              Academia &middot; Studio Iuris
             </p>
           </div>
         </div>
@@ -388,7 +388,7 @@ export default function RankingAutoresPage() {
             Sin autores en este periodo
           </p>
           <p className="mt-2 font-archivo text-[13px] text-gz-ink-light">
-            Publica en El Diario para aparecer en el ranking
+            Publica para aparecer en el ranking
           </p>
         </div>
       )}
@@ -399,7 +399,7 @@ export default function RankingAutoresPage() {
           href="/dashboard/diario"
           className="font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-navy transition-colors"
         >
-          &larr; Volver a El Diario
+          &larr; Volver a Publicaciones
         </Link>
       </div>
     </div>

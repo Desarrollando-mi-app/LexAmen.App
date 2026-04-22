@@ -58,12 +58,12 @@ export default async function SalaPage() {
       <div className="px-6 py-8">
         {/* Header */}
         <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-1">
-          COMUNIDAD &middot; LA SALA
+          COMUNIDAD &middot; PROFESI&Oacute;N
         </p>
         <div className="flex items-center gap-3 mb-1">
           <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
           <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink">
-            La Sala
+            Profesi&oacute;n
           </h1>
         </div>
         <div className="w-12 h-[2px] bg-gz-gold mt-2 mb-6" />

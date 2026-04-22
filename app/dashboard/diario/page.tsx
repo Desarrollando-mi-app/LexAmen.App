@@ -6,7 +6,7 @@ import { HeroCarrusel } from "../components/hero-carrusel";
 import { DiarioPageClient } from "./diario-page-client";
 
 export const metadata = {
-  title: "El Diario — Studio Iuris",
+  title: "Publicaciones — Studio Iuris",
 };
 
 export default async function DiarioPage({
@@ -34,7 +34,7 @@ export default async function DiarioPage({
       {/* ── Page header ──────────────────────────────────────── */}
       <div className="px-4 sm:px-6 pt-8">
         <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-1">
-          Publicaciones · El Diario
+          Publicaciones
         </p>
       </div>
 

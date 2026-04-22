@@ -215,7 +215,7 @@ export function EventosClient({ initialEventos, userId, initialCalendarSourceIds
         {/* Header — full bleed */}
         <div className="gz-section-header mb-6">
           <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-gold font-medium">
-            La Sala &middot; Eventos Acad&eacute;micos
+            Academia &middot; Eventos
           </p>
           <div className="flex items-center gap-3 mb-1">
             <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />

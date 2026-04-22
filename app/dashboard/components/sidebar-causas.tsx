@@ -310,8 +310,8 @@ export function SidebarCausas({
       {/* ── Separador ────────────────────────────────── */}
       <div className="my-4 border-t border-gz-rule" />
 
-      {/* ── La Sala ────────────────────────────────────── */}
-      <h3 className="text-sm font-bold text-navy">🏛️ La Sala</h3>
+      {/* ── Profesión ──────────────────────────────────── */}
+      <h3 className="text-sm font-bold text-navy">🏛️ Profesi&oacute;n</h3>
       <div className="mt-2.5">
         <Link
           href="/dashboard/sala"

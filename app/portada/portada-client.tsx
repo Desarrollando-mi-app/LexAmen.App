@@ -496,8 +496,8 @@ export function PortadaClient({ data }: { data: PortadaData }) {
         {/* ─── SEPARADOR ─── */}
         <EditorialRule className="my-8" />
 
-        {/* ─── DESTACADOS DE EL DIARIO ─── */}
-        <SectionHeader>Destacados de El Diario</SectionHeader>
+        {/* ─── DESTACADOS DE PUBLICACIONES ─── */}
+        <SectionHeader>Destacados de Publicaciones</SectionHeader>
 
         {(destacados.mejorObiter || destacados.mejorAnalisis) ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 mb-0">

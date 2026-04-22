@@ -17,7 +17,7 @@ const ENTRENAMIENTO_ITEMS = [
 
 const BOTTOM_ITEMS = [
   { href: "/dashboard/causas", icon: "⚔️", label: "Causas" },
-  { href: "/dashboard/sala", icon: "🏛️", label: "La Sala" },
+  { href: "/dashboard/sala/ayudantias", icon: "🏛️", label: "Ayudantías" },
 ];
 
 // ─── Pomodoro sidebar box ──────────────────────────────────
@@ -174,7 +174,7 @@ export function DashboardSidebar() {
         <div className="mt-4 space-y-0.5">
           <Link href="/dashboard/diario" className={linkClass("/dashboard/diario")}>
             <span className="text-sm">📰</span>
-            El Diario
+            Publicaciones
           </Link>
           <Link href="/dashboard/ranking" className={linkClass("/dashboard/ranking")}>
             <span className="text-sm">🏛️</span>

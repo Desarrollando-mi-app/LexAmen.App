@@ -20,9 +20,9 @@ const MAIN_MODULES = [
     label: "Causas",
   },
   {
-    href: "/dashboard/sala",
+    href: "/dashboard/sala/ayudantias",
     icon: "🏛️",
-    label: "La Sala",
+    label: "Ayudantías",
   },
 ];
 

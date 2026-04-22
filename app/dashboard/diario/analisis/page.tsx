@@ -142,7 +142,7 @@ export default function AnalisisListingPage() {
     <div className="mx-auto max-w-4xl px-4 sm:px-6 pt-8 pb-16">
       {/* ── Header ──────────────────────────────────────────── */}
       <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light mb-1">
-        El Diario
+        Publicaciones
       </p>
       <div className="flex items-center gap-3 mb-1">
         <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />

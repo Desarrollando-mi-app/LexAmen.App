@@ -60,7 +60,7 @@ export default function ProponerDebatePage() {
     <div className="mx-auto max-w-2xl px-4 pb-16 pt-8 sm:px-6">
       {/* Header */}
       <p className="mb-1 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
-        El Diario
+        Academia · Debates
       </p>
       <div className="mb-1 flex items-center gap-3">
         <Image
