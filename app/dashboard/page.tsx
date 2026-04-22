@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { progressKey } from "@/lib/progress-utils";
 import { checkStreakPenalty } from "@/lib/xp-config";
+import { noticiasVigentesWhere } from "@/lib/noticias-ttl";
 import type { ProgressData } from "./components/curriculum-progress";
 import { RAMA_LABELS, CURRICULUM } from "@/lib/curriculum-data";
 // getGradoInfo moved to layout.tsx
@@ -376,9 +377,9 @@ export default async function DashboardPage() {
       },
     }),
 
-    // Noticias jurídicas recientes
+    // Noticias jurídicas recientes (TTL 48h)
     prisma.noticiaJuridica.findMany({
-      where: { estado: "aprobada" },
+      where: noticiasVigentesWhere(),
       orderBy: { fechaAprobacion: "desc" },
       take: 3,
       select: {

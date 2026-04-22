@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recopilarNoticias } from "@/lib/news-scrapers";
 import { prisma } from "@/lib/prisma";
+import { getNoticiaCutoff } from "@/lib/noticias-ttl";
 
 /**
  * Cron de noticias jurídicas — ejecuta diariamente.
  *
- * 1. Auto-elimina noticias PENDIENTES con más de 3 días (no aprobadas a tiempo)
- * 2. Recopila noticias nuevas de 6 fuentes (BCN, PJ, TC, DO, Colegio)
+ * 1. Auto-elimina noticias PENDIENTES con más de 3 días (no aprobadas a tiempo).
+ * 2. Auto-archiva noticias APROBADAS con fechaAprobacion > 48h (TTL público).
+ *    Las queries públicas ya filtran por tiempo, así que este paso es
+ *    housekeeping: mantiene el flag y fechaArchivo consistentes para vistas
+ *    de admin/auditoría.
+ * 3. Recopila noticias nuevas de las 6 fuentes (BCN, PJ, TC, DO, Colegio).
  */
 
 async function runCron() {
@@ -19,12 +24,27 @@ async function runCron() {
     },
   });
 
-  // 2. Recopilar nuevas
+  // 2. Auto-archive: aprobadas fuera del TTL de 48h
+  const cutoff = getNoticiaCutoff();
+  const archived = await prisma.noticiaJuridica.updateMany({
+    where: {
+      estado: "aprobada",
+      archivada: false,
+      fechaAprobacion: { lt: cutoff },
+    },
+    data: {
+      archivada: true,
+      fechaArchivo: new Date(),
+    },
+  });
+
+  // 3. Recopilar nuevas
   const result = await recopilarNoticias();
 
   return {
     ...result,
     eliminadasAutoborrado: deleted.count,
+    archivadasPorTtl: archived.count,
     timestamp: new Date().toISOString(),
   };
 }

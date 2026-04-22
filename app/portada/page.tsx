@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentWeekBounds, getGradoInfo } from "@/lib/league";
 import { calcularScoreAutor, type AutorStats } from "@/lib/diario-ranking";
+import { noticiasVigentesWhere } from "@/lib/noticias-ttl";
 import { PortadaClient } from "./portada-client";
 
 export default async function PortadaPage() {
@@ -115,7 +116,7 @@ export default async function PortadaPage() {
       },
     }),
     prisma.noticiaJuridica.findMany({
-      where: { estado: "aprobada" },
+      where: noticiasVigentesWhere(),
       orderBy: { fechaAprobacion: "desc" },
       take: 4,
       select: {

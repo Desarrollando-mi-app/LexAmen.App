@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { noticiasVigentesWhere } from "@/lib/noticias-ttl";
 import { NoticiasClient } from "./noticias-client";
 
 export const metadata = {
@@ -15,9 +16,9 @@ export default async function NoticiasPage() {
 
   if (!user) redirect("/login");
 
-  // Fetch first page of approved noticias (destacadas first)
+  // TTL 48h: sólo noticias aprobadas en las últimas 48h, no archivadas.
   const noticias = await prisma.noticiaJuridica.findMany({
-    where: { estado: "aprobada" },
+    where: noticiasVigentesWhere(),
     orderBy: [{ destacada: "desc" }, { fechaAprobacion: "desc" }],
     take: 30,
   });

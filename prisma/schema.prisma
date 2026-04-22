@@ -2513,6 +2513,12 @@ model NoticiaJuridica {
   fechaRecopilacion      DateTime  @default(now())
   fechaAprobacion        DateTime?
 
+  // Archivo automático tras TTL (48h desde fechaAprobacion) — cron nocturno
+  // flippea archivada=true, fechaArchivo=now(). Las queries públicas también
+  // filtran por tiempo para precisión a la minuto sin esperar al cron.
+  archivada    Boolean   @default(false)
+  fechaArchivo DateTime?
+
   aprobadaPor String?
   notasAdmin  String?
 
@@ -2529,6 +2535,7 @@ model NoticiaJuridica {
   updatedAt DateTime @updatedAt
 
   @@index([estado, fechaAprobacion])
+  @@index([estado, archivada, fechaAprobacion])
   @@index([fuente, fechaRecopilacion])
   @@index([destacada, estado])
 }

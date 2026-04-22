@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { noticiasVigentesWhere } from "@/lib/noticias-ttl";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +13,8 @@ export async function GET(request: NextRequest) {
 
     const rama = searchParams.get("rama");
 
-    const where: Record<string, unknown> = { estado: "aprobada" };
+    // TTL 48h: sólo noticias aprobadas en las últimas 48h, no archivadas.
+    const where: Record<string, unknown> = { ...noticiasVigentesWhere() };
     if (fuente) where.fuente = fuente;
     if (categoria) where.categoria = categoria;
     if (rama) where.rama = rama;
