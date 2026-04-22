@@ -668,7 +668,7 @@ export function PerfilEditorial({
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
               <div>
                 <div className="font-ibm-mono text-[10px] uppercase tracking-[3px] text-gz-ink border-b border-gz-ink pb-1 mb-3">
-                  Áreas practicadas · <span className="text-gz-ink-light">ratio · últ. 100</span>
+                  Áreas practicadas
                 </div>
                 {especialidadesCalculadas.length >= 3 ? (
                   <div className="border border-gz-rule bg-gz-cream px-2 py-2">

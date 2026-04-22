@@ -727,7 +727,7 @@ export function PerfilModerno({
 
             {/* Áreas practicadas (auto — radar) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
-              <SidebarCard title="Áreas practicadas" eyebrow="ratio · últ. 100">
+              <SidebarCard title="Áreas practicadas">
                 {especialidadesCalculadas.length >= 3 ? (
                   <AreasRadar data={especialidadesCalculadas} height={210} accent="gold" />
                 ) : (
