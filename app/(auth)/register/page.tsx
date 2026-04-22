@@ -6,6 +6,7 @@ import Link from "next/link";
 import { register } from "../actions";
 import { AuthCard } from "@/components/ui/auth-card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 import { validatePassword } from "@/lib/password-validation";
 
@@ -132,10 +133,9 @@ export default function RegisterPage() {
         />
 
         <div>
-          <Input
+          <PasswordInput
             label="Contraseña"
             name="password"
-            type="password"
             placeholder="Mínimo 8 caracteres, 1 mayúscula, 2 números"
             required
             minLength={8}
@@ -144,10 +144,9 @@ export default function RegisterPage() {
           <PasswordStrength password={password} />
         </div>
 
-        <Input
+        <PasswordInput
           label="Confirmar contraseña"
           name="confirmPassword"
-          type="password"
           placeholder="Repite tu contraseña"
           required
         />

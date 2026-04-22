@@ -5,6 +5,7 @@ import Link from "next/link";
 import { login } from "../actions";
 import { AuthCard } from "@/components/ui/auth-card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Button } from "@/components/ui/button";
 
 function SubmitButton() {
@@ -55,10 +56,9 @@ export default function LoginPage() {
           required
         />
 
-        <Input
+        <PasswordInput
           label="Contraseña"
           name="password"
-          type="password"
           placeholder="Tu contraseña"
           required
         />

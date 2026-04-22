@@ -12,17 +12,20 @@ export function AuthCard({ title, subtitle, children, footer }: AuthCardProps) {
     <main className="flex min-h-screen items-center justify-center px-4 py-12" style={{ backgroundColor: "var(--gz-cream)" }}>
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <div className="flex flex-col items-center mb-2">
+          <div className="flex flex-col items-center mb-4">
             <Image
-              src="/brand/logo-horizontal.svg"
+              src="/brand/logo-sello.svg"
               alt="Studio Iuris"
-              width={240}
-              height={52}
-              className="h-[48px] w-auto mb-2"
+              width={192}
+              height={192}
+              className="h-[192px] w-[192px]"
               priority
             />
+            <span className="mt-3 font-cormorant text-[26px] !font-bold text-gz-ink leading-none tracking-[-0.01em]">
+              Studio <span className="italic font-normal text-gz-red">IURIS</span>
+            </span>
           </div>
-          <h2 className="mt-2 font-cormorant text-[22px] !font-bold text-gz-ink">{title}</h2>
+          <h2 className="mt-6 font-cormorant text-[22px] !font-bold text-gz-ink">{title}</h2>
           {subtitle && (
             <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid">{subtitle}</p>
           )}
