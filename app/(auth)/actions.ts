@@ -9,6 +9,7 @@ import { validateRut, normalizeRut } from "@/lib/rut";
 
 export type ActionState = {
   error?: string;
+  errorCode?: string;
   success?: boolean;
 };
 
@@ -151,32 +152,70 @@ export async function register(
   const anioJura =
     etapaActual === "abogado" || etapaActual === "profesor" ? anioRefNum : null;
 
-  // Crear registro en tabla User de Prisma con el ID de Supabase Auth
-  if (data.user) {
-    try {
-      await prisma.user.create({
-        data: {
-          id: data.user.id,
-          email: data.user.email!,
-          firstName,
-          lastName,
-          rut,
-          phone,
-          dateOfBirth,
-          age,
-          etapaActual,
-          universidad,
-          anioIngreso: anioIngreso ?? undefined,
-          anioJura: anioJura ?? undefined,
-          region: region || null,
-          termsAcceptedAt: new Date(),
-          termsVersion: "1.0",
-        },
-      });
-    } catch (prismaError) {
-      // Si falla Prisma, el usuario auth ya existe.
-      // El dashboard hará upsert como fallback.
-      console.error("Error creando usuario en Prisma:", prismaError);
+  // Crear registro en tabla User de Prisma con el ID de Supabase Auth.
+  // Si falla, NO devolvemos success — el usuario quedaría en un estado
+  // inconsistente (auth user sí, Prisma user no) y luego no podría usar
+  // la app. Mejor bloquear el registro con un mensaje claro.
+  if (!data.user) {
+    return {
+      error:
+        "No pudimos completar tu registro. Si ya tienes cuenta, inicia sesión o recupera tu contraseña.",
+    };
+  }
+
+  const prismaUserData = {
+    id: data.user.id,
+    email: data.user.email!,
+    firstName,
+    lastName,
+    rut,
+    phone,
+    dateOfBirth,
+    age,
+    etapaActual,
+    universidad,
+    anioIngreso: anioIngreso ?? undefined,
+    anioJura: anioJura ?? undefined,
+    region: region || null,
+    termsAcceptedAt: new Date(),
+    termsVersion: "1.0",
+  };
+
+  try {
+    await prisma.user.create({ data: prismaUserData });
+  } catch (prismaError) {
+    const code = (prismaError as { code?: string })?.code;
+    console.error("[register] Error creando usuario en Prisma:", {
+      code,
+      userId: data.user.id,
+      email: data.user.email,
+      err: prismaError,
+    });
+
+    // P2002: violación de unicidad (email o RUT ya existen con otro id,
+    // típicamente por un registro previo huérfano). Adoptamos el registro
+    // existente y lo actualizamos con el id actual de auth + los datos nuevos.
+    if (code === "P2002") {
+      try {
+        await prisma.user.update({
+          where: { email: data.user.email! },
+          data: prismaUserData,
+        });
+      } catch (updateError) {
+        console.error(
+          "[register] Error recuperando usuario huérfano:",
+          updateError
+        );
+        return {
+          error:
+            "Este correo o RUT ya están registrados. Intenta iniciar sesión o recuperar tu contraseña.",
+        };
+      }
+    } else {
+      return {
+        error:
+          "No pudimos completar tu registro en este momento. Intenta de nuevo en unos minutos; si persiste, escríbenos a soporte.",
+      };
     }
   }
 
@@ -204,10 +243,72 @@ export async function login(
   });
 
   if (error) {
+    const code = (error as { code?: string }).code ?? "";
+    const msg = error.message?.toLowerCase() ?? "";
+
+    // Email no confirmado — dar indicación específica + código para
+    // que la UI pueda mostrar el botón "reenviar correo".
+    if (code === "email_not_confirmed" || msg.includes("confirm")) {
+      return {
+        error:
+          "Tu correo aún no está confirmado. Revisa tu bandeja de entrada y la carpeta de spam.",
+        errorCode: "email_not_confirmed",
+      };
+    }
+
+    // Rate limit de Supabase
+    if (msg.includes("rate") || msg.includes("too many")) {
+      return {
+        error:
+          "Demasiados intentos en poco tiempo. Espera unos minutos antes de volver a intentar.",
+        errorCode: "rate_limited",
+      };
+    }
+
     return { error: "Correo o contraseña incorrectos." };
   }
 
   redirect("/dashboard");
+}
+
+// ─── REENVIAR CORREO DE CONFIRMACIÓN ─────────────────────────
+
+export async function resendConfirmation(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const email = ((formData.get("email") as string) || "").trim().toLowerCase();
+
+  if (!email) {
+    return { error: "Ingresa tu correo electrónico." };
+  }
+
+  const headersList = await headers();
+  const origin = headersList.get("origin") || "http://localhost:3000";
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${origin}/auth/callback` },
+  });
+
+  if (error) {
+    const msg = error.message?.toLowerCase() ?? "";
+    if (msg.includes("rate") || msg.includes("too many")) {
+      return {
+        error:
+          "Demasiados correos solicitados para esta cuenta. Espera unos minutos antes de pedir otro.",
+      };
+    }
+    // No revelar si el email existe o no
+    return {
+      error:
+        "No pudimos reenviar el correo en este momento. Intenta de nuevo en unos minutos.",
+    };
+  }
+
+  return { success: true };
 }
 
 // ─── RECUPERAR CONTRASEÑA ────────────────────────────────────

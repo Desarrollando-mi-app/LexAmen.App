@@ -56,20 +56,22 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const userSelect = {
+    firstName: true,
+    isAdmin: true,
+    avatarUrl: true,
+    examDate: true,
+    grado: true,
+    causasGanadas: true,
+    email: true,
+  } as const;
+
   // Queries for layout (masthead + user bar)
-  const [dbUser, , reviewDates, mcqTotal, mcqCorrect] =
+  const [initialDbUser, , reviewDates, mcqTotal, mcqCorrect] =
     await Promise.all([
       prisma.user.findUnique({
         where: { id: authUser.id },
-        select: {
-          firstName: true,
-          isAdmin: true,
-          avatarUrl: true,
-          examDate: true,
-          grado: true,
-          causasGanadas: true,
-          email: true,
-        },
+        select: userSelect,
       }),
       ensureLeagueMembership(authUser.id),
       // Streak: last 60 days of activity
@@ -84,8 +86,46 @@ export default async function DashboardLayout({
       }),
     ]);
 
+  // Fallback: si el usuario autenticado no tiene registro en Prisma
+  // (registro a medio hacer, borrado manual, migración), lo creamos acá
+  // con los datos mínimos de auth.users. Evita el bucle infinito con /login.
+  let dbUser = initialDbUser;
   if (!dbUser) {
-    redirect("/login");
+    const fullName = (authUser.user_metadata?.full_name as string | undefined) ?? "";
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    const firstName = parts[0] || "Usuario";
+    const lastName = parts.slice(1).join(" ") || "";
+    try {
+      await prisma.user.create({
+        data: {
+          id: authUser.id,
+          email: authUser.email!,
+          firstName,
+          lastName,
+        },
+      });
+    } catch {
+      // Colisión de email: registro huérfano con otro id. Lo adoptamos.
+      try {
+        await prisma.user.update({
+          where: { email: authUser.email! },
+          data: { id: authUser.id },
+        });
+      } catch (adoptError) {
+        console.error(
+          "[dashboard/layout] No se pudo crear/adoptar User:",
+          { authUserId: authUser.id, email: authUser.email, err: adoptError }
+        );
+        redirect("/login");
+      }
+    }
+    dbUser = await prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: userSelect,
+    });
+    if (!dbUser) {
+      redirect("/login");
+    }
   }
 
   const streak = calculateStreak(reviewDates.map((r) => r.lastReviewedAt));
