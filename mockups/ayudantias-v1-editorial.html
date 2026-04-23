@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Ayudantías · Editorial Board — Studio IURIS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gz-cream: #f5f0e6;
+    --gz-cream-dark: #e9e0cf;
+    --gz-ink: #1c1814;
+    --gz-ink-mid: #4a433a;
+    --gz-ink-light: #8a8073;
+    --gz-gold: #9a7230;
+    --gz-gold-bright: #c49a50;
+    --gz-burgundy: #6b1d2a;
+    --gz-navy: #12203a;
+    --gz-sage: #3a5a35;
+    --gz-rule: #c4b99a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background:var(--gz-cream); color:var(--gz-ink);
+    font-family:'Archivo',sans-serif; font-size:14px; line-height:1.5;
+  }
+  a { color:inherit; text-decoration:none; }
+  button { font-family:inherit; cursor:pointer; }
+
+  .wrap { max-width:1200px; margin:0 auto; padding:0 32px; }
+
+  /* ── Back link ── */
+  .back {
+    padding:14px 32px 0;
+    font-family:'Archivo',sans-serif; font-size:12px; color:var(--gz-ink-light);
+  }
+  .back:hover { color:var(--gz-gold); }
+
+  /* ── Masthead ── */
+  .masthead {
+    border-top:2px solid var(--gz-ink);
+    border-bottom:2px solid var(--gz-ink);
+    padding:18px 0 14px;
+    margin:12px 0 0;
+  }
+  .masthead-top {
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--gz-ink-mid);
+    padding-bottom:8px;
+    border-bottom:1px solid var(--gz-rule);
+  }
+  .masthead-title {
+    display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
+    padding-top:16px;
+  }
+  .masthead-title h1 {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:68px;
+    line-height:0.95; letter-spacing:-1.5px; margin:0;
+  }
+  .masthead-title h1 span.orn {
+    color:var(--gz-gold); font-style:italic; font-weight:500; margin-right:6px;
+  }
+  .masthead-sub {
+    flex:0 0 auto; text-align:right; max-width:340px;
+  }
+  .masthead-sub p {
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:17px;
+    color:var(--gz-ink-mid); margin:0 0 14px;
+  }
+  .btn-publish {
+    padding:10px 20px; background:var(--gz-ink); color:var(--gz-cream);
+    border:none; border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase;
+    transition:background .15s;
+  }
+  .btn-publish:hover { background:var(--gz-gold); color:var(--gz-ink); }
+
+  /* ── Tabs: Roman numerals ── */
+  .nav-tabs {
+    display:flex; gap:32px; align-items:center;
+    padding:14px 0; margin-top:18px;
+    border-bottom:1px solid var(--gz-rule);
+  }
+  .tab {
+    display:inline-flex; align-items:baseline; gap:8px;
+    padding:6px 0;
+    font-family:'Archivo',sans-serif; font-size:14px; font-weight:500;
+    color:var(--gz-ink-light); border-bottom:2px solid transparent;
+    transition:all .15s;
+  }
+  .tab:hover { color:var(--gz-ink); }
+  .tab.active { color:var(--gz-ink); border-bottom-color:var(--gz-gold); }
+  .tab .roman {
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:12px;
+    color:var(--gz-gold); letter-spacing:0.5px;
+  }
+  .tab .count {
+    margin-left:4px; padding:1px 6px;
+    background:var(--gz-gold); color:white; border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:500;
+  }
+
+  /* ── Secondary toggle ── */
+  .subtabs {
+    display:flex; gap:24px; align-items:center;
+    padding:14px 0 18px;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:17px;
+  }
+  .subtab { color:var(--gz-ink-light); border-bottom:1px solid transparent; padding-bottom:2px; }
+  .subtab:hover { color:var(--gz-ink); }
+  .subtab.active { color:var(--gz-ink); border-bottom-color:var(--gz-ink); font-weight:500; }
+  .subtab-sep { color:var(--gz-rule); font-weight:300; }
+
+  /* ── Filter bar ── */
+  .filters {
+    display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+    padding:14px 16px;
+    background:white; border:1px solid var(--gz-rule); border-radius:3px;
+    margin-bottom:28px;
+  }
+  .filters label {
+    font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--gz-ink-light); margin-right:6px;
+  }
+  .filters select {
+    padding:6px 10px; background:var(--gz-cream); border:1px solid var(--gz-rule); border-radius:2px;
+    font-family:'Archivo',sans-serif; font-size:13px; color:var(--gz-ink);
+    cursor:pointer;
+  }
+  .filters select:focus { outline:none; border-color:var(--gz-gold); }
+  .filter-sep { width:1px; height:20px; background:var(--gz-rule); }
+  .filter-clear {
+    margin-left:auto; padding:4px 10px; background:transparent; border:none;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px;
+    color:var(--gz-gold);
+  }
+  .filter-clear:hover { color:var(--gz-burgundy); }
+
+  /* ── Grid ── */
+  .grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    border-top:1px solid var(--gz-rule);
+    border-left:1px solid var(--gz-rule);
+  }
+  @media (max-width: 900px) {
+    .grid { grid-template-columns:1fr; }
+  }
+
+  /* ── Article card ── */
+  .article {
+    position:relative;
+    border-right:1px solid var(--gz-rule);
+    border-bottom:1px solid var(--gz-rule);
+    padding:32px 28px;
+    background:white;
+    transition:background .15s;
+  }
+  .article:hover { background:var(--gz-cream); }
+
+  .article-meta {
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--gz-ink-light);
+    margin-bottom:10px;
+  }
+  .article-meta .folio {
+    color:var(--gz-gold); font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:14px; letter-spacing:0.5px; text-transform:none;
+  }
+  .article-kicker {
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--gz-gold); margin-bottom:6px;
+  }
+  .article-title {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:30px; line-height:1.1;
+    letter-spacing:-0.3px; margin:0 0 10px; color:var(--gz-ink);
+  }
+  .article-rule {
+    width:44px; height:2px; background:var(--gz-gold); margin:0 0 14px;
+  }
+  .article-dek {
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px; line-height:1.45;
+    color:var(--gz-ink-mid); margin:0 0 18px;
+  }
+  .article-deets {
+    display:flex; flex-wrap:wrap; gap:6px 14px;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--gz-ink-mid); margin-bottom:20px;
+  }
+  .article-deets .sep { color:var(--gz-rule); }
+  .article-deets .price { color:var(--gz-gold); font-weight:500; }
+  .article-deets .price-free { color:var(--gz-sage); font-weight:500; }
+
+  .article-byline {
+    display:flex; align-items:center; gap:12px;
+    padding-top:16px;
+    border-top:1px solid var(--gz-rule);
+  }
+  .avatar {
+    width:42px; height:42px; border-radius:50%; flex:0 0 auto;
+    background:var(--gz-ink); color:var(--gz-cream);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:16px; letter-spacing:-0.5px;
+  }
+  .byline-text { flex:1; min-width:0; }
+  .byline-name { font-family:'Archivo',sans-serif; font-weight:600; font-size:14px; color:var(--gz-ink); }
+  .byline-sub {
+    font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--gz-ink-light);
+    letter-spacing:0.3px; margin-top:2px;
+  }
+  .rating {
+    display:inline-flex; align-items:center; gap:4px;
+    font-family:'Archivo',sans-serif; font-size:12px; color:var(--gz-gold); font-weight:500;
+  }
+  .rating .count { color:var(--gz-ink-light); font-weight:400; }
+
+  .article-actions {
+    display:flex; gap:10px; margin-top:18px; align-items:center;
+  }
+  .btn-primary {
+    flex:1; padding:9px 14px; background:var(--gz-ink); color:var(--gz-cream);
+    border:none; border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase;
+    transition:background .15s; cursor:pointer;
+  }
+  .btn-primary:hover { background:var(--gz-gold); color:var(--gz-ink); }
+  .btn-outline {
+    padding:9px 14px; background:transparent; color:var(--gz-ink);
+    border:1px solid var(--gz-ink); border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:500; letter-spacing:1.5px; text-transform:uppercase;
+    cursor:pointer;
+  }
+  .btn-outline:hover { border-color:var(--gz-gold); color:var(--gz-gold); }
+
+  .streak-pill {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:2px 8px; background:rgba(154,114,48,0.12); color:var(--gz-gold);
+    border-radius:2px; font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:500;
+    letter-spacing:1px; text-transform:uppercase;
+  }
+  .type-busco .article-rule { background:var(--gz-burgundy); }
+  .type-busco .article-kicker { color:var(--gz-burgundy); }
+  .type-busco .folio { color:var(--gz-burgundy); }
+
+  /* Streak banner */
+  .streak-banner {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:14px 20px; background:rgba(154,114,48,0.08); border:1px solid var(--gz-gold);
+    border-radius:3px; margin:24px 0;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:16px; color:var(--gz-ink);
+  }
+  .streak-banner strong { font-weight:700; color:var(--gz-gold); font-style:normal; }
+
+  /* Toast footer (note) */
+  .variant-chip {
+    position:fixed; bottom:16px; right:16px; z-index:50;
+    padding:8px 14px; background:var(--gz-ink); color:var(--gz-cream); border-radius:3px;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    box-shadow:0 4px 12px rgba(0,0,0,0.18);
+  }
+  .variant-chip a { color:var(--gz-gold-bright); margin-left:10px; }
+</style>
+</head>
+<body>
+
+<div class="back">← Profesión</div>
+
+<div class="wrap">
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="masthead-top">
+      <span>Studio Iuris · Profesión</span>
+      <span>Vol. II · Nº 47 · Abril 2026</span>
+    </div>
+    <div class="masthead-title">
+      <h1><span class="orn">§</span>Ayudantías</h1>
+      <div class="masthead-sub">
+        <p>Tutores y estudiantes se encuentran para repasar, preparar exámenes y resolver dudas sobre cualquier materia de Derecho.</p>
+        <button class="btn-publish">+ Publicar edicto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIMARY NAV: roman numerals -->
+  <div class="nav-tabs">
+    <a class="tab active"><span class="roman">I.</span>Tablón</a>
+    <a class="tab"><span class="roman">II.</span>Mis sesiones <span class="count">2</span></a>
+    <a class="tab"><span class="roman">III.</span>Mis publicaciones <span class="count">1</span></a>
+  </div>
+
+  <!-- SECONDARY TOGGLE -->
+  <div class="subtabs">
+    <a class="subtab active">Ofrecen ayudantía</a>
+    <span class="subtab-sep">·</span>
+    <a class="subtab">Buscan ayudantía</a>
+  </div>
+
+  <!-- Streak banner -->
+  <div class="streak-banner">
+    <span style="font-size:18px;">🔥</span>
+    Llevas <strong>6 meses</strong> activa como tutora — récord actual: <strong>8</strong>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <label>Materia</label>
+    <select><option>Todas</option><option>Derecho Civil</option></select>
+    <span class="filter-sep"></span>
+    <label>Formato</label>
+    <select><option>Todos</option><option>Online</option><option>Presencial</option></select>
+    <span class="filter-sep"></span>
+    <label>Precio</label>
+    <select><option>Todos</option><option>Gratuito</option><option>Pagado</option></select>
+    <span class="filter-sep"></span>
+    <label>Universidad</label>
+    <select><option>Todas</option><option>U. de Chile</option></select>
+    <button class="filter-clear">Limpiar filtros</button>
+  </div>
+
+  <!-- ARTICLE GRID -->
+  <div class="grid">
+
+    <article class="article">
+      <div class="article-meta">
+        <span>22 abr · hace 3h</span>
+        <span class="folio">nº XLVII</span>
+      </div>
+      <div class="article-kicker">Ofrece</div>
+      <h2 class="article-title">Derecho Civil — Obligaciones</h2>
+      <div class="article-rule"></div>
+      <p class="article-dek">"Repasemos la teoría de las obligaciones con casos reales de jurisprudencia reciente. Material preparado para cédula Civil I y II."</p>
+      <div class="article-deets">
+        <span>Online</span>
+        <span class="sep">·</span>
+        <span class="price-free">Gratuito</span>
+        <span class="sep">·</span>
+        <span>Mié / Vie 18:00</span>
+      </div>
+      <div class="article-byline">
+        <div class="avatar">MF</div>
+        <div class="byline-text">
+          <div class="byline-name">
+            María Fernández
+            <span class="streak-pill">🔥 6 meses</span>
+          </div>
+          <div class="byline-sub">Universidad de Chile · <span class="rating">★ 4.9 <span class="count">(23)</span></span></div>
+        </div>
+      </div>
+      <div class="article-actions">
+        <button class="btn-primary">Contactar WhatsApp</button>
+        <button class="btn-outline">Solicitar sesión</button>
+      </div>
+    </article>
+
+    <article class="article">
+      <div class="article-meta">
+        <span>22 abr · hace 5h</span>
+        <span class="folio">nº XLVI</span>
+      </div>
+      <div class="article-kicker">Ofrece</div>
+      <h2 class="article-title">Derecho Penal — Parte Especial</h2>
+      <div class="article-rule"></div>
+      <p class="article-dek">"Clases personalizadas para preparar certámenes. Enfoque en delitos contra la propiedad y tipos del Código Penal chileno."</p>
+      <div class="article-deets">
+        <span>Presencial</span>
+        <span class="sep">·</span>
+        <span class="price">$15.000 / hora</span>
+        <span class="sep">·</span>
+        <span>A convenir</span>
+      </div>
+      <div class="article-byline">
+        <div class="avatar">PS</div>
+        <div class="byline-text">
+          <div class="byline-name">Pedro Soto</div>
+          <div class="byline-sub">P. Universidad Católica · <span class="rating">★ 4.7 <span class="count">(12)</span></span></div>
+        </div>
+      </div>
+      <div class="article-actions">
+        <button class="btn-primary">Contactar WhatsApp</button>
+        <button class="btn-outline">Solicitar sesión</button>
+      </div>
+    </article>
+
+    <article class="article type-busco">
+      <div class="article-meta">
+        <span>21 abr · hace 1d</span>
+        <span class="folio">nº XLV</span>
+      </div>
+      <div class="article-kicker">Busca</div>
+      <h2 class="article-title">Derecho Constitucional — Control de Constitucionalidad</h2>
+      <div class="article-rule"></div>
+      <p class="article-dek">"Necesito tutor/a para repasar control concreto y abstracto de constitucionalidad. Preparo certamen la próxima semana."</p>
+      <div class="article-deets">
+        <span>Online o presencial</span>
+        <span class="sep">·</span>
+        <span>Mañanas preferente</span>
+      </div>
+      <div class="article-byline">
+        <div class="avatar">JL</div>
+        <div class="byline-text">
+          <div class="byline-name">Javier López</div>
+          <div class="byline-sub">Universidad de los Andes · 3er año</div>
+        </div>
+      </div>
+      <div class="article-actions">
+        <button class="btn-primary">Contactar</button>
+      </div>
+    </article>
+
+    <article class="article">
+      <div class="article-meta">
+        <span>20 abr · hace 2d</span>
+        <span class="folio">nº XLIV</span>
+      </div>
+      <div class="article-kicker">Ofrece</div>
+      <h2 class="article-title">Derecho Procesal — Civil &amp; Penal</h2>
+      <div class="article-rule"></div>
+      <p class="article-dek">"Ayudo con ambos procesales. Más de un año preparando alumnos. Material propio, guías de estudio incluidas en la sesión."</p>
+      <div class="article-deets">
+        <span>Online + Presencial</span>
+        <span class="sep">·</span>
+        <span class="price">$10.000 / hora</span>
+        <span class="sep">·</span>
+        <span>Flexible</span>
+      </div>
+      <div class="article-byline">
+        <div class="avatar">AC</div>
+        <div class="byline-text">
+          <div class="byline-name">
+            Ana Correa
+            <span class="streak-pill">🔥 12 meses</span>
+          </div>
+          <div class="byline-sub">U. Diego Portales · <span class="rating">★ 4.8 <span class="count">(31)</span></span></div>
+        </div>
+      </div>
+      <div class="article-actions">
+        <button class="btn-primary">Contactar WhatsApp</button>
+        <button class="btn-outline">Solicitar sesión</button>
+      </div>
+    </article>
+
+    <article class="article">
+      <div class="article-meta">
+        <span>19 abr · hace 3d</span>
+        <span class="folio">nº XLIII</span>
+      </div>
+      <div class="article-kicker">Ofrece</div>
+      <h2 class="article-title">Derecho Comercial — Sociedades &amp; Títulos de Crédito</h2>
+      <div class="article-rule"></div>
+      <p class="article-dek">"Clases enfocadas en SpA, LTDA y anónimas. Revisamos letras de cambio y pagarés con casos. Material propio."</p>
+      <div class="article-deets">
+        <span>Online</span>
+        <span class="sep">·</span>
+        <span class="price">$12.000 / hora</span>
+      </div>
+      <div class="article-byline">
+        <div class="avatar">RM</div>
+        <div class="byline-text">
+          <div class="byline-name">Rodrigo Martínez</div>
+          <div class="byline-sub">P. Universidad Católica · <span class="rating">★ 5.0 <span class="count">(8)</span></span></div>
+        </div>
+      </div>
+      <div class="article-actions">
+        <button class="btn-primary">Contactar WhatsApp</button>
+        <button class="btn-outline">Solicitar sesión</button>
+      </div>
+    </article>
+
+    <article class="article">
+      <div class="article-meta">
+        <span>18 abr · hace 4d</span>
+        <span class="folio">nº XLII</span>
+      </div>
+      <div class="article-kicker">Ofrece</div>
+      <h2 class="article-title">Derecho Laboral — Contratos &amp; Desahucio</h2>
+      <div class="article-rule"></div>
+      <p class="article-dek">"Repaso en grupo de contratos individuales y colectivos. Revisamos sentencias CS y casos típicos de inspección del trabajo."</p>
+      <div class="article-deets">
+        <span>Online</span>
+        <span class="sep">·</span>
+        <span class="price-free">Gratuito</span>
+      </div>
+      <div class="article-byline">
+        <div class="avatar">SG</div>
+        <div class="byline-text">
+          <div class="byline-name">Sofía Gómez</div>
+          <div class="byline-sub">Universidad de Chile · <span class="rating">★ 4.6 <span class="count">(17)</span></span></div>
+        </div>
+      </div>
+      <div class="article-actions">
+        <button class="btn-primary">Contactar por correo</button>
+        <button class="btn-outline">Solicitar sesión</button>
+      </div>
+    </article>
+
+  </div>
+
+  <div style="height:60px"></div>
+</div>
+
+<div class="variant-chip">
+  Variante A · Editorial Board
+  <a href="ayudantias-index.html">Volver</a>
+  <a href="ayudantias-v2-feed.html">B →</a>
+</div>
+
+</body>
+</html>

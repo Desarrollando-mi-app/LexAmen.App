@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>María Fernández — Perfil de tutora · Studio IURIS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gz-cream: #f5f0e6;
+    --gz-cream-dark: #e9e0cf;
+    --gz-ink: #1c1814;
+    --gz-ink-mid: #4a433a;
+    --gz-ink-light: #8a8073;
+    --gz-gold: #9a7230;
+    --gz-gold-bright: #c49a50;
+    --gz-burgundy: #6b1d2a;
+    --gz-navy: #12203a;
+    --gz-sage: #3a5a35;
+    --gz-rule: #c4b99a;
+    --gz-rule-soft: rgba(196,185,154,0.5);
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background:var(--gz-cream); color:var(--gz-ink);
+    font-family:'Archivo',sans-serif; font-size:14px; line-height:1.55;
+  }
+  a { color:inherit; text-decoration:none; }
+  button { font-family:inherit; cursor:pointer; }
+
+  .wrap { max-width:1100px; margin:0 auto; padding:0 28px; }
+
+  /* ── Back link ── */
+  .back {
+    display:inline-block;
+    padding:14px 28px 0;
+    font-family:'Archivo',sans-serif; font-size:12px; color:var(--gz-ink-light);
+    transition:color .15s;
+  }
+  .back:hover { color:var(--gz-gold); }
+
+  /* ── Compact masthead ── */
+  .masthead {
+    max-width:1100px; margin:14px auto 0; padding:0 28px 14px;
+    border-bottom:1px solid var(--gz-ink);
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px;
+    text-transform:uppercase; color:var(--gz-ink-mid);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    display:grid; grid-template-columns:340px 1fr; gap:40px;
+    padding:44px 0 36px; border-bottom:1px solid var(--gz-rule);
+  }
+  @media (max-width: 820px) {
+    .hero { grid-template-columns:1fr; gap:28px; }
+  }
+
+  .hero-cover {
+    aspect-ratio: 1/1; position:relative; overflow:hidden;
+    background:linear-gradient(135deg, #e5d5b2, #cdb788);
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--gz-rule);
+  }
+  .hero-cover::after {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(245,240,230,0.12), rgba(245,240,230,0));
+    mix-blend-mode: soft-light;
+  }
+  .hero-initials {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:180px;
+    letter-spacing:-6px; color:var(--gz-ink); opacity:0.9; line-height:1;
+    position:relative; z-index:1;
+  }
+  .hero-verified {
+    position:absolute; top:14px; left:14px; z-index:2;
+    padding:5px 11px; background:rgba(28,24,20,0.92); color:var(--gz-cream);
+    border-radius:999px;
+    font-family:'IBM Plex Mono',monospace; font-size:9px;
+    letter-spacing:1.3px; text-transform:uppercase; font-weight:500;
+    backdrop-filter: blur(4px);
+    display:inline-flex; align-items:center; gap:5px;
+  }
+  .hero-verified .check {
+    display:inline-block; width:11px; height:11px; border-radius:50%;
+    background:var(--gz-gold); color:var(--gz-ink);
+    font-size:8px; line-height:11px; text-align:center; font-weight:700;
+    font-family:'Archivo',sans-serif;
+  }
+
+  .hero-body { display:flex; flex-direction:column; justify-content:center; }
+  .hero-kicker {
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px;
+    text-transform:uppercase; color:var(--gz-gold); margin-bottom:10px;
+  }
+  .hero-name {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:62px;
+    line-height:1; letter-spacing:-1.5px; margin:0 0 8px;
+  }
+  .hero-sub {
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:19px;
+    color:var(--gz-ink-mid); margin:0 0 24px;
+  }
+  .hero-stats {
+    display:flex; gap:0; border-top:1px solid var(--gz-rule);
+    border-bottom:1px solid var(--gz-rule); margin-bottom:24px;
+  }
+  .stat {
+    flex:1; padding:16px 18px;
+    border-right:1px solid var(--gz-rule-soft);
+  }
+  .stat:last-child { border-right:none; }
+  .stat .stat-label {
+    display:block; font-family:'IBM Plex Mono',monospace; font-size:9px;
+    letter-spacing:1.5px; text-transform:uppercase; color:var(--gz-ink-light);
+    margin-bottom:4px;
+  }
+  .stat .stat-val {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:30px;
+    line-height:1; color:var(--gz-ink); letter-spacing:-0.5px;
+  }
+  .stat .stat-val .unit {
+    font-family:'Archivo',sans-serif; font-size:13px; font-weight:500;
+    color:var(--gz-ink-light); margin-left:3px;
+  }
+  .stat .star { color:var(--gz-gold); }
+
+  .hero-actions { display:flex; gap:10px; }
+  .btn-primary {
+    flex:1; padding:14px 22px; background:var(--gz-ink); color:var(--gz-cream);
+    border:none; border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500;
+    letter-spacing:1.5px; text-transform:uppercase;
+    transition:background .15s;
+  }
+  .btn-primary:hover { background:var(--gz-gold); color:var(--gz-ink); }
+  .btn-outline {
+    flex:1; padding:14px 22px; background:transparent; color:var(--gz-ink);
+    border:1px solid var(--gz-ink); border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500;
+    letter-spacing:1.5px; text-transform:uppercase;
+    transition:all .15s;
+  }
+  .btn-outline:hover { border-color:var(--gz-gold); color:var(--gz-gold); }
+
+  /* ── Section header ── */
+  .section {
+    padding:40px 0; border-bottom:1px solid var(--gz-rule);
+  }
+  .section:last-of-type { border-bottom:none; padding-bottom:64px; }
+  .section-head {
+    display:flex; align-items:baseline; justify-content:space-between;
+    gap:16px; margin-bottom:24px;
+  }
+  .section-title {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:30px;
+    line-height:1.1; letter-spacing:-0.5px; margin:0;
+  }
+  .section-title .orn { color:var(--gz-gold); font-style:italic; font-weight:500; margin-right:6px; }
+  .section-kicker {
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--gz-ink-light);
+  }
+
+  /* ── This ayudantía detail ── */
+  .offer {
+    background:white; border:1px solid var(--gz-rule);
+    padding:28px 32px;
+  }
+  .offer-top {
+    display:flex; justify-content:space-between; align-items:center;
+    padding-bottom:14px; border-bottom:1px solid var(--gz-rule-soft); margin-bottom:18px;
+  }
+  .offer-subject {
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--gz-gold); font-weight:500;
+  }
+  .offer-date {
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.3px;
+    text-transform:uppercase; color:var(--gz-ink-light);
+  }
+  .offer-title {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:36px;
+    line-height:1.1; letter-spacing:-0.4px; margin:0 0 14px;
+  }
+  .offer-rule {
+    width:44px; height:2px; background:var(--gz-gold); margin:0 0 18px;
+  }
+  .offer-desc {
+    font-family:'Archivo',sans-serif; font-size:15px; line-height:1.65;
+    color:var(--gz-ink-mid); margin:0 0 22px;
+  }
+  .offer-desc::first-line { font-weight:500; color:var(--gz-ink); }
+
+  .offer-grid {
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:0;
+    border-top:1px solid var(--gz-rule-soft);
+    border-left:1px solid var(--gz-rule-soft);
+    margin-bottom:22px;
+  }
+  @media (max-width: 700px) {
+    .offer-grid { grid-template-columns:repeat(2, 1fr); }
+  }
+  .offer-cell {
+    padding:12px 16px;
+    border-right:1px solid var(--gz-rule-soft);
+    border-bottom:1px solid var(--gz-rule-soft);
+  }
+  .offer-cell .cell-label {
+    display:block; font-family:'IBM Plex Mono',monospace; font-size:9px;
+    letter-spacing:1.4px; text-transform:uppercase; color:var(--gz-ink-light);
+    margin-bottom:3px;
+  }
+  .offer-cell .cell-val {
+    font-family:'Archivo',sans-serif; font-size:13px; font-weight:500; color:var(--gz-ink);
+  }
+  .offer-cell .cell-val.price { color:var(--gz-gold); font-weight:600; }
+  .offer-cell .cell-val.free { color:var(--gz-sage); font-style:italic; font-weight:600; }
+
+  .offer-temario {
+    padding:16px 18px; background:var(--gz-cream);
+    border-left:3px solid var(--gz-gold);
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;
+    color:var(--gz-ink-mid);
+  }
+  .offer-temario strong { font-weight:700; color:var(--gz-ink); font-style:normal; }
+
+  /* ── Reviews aggregate ── */
+  .reviews-head {
+    display:grid; grid-template-columns:220px 1fr; gap:36px;
+    padding:24px 28px; background:white; border:1px solid var(--gz-rule);
+    margin-bottom:22px;
+  }
+  @media (max-width: 700px) {
+    .reviews-head { grid-template-columns:1fr; gap:20px; }
+  }
+  .reviews-agg {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-right:1px solid var(--gz-rule-soft);
+    padding-right:20px;
+  }
+  @media (max-width: 700px) {
+    .reviews-agg { border-right:none; border-bottom:1px solid var(--gz-rule-soft); padding-bottom:16px; }
+  }
+  .agg-number {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:76px;
+    line-height:1; letter-spacing:-2px; color:var(--gz-ink);
+  }
+  .agg-stars {
+    color:var(--gz-gold); font-size:18px; letter-spacing:2px; margin:4px 0 6px;
+  }
+  .agg-stars .dim { color:var(--gz-rule); }
+  .agg-count {
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.4px;
+    text-transform:uppercase; color:var(--gz-ink-light);
+  }
+
+  .reviews-dist { display:flex; flex-direction:column; gap:6px; justify-content:center; }
+  .dist-row {
+    display:grid; grid-template-columns:34px 1fr 36px; gap:10px; align-items:center;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gz-ink-mid);
+  }
+  .dist-star { color:var(--gz-gold); font-weight:500; }
+  .dist-bar {
+    height:6px; background:var(--gz-cream-dark); border-radius:2px; overflow:hidden;
+  }
+  .dist-bar > div {
+    height:100%; background:var(--gz-gold); border-radius:2px;
+  }
+  .dist-count { text-align:right; color:var(--gz-ink-light); }
+
+  /* ── Review filters ── */
+  .review-filters {
+    display:flex; gap:8px; margin-bottom:20px; align-items:center; flex-wrap:wrap;
+  }
+  .rf-btn {
+    padding:6px 14px; background:white; border:1px solid var(--gz-rule); border-radius:999px;
+    font-family:'Archivo',sans-serif; font-size:12px; color:var(--gz-ink-mid);
+    transition:all .15s;
+  }
+  .rf-btn:hover { border-color:var(--gz-ink); color:var(--gz-ink); }
+  .rf-btn.active { background:var(--gz-ink); color:var(--gz-cream); border-color:var(--gz-ink); }
+  .rf-sort {
+    margin-left:auto;
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px;
+    color:var(--gz-ink-mid);
+  }
+  .rf-sort select {
+    padding:5px 10px; background:white; border:1px solid var(--gz-rule); border-radius:3px;
+    font-family:'Archivo',sans-serif; font-size:12px; color:var(--gz-ink);
+    cursor:pointer;
+  }
+
+  /* ── Review list ── */
+  .review-list {
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:0;
+    border-top:1px solid var(--gz-rule);
+    border-left:1px solid var(--gz-rule);
+    background:white;
+  }
+  @media (max-width: 700px) { .review-list { grid-template-columns:1fr; } }
+
+  .review {
+    padding:20px 24px;
+    border-right:1px solid var(--gz-rule);
+    border-bottom:1px solid var(--gz-rule);
+  }
+  .review { transition: border-color .18s, box-shadow .18s, background .18s; }
+  .review:hover {
+    border-color:var(--gz-gold);
+    box-shadow: inset 2px 0 0 var(--gz-gold);
+    z-index:2;
+  }
+  .review.short { background:var(--gz-cream); }
+  .review.short:hover { background:#efe7d5; }
+
+  .review-head {
+    display:flex; align-items:flex-start; gap:12px; margin-bottom:10px;
+  }
+  .review-avatar {
+    width:38px; height:38px; border-radius:50%; flex:0 0 auto;
+    background:var(--gz-navy); color:var(--gz-cream);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:15px;
+    letter-spacing:-0.5px; border:1px solid var(--gz-rule);
+  }
+  .review-meta { flex:1; min-width:0; }
+  .review-who {
+    font-family:'Archivo',sans-serif; font-weight:600; font-size:13px; color:var(--gz-ink);
+  }
+  .review-when {
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.8px;
+    color:var(--gz-ink-light); margin-top:2px; text-transform:uppercase;
+  }
+  .review-stars {
+    font-size:14px; color:var(--gz-gold); letter-spacing:2px; flex:0 0 auto;
+  }
+  .review-stars .dim { color:var(--gz-rule); }
+
+  .review-body {
+    font-family:'Archivo',sans-serif; font-size:14px; line-height:1.55;
+    color:var(--gz-ink); margin:10px 0 0;
+  }
+  .review-body::first-letter {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:30px;
+    float:left; line-height:0.9; margin:2px 6px 0 0; color:var(--gz-gold);
+  }
+  .review.short .review-body-empty {
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px;
+    color:var(--gz-ink-light); margin-top:6px;
+  }
+
+  /* ── Pagination for reviews ── */
+  .review-more {
+    text-align:center; padding:28px 0 4px;
+  }
+  .review-more button {
+    padding:10px 22px; background:transparent; color:var(--gz-ink);
+    border:1px solid var(--gz-ink); border-radius:999px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500;
+    letter-spacing:1.5px; text-transform:uppercase;
+    transition:all .15s;
+  }
+  .review-more button:hover { background:var(--gz-ink); color:var(--gz-cream); }
+
+  /* ── Variant chip ── */
+  /* ── Other offers strip ── */
+  .other-offers {
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:0;
+    border:1px solid var(--gz-rule); background:white;
+  }
+  @media (max-width:820px) {
+    .other-offers { grid-template-columns:1fr; }
+  }
+  .other-offer {
+    position:relative;
+    padding:20px 22px 22px;
+    border-right:1px solid var(--gz-rule);
+    transition: background .18s, box-shadow .18s;
+    cursor:pointer;
+  }
+  .other-offer:last-child { border-right:none; }
+  @media (max-width:820px) {
+    .other-offer { border-right:none; border-bottom:1px solid var(--gz-rule); }
+    .other-offer:last-child { border-bottom:none; }
+  }
+  .other-offer:hover { background:var(--gz-cream); box-shadow: inset 0 0 0 2px var(--gz-gold); z-index:2; }
+  .other-offer .oo-top {
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:1.4px;
+    text-transform:uppercase; color:var(--gz-ink-mid); margin-bottom:8px;
+  }
+  .other-offer .oo-price { color:var(--gz-gold); font-weight:500; }
+  .other-offer .oo-price.free { color:var(--gz-sage); font-style:italic; }
+  .other-offer .oo-title {
+    font-family:'Cormorant Garamond',serif; font-weight:600; font-size:21px;
+    line-height:1.18; color:var(--gz-ink); margin:0 0 10px;
+  }
+  .other-offer .oo-meta {
+    font-size:12px; color:var(--gz-ink-light);
+  }
+  .other-offer .oo-stretched {
+    position:absolute; inset:0; z-index:1;
+  }
+
+  /* ── Invite to review banner ── */
+  .invite {
+    display:flex; justify-content:space-between; align-items:center; gap:20px;
+    padding:16px 20px; margin-bottom:22px;
+    background:linear-gradient(90deg, rgba(154,114,48,0.08), rgba(154,114,48,0));
+    border-left:3px solid var(--gz-gold);
+  }
+  .invite-copy {
+    font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:17px; color:var(--gz-ink-mid);
+  }
+  .invite-copy strong { font-style:normal; font-weight:600; color:var(--gz-ink); }
+  .invite-btn {
+    padding:9px 18px; background:transparent; color:var(--gz-ink);
+    border:1px solid var(--gz-ink); font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px; letter-spacing:1.5px; text-transform:uppercase;
+    white-space:nowrap; transition:background .15s, color .15s;
+  }
+  .invite-btn:hover { background:var(--gz-ink); color:var(--gz-cream); }
+  @media (max-width:700px) {
+    .invite { flex-direction:column; align-items:flex-start; }
+  }
+
+  .variant-chip {
+    position:fixed; bottom:16px; right:16px; z-index:50;
+    padding:8px 14px; background:var(--gz-ink); color:var(--gz-cream); border-radius:3px;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    box-shadow:0 4px 12px rgba(0,0,0,0.18);
+  }
+  .variant-chip a { color:var(--gz-gold-bright); margin-left:10px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 820px) {
+    .hero-name { font-size:44px; }
+    .hero-initials { font-size:140px; }
+    .offer-title { font-size:26px; }
+    .section-title { font-size:24px; }
+  }
+</style>
+</head>
+<body>
+
+<a class="back" href="ayudantias-v4-hybrid.html">← Ayudantías</a>
+
+<div class="masthead">
+  <span>Studio Iuris · Profesión · Ayudantías</span>
+  <span>Perfil de tutora</span>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-cover">
+      <span class="hero-verified"><span class="check">✓</span> Verificada</span>
+      <div class="hero-initials">MF</div>
+    </div>
+    <div class="hero-body">
+      <div class="hero-kicker">Tutora · Derecho Civil</div>
+      <h1 class="hero-name">María Fernández</h1>
+      <p class="hero-sub">Egresada de Derecho — Universidad de Chile · Región Metropolitana</p>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-label">Rating</span>
+          <span class="stat-val"><span class="star">★</span> 4.9</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Sesiones</span>
+          <span class="stat-val">23</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Desde</span>
+          <span class="stat-val">Sep<span class="unit">'25</span></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Respuesta</span>
+          <span class="stat-val">&lt;2h</span>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button class="btn-primary">Solicitar sesión</button>
+        <button class="btn-outline">Enviar mensaje</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- THIS AYUDANTÍA -->
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title"><span class="orn">§</span>Esta ayudantía</h2>
+      <span class="section-kicker">Publicada 22 abr · 3h</span>
+    </div>
+
+    <div class="offer">
+      <div class="offer-top">
+        <span class="offer-subject">Derecho Civil</span>
+        <span class="offer-date">22 abr · 3h</span>
+      </div>
+      <h3 class="offer-title">Teoría general de las obligaciones</h3>
+      <div class="offer-rule"></div>
+      <p class="offer-desc">Repasemos la teoría de las obligaciones con casos reales de jurisprudencia reciente. Material preparado para cédula Civil I y II, con énfasis en clasificación, efectos y modos de extinguir. Sesiones grabadas y apuntes en PDF incluidos. Grupos acotados para que cada estudiante pueda preguntar y ejercitar en vivo.</p>
+
+      <div class="offer-grid">
+        <div class="offer-cell">
+          <span class="cell-label">Formato</span>
+          <span class="cell-val">Online · Google Meet</span>
+        </div>
+        <div class="offer-cell">
+          <span class="cell-label">Horario</span>
+          <span class="cell-val">Miércoles y Viernes 18:00</span>
+        </div>
+        <div class="offer-cell">
+          <span class="cell-label">Cupo</span>
+          <span class="cell-val">1 a 3 personas</span>
+        </div>
+        <div class="offer-cell">
+          <span class="cell-label">Precio</span>
+          <span class="cell-val free">Gratuito</span>
+        </div>
+      </div>
+
+      <div class="offer-temario">
+        <strong>Temario:</strong> Concepto y fuentes de las obligaciones · Clasificación (civiles, naturales, de dar/hacer/no hacer, puras y simples, condicionales, a plazo) · Efectos de las obligaciones · Modos de extinguir · Responsabilidad contractual y extracontractual.
+      </div>
+    </div>
+  </section>
+
+  <!-- OTHER AYUDANTÍAS -->
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title"><span class="orn">§</span>Otras ayudantías de María</h2>
+      <span class="section-kicker">3 publicaciones activas</span>
+    </div>
+
+    <div class="other-offers">
+      <article class="other-offer">
+        <a class="oo-stretched" href="#" aria-label="Ver ayudantía"></a>
+        <div class="oo-top">
+          <span>Derecho Civil · Bienes</span>
+          <span class="oo-price">$18.000 /h</span>
+        </div>
+        <h3 class="oo-title">Modos de adquirir el dominio</h3>
+        <div class="oo-meta">Online · Lunes 19:00 · 1-2 personas</div>
+      </article>
+
+      <article class="other-offer">
+        <a class="oo-stretched" href="#" aria-label="Ver ayudantía"></a>
+        <div class="oo-top">
+          <span>Civil · Responsabilidad</span>
+          <span class="oo-price free">Gratuito</span>
+        </div>
+        <h3 class="oo-title">Responsabilidad extracontractual — casos de examen</h3>
+        <div class="oo-meta">Presencial · Centro · Sábados 11:00</div>
+      </article>
+
+      <article class="other-offer">
+        <a class="oo-stretched" href="#" aria-label="Ver ayudantía"></a>
+        <div class="oo-top">
+          <span>Civil · Contratos</span>
+          <span class="oo-price">$20.000 /h</span>
+        </div>
+        <h3 class="oo-title">Compraventa y arrendamiento — cláusulas típicas</h3>
+        <div class="oo-meta">Online · A convenir · 1-3 personas</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title"><span class="orn">§</span>Reseñas</h2>
+      <span class="section-kicker">23 valoraciones · 11 con comentario</span>
+    </div>
+
+    <!-- Invite CTA -->
+    <div class="invite">
+      <div class="invite-copy">¿Tuviste sesión con <strong>María</strong>? Tu reseña ayuda a otros estudiantes a decidir.</div>
+      <button class="invite-btn">Escribir reseña</button>
+    </div>
+
+    <!-- Aggregate -->
+    <div class="reviews-head">
+      <div class="reviews-agg">
+        <div class="agg-number">4.9</div>
+        <div class="agg-stars">★★★★★</div>
+        <div class="agg-count">23 valoraciones</div>
+      </div>
+      <div class="reviews-dist">
+        <div class="dist-row">
+          <span class="dist-star">5 ★</span>
+          <div class="dist-bar"><div style="width:87%"></div></div>
+          <span class="dist-count">20</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-star">4 ★</span>
+          <div class="dist-bar"><div style="width:13%"></div></div>
+          <span class="dist-count">3</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-star">3 ★</span>
+          <div class="dist-bar"><div style="width:0%"></div></div>
+          <span class="dist-count">0</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-star">2 ★</span>
+          <div class="dist-bar"><div style="width:0%"></div></div>
+          <span class="dist-count">0</span>
+        </div>
+        <div class="dist-row">
+          <span class="dist-star">1 ★</span>
+          <div class="dist-bar"><div style="width:0%"></div></div>
+          <span class="dist-count">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="review-filters">
+      <button class="rf-btn active">Todas <span style="opacity:0.7; margin-left:3px;">23</span></button>
+      <button class="rf-btn">Con comentario <span style="opacity:0.7; margin-left:3px;">11</span></button>
+      <button class="rf-btn">5 ★ <span style="opacity:0.7; margin-left:3px;">20</span></button>
+      <button class="rf-btn">4 ★ <span style="opacity:0.7; margin-left:3px;">3</span></button>
+      <div class="rf-sort">
+        <em>Ordenar por</em>
+        <select>
+          <option>Más recientes</option>
+          <option>Más antiguas</option>
+          <option>Mejor valoradas</option>
+          <option>Peor valoradas</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Review list -->
+    <div class="review-list">
+
+      <!-- With comment -->
+      <article class="review">
+        <div class="review-head">
+          <div class="review-avatar" style="background:var(--gz-burgundy);">IR</div>
+          <div class="review-meta">
+            <div class="review-who">Isidora Reyes</div>
+            <div class="review-when">18 abr · hace 4 días</div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+        </div>
+        <p class="review-body">María explica con una claridad impresionante. Llegué a la sesión perdido con la teoría del riesgo y salí entendiendo hasta el caso fortuito del arriendo. Los apuntes en PDF están ordenados por cédula, muy útiles para el repaso final.</p>
+      </article>
+
+      <article class="review">
+        <div class="review-head">
+          <div class="review-avatar" style="background:var(--gz-navy);">DT</div>
+          <div class="review-meta">
+            <div class="review-who">Diego Torres</div>
+            <div class="review-when">15 abr · hace 1 semana</div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+        </div>
+        <p class="review-body">Clase con ritmo justo, no apura ni se extiende de más. Tocó jurisprudencia reciente del último año, que nunca sale en los apuntes oficiales del curso. Saqué 6.2 en el certamen. Recomendada.</p>
+      </article>
+
+      <!-- No comment -->
+      <article class="review short">
+        <div class="review-head">
+          <div class="review-avatar" style="background:var(--gz-sage);">VL</div>
+          <div class="review-meta">
+            <div class="review-who">Valentina López</div>
+            <div class="review-when">14 abr · hace 1 semana</div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+        </div>
+        <p class="review-body-empty">— Sin comentario —</p>
+      </article>
+
+      <article class="review">
+        <div class="review-head">
+          <div class="review-avatar" style="background:var(--gz-gold);">FR</div>
+          <div class="review-meta">
+            <div class="review-who">Felipe Riveros</div>
+            <div class="review-when">12 abr · hace 10 días</div>
+          </div>
+          <div class="review-stars">★★★★<span class="dim">★</span></div>
+        </div>
+        <p class="review-body">Muy buena explicación, pero la sesión se pasó 15 minutos del horario y yo tenía otra cosa justo después. Ojalá marcar mejor el inicio y fin. Fuera de eso, super preparada.</p>
+      </article>
+
+      <!-- No comment -->
+      <article class="review short">
+        <div class="review-head">
+          <div class="review-avatar" style="background:var(--gz-ink);">CP</div>
+          <div class="review-meta">
+            <div class="review-who">Camila Peña</div>
+            <div class="review-when">10 abr · hace 12 días</div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+        </div>
+        <p class="review-body-empty">— Sin comentario —</p>
+      </article>
+
+      <article class="review">
+        <div class="review-head">
+          <div class="review-avatar" style="background:var(--gz-burgundy);">JM</div>
+          <div class="review-meta">
+            <div class="review-who">Joaquín Muñoz</div>
+            <div class="review-when">8 abr · hace 2 semanas</div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+        </div>
+        <p class="review-body">Estudié Obligaciones por mi cuenta, pensé que no iba a necesitar ayudantía pero me la recomendaron y fue la mejor decisión. María arma los casos para que uno razone antes de dar la respuesta. Eso no lo hacen los ayudantes del ramo.</p>
+      </article>
+
+      <!-- No comment -->
+      <article class="review short">
+        <div class="review-head">
+          <div class="review-avatar" style="background:var(--gz-navy);">AH</div>
+          <div class="review-meta">
+            <div class="review-who">Antonia Herrera</div>
+            <div class="review-when">5 abr · hace 2 semanas</div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+        </div>
+        <p class="review-body-empty">— Sin comentario —</p>
+      </article>
+
+      <article class="review">
+        <div class="review-head">
+          <div class="review-avatar" style="background:var(--gz-sage);">MG</div>
+          <div class="review-meta">
+            <div class="review-who">Matías Garrido</div>
+            <div class="review-when">2 abr · hace 3 semanas</div>
+          </div>
+          <div class="review-stars">★★★★★</div>
+        </div>
+        <p class="review-body">Preparé Civil I con ella durante 6 semanas. Grupo de 3 estudiantes, ritmo sostenido, apuntes semanales. Pasé con 6.4 promedio ramo. Vale lo que cuesta (en este caso, gratis). Gracias María.</p>
+      </article>
+
+    </div>
+
+    <div class="review-more">
+      <button>Cargar más reseñas</button>
+    </div>
+  </section>
+
+</div>
+
+<div class="variant-chip">
+  Perfil de tutora · Reseñas
+  <a href="ayudantias-v4-hybrid.html">← Volver al listado</a>
+</div>
+
+</body>
+</html>

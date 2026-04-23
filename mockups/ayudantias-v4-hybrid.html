@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Ayudantías · Híbrido — Studio IURIS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gz-cream: #f5f0e6;
+    --gz-cream-dark: #e9e0cf;
+    --gz-ink: #1c1814;
+    --gz-ink-mid: #4a433a;
+    --gz-ink-light: #8a8073;
+    --gz-gold: #9a7230;
+    --gz-gold-bright: #c49a50;
+    --gz-burgundy: #6b1d2a;
+    --gz-navy: #12203a;
+    --gz-sage: #3a5a35;
+    --gz-rule: #c4b99a;
+    --gz-rule-soft: rgba(196,185,154,0.5);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; }
+  body {
+    background:var(--gz-cream); color:var(--gz-ink);
+    font-family:'Archivo',sans-serif; font-size:14px; line-height:1.5;
+  }
+  a { color:inherit; text-decoration:none; }
+  button { font-family:inherit; cursor:pointer; }
+
+  .wrap { max-width:1400px; margin:0 auto; padding:0 28px; }
+
+  /* ── Back ── */
+  .back {
+    padding:14px 28px 0;
+    font-family:'Archivo',sans-serif; font-size:12px; color:var(--gz-ink-light);
+  }
+  .back:hover { color:var(--gz-gold); }
+
+  /* ── Masthead (editorial + compact) ── */
+  .masthead {
+    max-width:1400px; margin:14px auto 0; padding:0 28px 22px;
+    border-bottom:2px solid var(--gz-ink);
+  }
+  .mast-top {
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px;
+    text-transform:uppercase; color:var(--gz-ink-mid);
+    padding-bottom:10px; border-bottom:1px solid var(--gz-rule);
+  }
+  .mast-main {
+    display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
+    padding-top:18px;
+  }
+  .mast-main h1 {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:56px;
+    line-height:1; letter-spacing:-1.2px; margin:0;
+  }
+  .mast-main h1 .orn {
+    color:var(--gz-gold); font-style:italic; font-weight:500; margin-right:4px;
+  }
+  .mast-count {
+    font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--gz-ink-light);
+    padding-left:20px; margin-left:10px; border-left:1px solid var(--gz-rule);
+    align-self:center;
+  }
+  .mast-count strong { color:var(--gz-gold); font-weight:500; }
+  .mast-right { display:flex; align-items:center; gap:14px; }
+  .mast-sub {
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;
+    color:var(--gz-ink-mid); max-width:280px; text-align:right;
+  }
+  .btn-publish {
+    padding:10px 20px; background:var(--gz-ink); color:var(--gz-cream);
+    border:none; border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:500;
+    letter-spacing:1.5px; text-transform:uppercase;
+    transition:background .15s; flex:0 0 auto;
+  }
+  .btn-publish:hover { background:var(--gz-gold); color:var(--gz-ink); }
+
+  /* ── Airbnb-style search bar ── */
+  .search-bar {
+    max-width:1100px; margin:26px auto 18px;
+    display:flex; align-items:stretch;
+    background:white; border:1px solid var(--gz-rule); border-radius:999px;
+    box-shadow:0 2px 8px rgba(28,24,20,0.04); overflow:hidden;
+  }
+  .search-field {
+    flex:1; padding:12px 22px; border-right:1px solid var(--gz-rule);
+    cursor:pointer; transition:background .15s; min-width:0;
+  }
+  .search-field:hover { background:var(--gz-cream); }
+  .search-field:last-of-type { border-right:none; }
+  .search-field .label {
+    display:block; font-family:'IBM Plex Mono',monospace; font-size:9px;
+    letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--gz-gold); margin-bottom:4px;
+  }
+  .search-field .value {
+    font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--gz-ink);
+    font-weight:500;
+  }
+  .search-field .value.placeholder {
+    color:var(--gz-ink-light); font-style:italic; font-weight:400;
+  }
+  .search-btn {
+    padding:0 28px; background:var(--gz-gold); color:white; border:none;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+    letter-spacing:1.5px; text-transform:uppercase;
+    transition:background .15s; flex:0 0 auto;
+    display:flex; align-items:center; gap:8px;
+  }
+  .search-btn:hover { background:var(--gz-ink); }
+  .search-btn .mag {
+    width:18px; height:18px; border:2px solid currentColor; border-radius:50%;
+    position:relative;
+  }
+  .search-btn .mag::after {
+    content:''; position:absolute; bottom:-5px; right:-3px;
+    width:8px; height:2px; background:currentColor; transform:rotate(45deg);
+  }
+
+  /* ── Category rail ── */
+  .category-rail {
+    display:flex; gap:28px; padding:14px 0 18px; overflow-x:auto;
+    border-bottom:1px solid var(--gz-rule-soft);
+    margin-bottom:18px;
+  }
+  .category-rail::-webkit-scrollbar { display:none; }
+  .cat {
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:6px 4px 10px; flex:0 0 auto; min-width:72px;
+    border-bottom:2px solid transparent;
+    font-family:'Archivo',sans-serif; font-size:11px; color:var(--gz-ink-light);
+    transition:all .15s; cursor:pointer;
+  }
+  .cat:hover { color:var(--gz-ink); }
+  .cat.active { color:var(--gz-ink); border-bottom-color:var(--gz-ink); }
+  .cat .glyph {
+    width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:19px;
+    color:var(--gz-gold); font-style:italic;
+  }
+  .cat.active .glyph { color:var(--gz-ink); }
+
+  /* ── Filter row ── */
+  .filter-row {
+    display:flex; gap:10px; align-items:center;
+    margin-bottom:22px; flex-wrap:wrap;
+  }
+  .filter-btn {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 16px; background:white; border:1px solid var(--gz-rule);
+    border-radius:3px;
+    font-family:'Archivo',sans-serif; font-size:12px; font-weight:500;
+    color:var(--gz-ink); transition:all .15s;
+  }
+  .filter-btn:hover { border-color:var(--gz-ink); }
+  .filter-btn.active {
+    background:var(--gz-ink); color:var(--gz-cream); border-color:var(--gz-ink);
+  }
+  .filter-btn .caret { font-size:9px; opacity:0.6; }
+  .filter-divider { width:1px; height:22px; background:var(--gz-rule); }
+  .sort {
+    margin-left:auto;
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14px;
+    color:var(--gz-ink-mid);
+  }
+  .sort select {
+    padding:6px 10px; background:white; border:1px solid var(--gz-rule); border-radius:3px;
+    font-family:'Archivo',sans-serif; font-size:12px; color:var(--gz-ink);
+    cursor:pointer;
+  }
+
+  /* ── Streak banner ── */
+  .streak-banner {
+    display:flex; align-items:center; gap:12px;
+    padding:14px 20px; background:white; border:1px solid var(--gz-gold);
+    border-left:3px solid var(--gz-gold);
+    margin:0 0 22px;
+  }
+  .streak-banner .glyph {
+    width:30px; height:30px; flex:0 0 auto;
+    background:rgba(154,114,48,0.12); color:var(--gz-gold);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:600; font-size:16px;
+  }
+  .streak-banner p {
+    margin:0; flex:1;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:15px;
+  }
+  .streak-banner strong { color:var(--gz-gold); font-weight:700; font-style:normal; }
+
+  /* ── SHARED-BORDER GRID (V1 editorial layout) ── */
+  .grid {
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:0;
+    border-top:1px solid var(--gz-rule);
+    border-left:1px solid var(--gz-rule);
+    background:white;
+    margin-bottom:32px;
+  }
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns:repeat(2, 1fr); }
+  }
+  @media (max-width: 700px) {
+    .grid { grid-template-columns:1fr; }
+    .masthead { padding-bottom:16px; }
+    .mast-main { flex-direction:column; align-items:flex-start; gap:16px; }
+    .mast-main h1 { font-size:42px; }
+    .mast-right { align-self:stretch; justify-content:space-between; }
+    .mast-sub { text-align:left; }
+    .search-bar { flex-direction:column; border-radius:12px; }
+    .search-field { border-right:none; border-bottom:1px solid var(--gz-rule); }
+    .search-btn { padding:14px; justify-content:center; }
+  }
+
+  /* ── Tile (shared-border, V3 cover+body) ── */
+  .tile {
+    position:relative;
+    border-right:1px solid var(--gz-rule);
+    border-bottom:1px solid var(--gz-rule);
+    background:white;
+    display:flex; flex-direction:column;
+    cursor:pointer; transition:background .18s, box-shadow .18s;
+  }
+  .tile:hover {
+    background:var(--gz-cream);
+    box-shadow: inset 0 0 0 2px var(--gz-gold);
+    z-index:2;
+  }
+  .tile:hover .cover-initials { transform:scale(1.04); }
+  /* Stretched link overlay — makes the whole card clickable while keeping heart + CTA interactive */
+  .tile-link {
+    position:absolute; inset:0; z-index:1;
+    text-indent:-9999px; overflow:hidden;
+  }
+  .tile-link:focus-visible {
+    outline:2px solid var(--gz-gold); outline-offset:-4px;
+  }
+  .cover-fav, .tile-cta { position:relative; z-index:2; }
+
+  /* ── Cover (16:10, slightly desaturated gradients + subtle paper grain) ── */
+  .cover {
+    aspect-ratio: 16/10; position:relative; overflow:hidden;
+    background:linear-gradient(135deg, rgba(196,154,80,0.18), rgba(154,114,48,0.08));
+    display:flex; align-items:center; justify-content:center;
+    border-bottom:1px solid var(--gz-rule);
+  }
+  .cover::after {
+    /* Paper grain overlay — subtle, desaturates gradients */
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(245,240,230,0.12), rgba(245,240,230,0));
+    mix-blend-mode: soft-light;
+  }
+  .cover.c-civil    { background:linear-gradient(135deg, #e5d5b2, #cdb788); }
+  .cover.c-penal    { background:linear-gradient(135deg, #d1a9a9, #b07a7a); }
+  .cover.c-const    { background:linear-gradient(135deg, #adb8cf, #7689ad); }
+  .cover.c-proc     { background:linear-gradient(135deg, #bec6ab, #92a37d); }
+  .cover.c-com      { background:linear-gradient(135deg, #d1bd9a, #b19867); }
+  .cover.c-lab      { background:linear-gradient(135deg, #b8adcf, #8b7cac); }
+  .cover.c-trib     { background:linear-gradient(135deg, #d1c3ab, #b09f7c); }
+  .cover.c-int      { background:linear-gradient(135deg, #acc0ba, #7c9c91); }
+
+  .cover-initials {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:78px;
+    letter-spacing:-2.5px; color:var(--gz-ink); opacity:0.88;
+    transition:transform .22s ease;
+    position:relative; z-index:1;
+  }
+  .cover-tag {
+    position:absolute; top:12px; left:12px; z-index:2;
+    padding:4px 10px; background:rgba(28,24,20,0.9); color:var(--gz-cream);
+    border-radius:999px; font-family:'IBM Plex Mono',monospace;
+    font-size:9px; letter-spacing:1.2px; text-transform:uppercase; font-weight:500;
+    backdrop-filter: blur(4px);
+  }
+  .cover-tag.busco { background:rgba(107,29,42,0.95); }
+  .cover-date {
+    position:absolute; bottom:10px; left:13px; z-index:2;
+    font-family:'IBM Plex Mono',monospace; font-size:9px;
+    letter-spacing:1.4px; text-transform:uppercase;
+    color:var(--gz-ink); opacity:0.58;
+  }
+  .cover-date .fresh {
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--gz-gold); margin-right:4px; vertical-align:middle;
+    box-shadow:0 0 0 2px rgba(154,114,48,0.25);
+  }
+  .cover-fav {
+    position:absolute; top:12px; right:12px; z-index:2;
+    width:32px; height:32px; border-radius:50%;
+    background:rgba(245,240,230,0.92); color:var(--gz-ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:500;
+    backdrop-filter: blur(4px); transition:all .15s;
+    line-height:1; border:none; cursor:pointer;
+  }
+  .cover-fav:hover { background:var(--gz-gold); color:white; transform:scale(1.08); }
+  .cover-fav.active { background:var(--gz-burgundy); color:var(--gz-cream-dark); }
+
+  /* ── Tile body ── */
+  .tile-body {
+    padding:16px 18px 18px;
+    display:flex; flex-direction:column; flex:1;
+  }
+  .tile-top {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:12px; margin-bottom:6px;
+  }
+  .tile-subject {
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--gz-gold); font-weight:500;
+  }
+  .tile-subject.busco { color:var(--gz-burgundy); }
+  .tile-rating {
+    display:inline-flex; align-items:center; gap:4px;
+    font-family:'Archivo',sans-serif; font-size:12px; font-weight:600; color:var(--gz-ink);
+    flex:0 0 auto;
+  }
+  .tile-rating .star { color:var(--gz-gold); }
+  .tile-rating .count { color:var(--gz-ink-light); font-weight:400; }
+
+  .tile-title {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:22px;
+    line-height:1.18; letter-spacing:-0.3px; margin:0 0 6px; color:var(--gz-ink);
+  }
+  .tile-rule {
+    width:32px; height:2px; background:var(--gz-gold); margin:0 0 10px;
+  }
+  .tile.busco .tile-rule { background:var(--gz-burgundy); }
+  .tile-tutor {
+    font-family:'Archivo',sans-serif; font-size:12px; color:var(--gz-ink-mid);
+    margin-bottom:12px;
+  }
+  .tile-tutor strong { font-weight:600; color:var(--gz-ink); }
+  .tile-tutor .streak {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:1px 7px; margin-left:6px;
+    background:rgba(154,114,48,0.12); color:var(--gz-gold);
+    border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:500;
+    letter-spacing:1px; text-transform:uppercase;
+  }
+
+  .tile-details {
+    display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px;
+  }
+  .tile-detail {
+    padding:3px 9px; background:var(--gz-cream); border:1px solid var(--gz-rule-soft);
+    border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.6px;
+    text-transform:uppercase; color:var(--gz-ink-mid);
+  }
+
+  .tile-foot {
+    margin-top:auto; padding-top:14px;
+    border-top:1px solid var(--gz-rule-soft);
+    display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+  }
+  .tile-price {
+    font-family:'Cormorant Garamond',serif; font-weight:700; font-size:22px;
+    color:var(--gz-ink); line-height:1;
+  }
+  .tile-price .unit {
+    font-family:'Archivo',sans-serif; font-size:11px; font-weight:400;
+    color:var(--gz-ink-light); margin-left:2px;
+  }
+  .tile-price.free {
+    color:var(--gz-sage); font-style:italic; font-weight:600;
+    font-size:20px;
+  }
+  .tile-cta {
+    padding:8px 14px; background:transparent; color:var(--gz-ink);
+    border:1px solid var(--gz-ink); border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:500;
+    letter-spacing:1.2px; text-transform:uppercase;
+    transition:all .15s; cursor:pointer;
+  }
+  .tile-cta:hover { background:var(--gz-ink); color:var(--gz-cream); }
+  .tile.busco .tile-cta { border-color:var(--gz-burgundy); color:var(--gz-burgundy); }
+  .tile.busco .tile-cta:hover { background:var(--gz-burgundy); color:var(--gz-cream); }
+
+  /* ── Pagination ── */
+  .pagination {
+    display:flex; justify-content:center; gap:8px; padding:8px 0 48px;
+  }
+  .pagination button {
+    padding:8px 14px; background:white; border:1px solid var(--gz-rule); border-radius:2px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--gz-ink);
+    transition:all .15s; min-width:38px;
+  }
+  .pagination button:hover { border-color:var(--gz-ink); }
+  .pagination button.active {
+    background:var(--gz-ink); color:var(--gz-cream); border-color:var(--gz-ink);
+  }
+
+  /* ── Variant chip ── */
+  .variant-chip {
+    position:fixed; bottom:16px; right:16px; z-index:50;
+    padding:8px 14px; background:var(--gz-ink); color:var(--gz-cream); border-radius:3px;
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    box-shadow:0 4px 12px rgba(0,0,0,0.18);
+  }
+  .variant-chip a { color:var(--gz-gold-bright); margin-left:10px; }
+</style>
+</head>
+<body>
+
+<div class="back">← Profesión</div>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <div class="mast-top">
+    <span>Studio Iuris · Profesión</span>
+    <span>Vol. II · Nº 47 · Abril 2026</span>
+  </div>
+  <div class="mast-main">
+    <div style="display:flex; align-items:flex-end; gap:0;">
+      <h1><span class="orn">§</span>Ayudantías</h1>
+      <span class="mast-count"><strong>47</strong> edictos vigentes</span>
+    </div>
+    <div class="mast-right">
+      <p class="mast-sub">Tutores y estudiantes se encuentran para repasar, preparar exámenes y resolver dudas.</p>
+      <button class="btn-publish">+ Publicar edicto</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- SEARCH BAR -->
+  <div class="search-bar">
+    <div class="search-field">
+      <span class="label">Materia</span>
+      <span class="value placeholder">Todas las ramas</span>
+    </div>
+    <div class="search-field">
+      <span class="label">Universidad</span>
+      <span class="value placeholder">Cualquiera</span>
+    </div>
+    <div class="search-field">
+      <span class="label">Modalidad</span>
+      <span class="value placeholder">Online o presencial</span>
+    </div>
+    <div class="search-field">
+      <span class="label">Precio</span>
+      <span class="value placeholder">Agregar rango</span>
+    </div>
+    <button class="search-btn"><span class="mag"></span> Buscar</button>
+  </div>
+
+  <!-- CATEGORY RAIL -->
+  <div class="category-rail">
+    <div class="cat active"><div class="glyph">⁂</div>Todas</div>
+    <div class="cat"><div class="glyph">§</div>Civil</div>
+    <div class="cat"><div class="glyph">†</div>Penal</div>
+    <div class="cat"><div class="glyph">¶</div>Constitucional</div>
+    <div class="cat"><div class="glyph">‡</div>Procesal</div>
+    <div class="cat"><div class="glyph">⸸</div>Comercial</div>
+    <div class="cat"><div class="glyph">℥</div>Laboral</div>
+    <div class="cat"><div class="glyph">℟</div>Tributario</div>
+    <div class="cat"><div class="glyph">℣</div>Int. Público</div>
+    <div class="cat"><div class="glyph">☙</div>Int. Privado</div>
+    <div class="cat"><div class="glyph">❦</div>Ambiental</div>
+    <div class="cat"><div class="glyph">❧</div>Minería</div>
+  </div>
+
+  <!-- FILTER ROW -->
+  <div class="filter-row">
+    <button class="filter-btn active">Ofrecen</button>
+    <button class="filter-btn">Buscan</button>
+    <span class="filter-divider"></span>
+    <button class="filter-btn">Gratuito <span class="caret">▾</span></button>
+    <button class="filter-btn">Verificados <span class="caret">▾</span></button>
+    <button class="filter-btn">★ 4.5+ <span class="caret">▾</span></button>
+    <div class="sort">
+      <em>Ordenar por</em>
+      <select>
+        <option>Más recientes</option>
+        <option>Mejor valoradas</option>
+        <option>Precio: menor a mayor</option>
+        <option>Precio: mayor a menor</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- STREAK BANNER -->
+  <div class="streak-banner">
+    <div class="glyph">§</div>
+    <p>Llevas <strong>6 meses</strong> activa como tutora. Récord actual de la plataforma: <strong>8 meses</strong>.</p>
+  </div>
+
+  <!-- GRID (shared borders, no gaps) -->
+  <div class="grid">
+
+    <article class="tile">
+      <a class="tile-link" href="tutor-detail.html" aria-label="Ver perfil de tutor/a"></a>
+      <div class="cover c-civil">
+        <span class="cover-tag">Ofrece</span>
+        <button class="cover-fav">♡</button>
+        <div class="cover-initials">MF</div>
+        <span class="cover-date"><span class="fresh"></span>22 abr · 3h</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject">Derecho Civil</span>
+          <span class="tile-rating"><span class="star">★</span> 4.9</span>
+        </div>
+        <h3 class="tile-title">Teoría general de las obligaciones</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>María Fernández</strong> · U. de Chile<span class="streak">§ 23 sesiones</span></p>
+        <div class="tile-details">
+          <span class="tile-detail">Online</span>
+          <span class="tile-detail">Mié / Vie 18:00</span>
+          <span class="tile-detail">1-3 personas</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price free">Gratuito</span>
+          <button class="tile-cta">Solicitar →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <a class="tile-link" href="tutor-detail.html" aria-label="Ver perfil de tutor/a"></a>
+      <div class="cover c-penal">
+        <span class="cover-tag">Ofrece</span>
+        <button class="cover-fav active">♥</button>
+        <div class="cover-initials">PS</div>
+        <span class="cover-date"><span class="fresh"></span>22 abr · 5h</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject">Derecho Penal</span>
+          <span class="tile-rating"><span class="star">★</span> 4.7</span>
+        </div>
+        <h3 class="tile-title">Parte Especial · Delitos contra la propiedad</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>Pedro Soto</strong> · P. U. Católica<span class="streak">§ 12 sesiones</span></p>
+        <div class="tile-details">
+          <span class="tile-detail">Presencial · Centro</span>
+          <span class="tile-detail">A convenir</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price">$15.000<span class="unit"> /h</span></span>
+          <button class="tile-cta">Solicitar →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile busco">
+      <div class="cover c-const">
+        <span class="cover-tag busco">Busca</span>
+        <button class="cover-fav">♡</button>
+        <div class="cover-initials">JA</div>
+        <span class="cover-date">21 abr · 1d</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject busco">Const. · Certamen 7d</span>
+        </div>
+        <h3 class="tile-title">Control concreto y abstracto de constitucionalidad</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>Javiera Aránguiz</strong> · UDP · 3º año</p>
+        <div class="tile-details">
+          <span class="tile-detail">Online o presencial</span>
+          <span class="tile-detail">Mañanas</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price">Hasta $12.000<span class="unit"> /h</span></span>
+          <button class="tile-cta">Postular →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <a class="tile-link" href="tutor-detail.html" aria-label="Ver perfil de tutor/a"></a>
+      <div class="cover c-proc">
+        <span class="cover-tag">Ofrece</span>
+        <button class="cover-fav">♡</button>
+        <div class="cover-initials">AC</div>
+        <span class="cover-date">20 abr · 2d</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject">Derecho Procesal</span>
+          <span class="tile-rating"><span class="star">★</span> 4.8</span>
+        </div>
+        <h3 class="tile-title">Juicio ordinario y recursos procesales</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>Andrés Carvajal</strong> · U. de Concepción<span class="streak">§ 31 sesiones</span></p>
+        <div class="tile-details">
+          <span class="tile-detail">Online</span>
+          <span class="tile-detail">Lun / Jue 20:00</span>
+          <span class="tile-detail">Grupal 3-5</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price">$10.000<span class="unit"> /h</span></span>
+          <button class="tile-cta">Solicitar →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <a class="tile-link" href="tutor-detail.html" aria-label="Ver perfil de tutor/a"></a>
+      <div class="cover c-com">
+        <span class="cover-tag">Ofrece</span>
+        <button class="cover-fav">♡</button>
+        <div class="cover-initials">RM</div>
+        <span class="cover-date">19 abr · 3d</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject">Derecho Comercial</span>
+          <span class="tile-rating"><span class="star">★</span> 5.0</span>
+        </div>
+        <h3 class="tile-title">Sociedades, títulos de crédito y quiebra</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>Rocío Méndez</strong> · U. Adolfo Ibáñez<span class="streak">§ 8 sesiones</span></p>
+        <div class="tile-details">
+          <span class="tile-detail">Online</span>
+          <span class="tile-detail">Fines de semana</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price">$12.000<span class="unit"> /h</span></span>
+          <button class="tile-cta">Solicitar →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <a class="tile-link" href="tutor-detail.html" aria-label="Ver perfil de tutor/a"></a>
+      <div class="cover c-lab">
+        <span class="cover-tag">Ofrece</span>
+        <button class="cover-fav">♡</button>
+        <div class="cover-initials">SG</div>
+        <span class="cover-date">18 abr · 4d</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject">Derecho Laboral</span>
+          <span class="tile-rating"><span class="star">★</span> 4.6</span>
+        </div>
+        <h3 class="tile-title">Contrato individual y tutela laboral</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>Sebastián González</strong> · U. de Valparaíso<span class="streak">§ 19 sesiones</span></p>
+        <div class="tile-details">
+          <span class="tile-detail">Presencial · Viña</span>
+          <span class="tile-detail">Sábados AM</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price free">Primera · Gratis</span>
+          <button class="tile-cta">Solicitar →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <a class="tile-link" href="tutor-detail.html" aria-label="Ver perfil de tutor/a"></a>
+      <div class="cover c-civil">
+        <span class="cover-tag">Ofrece</span>
+        <button class="cover-fav">♡</button>
+        <div class="cover-initials">VT</div>
+        <span class="cover-date">17 abr · 5d</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject">Derecho Civil</span>
+          <span class="tile-rating"><span class="star">★</span> 4.9</span>
+        </div>
+        <h3 class="tile-title">Contratos en particular · Venta y arrendamiento</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>Valentina Tapia</strong> · U. de Chile<span class="streak">§ 44 sesiones</span></p>
+        <div class="tile-details">
+          <span class="tile-detail">Online</span>
+          <span class="tile-detail">Martes 19:00</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price">$14.000<span class="unit"> /h</span></span>
+          <button class="tile-cta">Solicitar →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile busco">
+      <div class="cover c-penal">
+        <span class="cover-tag busco">Busca</span>
+        <button class="cover-fav">♡</button>
+        <div class="cover-initials">NI</div>
+        <span class="cover-date">16 abr · 6d</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject busco">Penal · Urgente</span>
+        </div>
+        <h3 class="tile-title">Teoría del delito para examen de grado</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>Nicolás Ibáñez</strong> · U. Católica del Norte</p>
+        <div class="tile-details">
+          <span class="tile-detail">Online</span>
+          <span class="tile-detail">Intensivo · 2 sem</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price">Hasta $18.000<span class="unit"> /h</span></span>
+          <button class="tile-cta">Postular →</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="tile">
+      <a class="tile-link" href="tutor-detail.html" aria-label="Ver perfil de tutor/a"></a>
+      <div class="cover c-const">
+        <span class="cover-tag">Ofrece</span>
+        <button class="cover-fav">♡</button>
+        <div class="cover-initials">CE</div>
+        <span class="cover-date">15 abr · 1s</span>
+      </div>
+      <div class="tile-body">
+        <div class="tile-top">
+          <span class="tile-subject">Derecho Constitucional</span>
+          <span class="tile-rating"><span class="star">★</span> 4.9</span>
+        </div>
+        <h3 class="tile-title">Derechos fundamentales y acciones tutelares</h3>
+        <div class="tile-rule"></div>
+        <p class="tile-tutor"><strong>Camila Espinoza</strong> · UAI<span class="streak">§ 17 sesiones</span></p>
+        <div class="tile-details">
+          <span class="tile-detail">Online</span>
+          <span class="tile-detail">Jueves 20:00</span>
+          <span class="tile-detail">Grupal 2-4</span>
+        </div>
+        <div class="tile-foot">
+          <span class="tile-price">$11.000<span class="unit"> /h</span></span>
+          <button class="tile-cta">Solicitar →</button>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <div class="pagination">
+    <button>‹</button>
+    <button class="active">1</button>
+    <button>2</button>
+    <button>3</button>
+    <button>4</button>
+    <button>5</button>
+    <button>›</button>
+  </div>
+
+</div>
+
+<div class="variant-chip">
+  Variante D · Híbrido V1+V3
+  <a href="ayudantias-index.html">Volver</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mockups Ayudantías — Studio IURIS</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gz-cream: #f5f0e6;
+    --gz-cream-dark: #e9e0cf;
+    --gz-ink: #1c1814;
+    --gz-ink-mid: #4a433a;
+    --gz-ink-light: #8a8073;
+    --gz-gold: #9a7230;
+    --gz-gold-bright: #c49a50;
+    --gz-burgundy: #6b1d2a;
+    --gz-navy: #12203a;
+    --gz-sage: #3a5a35;
+    --gz-rule: #c4b99a;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:48px 40px 96px; background:var(--gz-cream); color:var(--gz-ink); font-family:'Archivo',sans-serif; }
+  .label { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gz-gold); }
+  h1 { font-family:'Cormorant Garamond',serif; font-weight:600; font-size:52px; margin:4px 0 8px; letter-spacing:-0.5px; }
+  .lede { color:var(--gz-ink-mid); max-width:620px; margin:0 0 40px; font-size:16px; line-height:1.6; }
+  .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:24px; max-width:1280px; }
+  @media (max-width:960px) { .grid { grid-template-columns:1fr; } }
+  a.card { display:block; padding:28px; background:white; border:1px solid var(--gz-rule); border-radius:4px; text-decoration:none; color:var(--gz-ink); transition:all .2s; }
+  a.card:hover { border-color:var(--gz-gold); transform:translateY(-2px); box-shadow:0 8px 24px rgba(154,114,48,0.12); }
+  .card .preview { aspect-ratio: 4/3; background:var(--gz-cream-dark); border-radius:3px; position:relative; overflow:hidden; margin-bottom:18px; }
+  .card h2 { font-family:'Cormorant Garamond',serif; font-weight:700; font-size:28px; margin:10px 0 6px; }
+  .card .desc { margin:0; font-size:14px; line-height:1.55; color:var(--gz-ink-mid); }
+  .card .tag { display:inline-block; padding:3px 8px; background:rgba(154,114,48,0.12); color:var(--gz-gold); border-radius:3px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; }
+
+  /* Variant A preview — editorial board */
+  .vA { background:var(--gz-cream); }
+  .vA::before {
+    content:'AYUDANTÍAS';
+    position:absolute; top:10px; left:16px; right:16px;
+    font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--gz-gold);
+    border-bottom:1px solid var(--gz-rule); padding-bottom:6px;
+  }
+  .vA::after {
+    content:'II — Tablón';
+    position:absolute; top:44px; left:16px; right:16px;
+    font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:700; line-height:1;
+  }
+  .vA .rule { position:absolute; left:16px; right:16px; top:86px; height:1px; background:var(--gz-gold); }
+  .vA .col { position:absolute; top:102px; bottom:10px; width:calc(50% - 22px); border:1px solid var(--gz-rule); padding:10px; background:white; font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:600; color:var(--gz-ink); }
+  .vA .col:first-of-type { left:16px; }
+  .vA .col:last-of-type { right:16px; }
+  .vA .col::after { content:'§'; position:absolute; right:6px; bottom:2px; color:var(--gz-gold); font-style:italic; }
+
+  /* Variant B preview — column feed */
+  .vB { background:var(--gz-cream); }
+  .vB::before {
+    content:'';
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:70%; height:26px; border-radius:13px;
+    background:linear-gradient(90deg, rgba(154,114,48,0.15), rgba(154,114,48,0.05));
+    border:1px solid var(--gz-rule);
+  }
+  .vB .card-sample {
+    position:absolute; left:14%; right:14%; top:54px; bottom:12px;
+    background:white; border:1px solid var(--gz-rule); border-radius:4px;
+    padding:10px;
+  }
+  .vB .card-sample::before {
+    content:''; display:block; width:20px; height:20px; border-radius:50%;
+    background:var(--gz-navy); opacity:0.2; margin-bottom:8px;
+  }
+  .vB .card-sample::after {
+    content:'Ayudantía de Civil'; display:block;
+    font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:700; line-height:1.1; margin-bottom:6px;
+  }
+  .vB .card-sample .line { height:4px; background:var(--gz-rule); opacity:0.5; border-radius:2px; margin:3px 0; }
+  .vB .card-sample .line:nth-child(2) { width:85%; }
+  .vB .card-sample .line:nth-child(3) { width:60%; }
+  .vB .cta { position:absolute; right:20px; bottom:20px; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--gz-gold); }
+
+  /* Variant C preview — marketplace grid */
+  .vC { background:var(--gz-cream); display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; padding:12px; }
+  .vC .tile { background:white; border:1px solid var(--gz-rule); border-radius:4px; overflow:hidden; display:flex; flex-direction:column; }
+  .vC .tile .cover {
+    flex:1 1 60%;
+    background:linear-gradient(135deg, rgba(196,154,80,0.3), rgba(154,114,48,0.1));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:700; color:var(--gz-ink);
+  }
+  .vC .tile .body { padding:4px 6px; font-family:'IBM Plex Mono',monospace; font-size:7px; color:var(--gz-ink-mid); display:flex; justify-content:space-between; border-top:1px solid var(--gz-rule); }
+  .vC .tile .body strong { color:var(--gz-gold); }
+</style>
+</head>
+<body>
+<div class="label">Remake Ayudantías</div>
+<h1>Explorar tres diseños</h1>
+<p class="lede">
+  Tres propuestas para la página de <strong>Ayudantías</strong>. Todas respetan la paleta cream/ink + gold/burgundy y la tipografía Cormorant/Archivo/IBM Plex Mono. Difieren en cómo organizan la jerarquía, los filtros y las cards. El que elijas se replica a Pasantías, Ofertas y Eventos.
+</p>
+
+<div class="grid">
+  <a class="card" href="ayudantias-v1-editorial.html">
+    <div class="preview vA">
+      <div class="rule"></div>
+      <div class="col">Derecho Civil<br><span style="font-size:10px;font-weight:400;color:#8a8073;">María Fernández · U. de Chile</span></div>
+      <div class="col">Derecho Penal<br><span style="font-size:10px;font-weight:400;color:#8a8073;">Pedro Soto · UC</span></div>
+    </div>
+    <span class="tag">Variante A</span>
+    <h2>Editorial Board</h2>
+    <p class="desc">Masthead + filete + grilla de 2 columnas. Cada ayudantía es un "artículo" con título serif, folio romano y pull-quote. La más formal y editorial; se siente como el suplemento académico de un diario jurídico.</p>
+  </a>
+
+  <a class="card" href="ayudantias-v2-feed.html">
+    <div class="preview vB">
+      <div class="card-sample">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+      <span class="cta">SOLICITAR →</span>
+    </div>
+    <span class="tag">Variante B</span>
+    <h2>Column Feed</h2>
+    <p class="desc">Feed centrado de una sola columna, cards aireadas tipo Substack. Filtros como píldoras, tabs como chips. Moderno, long-form, con byline claro de autor. Óptimo para consumir en detalle.</p>
+  </a>
+
+  <a class="card" href="ayudantias-v3-grid.html">
+    <div class="preview vC">
+      <div class="tile"><div class="cover">MF</div><div class="body"><span>Civil</span><strong>Gratis</strong></div></div>
+      <div class="tile"><div class="cover">PS</div><div class="body"><span>Penal</span><strong>$15k</strong></div></div>
+      <div class="tile"><div class="cover">JL</div><div class="body"><span>Const.</span><strong>Gratis</strong></div></div>
+      <div class="tile"><div class="cover">AC</div><div class="body"><span>Proc.</span><strong>$10k</strong></div></div>
+      <div class="tile"><div class="cover">RM</div><div class="body"><span>Com.</span><strong>$12k</strong></div></div>
+      <div class="tile"><div class="cover">SG</div><div class="body"><span>Lab.</span><strong>Gratis</strong></div></div>
+    </div>
+    <span class="tag">Variante C</span>
+    <h2>Marketplace Grid</h2>
+    <p class="desc">Grilla de 3 columnas tipo listing con "cover" generativo por card e iniciales grandes. Precio y rating prominentes. Búsqueda estilo Airbnb. Óptimo para scannear mucho volumen rápido.</p>
+  </a>
+</div>
+
+<p style="margin-top:48px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gz-ink-light);">
+  Abre los mockups en tu navegador local: <code>open mockups/ayudantias-index.html</code>
+</p>
+</body>
+</html>
