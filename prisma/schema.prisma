@@ -346,54 +346,58 @@ model User {
   progresoCacheAt     DateTime?
   createdAt           DateTime  @default(now())
 
-  flashcardProgress     UserFlashcardProgress[]
-  flashcardFavorites    FlashcardFavorite[]
-  mcqAttempts           UserMCQAttempt[]
-  trueFalseAttempts     UserTrueFalseAttempt[]
-  contentReports        ContentReport[]
-  curriculumProgress    CurriculumProgress[]
-  leagueMembers         LeagueMember[]
-  causasRetadas         Causa[]                 @relation("CausasRetadas")
-  causasRecibidas       Causa[]                 @relation("CausasRecibidas")
-  causasGanadasRel      Causa[]                 @relation("CausasGanadas")
-  causaAnswers          CausaAnswer[]
-  badges                UserBadge[]
-  causaRoomsCreated     CausaRoom[]             @relation("CausaRoomsCreated")
-  causaParticipations   CausaParticipant[]
-  causaRoomAnswers      CausaRoomAnswer[]
-  subscriptions         Subscription[]
-  ayudantias            Ayudantia[]             @relation("AyudantiasCreadas")
-  ayudantiaReports      AyudantiaReport[]
-  ayudantiaStreak       AyudantiaStreak?
-  sesionesTutor         AyudantiaSesion[]       @relation("SesionesTutor")
-  sesionesEstudiante    AyudantiaSesion[]       @relation("SesionesEstudiante")
-  evaluacionesDadas     AyudantiaEvaluacion[]   @relation("EvaluacionesDadas")
-  evaluacionesRecibidas AyudantiaEvaluacion[]   @relation("EvaluacionesRecibidas")
-  pasantiasCreadas      Pasantia[]              @relation("PasantiasCreadas")
-  eventosCreados        EventoAcademico[]       @relation("EventosCreados")
-  eventosInteres        EventoInteres[]         @relation("EventosInteres")
-  ofertasCreadas        OfertaTrabajo[]         @relation("OfertasCreadas")
-  reportesSalaCreados   SalaReporte[]           @relation("ReportesCreados")
-  notifications         UserNotification[]
-  colegasSent           ColegaRequest[]         @relation("ColegasSent")
-  colegasReceived       ColegaRequest[]         @relation("ColegasReceived")
-  calendarEvents        CalendarEvent[]
-  countdowns            UserCountdown[]         @relation("UserCountdowns")
-  cvRequestsSent        CvRequest[]             @relation("CvRequestsSent")
-  cvRequestsReceived    CvRequest[]             @relation("CvRequestsReceived")
-  adminLogs             AdminLog[]
-  diarioPosts           DiarioPost[]
-  diarioGuardados       DiarioGuardado[]
-  simulacroSesiones     SimulacroSesion[]
-  simulacroReportes     SimulacroReporte[]
-  heroSlideEventos      HeroSlideEvento[]
-  obiters               ObiterDictum[]
-  obiterApoyos          ObiterApoyo[]
-  obiterGuardados       ObiterGuardado[]
-  examenConfig          ExamenConfig?
-  examenReportes        ExamenReporte[]
-  planEstudio           PlanEstudio?            @relation("PlanEstudio")
-  obiterComuniquese     ObiterComuniquese[]
+  flashcardProgress       UserFlashcardProgress[]
+  flashcardFavorites      FlashcardFavorite[]
+  mcqAttempts             UserMCQAttempt[]
+  trueFalseAttempts       UserTrueFalseAttempt[]
+  contentReports          ContentReport[]
+  curriculumProgress      CurriculumProgress[]
+  leagueMembers           LeagueMember[]
+  causasRetadas           Causa[]                 @relation("CausasRetadas")
+  causasRecibidas         Causa[]                 @relation("CausasRecibidas")
+  causasGanadasRel        Causa[]                 @relation("CausasGanadas")
+  causaAnswers            CausaAnswer[]
+  badges                  UserBadge[]
+  causaRoomsCreated       CausaRoom[]             @relation("CausaRoomsCreated")
+  causaParticipations     CausaParticipant[]
+  causaRoomAnswers        CausaRoomAnswer[]
+  subscriptions           Subscription[]
+  ayudantias              Ayudantia[]             @relation("AyudantiasCreadas")
+  ayudantiaReports        AyudantiaReport[]
+  ayudantiaStreak         AyudantiaStreak?
+  sesionesTutor           AyudantiaSesion[]       @relation("SesionesTutor")
+  sesionesEstudiante      AyudantiaSesion[]       @relation("SesionesEstudiante")
+  evaluacionesDadas       AyudantiaEvaluacion[]   @relation("EvaluacionesDadas")
+  evaluacionesRecibidas   AyudantiaEvaluacion[]   @relation("EvaluacionesRecibidas")
+  pasantiasCreadas        Pasantia[]              @relation("PasantiasCreadas")
+  estudiosCreados         EstudioJuridico[]       @relation("EstudiosCreados")
+  estudioMembresias       EstudioMember[]         @relation("EstudioMembresias")
+  pasantiasPostuladas     PasantiaPostulacion[]   @relation("PasantiasPostuladas")
+  pasantiaReviewsEscritas PasantiaReview[]        @relation("PasantiaReviewsEscritas")
+  eventosCreados          EventoAcademico[]       @relation("EventosCreados")
+  eventosInteres          EventoInteres[]         @relation("EventosInteres")
+  ofertasCreadas          OfertaTrabajo[]         @relation("OfertasCreadas")
+  reportesSalaCreados     SalaReporte[]           @relation("ReportesCreados")
+  notifications           UserNotification[]
+  colegasSent             ColegaRequest[]         @relation("ColegasSent")
+  colegasReceived         ColegaRequest[]         @relation("ColegasReceived")
+  calendarEvents          CalendarEvent[]
+  countdowns              UserCountdown[]         @relation("UserCountdowns")
+  cvRequestsSent          CvRequest[]             @relation("CvRequestsSent")
+  cvRequestsReceived      CvRequest[]             @relation("CvRequestsReceived")
+  adminLogs               AdminLog[]
+  diarioPosts             DiarioPost[]
+  diarioGuardados         DiarioGuardado[]
+  simulacroSesiones       SimulacroSesion[]
+  simulacroReportes       SimulacroReporte[]
+  heroSlideEventos        HeroSlideEvento[]
+  obiters                 ObiterDictum[]
+  obiterApoyos            ObiterApoyo[]
+  obiterGuardados         ObiterGuardado[]
+  examenConfig            ExamenConfig?
+  examenReportes          ExamenReporte[]
+  planEstudio             PlanEstudio?            @relation("PlanEstudio")
+  obiterComuniquese       ObiterComuniquese[]
 
   // El Diario — Análisis y Ensayos
   analisisCreados     AnalisisSentencia[]   @relation("AnalisisCreados")
@@ -922,6 +926,14 @@ model Pasantia {
   userId String
   user   User   @relation("PasantiasCreadas", fields: [userId], references: [id])
 
+  // OFREZCO: estudio/abogado publica una pasantía disponible
+  // BUSCO:   estudiante publica que busca pasantía
+  type String @default("ofrezco") // "ofrezco" | "busco"
+
+  // Vinculación opcional con un estudio jurídico verificado
+  estudioId String?
+  estudio   EstudioJuridico? @relation(fields: [estudioId], references: [id])
+
   empresa             String
   areaPractica        String
   titulo              String
@@ -935,17 +947,153 @@ model Pasantia {
   metodoPostulacion   String // "email" | "formulario" | "en_plataforma"
   contactoPostulacion String?
 
+  // Campos estructurados (nuevos — opcionales para no romper registros existentes)
+  jornada           String? // "completa" | "media" | "parcial" | "flexible"
+  fechaInicio       DateTime?
+  fechaLimite       DateTime? // deadline de postulación
+  cupos             Int?
+  anioMinimoCarrera Int? // 1..6
+  promedioMinimo    Float?
+  areasRequeridas   String[]  @default([]) // tags adicionales
+
+  // Postulación: INTERNA (por plataforma) o EXTERNA (link a formulario externo)
+  postulacionTipo  String? // "INTERNA" | "EXTERNA"
+  postulacionUrl   String?
+  // Canales de contacto directos (siempre abiertos, en paralelo)
+  contactoWhatsapp String?
+  contactoEmail    String?
+
   isActive Boolean @default(true)
   isHidden Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  salaReportes SalaReporte[]
+  salaReportes  SalaReporte[]
+  postulaciones PasantiaPostulacion[]
 
   @@index([userId])
+  @@index([estudioId])
   @@index([areaPractica])
+  @@index([type, isActive, isHidden, createdAt(sort: Desc)])
   @@index([isActive, isHidden, createdAt(sort: Desc)])
+}
+
+// ─── Pasantías · Estudios Jurídicos ─────────────────────
+
+model EstudioJuridico {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  nombre      String
+  logoUrl     String?
+  coverUrl    String?
+  sitioWeb    String?
+  tamano      String? // "1-5" | "6-20" | "21-50" | "51-200" | "200+"
+  fundacion   Int? // año
+  descripcion String?
+  areas       String[] @default([]) // áreas de práctica
+  region      String?
+  ciudad      String?
+  direccion   String?
+
+  // Verificación por admin (la página pública se muestra sólo si verificado=true)
+  verificado    Boolean   @default(false)
+  verifiedAt    DateTime?
+  verifiedBy    String?
+  rejectionNote String?
+
+  createdById String
+  createdBy   User   @relation("EstudiosCreados", fields: [createdById], references: [id])
+
+  members   EstudioMember[]
+  pasantias Pasantia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([verificado])
+  @@index([region])
+}
+
+model EstudioMember {
+  id        String          @id @default(uuid())
+  estudioId String
+  estudio   EstudioJuridico @relation(fields: [estudioId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User            @relation("EstudioMembresias", fields: [userId], references: [id], onDelete: Cascade)
+
+  rol String // "socio" | "asociado" | "pasante" | "admin_plataforma"
+
+  createdAt DateTime @default(now())
+
+  @@unique([estudioId, userId])
+  @@index([userId])
+}
+
+// ─── Pasantías · Postulaciones ──────────────────────────
+
+model PasantiaPostulacion {
+  id           String   @id @default(uuid())
+  pasantiaId   String
+  pasantia     Pasantia @relation(fields: [pasantiaId], references: [id], onDelete: Cascade)
+  postulanteId String
+  postulante   User     @relation("PasantiasPostuladas", fields: [postulanteId], references: [id], onDelete: Cascade)
+
+  cvUrl    String?
+  cartaUrl String?
+  mensaje  String?
+
+  // ENVIADA → REVISADA → ACEPTADA/RECHAZADA → COMPLETADA (habilita reseña)
+  estado          String    @default("ENVIADA")
+  fechaInicio     DateTime?
+  fechaCompletada DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review PasantiaReview?
+
+  @@unique([pasantiaId, postulanteId])
+  @@index([postulanteId])
+  @@index([estado])
+}
+
+// ─── Pasantías · Reseñas balanceadas ────────────────────
+// Quien fue pasante puede reseñar cuando la postulación está COMPLETADA.
+// Quien ofrece la pasantía puede responder públicamente una sola vez y reportar
+// reseñas para moderación (no puede eliminar). La responsabilidad de la veracidad
+// corresponde al autor de la reseña y al estudio publicador según ToS.
+
+model PasantiaReview {
+  id            String              @id @default(uuid())
+  postulacionId String              @unique
+  postulacion   PasantiaPostulacion @relation(fields: [postulacionId], references: [id], onDelete: Cascade)
+
+  authorId      String
+  author        User    @relation("PasantiaReviewsEscritas", fields: [authorId], references: [id])
+  authorDisplay String // ej: "Egresada · UDP · 2025" o nombre real
+  isAnonymous   Boolean @default(false)
+
+  rating  Int // 1..5
+  comment String?
+
+  // Respuesta pública única del estudio
+  estudioResponse    String?
+  estudioRespondedAt DateTime?
+
+  // Moderación
+  reported      Boolean   @default(false)
+  reportedAt    DateTime?
+  reportReason  String?
+  moderated     Boolean   @default(false)
+  moderatedAt   DateTime?
+  hiddenByAdmin Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([rating])
 }
 
 // ─── Eventos Académicos ─────────────────────────────────

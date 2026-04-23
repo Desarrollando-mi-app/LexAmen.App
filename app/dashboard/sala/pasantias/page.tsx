@@ -1,12 +1,18 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { PasantiasClient } from "./pasantias-client";
+import { PasantiasV4Client } from "./pasantias-client";
 
 export const metadata = {
   title: "Pasantías — Studio Iuris",
 };
 
+/**
+ * Listado público de pasantías (vista V4 editorial).
+ * Trae AMBOS tipos: "ofrezco" (estudios que publican pasantías) y
+ * "busco" (estudiantes que publican buscando pasantía).
+ * La gestión de publicaciones propias + postulaciones vive en /pasantias/gestion.
+ */
 export default async function PasantiasPage() {
   const supabase = await createClient();
   const {
@@ -20,15 +26,23 @@ export default async function PasantiasPage() {
   const pasantias = await prisma.pasantia.findMany({
     where: { isActive: true, isHidden: false },
     orderBy: { createdAt: "desc" },
-    take: 50,
+    take: 100,
     include: {
       user: {
         select: {
           id: true,
           firstName: true,
           lastName: true,
-          avatarUrl: true,
           universidad: true,
+        },
+      },
+      estudio: {
+        select: {
+          id: true,
+          slug: true,
+          nombre: true,
+          logoUrl: true,
+          verificado: true,
         },
       },
     },
@@ -36,22 +50,34 @@ export default async function PasantiasPage() {
 
   const serialized = pasantias.map((p) => ({
     id: p.id,
-    userId: p.userId,
+    type: (p.type === "busco" ? "busco" : "ofrezco") as "ofrezco" | "busco",
+    titulo: p.titulo,
     empresa: p.empresa,
     areaPractica: p.areaPractica,
-    titulo: p.titulo,
-    descripcion: p.descripcion,
     ciudad: p.ciudad,
     formato: p.formato,
-    duracion: p.duracion,
+    jornada: p.jornada ?? null,
     remuneracion: p.remuneracion,
-    montoRemu: p.montoRemu,
-    requisitos: p.requisitos,
-    metodoPostulacion: p.metodoPostulacion,
-    contactoPostulacion: p.contactoPostulacion,
+    montoRemu: p.montoRemu ?? null,
+    fechaLimite: p.fechaLimite ? p.fechaLimite.toISOString() : null,
+    cupos: p.cupos ?? null,
     createdAt: p.createdAt.toISOString(),
-    user: p.user,
+    user: {
+      id: p.user.id,
+      firstName: p.user.firstName,
+      lastName: p.user.lastName,
+      universidad: p.user.universidad,
+    },
+    estudio: p.estudio
+      ? {
+          id: p.estudio.id,
+          slug: p.estudio.slug,
+          nombre: p.estudio.nombre,
+          logoUrl: p.estudio.logoUrl,
+          verificado: p.estudio.verificado,
+        }
+      : null,
   }));
 
-  return <PasantiasClient userId={authUser.id} initialPasantias={serialized} />;
+  return <PasantiasV4Client pasantias={serialized} />;
 }

@@ -75,10 +75,19 @@ export async function PATCH(
     "descripcion",
     "ciudad",
     "formato",
+    "jornada",
     "duracion",
     "remuneracion",
     "montoRemu",
     "requisitos",
+    "cupos",
+    "anioMinimoCarrera",
+    "promedioMinimo",
+    "areasRequeridas",
+    "postulacionTipo",
+    "postulacionUrl",
+    "contactoWhatsapp",
+    "contactoEmail",
     "metodoPostulacion",
     "contactoPostulacion",
     "isActive",
@@ -89,6 +98,14 @@ export async function PATCH(
     if (body[field] !== undefined) {
       updateData[field] = body[field];
     }
+  }
+
+  // Normalizar fechas (las enviamos como ISO string desde el cliente)
+  if (body.fechaInicio !== undefined) {
+    updateData.fechaInicio = body.fechaInicio ? new Date(body.fechaInicio as string) : null;
+  }
+  if (body.fechaLimite !== undefined) {
+    updateData.fechaLimite = body.fechaLimite ? new Date(body.fechaLimite as string) : null;
   }
 
   const updated = await prisma.pasantia.update({
