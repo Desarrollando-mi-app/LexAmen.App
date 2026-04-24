@@ -19,5 +19,11 @@ UPDATE "MCQ" SET
   materia = 'JURISDICCION_Y_COMPETENCIA'
 WHERE submateria IN ('JURISDICCION', 'COMPETENCIA', 'JUICIO_ORDINARIO', 'RECURSOS', 'JUICIO_EJECUTIVO');
 
--- 5. Eliminar enum Submateria (ya no lo usa ningún modelo)
+-- 5. Liberar la dependencia de Flashcard.submateria sobre el enum
+--    (la conversión "oficial" vive en la migración siguiente; acá sólo
+--     sacamos el type-binding para poder dropear el enum sin romper el
+--     shadow DB. Es idempotente: si ya es TEXT, es no-op.)
+ALTER TABLE "Flashcard" ALTER COLUMN "submateria" TYPE TEXT USING "submateria"::TEXT;
+
+-- 6. Eliminar enum Submateria (ya no lo usa ningún modelo)
 DROP TYPE IF EXISTS "Submateria";
