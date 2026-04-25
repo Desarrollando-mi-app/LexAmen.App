@@ -61,37 +61,13 @@ export default async function NoticiaInternaPage({ params }: PageProps) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // SELECT explícito: defensivo ante DBs sin la migración 20260425
-  // (contenido / pinnedUntil / pinnedTop). Cuando esté garantizada en
-  // producción, se puede agregar contenido/pinnedUntil/pinnedTop al
-  // select y des-defaultearlos abajo.
   const noticia = await prisma.noticiaJuridica.findUnique({
     where: { id },
-    select: {
-      id: true,
-      titulo: true,
-      resumen: true,
-      urlFuente: true,
-      fuente: true,
-      fuenteNombre: true,
-      categoria: true,
-      rama: true,
-      estado: true,
-      fechaAprobacion: true,
-      createdAt: true,
-    },
   });
 
   if (!noticia || noticia.estado !== "aprobada") notFound();
 
-  // Polyfill local de campos extendidos hasta que migrate deploy esté
-  // garantizado en producción.
-  const noticiaPlus = {
-    ...noticia,
-    contenido: null as string | null,
-    pinnedTop: false,
-    pinnedUntil: null as Date | null,
-  };
+  const noticiaPlus = noticia;
 
   const ramaColor = getRamaColor(noticia.rama);
   const catColor = getCategoriaColor(noticia.categoria);

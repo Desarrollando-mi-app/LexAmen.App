@@ -45,16 +45,51 @@ export async function PATCH(
     if (notasAdmin !== undefined) data.notasAdmin = notasAdmin;
     if (titulo !== undefined) data.titulo = titulo;
     if (comentarioAdmin !== undefined) data.comentarioAdmin = comentarioAdmin;
+    if (contenido !== undefined) data.contenido = contenido;
+    if (pinnedTop !== undefined) data.pinnedTop = !!pinnedTop;
+    if (pinnedUntil !== undefined) {
+      data.pinnedUntil = pinnedUntil ? new Date(pinnedUntil) : null;
+    }
 
-    // NOTA TRANSICIONAL: contenido / pinnedTop / pinnedUntil quedan
-    // ignorados hasta que migrate deploy esté garantizado en producción.
-    // Mantenemos la firma del body para no romper el cliente admin.
-    void contenido; void pinnedTop; void pinnedUntil;
-
-    // Cuando se aprueba: setear metadata.
+    // Cuando se aprueba: setear metadata + reglas de pinning según categoría.
+    //   editorial          → pinnedTop=true (queda arriba hasta retiro/reemplazo)
+    //   columna_opinion    → pinnedUntil = +7 días
+    //   carta_director     → pinnedUntil = +7 días
+    //   otra categoría     → no pinning
+    // Solo se aplica si el llamado no especificó pinning manual en este PATCH.
     if (estado === "aprobada") {
-      data.fechaAprobacion = new Date();
+      const now = new Date();
+      data.fechaAprobacion = now;
       data.aprobadaPor = `${admin.firstName} ${admin.lastName}`;
+
+      // Buscamos la categoría final (la del PATCH o la actual del registro).
+      const finalCategoria =
+        categoria !== undefined
+          ? categoria
+          : (await prisma.noticiaJuridica.findUnique({
+              where: { id },
+              select: { categoria: true },
+            }))?.categoria;
+
+      if (finalCategoria === "editorial") {
+        if (pinnedTop === undefined) data.pinnedTop = true;
+
+        // Editoriales son únicas: al subir una nueva, despinneamos las anteriores.
+        if ((pinnedTop === undefined || pinnedTop === true)) {
+          await prisma.noticiaJuridica.updateMany({
+            where: {
+              id: { not: id },
+              categoria: "editorial",
+              pinnedTop: true,
+            },
+            data: { pinnedTop: false },
+          });
+        }
+      } else if (finalCategoria === "columna_opinion" || finalCategoria === "carta_director") {
+        if (pinnedUntil === undefined) {
+          data.pinnedUntil = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        }
+      }
     }
 
     const noticia = await prisma.noticiaJuridica.update({
@@ -67,6 +102,7 @@ export async function PATCH(
       fechaPublicacionFuente: noticia.fechaPublicacionFuente?.toISOString() ?? null,
       fechaRecopilacion: noticia.fechaRecopilacion.toISOString(),
       fechaAprobacion: noticia.fechaAprobacion?.toISOString() ?? null,
+      pinnedUntil: noticia.pinnedUntil?.toISOString() ?? null,
       createdAt: noticia.createdAt.toISOString(),
       updatedAt: noticia.updatedAt.toISOString(),
     });

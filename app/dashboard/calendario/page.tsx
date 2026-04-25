@@ -12,7 +12,7 @@ export const revalidate = 0;
 // Marcador visible de versión — sirve para diagnosticar qué build está
 // siendo servido por el CDN. Cambiarlo cada vez que se haga un cambio
 // visual significativo en esta página.
-const BUILD_TAG = "v4.7 · safe";
+const BUILD_TAG = "v4.8 · full";
 
 export default async function CalendarioPage() {
   const supabase = await createClient();
@@ -31,10 +31,6 @@ export default async function CalendarioPage() {
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
   sixtyDaysAgo.setHours(0, 0, 0, 0);
 
-  // SELECT explícito: defensivo ante DBs que aún no tienen aplicadas las
-  // migraciones de los nuevos campos extendidos. Sin esto, Prisma intenta
-  // SELECT * (incluye location/url/recurrence/etc.) y crashea con
-  // "column does not exist" hasta que migrate deploy haya corrido.
   const [events, countdowns, studyDays] = await Promise.all([
     prisma.calendarEvent.findMany({
       where: {
@@ -42,20 +38,6 @@ export default async function CalendarioPage() {
         startDate: { gte: start, lte: end },
       },
       orderBy: { startDate: "asc" },
-      select: {
-        id: true,
-        userId: true,
-        title: true,
-        description: true,
-        eventType: true,
-        startDate: true,
-        endDate: true,
-        allDay: true,
-        color: true,
-        sourceEventoId: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     }),
     prisma.userCountdown.findMany({
       where: { userId: authUser.id },

@@ -23,10 +23,13 @@ export async function GET(request: NextRequest) {
     const [noticias, total] = await Promise.all([
       prisma.noticiaJuridica.findMany({
         where,
-        // NOTA TRANSICIONAL: orderBy con pinnedTop/pinnedUntil queda
-        // pendiente hasta que la migración 20260425_noticia_contenido_pinned
-        // esté garantizada en producción.
-        orderBy: { fechaAprobacion: "desc" },
+        // pinnedTop primero (editoriales), luego pinnedUntil (cartas/columnas
+        // de la última semana), luego por fecha de aprobación descendente.
+        orderBy: [
+          { pinnedTop: "desc" },
+          { pinnedUntil: { sort: "desc", nulls: "last" } },
+          { fechaAprobacion: "desc" },
+        ],
         skip: (page - 1) * limit,
         take: limit,
         select: {
@@ -42,6 +45,8 @@ export async function GET(request: NextRequest) {
           destacada: true,
           fechaPublicacionFuente: true,
           fechaAprobacion: true,
+          pinnedUntil: true,
+          pinnedTop: true,
         },
       }),
       prisma.noticiaJuridica.count({ where }),
