@@ -70,9 +70,10 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    href: "/dashboard/diario/debates",
+    href: "/dashboard/academia",
     label: "Academia",
     children: [
+      { href: "/dashboard/academia", label: "Índice", icon: "newspaper" },
       { href: "/dashboard/diario/debates", label: "Debates", icon: "chat-versus" },
       { href: "/dashboard/diario/expediente", label: "Expediente Abierto", icon: "folder-open" },
       { href: "/dashboard/diario/peer-review", label: "Peer Review", icon: "magnifier" },
@@ -131,8 +132,9 @@ const PROFESION_ROUTES = [
   "/dashboard/sala/networking",
 ];
 
-// Academia: debates, expediente, peer-review, ranking autores, eventos
+// Academia: hub, debates, expediente, peer-review, ranking autores, eventos
 const ACADEMIA_ROUTES = [
+  "/dashboard/academia",
   "/dashboard/diario/debates",
   "/dashboard/diario/expediente",
   "/dashboard/diario/peer-review",
