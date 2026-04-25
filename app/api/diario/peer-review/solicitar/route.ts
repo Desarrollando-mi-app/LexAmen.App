@@ -93,10 +93,13 @@ export async function POST(request: NextRequest) {
   let selectedReviewerIds: string[] = [];
 
   if (reviewerIds && reviewerIds.length > 0) {
-    // Validar que los reviewers cumplen criterios
+    // Validar que los reviewers cumplen criterios. `isPeerReviewer`
+    // es obligatorio: sólo entran al pool quienes postularon y fueron
+    // aprobados por un admin.
     const candidates = await prisma.user.findMany({
       where: {
         id: { in: reviewerIds },
+        isPeerReviewer: true,
         grado: { gte: REVIEW_CONFIG.MIN_GRADO_REVIEWER },
         suspended: false,
         deletedAt: null,
@@ -131,9 +134,11 @@ export async function POST(request: NextRequest) {
     }
   } else {
     // Auto-asignar reviewers
-    // 1. Buscar usuarios elegibles: grado >= 8, no suspendidos, no el autor
+    // 1. Buscar usuarios elegibles: isPeerReviewer aprobado por admin,
+    //    grado >= 8, no suspendidos, no el autor.
     const eligibleUsers = await prisma.user.findMany({
       where: {
+        isPeerReviewer: true,
         grado: { gte: REVIEW_CONFIG.MIN_GRADO_REVIEWER },
         suspended: false,
         deletedAt: null,

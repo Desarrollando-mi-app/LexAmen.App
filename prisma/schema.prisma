@@ -343,6 +343,10 @@ model User {
   onboardingCompleted Boolean   @default(false)
   onboardingStep      Int       @default(0) // 0=not started, 1-4=in progress, 5=completed
   isAdmin             Boolean   @default(false)
+  // Peer Review — habilitado tras postulación + aprobación admin.
+  // Sin esto, el sistema de auto-asignación no considera al usuario.
+  isPeerReviewer      Boolean   @default(false)
+  peerReviewerSince   DateTime?
   progresoCache       Json?
   progresoCacheAt     DateTime?
   createdAt           DateTime  @default(now())
@@ -455,7 +459,9 @@ model User {
   colaboracionInvitaciones ColaboracionInvitacion[] @relation("ColaboracionInvitado")
 
   // Peer Review
-  reviewsRealizados PeerReview[] @relation("ReviewsRealizados")
+  reviewsRealizados       PeerReview[]            @relation("ReviewsRealizados")
+  peerReviewPostulaciones PeerReviewPostulacion[] @relation("PostulacionesEnviadas")
+  peerReviewResoluciones  PeerReviewPostulacion[] @relation("PostulacionesResueltas")
 
   // Reportes de usuario
   reportesEnviados  ReporteUsuario[] @relation("ReportesEnviados")
@@ -2842,6 +2848,46 @@ model PeerReview {
   @@unique([publicacionId, reviewerId])
   @@index([reviewerId, estado])
   @@index([publicacionId])
+}
+
+// ─── Peer Review — Postulación con admin ──────────────────
+//
+// Antes de poder ser asignado como reviewer, el usuario postula
+// formalmente. Un admin revisa y aprueba o rechaza. Si se aprueba,
+// `User.isPeerReviewer` queda en `true` y el usuario entra al pool
+// de auto-asignación de reviews.
+//
+// Estados:
+//   pendiente: enviada, sin resolución todavía.
+//   aprobada:  el admin la aceptó — efecto colateral en User.
+//   rechazada: el admin la denegó — el usuario puede volver a postular.
+
+model PeerReviewPostulacion {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation("PostulacionesEnviadas", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Texto de motivación / experiencia que el usuario presenta.
+  motivacion         String
+  // Áreas en las que el usuario se ofrece a revisar (JSON array de
+  // ramas, ej: '["civil","procesal"]').
+  areasInteres       String?
+  // Link a una publicación destacada del autor (opcional).
+  publicacionMuestra String?
+
+  estado String @default("pendiente") // pendiente | aprobada | rechazada
+
+  resueltoPorId  String?
+  resueltoPor    User?     @relation("PostulacionesResueltas", fields: [resueltoPorId], references: [id])
+  resueltaAt     DateTime?
+  // Comentario del admin (visible al usuario en caso de rechazo).
+  resolucionNota String?
+
+  createdAt DateTime @default(now())
+
+  @@index([estado, createdAt])
+  @@index([userId, createdAt])
 }
 
 // ─── Reportes de Usuario ────────────────────────────────────
