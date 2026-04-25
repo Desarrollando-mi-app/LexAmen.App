@@ -16,16 +16,27 @@ export default async function NoticiasPage() {
 
   if (!user) redirect("/login");
 
-  // Vigencia: TTL 48h estándar + items pinneados (editoriales y cartas/columnas).
+  // Vigencia: TTL 48h estándar (la lógica de pinning se reactivará una
+  // vez que la migración 20260425_noticia_contenido_pinned esté aplicada
+  // en producción — ver lib/noticias-ttl.ts).
   const noticias = await prisma.noticiaJuridica.findMany({
     where: noticiasVigentesWhere(),
-    orderBy: [
-      { pinnedTop: "desc" },
-      { pinnedUntil: { sort: "desc", nulls: "last" } },
-      { destacada: "desc" },
-      { fechaAprobacion: "desc" },
-    ],
+    orderBy: [{ destacada: "desc" }, { fechaAprobacion: "desc" }],
     take: 30,
+    select: {
+      id: true,
+      titulo: true,
+      resumen: true,
+      urlFuente: true,
+      fuente: true,
+      fuenteNombre: true,
+      categoria: true,
+      rama: true,
+      imagenUrl: true,
+      destacada: true,
+      fechaAprobacion: true,
+      fechaPublicacionFuente: true,
+    },
   });
 
   const serialized = noticias.map((n) => ({
@@ -41,8 +52,8 @@ export default async function NoticiasPage() {
     destacada: n.destacada,
     fechaAprobacion: n.fechaAprobacion?.toISOString() ?? null,
     fechaPublicacionFuente: n.fechaPublicacionFuente?.toISOString() ?? null,
-    pinnedUntil: n.pinnedUntil?.toISOString() ?? null,
-    pinnedTop: n.pinnedTop,
+    pinnedUntil: null,
+    pinnedTop: false,
   }));
 
   return (

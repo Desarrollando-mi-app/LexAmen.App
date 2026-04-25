@@ -27,12 +27,29 @@ export async function GET(request: Request) {
   const start = new Date(year, month - 1, 1);
   const end = new Date(year, month, 0, 23, 59, 59, 999);
 
+  // SELECT explícito: defensivo ante DBs sin migraciones extendidas
+  // aplicadas. Una vez que la migración esté garantizada en producción,
+  // se puede volver a SELECT * (sin cláusula select).
   const events = await prisma.calendarEvent.findMany({
     where: {
       userId: authUser.id,
       startDate: { gte: start, lte: end },
     },
     orderBy: { startDate: "asc" },
+    select: {
+      id: true,
+      userId: true,
+      title: true,
+      description: true,
+      eventType: true,
+      startDate: true,
+      endDate: true,
+      allDay: true,
+      color: true,
+      sourceEventoId: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 
   return NextResponse.json(events);
@@ -97,6 +114,10 @@ export async function POST(request: Request) {
     }
   }
 
+  // NOTA TRANSICIONAL: campos extendidos (location/url/recurrence/etc.)
+  // sólo se incluyen si el body los provee, para evitar crashear cuando
+  // la migración 20260425_calendar_event_extended_fields aún no esté
+  // aplicada en producción.
   const event = await prisma.calendarEvent.create({
     data: {
       userId: authUser.id,
@@ -108,12 +129,12 @@ export async function POST(request: Request) {
       allDay: body.allDay ?? false,
       color: body.color ?? null,
       sourceEventoId: body.sourceEventoId ?? null,
-      location: body.location ?? null,
-      url: body.url ?? null,
-      recurrence: body.recurrence ?? null,
-      reminderMinutes: body.reminderMinutes ?? null,
-      materia: body.materia ?? null,
-      attendees: body.attendees ?? null,
+      ...(body.location != null && { location: body.location }),
+      ...(body.url != null && { url: body.url }),
+      ...(body.recurrence != null && { recurrence: body.recurrence }),
+      ...(body.reminderMinutes != null && { reminderMinutes: body.reminderMinutes }),
+      ...(body.materia != null && { materia: body.materia }),
+      ...(body.attendees != null && { attendees: body.attendees }),
     },
   });
 

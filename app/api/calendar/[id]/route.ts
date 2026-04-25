@@ -53,6 +53,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
 
+  // NOTA TRANSICIONAL: campos extendidos sólo se incluyen si el body
+  // los provee != null, para evitar crashear cuando la migración
+  // 20260425_calendar_event_extended_fields no esté aplicada.
   const updated = await prisma.calendarEvent.update({
     where: { id },
     data: {
@@ -67,14 +70,14 @@ export async function PATCH(
       }),
       ...(body.allDay !== undefined && { allDay: body.allDay }),
       ...(body.color !== undefined && { color: body.color }),
-      ...(body.location !== undefined && { location: body.location }),
-      ...(body.url !== undefined && { url: body.url }),
-      ...(body.recurrence !== undefined && { recurrence: body.recurrence }),
-      ...(body.reminderMinutes !== undefined && {
+      ...(body.location != null && { location: body.location }),
+      ...(body.url != null && { url: body.url }),
+      ...(body.recurrence != null && { recurrence: body.recurrence }),
+      ...(body.reminderMinutes != null && {
         reminderMinutes: body.reminderMinutes,
       }),
-      ...(body.materia !== undefined && { materia: body.materia }),
-      ...(body.attendees !== undefined && { attendees: body.attendees }),
+      ...(body.materia != null && { materia: body.materia }),
+      ...(body.attendees != null && { attendees: body.attendees }),
     },
   });
 
