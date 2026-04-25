@@ -75,7 +75,7 @@ export function OfertasV4Client({
         </Link>
         <nav className="flex items-center gap-5 font-ibm-mono text-[10px] tracking-[1.5px] uppercase">
           <Link
-            href="/dashboard/sala/ofertas/gestion"
+            href="/dashboard/sala/mis-publicaciones?kind=oferta"
             className="text-gz-ink-mid hover:text-gz-gold transition-colors"
           >
             Mis ofertas

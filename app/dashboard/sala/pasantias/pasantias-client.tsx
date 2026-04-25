@@ -66,7 +66,7 @@ export function PasantiasV4Client({
         </Link>
         <nav className="flex items-center gap-5 font-ibm-mono text-[10px] tracking-[1.5px] uppercase">
           <Link
-            href="/dashboard/sala/pasantias/gestion"
+            href="/dashboard/sala/mis-publicaciones?kind=pasantia"
             className="text-gz-ink-mid hover:text-gz-gold transition-colors"
           >
             Mis publicaciones
