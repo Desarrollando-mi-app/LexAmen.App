@@ -176,22 +176,52 @@ export function FilterChipAcademia({
   onClick,
   label,
   glyph,
+  disabled,
+  badge,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
   glyph?: string;
+  /** Si se pasa true, el chip queda en estado "lock" (Próximamente, etc.) */
+  disabled?: boolean;
+  /** Texto auxiliar a la derecha del label (ej: "Próximamente"). */
+  badge?: string;
 }) {
+  const baseClass =
+    "inline-flex items-center gap-1.5 px-3 py-1.5 font-ibm-mono text-[10.5px] tracking-[1.4px] uppercase rounded-[3px] border transition whitespace-nowrap";
+
+  if (disabled) {
+    return (
+      <span
+        title={badge ?? "No disponible aún"}
+        aria-disabled="true"
+        className={`${baseClass} border-dashed border-gz-rule text-gz-ink-light/70 cursor-not-allowed`}
+      >
+        {glyph && (
+          <span className="font-cormorant text-[13px] italic text-gz-ink-light/60">
+            {glyph}
+          </span>
+        )}
+        {label}
+        {badge && (
+          <span className="font-archivo text-[9px] tracking-[1px] normal-case text-gz-ink-light/70">
+            · {badge}
+          </span>
+        )}
+      </span>
+    );
+  }
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 font-ibm-mono text-[10.5px] tracking-[1.4px] uppercase rounded-[3px] border transition whitespace-nowrap cursor-pointer
-                 ${
-                   active
-                     ? "bg-gz-ink text-gz-cream border-gz-ink"
-                     : "border-gz-rule text-gz-ink-mid hover:border-gz-ink hover:text-gz-ink"
-                 }`}
+      className={`${baseClass} cursor-pointer ${
+        active
+          ? "bg-gz-ink text-gz-cream border-gz-ink"
+          : "border-gz-rule text-gz-ink-mid hover:border-gz-ink hover:text-gz-ink"
+      }`}
     >
       {glyph && (
         <span
@@ -201,6 +231,13 @@ export function FilterChipAcademia({
         </span>
       )}
       {label}
+      {badge && (
+        <span
+          className={`font-archivo text-[9px] tracking-[1px] normal-case ${active ? "text-gz-cream/70" : "text-gz-ink-light"}`}
+        >
+          · {badge}
+        </span>
+      )}
     </button>
   );
 }

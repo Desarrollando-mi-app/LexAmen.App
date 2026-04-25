@@ -168,7 +168,7 @@ export default async function PortadaPage() {
   const autorStatsMap = new Map<string, AutorStats>();
   function getAutorStats(userId: string): AutorStats {
     if (!autorStatsMap.has(userId)) {
-      autorStatsMap.set(userId, { obiters: 0, miniAnalisis: 0, analisisCompletos: 0, ensayos: 0, argumentosExpediente: 0, debatesParticipados: 0, debatesGanados: 0, apoyosRecibidos: 0, citasRecibidas: 0, mejorAnalisisSemana: 0, mejorAlegatoExpediente: 0, reviewsCompletados: 0 });
+      autorStatsMap.set(userId, { obiters: 0, miniAnalisis: 0, analisisCompletos: 0, ensayos: 0, investigaciones: 0, argumentosExpediente: 0, debatesParticipados: 0, debatesGanados: 0, apoyosRecibidos: 0, citasRecibidas: 0, mejorAnalisisSemana: 0, mejorAlegatoExpediente: 0, reviewsCompletados: 0 });
     }
     return autorStatsMap.get(userId)!;
   }

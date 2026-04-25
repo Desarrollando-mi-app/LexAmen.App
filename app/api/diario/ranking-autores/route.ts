@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
-import { calcularScoreAutor, type AutorStats } from "@/lib/diario-ranking";
+import {
+  calcularScoreAutor,
+  isRankingTipo,
+  rankingIncluyeBucket,
+  type AutorStats,
+  type RankingTipo,
+} from "@/lib/diario-ranking";
 import { getGradoInfo } from "@/lib/league";
 
 // ─── GET /api/diario/ranking-autores ────────────────────────
@@ -11,6 +17,8 @@ export async function GET(req: NextRequest) {
   const url = req.nextUrl;
   const periodo = url.searchParams.get("periodo") ?? "mes";
   const rama = url.searchParams.get("rama") ?? undefined;
+  const tipoRaw = url.searchParams.get("tipo");
+  const tipo: RankingTipo = isRankingTipo(tipoRaw) ? tipoRaw : "TODOS";
   const page = Math.max(1, parseInt(url.searchParams.get("page") ?? "1"));
   const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get("limit") ?? "20")));
 
@@ -38,10 +46,22 @@ export async function GET(req: NextRequest) {
   }
 
   // ─── Step 1: Collect all user IDs who have published anything ───
-  // Run all counting queries in parallel using groupBy for efficiency
+  // Run all counting queries in parallel using groupBy for efficiency.
+  // El parámetro `tipo` permite restringir el ranking a un único tipo de
+  // publicación; los buckets que no aplican se cortocircuitan a [] para
+  // ahorrar queries y dejar el score en 0 para esa categoría.
 
   const ramaFilter = rama ? { materia: rama } : {};
   const ramaFilterDebate = rama ? { rama } : {};
+
+  const incObiter = rankingIncluyeBucket(tipo, "obiter");
+  const incAnalisis = rankingIncluyeBucket(tipo, "analisis");
+  const incEnsayo = rankingIncluyeBucket(tipo, "ensayo");
+  const incArgumento = rankingIncluyeBucket(tipo, "argumento");
+  const incDebate = rankingIncluyeBucket(tipo, "debate");
+  const incReview = rankingIncluyeBucket(tipo, "review");
+
+  const empty = <T,>(): Promise<T[]> => Promise.resolve([]);
 
   const [
     obiterGroups,
@@ -67,111 +87,135 @@ export async function GET(req: NextRequest) {
     reviewGroups,
   ] = await Promise.all([
     // obiters count by user
-    prisma.obiterDictum.groupBy({
-      by: ["userId"],
-      _count: { id: true },
-      where: { createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
-    }),
+    incObiter
+      ? prisma.obiterDictum.groupBy({
+          by: ["userId"],
+          _count: { id: true },
+          where: { createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
+        })
+      : empty<{ userId: string; _count: { id: number } }>(),
     // mini analisis count by user
-    prisma.analisisSentencia.groupBy({
-      by: ["userId"],
-      _count: { id: true },
-      where: { isActive: true, formato: "mini", createdAt: dateFilter, ...ramaFilter },
-    }),
+    incAnalisis
+      ? prisma.analisisSentencia.groupBy({
+          by: ["userId"],
+          _count: { id: true },
+          where: { isActive: true, formato: "mini", createdAt: dateFilter, ...ramaFilter },
+        })
+      : empty<{ userId: string; _count: { id: number } }>(),
     // completo analisis count by user
-    prisma.analisisSentencia.groupBy({
-      by: ["userId"],
-      _count: { id: true },
-      where: { isActive: true, formato: "completo", createdAt: dateFilter, ...ramaFilter },
-    }),
+    incAnalisis
+      ? prisma.analisisSentencia.groupBy({
+          by: ["userId"],
+          _count: { id: true },
+          where: { isActive: true, formato: "completo", createdAt: dateFilter, ...ramaFilter },
+        })
+      : empty<{ userId: string; _count: { id: number } }>(),
     // ensayos count by user
-    prisma.ensayo.groupBy({
-      by: ["userId"],
-      _count: { id: true },
-      where: { isActive: true, createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
-    }),
+    incEnsayo
+      ? prisma.ensayo.groupBy({
+          by: ["userId"],
+          _count: { id: true },
+          where: { isActive: true, createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
+        })
+      : empty<{ userId: string; _count: { id: number } }>(),
     // expediente argumentos count by user
-    prisma.expedienteArgumento.groupBy({
-      by: ["userId"],
-      _count: { id: true },
-      where: { createdAt: dateFilter, ...(rama ? { expediente: { rama } } : {}) },
-    }),
+    incArgumento
+      ? prisma.expedienteArgumento.groupBy({
+          by: ["userId"],
+          _count: { id: true },
+          where: { createdAt: dateFilter, ...(rama ? { expediente: { rama } } : {}) },
+        })
+      : empty<{ userId: string; _count: { id: number } }>(),
     // debates as autor1
-    prisma.debateJuridico.groupBy({
-      by: ["autor1Id"],
-      _count: { id: true },
-      where: { createdAt: dateFilter, ...ramaFilterDebate },
-    }),
+    incDebate
+      ? prisma.debateJuridico.groupBy({
+          by: ["autor1Id"],
+          _count: { id: true },
+          where: { createdAt: dateFilter, ...ramaFilterDebate },
+        })
+      : empty<{ autor1Id: string; _count: { id: number } }>(),
     // debates as autor2
-    prisma.debateJuridico.groupBy({
-      by: ["autor2Id"],
-      _count: { id: true },
-      where: { autor2Id: { not: null }, createdAt: dateFilter, ...ramaFilterDebate },
-    }),
-    // debates ganados as autor1 (votosAutor1 > votosAutor2 & estado cerrado)
-    prisma.debateJuridico.groupBy({
-      by: ["autor1Id"],
-      _count: { id: true },
-      where: { estado: "cerrado", votosAutor1: { gt: 0 }, createdAt: dateFilter, ...ramaFilterDebate },
-    }),
-    // debates ganados as autor2
-    prisma.debateJuridico.groupBy({
-      by: ["autor2Id"],
-      _count: { id: true },
-      where: { estado: "cerrado", autor2Id: { not: null }, votosAutor2: { gt: 0 }, createdAt: dateFilter, ...ramaFilterDebate },
-    }),
+    incDebate
+      ? prisma.debateJuridico.groupBy({
+          by: ["autor2Id"],
+          _count: { id: true },
+          where: { autor2Id: { not: null }, createdAt: dateFilter, ...ramaFilterDebate },
+        })
+      : empty<{ autor2Id: string | null; _count: { id: number } }>(),
+    // debates ganados as autor1 (placeholder, ganados se recalculan abajo)
+    empty<unknown>(),
+    // debates ganados as autor2 (placeholder)
+    empty<unknown>(),
     // apoyos sum for obiters
-    prisma.obiterDictum.groupBy({
-      by: ["userId"],
-      _sum: { apoyosCount: true },
-      where: { createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
-    }),
+    incObiter
+      ? prisma.obiterDictum.groupBy({
+          by: ["userId"],
+          _sum: { apoyosCount: true },
+          where: { createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
+        })
+      : empty<{ userId: string; _sum: { apoyosCount: number | null } }>(),
     // apoyos sum for analisis
-    prisma.analisisSentencia.groupBy({
-      by: ["userId"],
-      _sum: { apoyosCount: true },
-      where: { isActive: true, createdAt: dateFilter, ...ramaFilter },
-    }),
+    incAnalisis
+      ? prisma.analisisSentencia.groupBy({
+          by: ["userId"],
+          _sum: { apoyosCount: true },
+          where: { isActive: true, createdAt: dateFilter, ...ramaFilter },
+        })
+      : empty<{ userId: string; _sum: { apoyosCount: number | null } }>(),
     // apoyos sum for ensayos
-    prisma.ensayo.groupBy({
-      by: ["userId"],
-      _sum: { apoyosCount: true },
-      where: { isActive: true, createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
-    }),
+    incEnsayo
+      ? prisma.ensayo.groupBy({
+          by: ["userId"],
+          _sum: { apoyosCount: true },
+          where: { isActive: true, createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
+        })
+      : empty<{ userId: string; _sum: { apoyosCount: number | null } }>(),
     // citas sum for obiters
-    prisma.obiterDictum.groupBy({
-      by: ["userId"],
-      _sum: { citasCount: true },
-      where: { createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
-    }),
+    incObiter
+      ? prisma.obiterDictum.groupBy({
+          by: ["userId"],
+          _sum: { citasCount: true },
+          where: { createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
+        })
+      : empty<{ userId: string; _sum: { citasCount: number | null } }>(),
     // citas sum for analisis
-    prisma.analisisSentencia.groupBy({
-      by: ["userId"],
-      _sum: { citasCount: true },
-      where: { isActive: true, createdAt: dateFilter, ...ramaFilter },
-    }),
+    incAnalisis
+      ? prisma.analisisSentencia.groupBy({
+          by: ["userId"],
+          _sum: { citasCount: true },
+          where: { isActive: true, createdAt: dateFilter, ...ramaFilter },
+        })
+      : empty<{ userId: string; _sum: { citasCount: number | null } }>(),
     // citas sum for ensayos
-    prisma.ensayo.groupBy({
-      by: ["userId"],
-      _sum: { citasCount: true },
-      where: { isActive: true, createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
-    }),
+    incEnsayo
+      ? prisma.ensayo.groupBy({
+          by: ["userId"],
+          _sum: { citasCount: true },
+          where: { isActive: true, createdAt: dateFilter, ...(rama ? { materia: rama } : {}) },
+        })
+      : empty<{ userId: string; _sum: { citasCount: number | null } }>(),
     // mejor analisis de la semana (FalloDeLaSemana with mejorAnalisisId)
-    prisma.falloDeLaSemana.findMany({
-      where: { mejorAnalisisId: { not: null }, ...(dateFilter ? { createdAt: dateFilter } : {}) },
-      select: { mejorAnalisisId: true },
-    }),
+    incAnalisis
+      ? prisma.falloDeLaSemana.findMany({
+          where: { mejorAnalisisId: { not: null }, ...(dateFilter ? { createdAt: dateFilter } : {}) },
+          select: { mejorAnalisisId: true },
+        })
+      : empty<{ mejorAnalisisId: string | null }>(),
     // mejor alegato expediente
-    prisma.expediente.findMany({
-      where: { mejorArgumentoId: { not: null }, ...(dateFilter ? { fechaApertura: dateFilter } : {}), ...(rama ? { rama } : {}) },
-      select: { mejorArgumentoId: true },
-    }),
-    // reviews completados
-    prisma.peerReview.groupBy({
-      by: ["reviewerId"],
-      _count: { id: true },
-      where: { estado: "completado", ...(dateFilter ? { completedAt: dateFilter } : {}) },
-    }),
+    incArgumento
+      ? prisma.expediente.findMany({
+          where: { mejorArgumentoId: { not: null }, ...(dateFilter ? { fechaApertura: dateFilter } : {}), ...(rama ? { rama } : {}) },
+          select: { mejorArgumentoId: true },
+        })
+      : empty<{ mejorArgumentoId: string | null }>(),
+    // reviews completados — no aplica al filtrar por tipo de publicación
+    incReview
+      ? prisma.peerReview.groupBy({
+          by: ["reviewerId"],
+          _count: { id: true },
+          where: { estado: "completado", ...(dateFilter ? { completedAt: dateFilter } : {}) },
+        })
+      : empty<{ reviewerId: string; _count: { id: number } }>(),
   ]);
 
   // ─── Step 2: Resolve mejorAnalisis/mejorAlegato to userId ───
@@ -202,11 +246,15 @@ export async function GET(req: NextRequest) {
 
   // Also need to resolve debates ganados properly: need actual win check
   // debatesGanadosAutor1 only counted where votosAutor1 > 0, need votosAutor1 > votosAutor2
-  // Fetch actual closed debates to check winners properly
-  const closedDebates = await prisma.debateJuridico.findMany({
-    where: { estado: "cerrado", createdAt: dateFilter, ...ramaFilterDebate },
-    select: { autor1Id: true, autor2Id: true, votosAutor1: true, votosAutor2: true },
-  });
+  // Fetch actual closed debates to check winners properly. Si el filtro
+  // por tipo excluye debates, se cortocircuita a [] para no pegarle a la
+  // DB innecesariamente.
+  const closedDebates = incDebate
+    ? await prisma.debateJuridico.findMany({
+        where: { estado: "cerrado", createdAt: dateFilter, ...ramaFilterDebate },
+        select: { autor1Id: true, autor2Id: true, votosAutor1: true, votosAutor2: true },
+      })
+    : [];
 
   // ─── Step 3: Build user stats map ───
 
@@ -219,6 +267,7 @@ export async function GET(req: NextRequest) {
         miniAnalisis: 0,
         analisisCompletos: 0,
         ensayos: 0,
+        investigaciones: 0,
         argumentosExpediente: 0,
         debatesParticipados: 0,
         debatesGanados: 0,
@@ -345,7 +394,12 @@ export async function GET(req: NextRequest) {
 
     const gradoInfo = getGradoInfo(user.grado);
     const totalPublicaciones =
-      stats.obiters + stats.miniAnalisis + stats.analisisCompletos + stats.ensayos + stats.argumentosExpediente;
+      stats.obiters +
+      stats.miniAnalisis +
+      stats.analisisCompletos +
+      stats.ensayos +
+      stats.investigaciones +
+      stats.argumentosExpediente;
 
     ranking.push({
       userId: user.id,

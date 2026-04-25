@@ -3,7 +3,12 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { AutorStats } from "@/lib/diario-ranking";
+import {
+  RANKING_TIPOS,
+  RANKING_TIPO_LABELS,
+  type AutorStats,
+  type RankingTipo,
+} from "@/lib/diario-ranking";
 import { MastheadAcademia } from "@/components/academia/masthead-academia";
 import {
   FilterShellAcademia,
@@ -44,19 +49,37 @@ interface RankingResponse {
 // ─── Score desglose labels ──────────────────────────────────
 
 const DESGLOSE_LABELS: { key: keyof AutorStats; label: string; pts: number }[] = [
+  // Publicaciones — orden por jerarquía editorial (de menor a mayor esfuerzo)
   { key: "obiters", label: "Obiter Dictum", pts: 1 },
-  { key: "miniAnalisis", label: "Mini Análisis", pts: 3 },
-  { key: "analisisCompletos", label: "Análisis completos", pts: 5 },
-  { key: "ensayos", label: "Ensayos", pts: 8 },
-  { key: "argumentosExpediente", label: "Argumentos Expediente", pts: 2 },
-  { key: "debatesParticipados", label: "Debates participados", pts: 5 },
-  { key: "debatesGanados", label: "Debates ganados", pts: 10 },
+  { key: "argumentosExpediente", label: "Argumentos Expediente", pts: 3 },
+  { key: "miniAnalisis", label: "Mini Análisis", pts: 4 },
+  { key: "reviewsCompletados", label: "Peer Reviews", pts: 2 },
+  { key: "debatesParticipados", label: "Debates participados", pts: 6 },
+  { key: "analisisCompletos", label: "Análisis completos", pts: 8 },
+  { key: "debatesGanados", label: "Debates ganados", pts: 12 },
+  { key: "ensayos", label: "Ensayos", pts: 15 },
+  { key: "investigaciones", label: "Investigaciones", pts: 30 },
+  // Reconocimiento de comunidad
   { key: "apoyosRecibidos", label: "Apoyos recibidos", pts: 0.5 },
-  { key: "citasRecibidas", label: "Citas recibidas", pts: 2 },
-  { key: "mejorAnalisisSemana", label: "Mejor análisis semanal", pts: 15 },
-  { key: "mejorAlegatoExpediente", label: "Mejor alegato Expediente", pts: 15 },
-  { key: "reviewsCompletados", label: "Peer Reviews", pts: 1 },
+  { key: "citasRecibidas", label: "Citas recibidas", pts: 3 },
+  // Premios editoriales
+  { key: "mejorAnalisisSemana", label: "Mejor análisis semanal", pts: 25 },
+  { key: "mejorAlegatoExpediente", label: "Mejor alegato Expediente", pts: 25 },
 ];
+
+// Tipos de publicación — el primer rail. Los buckets de menor importancia
+// (Obiter) van primero por convención editorial y los más rigurosos
+// (Investigación) cierran. `investigacion` aparece bloqueado como
+// "Próximamente": el modelo aún no existe.
+const TIPO_GLYPHS: Record<RankingTipo, string> = {
+  TODOS: "✶",
+  obiter: "❡",
+  analisis: "✦",
+  ensayo: "❦",
+  argumento: "⚖",
+  debate: "⚔",
+  investigacion: "☉",
+};
 
 // Ramas — mismo set que la API pública admite. Usamos glifos editoriales
 // distintos por rama para el chip rail.
@@ -88,6 +111,7 @@ const TILE_GRADIENT = "linear-gradient(135deg, #5f5245 0%, #463b30 55%, #28211a 
 export function RankingV4Client() {
   const [periodo, setPeriodo] = useState<RankingPeriodo>("mes");
   const [rama, setRama] = useState<string | null>(null);
+  const [tipo, setTipo] = useState<RankingTipo>("TODOS");
   const [sort, setSort] = useState<Sort>("score");
   const [query, setQuery] = useState("");
   const [data, setData] = useState<RankingResponse | null>(null);
@@ -106,6 +130,7 @@ export function RankingV4Client() {
         limit: String(limit),
       });
       if (rama) params.set("rama", rama);
+      if (tipo !== "TODOS") params.set("tipo", tipo);
 
       const res = await fetch(`/api/diario/ranking-autores?${params}`, {
         credentials: "include",
@@ -118,7 +143,7 @@ export function RankingV4Client() {
     } finally {
       setLoading(false);
     }
-  }, [periodo, rama, page]);
+  }, [periodo, rama, tipo, page]);
 
   useEffect(() => {
     fetchRanking();
@@ -126,7 +151,7 @@ export function RankingV4Client() {
 
   useEffect(() => {
     setPage(1);
-  }, [periodo, rama]);
+  }, [periodo, rama, tipo]);
 
   // Lock body scroll cuando el drawer está abierto
   useEffect(() => {
@@ -223,10 +248,33 @@ export function RankingV4Client() {
         }
         chipsSlot={
           <>
+            <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light pr-1 self-center">
+              Tipo
+            </span>
+            {RANKING_TIPOS.map((t) => {
+              const isInvest = t === "investigacion";
+              return (
+                <FilterChipAcademia
+                  key={t}
+                  active={tipo === t}
+                  onClick={() => setTipo(t)}
+                  label={RANKING_TIPO_LABELS[t]}
+                  glyph={TIPO_GLYPHS[t]}
+                  disabled={isInvest}
+                  badge={isInvest ? "Próximamente" : undefined}
+                />
+              );
+            })}
+            <span className="px-2 text-gz-ink-light/40 self-center" aria-hidden="true">
+              |
+            </span>
+            <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light pr-1 self-center">
+              Rama
+            </span>
             <FilterChipAcademia
               active={rama === null}
               onClick={() => setRama(null)}
-              label="Todas las ramas"
+              label="Todas"
             />
             {RAMAS.map((r) => (
               <FilterChipAcademia
@@ -670,12 +718,14 @@ function DesgloseDrawer({
 
 /** Construye una frase corta con las 3 contribuciones más fuertes del autor. */
 function desgloseTopTres(d: AutorStats): string {
+  // Priorizamos los aportes de mayor jerarquía editorial.
   const piezas: string[] = [];
+  if (d.investigaciones > 0) piezas.push(`${d.investigaciones} investigación${d.investigaciones === 1 ? "" : "es"}`);
   if (d.ensayos > 0) piezas.push(`${d.ensayos} ensayo${d.ensayos === 1 ? "" : "s"}`);
   if (d.analisisCompletos > 0) piezas.push(`${d.analisisCompletos} análisis`);
-  if (d.obiters > 0) piezas.push(`${d.obiters} obiter`);
   if (d.debatesGanados > 0) piezas.push(`${d.debatesGanados} debate${d.debatesGanados === 1 ? "" : "s"} ganado${d.debatesGanados === 1 ? "" : "s"}`);
   if (d.argumentosExpediente > 0) piezas.push(`${d.argumentosExpediente} alegato${d.argumentosExpediente === 1 ? "" : "s"}`);
+  if (d.obiters > 0) piezas.push(`${d.obiters} obiter`);
   if (piezas.length === 0) return "Aún sin contribuciones registradas en el período.";
   return piezas.slice(0, 3).join(" · ");
 }
