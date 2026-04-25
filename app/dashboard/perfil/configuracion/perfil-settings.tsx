@@ -16,6 +16,7 @@ import {
   REGIONES_CHILE,
   getCortesForRegion,
 } from "@/lib/regiones-chile";
+import { CIUDADES_CHILE } from "@/lib/sala-constants";
 import {
   validatePassword,
   PASSWORD_ERROR_MESSAGE,
@@ -36,6 +37,7 @@ interface UserData {
   universityYear: number | null;
   cvAvailable: boolean;
   region: string | null;
+  ciudad: string | null;
   corte: string | null;
   visibleEnRanking: boolean;
   visibleEnLiga: boolean;
@@ -230,6 +232,7 @@ function TabPerfil({
   });
   const [linkedin, setLinkedin] = useState(user.linkedin ?? "");
   const [region, setRegion] = useState(user.region ?? "");
+  const [ciudad, setCiudad] = useState(user.ciudad ?? "");
   const [corte, setCorte] = useState(user.corte ?? "");
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl);
@@ -553,6 +556,7 @@ function TabPerfil({
           universityYear,
           cvAvailable,
           region: region || null,
+          ciudad: ciudad || null,
           corte: corte || null,
           etapa: etapa || null,
           anoIngreso: anoIngreso,
@@ -581,6 +585,7 @@ function TabPerfil({
         universityYear,
         cvAvailable,
         region: region || null,
+        ciudad: ciudad || null,
         corte: corte || null,
         etapa: etapa || null,
         anoIngreso,
@@ -926,6 +931,23 @@ function TabPerfil({
           {REGIONES_CHILE.map((r) => (
             <option key={r} value={r}>
               {r}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Ciudad */}
+      <div>
+        <label className={LABEL}>Ciudad</label>
+        <select
+          value={ciudad}
+          onChange={(e) => setCiudad(e.target.value)}
+          className={INPUT}
+        >
+          <option value="">Selecciona una ciudad</option>
+          {CIUDADES_CHILE.map((c) => (
+            <option key={c} value={c}>
+              {c}
             </option>
           ))}
         </select>

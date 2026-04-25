@@ -6,15 +6,18 @@ import { MastheadNetworking } from "@/components/networking/masthead-networking"
 import {
   FilterRowNetworking,
   type ColegaSort,
+  type ConexionFilter,
   type EtapaFilter,
 } from "@/components/networking/filter-row-networking";
 import { ColegaTile } from "@/components/networking/colega-tile";
 import type { ColegaTileData } from "@/lib/networking-helpers";
 
 /**
- * Cliente V4 editorial para Networking. Lista pública de colegas activos,
- * con filtros por región, etapa profesional y especialidad. Lectura pura;
- * el detalle vive en /dashboard/perfil/[userId].
+ * Cliente V4 editorial para Networking. Directorio público con todos los
+ * miembros activos de la comunidad — los que ya son colegas del usuario
+ * y los que no — con filtros por región, ciudad, etapa profesional,
+ * especialidad y conexión (Todos / Mis colegas / Otros). Lectura pura;
+ * el detalle y la solicitud de colega viven en /dashboard/perfil/[userId].
  */
 export function NetworkingV4Client({
   colegas,
@@ -23,18 +26,35 @@ export function NetworkingV4Client({
 }) {
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState<string | null>(null);
+  const [ciudad, setCiudad] = useState<string | null>(null);
   const [etapa, setEtapa] = useState<EtapaFilter>("TODAS");
+  const [conexion, setConexion] = useState<ConexionFilter>("TODOS");
   const [area, setArea] = useState<string | null>(null);
   const [sort, setSort] = useState<ColegaSort>("recientes");
+
+  /** Conteo total por bucket para el segmented control de conexión.
+   * Se calcula sobre el universo completo (sin aplicar filtro de conexión)
+   * para que los números no oscilen al alternar tabs. */
+  const conexionCounts = useMemo(() => {
+    const colegasCount = colegas.filter((c) => c.conexion === "accepted").length;
+    return {
+      todos: colegas.length,
+      colegas: colegasCount,
+      otros: colegas.length - colegasCount,
+    };
+  }, [colegas]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     let list = colegas.filter((c) => {
       if (region && c.region !== region) return false;
+      if (ciudad && c.ciudad !== ciudad) return false;
       if (etapa !== "TODAS" && c.etapaActual !== etapa) return false;
       if (area && !c.especialidades.includes(area)) return false;
+      if (conexion === "COLEGAS" && c.conexion !== "accepted") return false;
+      if (conexion === "OTROS" && c.conexion === "accepted") return false;
       if (q) {
-        const hay = `${c.firstName} ${c.lastName} ${c.universidad ?? ""} ${c.empleoActual ?? ""}`.toLowerCase();
+        const hay = `${c.firstName} ${c.lastName} ${c.universidad ?? ""} ${c.empleoActual ?? ""} ${c.ciudad ?? ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -53,7 +73,7 @@ export function NetworkingV4Client({
       );
     }
     return list;
-  }, [colegas, query, region, etapa, area, sort]);
+  }, [colegas, query, region, ciudad, etapa, conexion, area, sort]);
 
   return (
     <div className="min-h-screen bg-gz-cream text-gz-ink font-archivo">
@@ -81,8 +101,13 @@ export function NetworkingV4Client({
         onQueryChange={setQuery}
         selectedRegion={region}
         onRegionChange={setRegion}
+        selectedCiudad={ciudad}
+        onCiudadChange={setCiudad}
         etapa={etapa}
         onEtapaChange={setEtapa}
+        conexion={conexion}
+        onConexionChange={setConexion}
+        conexionCounts={conexionCounts}
         selectedArea={area}
         onAreaChange={setArea}
         sort={sort}
@@ -113,10 +138,11 @@ function EmptyState() {
   return (
     <div className="py-24 text-center border border-gz-rule bg-white">
       <p className="font-cormorant italic text-[22px] text-gz-ink-mid">
-        No hay colegas que coincidan con esa búsqueda.
+        No hay personas que coincidan con esa búsqueda.
       </p>
       <p className="mt-2 font-archivo text-[13px] text-gz-ink-light">
-        Prueba quitando filtros o cambiando la región.
+        Prueba quitando filtros, cambiando de región / ciudad, o ampliando a
+        &ldquo;Todos&rdquo; para ver también a quienes aún no son tus colegas.
       </p>
     </div>
   );

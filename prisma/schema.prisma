@@ -328,6 +328,7 @@ model User {
   coverUrl            String?
   cvAvailable         Boolean   @default(false)
   region              String? // "Región Metropolitana de Santiago", etc.
+  ciudad              String? // "Santiago", "Valparaíso", etc. — ciudad de residencia/trabajo
   corte               String? // "Santiago", "Valparaíso", etc. (comuna sede de Corte)
   visibleEnRanking    Boolean   @default(true)
   visibleEnLiga       Boolean   @default(true)

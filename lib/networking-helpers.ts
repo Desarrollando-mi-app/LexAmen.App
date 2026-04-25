@@ -98,6 +98,24 @@ export function colegaSummary(props: {
 }
 
 /**
+ * Estado de la relación entre la persona logueada y este colega del listado.
+ *  - "self":             es la persona logueada (no debería aparecer en el feed,
+ *                        pero tipamos por completitud).
+ *  - "accepted":         ya son colegas.
+ *  - "pending_sent":     yo le mandé solicitud y está pendiente.
+ *  - "pending_received": me mandó solicitud y está pendiente de mi respuesta.
+ *  - "rejected":         alguno rechazó la solicitud anterior.
+ *  - "none":             aún no hay vínculo (potencial colega).
+ */
+export type ColegaConexion =
+  | "self"
+  | "accepted"
+  | "pending_sent"
+  | "pending_received"
+  | "rejected"
+  | "none";
+
+/**
  * Tipo serializado server → client para tiles de Networking.
  * Subset deliberadamente minimalista: el detalle vive en /perfil/[userId].
  */
@@ -110,6 +128,7 @@ export interface ColegaTileData {
   universidad: string | null;
   universityYear: number | null;
   region: string | null;
+  ciudad: string | null;
   empleoActual: string | null;
   cargoActual: string | null;
   bio: string | null;
@@ -117,4 +136,7 @@ export interface ColegaTileData {
   grado: number;
   xp: number;
   createdAt: string;
+  /** Relación con la persona logueada — alimenta el badge y el filtro
+   * "Mis colegas / Otros" del directorio. */
+  conexion: ColegaConexion;
 }

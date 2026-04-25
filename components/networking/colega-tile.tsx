@@ -8,6 +8,7 @@ import {
   areaLabel,
   colegaInitials,
   colegaSummary,
+  type ColegaConexion,
   type ColegaTileData,
 } from "@/lib/networking-helpers";
 
@@ -31,7 +32,13 @@ export function ColegaTile(props: ColegaTileData) {
   const region = props.region
     ? props.region.replace(/^Región (de |del |de la |Metropolitana de )/, "")
     : null;
+  // Mostramos ciudad y/o región abreviada en una sola línea editorial.
+  const lugar =
+    props.ciudad && region
+      ? `${props.ciudad} · ${region}`
+      : props.ciudad ?? region;
   const topEsp = props.especialidades.slice(0, 2);
+  const conexionBadge = conexionBadgeFor(props.conexion);
 
   return (
     <article
@@ -66,6 +73,15 @@ export function ColegaTile(props: ColegaTileData) {
           {etapaLabel(props.etapaActual)}
         </span>
 
+        {conexionBadge && (
+          <span
+            className={`absolute top-3 right-3 z-[2] px-2.5 py-1 rounded-[3px] font-ibm-mono text-[9px] tracking-[1.5px] uppercase font-medium ${conexionBadge.className}`}
+            aria-label={conexionBadge.label}
+          >
+            {conexionBadge.label}
+          </span>
+        )}
+
         {props.avatarUrl ? (
           <div className="relative z-[1] w-[92px] h-[92px] rounded-full overflow-hidden border-[3px] border-gz-cream/85 shadow-[0_2px_12px_rgba(28,24,20,0.22)] transition-transform duration-200 group-hover:scale-[1.04]">
             <Image
@@ -86,9 +102,9 @@ export function ColegaTile(props: ColegaTileData) {
           </div>
         )}
 
-        {region && (
+        {lugar && (
           <span className="absolute bottom-2.5 left-3 z-[2] font-ibm-mono text-[9.5px] tracking-[1.2px] uppercase text-gz-cream/88">
-            {region}
+            {lugar}
           </span>
         )}
 
@@ -139,6 +155,36 @@ export function ColegaTile(props: ColegaTileData) {
       </div>
     </article>
   );
+}
+
+/** Devuelve el badge editorial a renderizar arriba-derecha del cover según
+ * el estado de conexión del colega. `null` cuando no hay vínculo (es ruido
+ * mostrar un badge en cada tile cuando son la mayoría). */
+function conexionBadgeFor(
+  c: ColegaConexion,
+): { label: string; className: string } | null {
+  switch (c) {
+    case "accepted":
+      return {
+        label: "Colega",
+        className: "bg-gz-gold text-gz-ink",
+      };
+    case "pending_sent":
+      return {
+        label: "Solicitud enviada",
+        className: "bg-gz-cream/90 text-gz-ink-mid border border-gz-rule",
+      };
+    case "pending_received":
+      return {
+        label: "Te escribió",
+        className: "bg-gz-burgundy text-gz-cream",
+      };
+    case "rejected":
+    case "self":
+    case "none":
+    default:
+      return null;
+  }
 }
 
 /** Ints a roman numerals — para el grado en covers. */

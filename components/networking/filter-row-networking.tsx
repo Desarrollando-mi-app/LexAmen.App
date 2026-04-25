@@ -1,20 +1,26 @@
 "use client";
 
-import { AREAS_PRACTICA } from "@/lib/sala-constants";
+import { AREAS_PRACTICA, CIUDADES_CHILE } from "@/lib/sala-constants";
 import { REGIONES_CHILE } from "@/lib/regiones-chile";
 
 const GLYPHS = ["§", "†", "¶", "‡", "⸸", "℥", "℟", "※", "∴", "⸘", "⚖", "⁘"];
 
 export type ColegaSort = "recientes" | "grado" | "alfabetico";
 export type EtapaFilter = "TODAS" | "estudiante" | "egresado" | "abogado";
+export type ConexionFilter = "TODOS" | "COLEGAS" | "OTROS";
 
 interface FilterRowNetworkingProps {
   query: string;
   onQueryChange: (q: string) => void;
   selectedRegion: string | null;
   onRegionChange: (r: string | null) => void;
+  selectedCiudad: string | null;
+  onCiudadChange: (c: string | null) => void;
   etapa: EtapaFilter;
   onEtapaChange: (e: EtapaFilter) => void;
+  conexion: ConexionFilter;
+  onConexionChange: (c: ConexionFilter) => void;
+  conexionCounts: { todos: number; colegas: number; otros: number };
   selectedArea: string | null;
   onAreaChange: (a: string | null) => void;
   sort: ColegaSort;
@@ -26,8 +32,13 @@ export function FilterRowNetworking({
   onQueryChange,
   selectedRegion,
   onRegionChange,
+  selectedCiudad,
+  onCiudadChange,
   etapa,
   onEtapaChange,
+  conexion,
+  onConexionChange,
+  conexionCounts,
   selectedArea,
   onAreaChange,
   sort,
@@ -35,28 +46,28 @@ export function FilterRowNetworking({
 }: FilterRowNetworkingProps) {
   return (
     <div className="max-w-[1400px] mx-auto px-7 pt-6">
-      {/* Search bar */}
-      <div className="flex items-stretch bg-white border border-gz-rule rounded-[4px] overflow-hidden max-w-4xl mx-auto shadow-sm">
-        <div className="flex-1 flex flex-col justify-center px-5 py-3 border-r border-gz-rule">
+      {/* Search bar — nombre + región + ciudad */}
+      <div className="flex flex-col md:flex-row items-stretch bg-white border border-gz-rule rounded-[4px] overflow-hidden max-w-4xl mx-auto shadow-sm">
+        <div className="flex-1 flex flex-col justify-center px-5 py-3 md:border-r border-b md:border-b-0 border-gz-rule">
           <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light">
-            Nombre, universidad o estudio
+            Nombre, universidad, estudio o ciudad
           </span>
           <input
             type="text"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="ej. María González, Universidad de Chile…"
+            placeholder="ej. María González, Universidad de Chile, Concepción…"
             className="font-archivo text-[14px] text-gz-ink bg-transparent border-none outline-none placeholder:text-gz-ink-light/60 py-0.5"
           />
         </div>
-        <div className="flex flex-col justify-center px-5 py-3 border-r border-gz-rule min-w-[220px]">
+        <div className="flex flex-col justify-center px-5 py-3 md:border-r border-b md:border-b-0 border-gz-rule md:min-w-[200px]">
           <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light">
             Región
           </span>
           <select
             value={selectedRegion ?? ""}
             onChange={(e) => onRegionChange(e.target.value || null)}
-            className="font-archivo text-[14px] text-gz-ink bg-transparent border-none outline-none py-0.5"
+            className="font-archivo text-[14px] text-gz-ink bg-transparent border-none outline-none py-0.5 cursor-pointer"
           >
             <option value="">Todas</option>
             {REGIONES_CHILE.map((r) => (
@@ -66,12 +77,53 @@ export function FilterRowNetworking({
             ))}
           </select>
         </div>
+        <div className="flex flex-col justify-center px-5 py-3 md:border-r border-gz-rule md:min-w-[170px]">
+          <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light">
+            Ciudad
+          </span>
+          <select
+            value={selectedCiudad ?? ""}
+            onChange={(e) => onCiudadChange(e.target.value || null)}
+            className="font-archivo text-[14px] text-gz-ink bg-transparent border-none outline-none py-0.5 cursor-pointer"
+          >
+            <option value="">Todas</option>
+            {CIUDADES_CHILE.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </div>
         <button
           type="submit"
-          className="px-6 bg-gz-gold text-gz-cream font-ibm-mono text-[11px] tracking-[1.8px] uppercase hover:bg-gz-ink transition-colors"
+          className="px-6 py-3 md:py-0 bg-gz-gold text-gz-cream font-ibm-mono text-[11px] tracking-[1.8px] uppercase hover:bg-gz-ink transition-colors cursor-pointer"
         >
           Buscar →
         </button>
+      </div>
+
+      {/* Conexión — segmented control: Todos / Mis colegas / Otros */}
+      <div className="mt-5 flex justify-center">
+        <div className="inline-flex border border-gz-rule rounded-[3px] overflow-hidden bg-white">
+          <ConexionSeg
+            active={conexion === "TODOS"}
+            onClick={() => onConexionChange("TODOS")}
+            label="Todos"
+            count={conexionCounts.todos}
+          />
+          <ConexionSeg
+            active={conexion === "COLEGAS"}
+            onClick={() => onConexionChange("COLEGAS")}
+            label="Mis colegas"
+            count={conexionCounts.colegas}
+          />
+          <ConexionSeg
+            active={conexion === "OTROS"}
+            onClick={() => onConexionChange("OTROS")}
+            label="Otros"
+            count={conexionCounts.otros}
+          />
+        </div>
       </div>
 
       {/* Etapa rail */}
@@ -140,6 +192,37 @@ export function FilterRowNetworking({
         </div>
       </div>
     </div>
+  );
+}
+
+function ConexionSeg({
+  active,
+  onClick,
+  label,
+  count,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  count: number;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-4 py-2 font-ibm-mono text-[10.5px] tracking-[1.4px] uppercase
+                 border-r border-gz-rule last:border-r-0 transition cursor-pointer
+                 ${active
+                   ? "bg-gz-ink text-gz-cream"
+                   : "text-gz-ink-mid hover:bg-gz-cream hover:text-gz-ink"}`}
+    >
+      {label}
+      <span
+        className={`ml-2 font-archivo text-[10px] ${active ? "text-gz-cream/70" : "text-gz-ink-light"}`}
+      >
+        {count}
+      </span>
+    </button>
   );
 }
 

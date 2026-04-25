@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { NetworkingV4Client } from "./networking-v4-client";
 import {
   parseEspecialidades,
+  type ColegaConexion,
   type ColegaTileData,
 } from "@/lib/networking-helpers";
 
@@ -26,13 +27,13 @@ export default async function NetworkingPage() {
   } = await supabase.auth.getUser();
   if (!authUser) redirect("/login");
 
+  // 1. Listado base — todas las personas activas y visibles, no me incluyo.
   const colegas = await prisma.user.findMany({
     where: {
       deletedAt: null,
       suspended: false,
       visibleEnRanking: true,
       onboardingCompleted: true,
-      // No me listo a mí mismo en el directorio.
       NOT: { id: authUser.id },
     },
     orderBy: [{ grado: "desc" }, { xp: "desc" }],
@@ -46,6 +47,7 @@ export default async function NetworkingPage() {
       universidad: true,
       universityYear: true,
       region: true,
+      ciudad: true,
       empleoActual: true,
       cargoActual: true,
       bio: true,
@@ -56,6 +58,44 @@ export default async function NetworkingPage() {
     },
   });
 
+  // 2. Estado de la relación con cada persona del feed — una sola query
+  //    al modelo ColegaRequest para no hacer N+1. Tomamos la solicitud más
+  //    reciente por par.
+  const ids = colegas.map((c) => c.id);
+  const requests =
+    ids.length > 0
+      ? await prisma.colegaRequest.findMany({
+          where: {
+            OR: [
+              { senderId: authUser.id, receiverId: { in: ids } },
+              { receiverId: authUser.id, senderId: { in: ids } },
+            ],
+          },
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            senderId: true,
+            receiverId: true,
+            status: true,
+          },
+        })
+      : [];
+
+  const conexionByUser = new Map<string, ColegaConexion>();
+  for (const r of requests) {
+    const otherId = r.senderId === authUser.id ? r.receiverId : r.senderId;
+    if (conexionByUser.has(otherId)) continue; // ya guardamos la más reciente
+    if (r.status === "ACCEPTED") {
+      conexionByUser.set(otherId, "accepted");
+    } else if (r.status === "REJECTED") {
+      conexionByUser.set(otherId, "rejected");
+    } else if (r.senderId === authUser.id) {
+      conexionByUser.set(otherId, "pending_sent");
+    } else {
+      conexionByUser.set(otherId, "pending_received");
+    }
+  }
+
   const serialized: ColegaTileData[] = colegas.map((c) => ({
     id: c.id,
     firstName: c.firstName,
@@ -65,6 +105,7 @@ export default async function NetworkingPage() {
     universidad: c.universidad ?? null,
     universityYear: c.universityYear ?? null,
     region: c.region ?? null,
+    ciudad: c.ciudad ?? null,
     empleoActual: c.empleoActual ?? null,
     cargoActual: c.cargoActual ?? null,
     bio: c.bio ?? null,
@@ -72,6 +113,7 @@ export default async function NetworkingPage() {
     grado: c.grado,
     xp: c.xp,
     createdAt: c.createdAt.toISOString(),
+    conexion: conexionByUser.get(c.id) ?? "none",
   }));
 
   return <NetworkingV4Client colegas={serialized} />;

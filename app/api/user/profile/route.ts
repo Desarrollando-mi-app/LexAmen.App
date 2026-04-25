@@ -15,7 +15,7 @@ export async function PATCH(request: Request) {
   const body = await request.json();
   const {
     firstName, lastName, bio, universidad, sede, universityYear, cvAvailable,
-    region, corte, visibleEnRanking, visibleEnLiga,
+    region, ciudad, corte, visibleEnRanking, visibleEnLiga,
     etapaActual, anioIngreso, anioEgreso, anioJura,
     empleoActual, cargoActual, especialidades, intereses, linkedinUrl,
   } = body;
@@ -33,6 +33,7 @@ export async function PATCH(request: Request) {
   }
   if (typeof cvAvailable === "boolean") data.cvAvailable = cvAvailable;
   if (typeof region === "string" || region === null) data.region = region;
+  if (typeof ciudad === "string" || ciudad === null) data.ciudad = ciudad;
   if (typeof corte === "string" || corte === null) data.corte = corte;
   if (typeof visibleEnRanking === "boolean") data.visibleEnRanking = visibleEnRanking;
   if (typeof visibleEnLiga === "boolean") data.visibleEnLiga = visibleEnLiga;
@@ -86,6 +87,7 @@ export async function PATCH(request: Request) {
       universityYear: true,
       cvAvailable: true,
       region: true,
+      ciudad: true,
       corte: true,
       visibleEnRanking: true,
       visibleEnLiga: true,
