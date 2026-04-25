@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ import {
   getFormatoLabel,
   getContratoLabel,
 } from "@/lib/sala-constants";
-import { ReporteModal } from "../components/reporte-modal";
+import { ReporteModal } from "../../components/reporte-modal";
 
 // ─── Types ────────────────────────────────────────────────
 
@@ -55,6 +55,7 @@ interface OfertasClientProps {
 
 export function OfertasClient({ userId, initialOfertas }: OfertasClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [ofertas, setOfertas] = useState(initialOfertas);
   const [loading, setLoading] = useState(false);
 
@@ -65,7 +66,9 @@ export function OfertasClient({ userId, initialOfertas }: OfertasClientProps) {
   const [fContrato, setFContrato] = useState("");
 
   // Modals
-  const [showCreate, setShowCreate] = useState(false);
+  const [showCreate, setShowCreate] = useState(
+    () => searchParams?.get("action") === "new",
+  );
   const [detailId, setDetailId] = useState<string | null>(null);
   const [reportingId, setReportingId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
