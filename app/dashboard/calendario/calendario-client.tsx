@@ -108,6 +108,15 @@ const EVENT_ICONS: Record<string, string> = {
   personal: "•",
 };
 
+// Etiquetas de sección estilo periódico (3 letras MAYUS)
+const EVENT_TAGS: Record<string, string> = {
+  estudio: "EST",
+  causa: "CAU",
+  ayudantia: "AYU",
+  seminario: "SEM",
+  personal: "PER",
+};
+
 // Para los chips de filtro
 const TIPOS_FILTRO: { key: string; label: string; glyph: string }[] = [
   { key: "TODOS", label: "Todos", glyph: "✶" },
@@ -609,12 +618,12 @@ export function CalendarioClient({
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrev}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold hover:bg-gz-cream-dark/40 transition-all cursor-pointer"
+                className="group flex h-9 w-9 items-center justify-center rounded-full border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold hover:bg-gz-cream-dark/40 hover:-translate-x-0.5 active:translate-x-0 active:scale-95 transition-all duration-200 ease-out cursor-pointer"
                 aria-label="Mes anterior"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                <svg className="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
               </button>
-              <div className="flex flex-col">
+              <div key={`${view}-${year}-${month}`} className="flex flex-col cal-anim-strip">
                 <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light leading-none mb-1">
                   {view === "year" ? "Vista anual" : view === "day" ? "Día" : "Mes"}
                 </p>
@@ -624,21 +633,21 @@ export function CalendarioClient({
               </div>
               <button
                 onClick={handleNext}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold hover:bg-gz-cream-dark/40 transition-all cursor-pointer"
+                className="group flex h-9 w-9 items-center justify-center rounded-full border border-gz-rule text-gz-ink-mid hover:border-gz-gold hover:text-gz-gold hover:bg-gz-cream-dark/40 hover:translate-x-0.5 active:translate-x-0 active:scale-95 transition-all duration-200 ease-out cursor-pointer"
                 aria-label="Mes siguiente"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
               </button>
             </div>
 
             <div className="flex items-center gap-3">
               {/* View tabs como pestañas editoriales */}
-              <div className="inline-flex rounded-full border border-gz-rule overflow-hidden bg-white">
+              <div className="relative inline-flex rounded-full border border-gz-rule overflow-hidden bg-white">
                 {VIEW_TABS.map((t) => (
                   <button
                     key={t.key}
                     onClick={() => switchToView(t.key)}
-                    className={`font-ibm-mono text-[11px] uppercase tracking-[1.5px] px-4 py-1.5 transition-all cursor-pointer ${
+                    className={`relative z-10 font-ibm-mono text-[11px] uppercase tracking-[1.5px] px-4 py-1.5 transition-all duration-300 ease-out cursor-pointer active:scale-95 ${
                       view === t.key
                         ? "bg-gz-navy text-white"
                         : "text-gz-ink-mid hover:bg-gz-cream-dark/60 hover:text-gz-ink"
@@ -651,9 +660,9 @@ export function CalendarioClient({
 
               <button
                 onClick={() => openCreateModal()}
-                className="group inline-flex items-center gap-2 rounded-full bg-gz-navy px-4 py-2 font-archivo text-[12px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy transition-colors cursor-pointer shadow-sm"
+                className="group inline-flex items-center gap-2 rounded-full bg-gz-navy px-4 py-2 font-archivo text-[12px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-95 transition-all duration-200 ease-out cursor-pointer shadow-sm"
               >
-                <span className="font-cormorant text-[18px] leading-none -mt-px">+</span>
+                <span className="font-cormorant text-[18px] leading-none -mt-px transition-transform duration-200 group-hover:rotate-90">+</span>
                 <span>Nuevo evento</span>
               </button>
             </div>
@@ -674,14 +683,19 @@ export function CalendarioClient({
                     <button
                       key={t.key}
                       onClick={() => setTipoFiltro(t.key)}
-                      className={`group inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-ibm-mono text-[10px] uppercase tracking-[1px] transition-all cursor-pointer shrink-0 ${
+                      className={`group inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-ibm-mono text-[10px] uppercase tracking-[1px] transition-all duration-300 ease-out cursor-pointer shrink-0 active:scale-95 ${
                         isActive
-                          ? "border-transparent text-white shadow-sm"
-                          : "border-gz-rule text-gz-ink-mid bg-white hover:border-gz-gold/60"
+                          ? "border-transparent text-white shadow-sm scale-105"
+                          : "border-gz-rule text-gz-ink-mid bg-white hover:border-gz-gold/60 hover:-translate-y-0.5 hover:shadow-sm"
                       }`}
                       style={isActive ? { backgroundColor: tipoColor } : undefined}
                     >
-                      <span className={`text-[12px] leading-none ${isActive ? "" : ""}`} style={{ color: isActive ? "#fff" : tipoColor }}>{t.glyph}</span>
+                      <span
+                        className="text-[12px] leading-none transition-transform duration-300 group-hover:scale-110"
+                        style={{ color: isActive ? "#fff" : tipoColor }}
+                      >
+                        {t.glyph}
+                      </span>
                       {t.label}
                     </button>
                   );
@@ -713,17 +727,25 @@ export function CalendarioClient({
               countdowns={initialCountdowns}
             />
 
-            <div ref={gridRef} className="rounded-[6px] border border-gz-rule bg-white overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_4px_18px_-12px_rgba(15,15,15,0.18)]">
-              {/* Cabecera de días con acento dominical */}
-              <div className="grid grid-cols-7 border-b border-gz-rule bg-gradient-to-b from-gz-cream-dark/30 to-transparent">
-                {DAYS_ES.map((d, idx) => (
+            <div
+              ref={gridRef}
+              className="cal-paper relative rounded-[6px] border border-gz-ink/12 bg-white overflow-hidden shadow-[0_1px_0_rgba(255,255,255,0.6)_inset,0_2px_0_rgba(15,15,15,0.04),0_8px_30px_-18px_rgba(15,15,15,0.30),0_24px_50px_-30px_rgba(15,15,15,0.18)]"
+            >
+              {/* Cabecera de días — pleca editorial */}
+              <div className="relative grid grid-cols-7 border-b-[2px] border-gz-ink bg-gradient-to-b from-gz-cream-dark/35 via-gz-cream-dark/10 to-transparent">
+                {DAYS_ES_FULL.map((d, idx) => (
                   <div
                     key={d}
-                    className={`py-2.5 text-center font-ibm-mono text-[10px] uppercase tracking-[2px] ${
-                      idx >= 5 ? "text-gz-burgundy/70" : "text-gz-ink-light"
-                    } ${idx > 0 ? "border-l border-gz-rule/60" : ""}`}
+                    className={`py-3 text-center ${idx > 0 ? "border-l border-gz-rule/50" : ""}`}
                   >
-                    {d}
+                    <p
+                      className={`font-cormorant text-[16px] sm:text-[17px] font-semibold tracking-[2.5px] uppercase ${
+                        idx >= 5 ? "text-gz-burgundy/85" : "text-gz-ink"
+                      }`}
+                    >
+                      <span className="hidden sm:inline">{d.slice(0, 3)}</span>
+                      <span className="inline sm:hidden">{d.slice(0, 1)}</span>
+                    </p>
                   </div>
                 ))}
               </div>
@@ -806,43 +828,80 @@ export function CalendarioClient({
         {/* ─── Sidebar ───────────────────────────────── */}
         <aside className="hidden lg:block w-[280px] shrink-0">
           <div className="sticky top-[72px] space-y-5">
-            {/* Streak card */}
-            <div className="rounded-[4px] border border-gz-rule bg-white p-4">
-              <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-2">Racha de estudio</p>
+            {/* Streak card — sello editorial */}
+            <div className="relative rounded-[4px] border border-gz-ink/15 bg-white p-4 shadow-[0_1px_0_rgba(15,15,15,0.04),0_4px_18px_-12px_rgba(15,15,15,0.18)] overflow-hidden">
+              <div className="absolute -top-3 -right-3 font-cormorant text-[80px] leading-none text-gz-gold/[0.08] select-none pointer-events-none">
+                {streak > 0 ? "🔥" : "·"}
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-gz-gold" />
+                <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light">
+                  Racha de estudio
+                </p>
+              </div>
               <div className="flex items-baseline gap-2">
-                <span className="font-cormorant text-[36px] font-bold leading-none" style={{ color: streak > 0 ? "var(--gz-gold)" : "var(--gz-ink-light)" }}>
+                <span
+                  className="cal-day-numeral text-[44px] font-bold leading-none"
+                  style={{ color: streak > 0 ? "var(--gz-gold)" : "var(--gz-ink-light)" }}
+                >
                   {streak}
                 </span>
-                <span className="font-archivo text-[13px] text-gz-ink-mid">
-                  {streak === 1 ? "día" : "días"} {streak > 0 ? "🔥" : ""}
+                <span className="font-cormorant italic text-[14px] text-gz-ink-mid">
+                  {streak === 1 ? "día" : "días"}
                 </span>
               </div>
               {bestStreak > 0 && (
-                <p className="font-ibm-mono text-[10px] text-gz-ink-light mt-1">
-                  Mejor racha: {bestStreak} días
-                </p>
+                <div className="mt-2 pt-2 border-t border-gz-rule/40 flex items-center justify-between">
+                  <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light">
+                    Mejor marca
+                  </span>
+                  <span className="font-cormorant text-[15px] font-bold text-gz-burgundy">
+                    {bestStreak} <span className="font-archivo text-[10px] font-normal text-gz-ink-light">días</span>
+                  </span>
+                </div>
               )}
             </div>
 
-            {/* Today XP summary */}
+            {/* Today XP summary — boletín del día */}
             {actividadDia && isTodayCheck(
               parseInt(actividadDia.fecha.split("-")[0]),
               parseInt(actividadDia.fecha.split("-")[1]),
               parseInt(actividadDia.fecha.split("-")[2])
             ) && actividadDia.totalXp > 0 && (
-              <div className="rounded-[4px] border border-gz-rule bg-white p-4">
-                <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-2">XP hoy</p>
-                <p className="font-cormorant text-[28px] font-bold leading-none text-gz-ink">
-                  +{actividadDia.totalXp} <span className="font-archivo text-[12px] font-normal text-gz-ink-light">XP</span>
-                </p>
+              <div className="relative rounded-[4px] border border-gz-ink/15 bg-gradient-to-br from-white via-white to-gz-cream-dark/30 p-4 shadow-[0_1px_0_rgba(15,15,15,0.04),0_4px_18px_-12px_rgba(15,15,15,0.18)] overflow-hidden">
+                <div className="absolute top-0 left-0 h-full w-[3px] bg-gradient-to-b from-gz-burgundy via-gz-gold to-gz-navy" />
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-gz-burgundy" />
+                  <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light">
+                    Bitácora de hoy
+                  </p>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="cal-day-numeral text-[36px] font-bold leading-none text-gz-gold">
+                    +{actividadDia.totalXp}
+                  </span>
+                  <span className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
+                    XP
+                  </span>
+                </div>
                 {Object.keys(actividadDia.porDetalle).length > 0 && (
-                  <div className="mt-2 space-y-1">
-                    {Object.entries(actividadDia.porDetalle).slice(0, 5).map(([detalle, xp]) => (
-                      <div key={detalle} className="flex items-center justify-between">
-                        <span className="font-archivo text-[11px] text-gz-ink-mid truncate">
-                          {DETALLE_ICONS[detalle] ?? "📊"} {detalle}
+                  <div className="mt-3 pt-2 border-t border-gz-rule/40 space-y-1.5">
+                    {Object.entries(actividadDia.porDetalle).slice(0, 5).map(([detalle, xp], idx) => (
+                      <div
+                        key={detalle}
+                        className={`cal-anim-stagger cal-stagger-${Math.min(idx, 4)} flex items-center justify-between gap-2`}
+                      >
+                        <span className="flex items-center gap-1.5 min-w-0">
+                          <span className="font-cormorant text-[14px] leading-none -mt-0.5 shrink-0 w-4 text-center">
+                            {DETALLE_ICONS[detalle] ?? "•"}
+                          </span>
+                          <span className="font-archivo text-[11px] text-gz-ink-mid truncate">
+                            {detalle}
+                          </span>
                         </span>
-                        <span className="font-ibm-mono text-[10px] text-gz-gold">+{xp}</span>
+                        <span className="font-ibm-mono text-[10px] font-semibold text-gz-gold tabular-nums">
+                          +{xp}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1279,67 +1338,90 @@ function MonthGrid({
                     key={colIdx}
                     onClick={() => { if (cell.currentMonth) onDayClick(cell.day); }}
                     onDoubleClick={() => { if (cell.currentMonth) onDayDoubleClick(cell.day); }}
-                    className={`group relative min-h-[100px] border-b border-r border-gz-cream-dark cursor-pointer transition-all duration-150 ${
+                    className={`group relative min-h-[120px] sm:min-h-[130px] border-b border-r border-gz-rule/40 transition-all duration-200 ease-out ${
                       cell.currentMonth
-                        ? "hover:bg-gz-cream-dark/40 hover:shadow-[inset_0_0_0_1px_rgba(154,114,48,0.18)]"
-                        : "opacity-30 bg-gz-cream-dark/[0.15]"
+                        ? "cursor-pointer cal-cell-hover active:bg-gz-cream-dark/60"
+                        : "opacity-25 bg-gz-cream-dark/[0.20]"
                     } ${
-                      isSelected ? "bg-gz-gold/[0.08] !shadow-[inset_0_0_0_1.5px_var(--gz-gold)]" : ""
-                    } ${isWeekend && cell.currentMonth ? "bg-gz-cream-dark/[0.18]" : ""}`}
+                      isSelected
+                        ? "!bg-gz-gold/[0.10] !shadow-[inset_0_0_0_2px_var(--gz-gold),inset_0_0_0_4px_rgba(255,252,245,1),inset_0_0_0_5px_rgba(154,114,48,0.4)]"
+                        : ""
+                    } ${isWeekend && cell.currentMonth && !isSelected ? "bg-gz-cream-dark/[0.20]" : ""}`}
                     style={{
                       backgroundImage:
                         !isSelected && cell.currentMonth && heatBg !== "transparent"
-                          ? `linear-gradient(180deg, ${heatBg} 0%, transparent 65%)`
+                          ? `linear-gradient(180deg, ${heatBg} 0%, transparent 70%)`
                           : undefined,
                     }}
                   >
-                    {/* Today rail (top accent) */}
+                    {/* Today rail (top accent burdeos) */}
                     {isTodayCell && (
-                      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gz-burgundy" />
+                      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gz-burgundy shadow-[0_2px_4px_-1px_rgba(107,29,42,0.3)]" />
                     )}
-                    {/* Streak rail (left accent) */}
+                    {/* Streak rope (left gradient gold) */}
                     {isStreak && !isSelected && (
-                      <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-gz-gold/70" />
+                      <div className="absolute top-1.5 bottom-1.5 left-0 w-[3px] rounded-r bg-gradient-to-b from-gz-gold/80 via-gz-gold to-gz-gold/60" />
                     )}
 
-                    <div className="flex items-start justify-between p-1.5">
-                      <span
-                        className={`inline-flex h-7 w-7 items-center justify-center rounded-full font-cormorant text-[15px] leading-none transition-colors ${
-                          isTodayCell
-                            ? "bg-gz-burgundy text-white font-bold shadow-sm"
-                            : isSelected
-                            ? "bg-gz-gold text-white font-bold"
-                            : "text-gz-ink"
-                        } ${!cell.currentMonth ? "!text-gz-ink-light/40" : ""}`}
-                      >
-                        {cell.day}
-                      </span>
-                      {cell.currentMonth && dayAct && (
+                    {/* HOY stamp en esquina sup-izq */}
+                    {isTodayCell && (
+                      <div className="absolute top-2 left-2 z-10">
+                        <span className="cal-today-stamp">HOY</span>
+                      </div>
+                    )}
+
+                    {/* Numeral grande del día — esquina sup-der */}
+                    <div className="flex items-start justify-end px-2.5 pt-1.5">
+                      <div className="flex flex-col items-end">
                         <span
-                          className="inline-flex items-center gap-0.5 rounded-full bg-gz-gold/15 px-1.5 py-0.5 font-ibm-mono text-[9px] font-semibold text-gz-gold leading-none"
-                          title={`${dayAct.totalXp} XP · ${dayAct.actividades} actividades`}
+                          className={`cal-day-numeral leading-[0.85] transition-all duration-300 ease-out ${
+                            isTodayCell
+                              ? "text-[28px] sm:text-[32px] font-bold text-gz-burgundy"
+                              : isSelected
+                              ? "text-[28px] sm:text-[32px] font-bold text-gz-gold scale-110"
+                              : cell.currentMonth
+                              ? "text-[24px] sm:text-[28px] font-semibold text-gz-ink/90 group-hover:text-gz-ink"
+                              : "text-[22px] sm:text-[26px] font-medium text-gz-ink-light/40"
+                          } ${isWeekend && cell.currentMonth && !isTodayCell && !isSelected ? "!text-gz-burgundy/70" : ""}`}
                         >
-                          +{dayAct.totalXp}
+                          {cell.day}
                         </span>
-                      )}
+                        {cell.currentMonth && dayAct && (
+                          <span
+                            className="mt-0.5 inline-flex items-center gap-0.5 font-ibm-mono text-[9px] font-bold text-gz-gold leading-none"
+                            title={`${dayAct.totalXp} XP · ${dayAct.actividades} actividades`}
+                          >
+                            <span className="text-[7px] -mt-px">●</span>
+                            +{dayAct.totalXp}
+                          </span>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Eventos como recortes de periódico */}
                     {cell.currentMonth && (
-                      <div className="px-1.5 pb-1.5 space-y-1">
+                      <div className="px-1.5 pt-1 pb-1.5 space-y-[3px]">
                         {dayEvents.slice(0, maxVisible).map((ev) => {
                           const c = EVENT_COLORS[ev.eventType] ?? EVENT_COLORS.personal;
+                          const tag = EVENT_TAGS[ev.eventType] ?? "—";
                           return (
                             <div
                               key={ev.id}
-                              className="flex items-center gap-1 rounded-[3px] pl-1 pr-1.5 py-0.5 font-archivo text-[10px] font-medium truncate border-l-[2px] bg-white/70"
-                              style={{ borderLeftColor: c, color: c }}
+                              className="group/ev relative flex items-center gap-1.5 rounded-[2px] pl-1.5 pr-1.5 py-[3px] bg-white/85 hover:bg-white shadow-[0_1px_0_rgba(15,15,15,0.04)] hover:shadow-[0_1px_3px_rgba(15,15,15,0.10)] transition-all duration-200 cursor-pointer"
+                              style={{ borderLeft: `2px solid ${c}` }}
                               title={ev.title}
                             >
-                              <span className="shrink-0 font-cormorant text-[12px] leading-none">
-                                {EVENT_ICONS[ev.eventType] ?? "•"}
+                              <span
+                                className="shrink-0 font-ibm-mono text-[7px] font-bold uppercase tracking-[0.5px] leading-none px-1 py-[2px] rounded-[1px]"
+                                style={{ backgroundColor: `${c}18`, color: c }}
+                              >
+                                {tag}
                               </span>
-                              <span className="truncate text-gz-ink">{ev.title}</span>
+                              <span className="truncate font-archivo text-[10px] font-medium text-gz-ink leading-tight">
+                                {ev.title}
+                              </span>
                               {!ev.allDay && (
-                                <span className="ml-auto shrink-0 font-ibm-mono text-[8px] text-gz-ink-light">
+                                <span className="ml-auto shrink-0 font-ibm-mono text-[8px] text-gz-ink-light tabular-nums">
                                   {formatTime(ev.startDate).slice(0, 5)}
                                 </span>
                               )}
@@ -1347,8 +1429,11 @@ function MonthGrid({
                           );
                         })}
                         {hiddenCount > 0 && (
-                          <div className="font-ibm-mono text-[9px] text-gz-ink-light pl-1.5 italic">
-                            +{hiddenCount} más
+                          <div className="flex items-center gap-1 px-1.5 pt-0.5">
+                            <span className="font-cormorant italic text-[10px] text-gz-ink-light">
+                              +{hiddenCount} más
+                            </span>
+                            <span className="flex-1 h-px bg-gz-rule/40" />
                           </div>
                         )}
                       </div>
@@ -1360,7 +1445,10 @@ function MonthGrid({
 
             {/* Detail strip — solo el quick-add inline (la bitácora completa va abajo del grid) */}
             {selectedInRow && selectedDay && (
-              <div className="border-b border-gz-rule bg-gz-cream-dark/30 px-4 py-2.5">
+              <div
+                key={`strip-${selectedDay}`}
+                className="cal-anim-strip border-b border-gz-rule bg-gz-cream-dark/30 px-4 py-2.5"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
                     <h4 className="font-cormorant text-[15px] font-bold text-gz-ink shrink-0">
@@ -1479,7 +1567,10 @@ function DayActivityPanel({
   const logs = matchesActividad ? actividadDia!.logs : [];
 
   return (
-    <div className="mt-5 rounded-[6px] border border-gz-rule bg-white overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_4px_18px_-12px_rgba(15,15,15,0.18)]">
+    <div
+      key={`${year}-${month}-${day}`}
+      className="cal-anim-panel mt-5 rounded-[6px] border border-gz-rule bg-white shadow-[0_1px_0_rgba(15,15,15,0.04),0_8px_24px_-14px_rgba(15,15,15,0.25)]"
+    >
       {/* Header con rail editorial */}
       <div className="relative border-b border-gz-rule px-5 py-4">
         <div className="absolute top-0 left-0 h-full w-[3px] bg-gz-gold" />
@@ -1557,13 +1648,14 @@ function DayActivityPanel({
             </div>
           ) : (
             <div className="space-y-2">
-              {sortedEvents.map((ev) => {
+              {sortedEvents.map((ev, idx) => {
                 const c = EVENT_COLORS[ev.eventType] ?? EVENT_COLORS.personal;
+                const staggerCls = `cal-stagger-${Math.min(idx, 11)}`;
                 return (
                   <div
                     key={ev.id}
                     onClick={() => onEditEvent(ev)}
-                    className="group relative flex items-start gap-3 rounded-[4px] border border-gz-rule bg-white pl-4 pr-3 py-2.5 cursor-pointer hover:border-gz-gold/50 hover:shadow-sm transition-all"
+                    className={`cal-anim-stagger ${staggerCls} group relative flex items-start gap-3 rounded-[4px] border border-gz-rule bg-white pl-4 pr-3 py-2.5 cursor-pointer hover:border-gz-gold/50 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] transition-all duration-200`}
                   >
                     <div
                       className="absolute top-0 bottom-0 left-0 w-[3px] rounded-l-[4px]"
@@ -1674,14 +1766,15 @@ function DayActivityPanel({
                 Cronología
               </p>
               <div className="max-h-[260px] overflow-y-auto pr-1 -mr-1 space-y-1">
-                {logs.slice(0, 30).map((log) => {
+                {logs.slice(0, 30).map((log, idx) => {
                   const t = new Date(log.createdAt);
                   const hh = String(t.getHours()).padStart(2, "0");
                   const mm = String(t.getMinutes()).padStart(2, "0");
+                  const staggerCls = `cal-stagger-${Math.min(idx, 11)}`;
                   return (
                     <div
                       key={log.id}
-                      className="flex items-center gap-2 py-1 border-b border-gz-cream-dark/40 last:border-b-0"
+                      className={`cal-anim-stagger ${staggerCls} flex items-center gap-2 py-1 border-b border-gz-cream-dark/40 last:border-b-0`}
                     >
                       <span className="font-ibm-mono text-[9px] text-gz-ink-light w-9 shrink-0">
                         {hh}:{mm}
@@ -1963,38 +2056,48 @@ function EventModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/40 p-4 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/40 p-4 overflow-y-auto cal-anim-backdrop"
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-2xl rounded-[6px] border border-gz-rule shadow-[0_8px_32px_-8px_rgba(15,15,15,0.25)] overflow-hidden my-8"
+        className="cal-anim-modal relative w-full max-w-2xl rounded-[6px] border border-gz-rule shadow-[0_20px_50px_-15px_rgba(15,15,15,0.35)] overflow-hidden my-8"
         style={{ backgroundColor: "var(--gz-cream)" }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Rail superior con color del tipo */}
-        <div className="h-[4px] w-full" style={{ backgroundColor: tipoColor }} />
+        {/* Rail superior con gradient en color del tipo */}
+        <div
+          className="h-[5px] w-full"
+          style={{
+            background: `linear-gradient(90deg, ${tipoColor} 0%, ${tipoColor}aa 50%, ${tipoColor} 100%)`,
+          }}
+        />
 
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gz-rule px-6 py-4 bg-white">
-          <div className="flex items-center gap-3">
+        {/* Header — paper texture + ornament */}
+        <div className="cal-paper relative flex items-center justify-between border-b border-gz-ink/15 px-6 py-4">
+          <div className="flex items-center gap-3 relative z-10">
             <span
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full font-cormorant text-[20px] leading-none"
-              style={{ backgroundColor: `${tipoColor}18`, color: tipoColor }}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full font-cormorant text-[24px] leading-none border-2 transition-transform duration-300 hover:scale-105"
+              style={{
+                backgroundColor: `${tipoColor}12`,
+                color: tipoColor,
+                borderColor: `${tipoColor}30`,
+              }}
             >
               {EVENT_ICONS[formType] ?? "•"}
             </span>
             <div>
-              <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light">
-                {editing ? "Editando" : "Nuevo registro"}
+              <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-ink-light flex items-center gap-1.5">
+                <span className="h-1 w-1 rounded-full" style={{ backgroundColor: tipoColor }} />
+                {editing ? "Editando registro" : "Nuevo registro"}
               </p>
-              <h3 className="font-cormorant text-[22px] font-bold text-gz-ink leading-none">
+              <h3 className="font-cormorant text-[24px] font-bold text-gz-ink leading-none mt-0.5">
                 {editing ? "Editar evento" : "Crear evento"}
               </h3>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gz-ink-light hover:text-gz-ink transition-colors cursor-pointer"
+            className="relative z-10 inline-flex h-9 w-9 items-center justify-center rounded-full text-gz-ink-light hover:bg-gz-cream-dark/60 hover:text-gz-burgundy active:scale-95 transition-all duration-200 cursor-pointer"
             aria-label="Cerrar"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
@@ -2028,15 +2131,15 @@ function EventModal({
                     key={opt.value}
                     type="button"
                     onClick={() => setFormType(opt.value)}
-                    className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-ibm-mono text-[10px] uppercase tracking-[1px] transition-all cursor-pointer ${
+                    className={`group inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-ibm-mono text-[10px] uppercase tracking-[1px] transition-all duration-300 ease-out cursor-pointer active:scale-95 ${
                       isActive
-                        ? "border-transparent text-white shadow-sm"
-                        : "border-gz-rule text-gz-ink-mid bg-white hover:border-gz-gold/60"
+                        ? "border-transparent text-white shadow-sm scale-105"
+                        : "border-gz-rule text-gz-ink-mid bg-white hover:border-gz-gold/60 hover:-translate-y-0.5 hover:shadow-sm"
                     }`}
                     style={isActive ? { backgroundColor: c } : undefined}
                   >
                     <span
-                      className="font-cormorant text-[12px] leading-none"
+                      className="font-cormorant text-[12px] leading-none transition-transform duration-300 group-hover:scale-110"
                       style={{ color: isActive ? "#fff" : c }}
                     >
                       {opt.glyph}
@@ -2248,7 +2351,7 @@ function EventModal({
               <button
                 onClick={onDelete}
                 disabled={deleting}
-                className="rounded-[3px] border border-gz-burgundy/30 px-4 py-1.5 font-archivo text-[12px] font-medium text-gz-burgundy hover:bg-gz-burgundy/[0.06] disabled:opacity-50 transition-colors cursor-pointer"
+                className="rounded-[3px] border border-gz-burgundy/30 px-4 py-1.5 font-archivo text-[12px] font-medium text-gz-burgundy hover:bg-gz-burgundy/[0.06] active:scale-95 disabled:opacity-50 transition-all duration-200 cursor-pointer"
               >
                 {deleting ? "Eliminando…" : "Eliminar"}
               </button>
@@ -2257,14 +2360,14 @@ function EventModal({
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="rounded-[3px] border border-gz-rule px-4 py-1.5 font-archivo text-[12px] font-medium text-gz-ink-mid hover:bg-gz-cream-dark/50 transition-colors cursor-pointer"
+              className="rounded-[3px] border border-gz-rule px-4 py-1.5 font-archivo text-[12px] font-medium text-gz-ink-mid hover:bg-gz-cream-dark/50 active:scale-95 transition-all duration-200 cursor-pointer"
             >
               Cancelar
             </button>
             <button
               onClick={onSave}
               disabled={saving || !formTitle.trim() || !formStartDate}
-              className="rounded-[3px] bg-gz-navy px-5 py-1.5 font-archivo text-[12px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy disabled:opacity-50 transition-colors cursor-pointer"
+              className="rounded-[3px] bg-gz-navy px-5 py-1.5 font-archivo text-[12px] font-semibold text-white hover:bg-gz-gold hover:text-gz-navy hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none transition-all duration-200 ease-out cursor-pointer"
             >
               {saving ? "Guardando…" : editing ? "Guardar cambios" : "Crear evento"}
             </button>

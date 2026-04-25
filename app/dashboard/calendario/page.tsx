@@ -121,50 +121,76 @@ export default async function CalendarioPage() {
     isGrado: c.isGrado,
   }));
 
-  // Romano del año para el masthead.
+  // Romano del año + mes para el masthead.
   const yearRoman = toRoman(now.getFullYear());
+  const monthRoman = toRoman(now.getMonth() + 1);
+  const trimRoman = ["I", "I", "I", "II", "II", "II", "III", "III", "III", "IV", "IV", "IV"][now.getMonth()];
+
+  // Día actual en formato editorial
+  const diaSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][now.getDay()];
 
   // Cita rotada por mes — colección clásica jurídica.
   const cita = CITAS_JURIDICAS[now.getMonth() % CITAS_JURIDICAS.length];
 
   return (
     <div>
-      <div className="gz-section-header px-4 sm:px-6 pt-8 pb-2 relative overflow-hidden">
+      <div className="gz-section-header px-4 sm:px-6 pt-6 pb-3 relative overflow-hidden">
         {/* Ornamento decorativo de fondo */}
-        <div className="absolute top-2 right-3 sm:right-6 font-cormorant text-[120px] leading-none text-gz-ink/[0.04] select-none pointer-events-none">
+        <div className="absolute top-3 right-4 sm:right-8 font-cormorant text-[140px] leading-none text-gz-ink/[0.035] select-none pointer-events-none rotate-6">
           ✠
         </div>
+        <div className="absolute -top-2 -left-2 font-cormorant text-[60px] leading-none text-gz-gold/[0.06] select-none pointer-events-none">
+          ❦
+        </div>
 
-        <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light mb-2 flex items-center gap-2">
-          <span className="text-gz-gold">❡</span>
+        {/* Pleca superior — running header tipo periódico */}
+        <div className="flex items-center justify-between mb-3 pb-2 border-b border-gz-ink/30">
+          <p className="font-ibm-mono text-[9px] uppercase tracking-[3px] text-gz-ink-light">
+            Tomo <span className="text-gz-burgundy font-semibold">{yearRoman}</span>
+            <span className="mx-2 text-gz-rule-dark">·</span>
+            Entrega <span className="text-gz-burgundy font-semibold">{monthRoman}</span>
+            <span className="mx-2 text-gz-rule-dark">·</span>
+            Trimestre <span className="text-gz-burgundy font-semibold">{trimRoman}</span>
+          </p>
+          <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-ink-light hidden sm:block">
+            {diaSemana}, {now.getDate()} · Chile
+          </p>
+        </div>
+
+        <p className="font-cormorant italic text-[14px] text-gz-burgundy mb-1 flex items-center gap-2">
+          <span className="font-cormorant text-[16px] text-gz-gold leading-none">❡</span>
           Cuaderno de Bitácora
-          <span className="text-gz-rule-dark">·</span>
-          Año {yearRoman}
         </p>
-        <div className="flex items-end gap-3 mb-2">
+        <div className="flex items-end gap-4 mb-3">
           <Image
             src="/brand/logo-sello.svg"
             alt="Studio Iuris"
             width={80}
             height={80}
-            className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
+            className="h-[60px] w-[60px] lg:h-[78px] lg:w-[78px] shrink-0"
           />
-          <h1 className="font-cormorant text-[38px] lg:text-[48px] font-bold text-gz-ink leading-none tracking-tight">
+          <h1 className="font-cormorant text-[42px] sm:text-[48px] lg:text-[56px] font-bold text-gz-ink leading-[0.95] tracking-tight">
             Calendario <span className="text-gz-burgundy italic">Personal</span>
           </h1>
         </div>
 
-        {/* Cita celebre rotada por mes */}
-        <p className="mt-3 max-w-[640px] font-cormorant italic text-[14px] sm:text-[15px] text-gz-ink-mid leading-relaxed">
-          &ldquo;{cita.texto}&rdquo;
-          <span className="ml-2 font-ibm-mono not-italic text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
-            — {cita.autor}
+        {/* Cita celebre con comillas decorativas */}
+        <div className="relative max-w-[700px] pl-8 sm:pl-12">
+          <span className="absolute -top-2 left-0 font-cormorant text-[64px] leading-[0.5] text-gz-gold/40 select-none">
+            &ldquo;
           </span>
-        </p>
+          <p className="font-cormorant italic text-[15px] sm:text-[16px] text-gz-ink-mid leading-relaxed">
+            {cita.texto}
+            <span className="ml-2 font-ibm-mono not-italic text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
+              — {cita.autor}
+            </span>
+          </p>
+        </div>
 
-        {/* Doble regla editorial */}
-        <div className="mt-4 h-[2px] bg-gz-ink/80" />
-        <div className="h-px bg-gz-ink/80 mt-[3px]" />
+        {/* Triple regla editorial: gruesa + delgada + gruesa */}
+        <div className="mt-5 h-[3px] bg-gz-ink/85" />
+        <div className="h-px bg-gz-ink/85 mt-[2px]" />
+        <div className="h-[2px] bg-gz-ink/85 mt-[2px]" />
       </div>
 
       <CalendarioClient
