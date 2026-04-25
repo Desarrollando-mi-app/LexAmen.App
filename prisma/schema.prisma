@@ -1290,6 +1290,14 @@ model CalendarEvent {
   color          String?
   sourceEventoId String?
 
+  // ─── Información extendida (V4) ───
+  location        String? // Ubicación física o link de videollamada
+  url             String? // Enlace adjunto (lectura, expediente, etc.)
+  recurrence      String? // "none" | "daily" | "weekly" | "monthly" | "yearly"
+  reminderMinutes Int? // Aviso n minutos antes (null = sin aviso)
+  materia         String? // Materia jurídica relacionada
+  attendees       String? // Invitados (texto libre, emails separados por coma)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

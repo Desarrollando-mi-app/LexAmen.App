@@ -58,6 +58,12 @@ export async function POST(request: Request) {
     allDay?: boolean;
     color?: string;
     sourceEventoId?: string;
+    location?: string | null;
+    url?: string | null;
+    recurrence?: string | null;
+    reminderMinutes?: number | null;
+    materia?: string | null;
+    attendees?: string | null;
   };
 
   try {
@@ -102,6 +108,12 @@ export async function POST(request: Request) {
       allDay: body.allDay ?? false,
       color: body.color ?? null,
       sourceEventoId: body.sourceEventoId ?? null,
+      location: body.location ?? null,
+      url: body.url ?? null,
+      recurrence: body.recurrence ?? null,
+      reminderMinutes: body.reminderMinutes ?? null,
+      materia: body.materia ?? null,
+      attendees: body.attendees ?? null,
     },
   });
 

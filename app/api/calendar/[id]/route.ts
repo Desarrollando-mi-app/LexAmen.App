@@ -33,12 +33,18 @@ export async function PATCH(
 
   let body: {
     title?: string;
-    description?: string;
+    description?: string | null;
     eventType?: string;
     startDate?: string;
     endDate?: string | null;
     allDay?: boolean;
     color?: string | null;
+    location?: string | null;
+    url?: string | null;
+    recurrence?: string | null;
+    reminderMinutes?: number | null;
+    materia?: string | null;
+    attendees?: string | null;
   };
 
   try {
@@ -61,6 +67,14 @@ export async function PATCH(
       }),
       ...(body.allDay !== undefined && { allDay: body.allDay }),
       ...(body.color !== undefined && { color: body.color }),
+      ...(body.location !== undefined && { location: body.location }),
+      ...(body.url !== undefined && { url: body.url }),
+      ...(body.recurrence !== undefined && { recurrence: body.recurrence }),
+      ...(body.reminderMinutes !== undefined && {
+        reminderMinutes: body.reminderMinutes,
+      }),
+      ...(body.materia !== undefined && { materia: body.materia }),
+      ...(body.attendees !== undefined && { attendees: body.attendees }),
     },
   });
 
