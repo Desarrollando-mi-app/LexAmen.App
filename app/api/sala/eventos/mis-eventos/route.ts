@@ -14,13 +14,32 @@ export async function GET() {
     where: { userId: authUser.id, isActive: true },
     orderBy: { createdAt: "desc" },
     include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+        },
+      },
       _count: { select: { interesados: true } },
     },
   });
 
+  // El usuario puede haber marcado interés en sus propios eventos.
+  const userInteres = await prisma.eventoInteres.findMany({
+    where: {
+      userId: authUser.id,
+      eventoId: { in: eventos.map((e) => e.id) },
+    },
+    select: { eventoId: true },
+  });
+  const userInteresIds = new Set(userInteres.map((i) => i.eventoId));
+
   const result = eventos.map((e) => ({
     ...e,
     interesadosCount: e._count.interesados,
+    hasInteres: userInteresIds.has(e.id),
     createdAt: e.createdAt.toISOString(),
     updatedAt: e.updatedAt.toISOString(),
     fecha: e.fecha.toISOString(),

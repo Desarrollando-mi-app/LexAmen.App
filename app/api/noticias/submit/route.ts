@@ -54,11 +54,14 @@ export async function POST(request: Request) {
     ? `${user.firstName} ${user.lastName}`
     : "Usuario";
 
-  // Create as pendiente noticia
+  // Create as pendiente noticia. Guardamos el contenido completo y dejamos
+  // un resumen corto (primeros 500 chars) para el listado/cards.
+  const trimmed = contenido.trim();
   const noticia = await prisma.noticiaJuridica.create({
     data: {
       titulo: titulo.trim(),
-      resumen: contenido.trim().substring(0, 500),
+      resumen: trimmed.length > 500 ? `${trimmed.substring(0, 500)}…` : trimmed,
+      contenido: trimmed,
       urlFuente: `studio-iuris://user-submit/${authUser.id}/${Date.now()}`,
       fuente: "STUDIO_IURIS",
       fuenteNombre: `${authorName} — Studio Iuris`,

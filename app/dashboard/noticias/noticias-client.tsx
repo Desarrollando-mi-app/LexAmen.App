@@ -24,6 +24,21 @@ interface NoticiaItem {
   destacada: boolean;
   fechaAprobacion: string | null;
   fechaPublicacionFuente: string | null;
+  pinnedUntil?: string | null;
+  pinnedTop?: boolean;
+}
+
+/**
+ * Devuelve el href correcto para una noticia: las publicadas internamente
+ * (cartas al director, columnas, editoriales) abren la página de lectura
+ * interna; las externas siguen abriendo la fuente original.
+ */
+function noticiaHref(n: NoticiaItem): string {
+  return n.fuente === "STUDIO_IURIS" ? `/dashboard/noticias/${n.id}` : n.urlFuente;
+}
+
+function noticiaIsInternal(n: NoticiaItem): boolean {
+  return n.fuente === "STUDIO_IURIS";
 }
 
 interface Props {
@@ -168,11 +183,40 @@ export function NoticiasClient({ initialNoticias }: Props) {
     });
   }, [noticias, categoriaFilter, ramaFilter]);
 
-  // Split into featured (up to 3) + rest
-  const allFeatured = filtered.filter((n) => n.destacada).slice(0, 3);
+  // Editorial fija (admin pinneó una editorial — arriba hasta retiro/reemplazo)
+  const editorialPinneada =
+    filtered.find((n) => n.pinnedTop && n.categoria === "editorial") ?? null;
+
+  // Cartas / columnas vigentes (pinneadas por 1 semana). Se elevan al hero
+  // junto con las destacadas regulares.
+  const ahora = Date.now();
+  const cartasYColumnasFijas = filtered.filter(
+    (n) =>
+      n.id !== editorialPinneada?.id &&
+      n.pinnedUntil != null &&
+      new Date(n.pinnedUntil).getTime() > ahora &&
+      (n.categoria === "carta_director" || n.categoria === "columna_opinion"),
+  );
+
+  // Hero: pinned cartas/columnas primero, luego destacadas tradicionales,
+  // hasta 3 en total. La editorial fija no entra al hero (tiene su propio slot).
+  const heroPool = [
+    ...cartasYColumnasFijas,
+    ...filtered.filter(
+      (n) =>
+        n.destacada &&
+        n.id !== editorialPinneada?.id &&
+        !cartasYColumnasFijas.includes(n),
+    ),
+  ];
+  const allFeatured = heroPool.slice(0, 3);
   const heroMain = allFeatured[0] ?? null;
   const heroSecondary = allFeatured.slice(1);
-  const nonFeatured = filtered.filter((n) => !allFeatured.includes(n));
+  const consumido = new Set([
+    ...(editorialPinneada ? [editorialPinneada.id] : []),
+    ...allFeatured.map((n) => n.id),
+  ]);
+  const nonFeatured = filtered.filter((n) => !consumido.has(n.id));
 
   // Group non-featured by date
   const groups = useMemo(() => {
@@ -314,6 +358,47 @@ export function NoticiasClient({ initialNoticias }: Props) {
 
         <div className="h-px bg-gz-rule mb-6" />
 
+        {/* ─── EDITORIAL FIJA ─── */}
+        {editorialPinneada && (
+          <a
+            href={noticiaHref(editorialPinneada)}
+            target={noticiaIsInternal(editorialPinneada) ? undefined : "_blank"}
+            rel={noticiaIsInternal(editorialPinneada) ? undefined : "noopener noreferrer"}
+            className="group block mb-8 relative overflow-hidden rounded-[4px] border border-gz-ink/15 bg-gradient-to-br from-gz-cream-dark/40 via-white to-gz-cream-dark/30 p-5 sm:p-6 hover:border-gz-gold/60 transition-colors"
+          >
+            <div className="absolute top-0 left-0 h-full w-[4px] bg-gz-ink" />
+            <div className="absolute top-3 right-3 flex items-center gap-2">
+              <span className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light">
+                Fija · Editorial
+              </span>
+              <span className="font-cormorant text-[14px] text-gz-gold leading-none">✠</span>
+            </div>
+            <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-burgundy mb-1">
+              Editorial
+            </p>
+            <h2 className="font-cormorant text-[28px] sm:text-[34px] !font-bold text-gz-ink leading-[1.1] group-hover:text-gz-burgundy transition-colors">
+              {editorialPinneada.titulo}
+            </h2>
+            {editorialPinneada.resumen && editorialPinneada.resumen !== editorialPinneada.titulo && (
+              <p className="mt-2 font-cormorant italic text-[16px] leading-relaxed text-gz-ink-mid line-clamp-3">
+                {editorialPinneada.resumen}
+              </p>
+            )}
+            <div className="mt-3 flex items-center gap-3">
+              <span className="font-ibm-mono text-[10px] text-gz-ink-light">
+                {editorialPinneada.fuenteNombre}
+              </span>
+              <span className="font-ibm-mono text-[10px] text-gz-ink-light">·</span>
+              <span className="font-ibm-mono text-[10px] text-gz-ink-light">
+                {timeAgo(editorialPinneada.fechaAprobacion)}
+              </span>
+              <span className="ml-auto font-archivo text-[12px] text-gz-gold group-hover:text-gz-burgundy transition-colors">
+                Leer editorial →
+              </span>
+            </div>
+          </a>
+        )}
+
         {/* ─── FEATURED HERO (up to 3 destacadas) ─── */}
         {heroMain && (
           <div className="mb-8">
@@ -327,9 +412,9 @@ export function NoticiasClient({ initialNoticias }: Props) {
             <div className={`grid gap-6 ${heroSecondary.length > 0 ? "lg:grid-cols-[2fr_1fr]" : ""}`}>
               {/* Main hero */}
               <a
-                href={heroMain.urlFuente}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={noticiaHref(heroMain)}
+                target={noticiaIsInternal(heroMain) ? undefined : "_blank"}
+                rel={noticiaIsInternal(heroMain) ? undefined : "noopener noreferrer"}
                 className="group block"
               >
                 <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -370,9 +455,9 @@ export function NoticiasClient({ initialNoticias }: Props) {
                   {heroSecondary.map((n) => (
                     <a
                       key={n.id}
-                      href={n.urlFuente}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href={noticiaHref(n)}
+                      target={noticiaIsInternal(n) ? undefined : "_blank"}
+                      rel={noticiaIsInternal(n) ? undefined : "noopener noreferrer"}
                       className="group block"
                     >
                       <div className="flex flex-wrap items-center gap-1.5 mb-1">
@@ -596,9 +681,9 @@ function NoticiaDenseCard({
       style={{ borderColor, backgroundColor: cardBg }}
     >
       <a
-        href={n.urlFuente}
-        target="_blank"
-        rel="noopener noreferrer"
+        href={noticiaHref(n)}
+        target={noticiaIsInternal(n) ? undefined : "_blank"}
+        rel={noticiaIsInternal(n) ? undefined : "noopener noreferrer"}
         className="block"
       >
         <div className="flex flex-wrap items-center gap-1.5 mb-1">
@@ -653,9 +738,9 @@ function NoticiaLineItem({
 
   return (
     <a
-      href={n.urlFuente}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={noticiaHref(n)}
+      target={noticiaIsInternal(n) ? undefined : "_blank"}
+      rel={noticiaIsInternal(n) ? undefined : "noopener noreferrer"}
       className="group flex items-baseline gap-3 py-2"
     >
       {n.categoria && (

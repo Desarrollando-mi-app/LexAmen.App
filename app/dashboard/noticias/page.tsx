@@ -16,10 +16,15 @@ export default async function NoticiasPage() {
 
   if (!user) redirect("/login");
 
-  // TTL 48h: sólo noticias aprobadas en las últimas 48h, no archivadas.
+  // Vigencia: TTL 48h estándar + items pinneados (editoriales y cartas/columnas).
   const noticias = await prisma.noticiaJuridica.findMany({
     where: noticiasVigentesWhere(),
-    orderBy: [{ destacada: "desc" }, { fechaAprobacion: "desc" }],
+    orderBy: [
+      { pinnedTop: "desc" },
+      { pinnedUntil: { sort: "desc", nulls: "last" } },
+      { destacada: "desc" },
+      { fechaAprobacion: "desc" },
+    ],
     take: 30,
   });
 
@@ -36,6 +41,8 @@ export default async function NoticiasPage() {
     destacada: n.destacada,
     fechaAprobacion: n.fechaAprobacion?.toISOString() ?? null,
     fechaPublicacionFuente: n.fechaPublicacionFuente?.toISOString() ?? null,
+    pinnedUntil: n.pinnedUntil?.toISOString() ?? null,
+    pinnedTop: n.pinnedTop,
   }));
 
   return (

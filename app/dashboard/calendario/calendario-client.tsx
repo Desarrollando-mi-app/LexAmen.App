@@ -703,6 +703,16 @@ export function CalendarioClient({
         {/* ═══ MONTH VIEW ═══ */}
         {view === "month" && (
           <>
+            {/* Banner mensual editorial — KPIs + sparkline */}
+            <MonthSummaryBanner
+              year={year}
+              month={month}
+              actividadMes={actividadMes}
+              events={events.filter((e) => tipoFiltro === "TODOS" || e.eventType === tipoFiltro)}
+              streak={streak}
+              countdowns={initialCountdowns}
+            />
+
             <div ref={gridRef} className="rounded-[6px] border border-gz-rule bg-white overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_4px_18px_-12px_rgba(15,15,15,0.18)]">
               {/* Cabecera de días con acento dominical */}
               <div className="grid grid-cols-7 border-b border-gz-rule bg-gradient-to-b from-gz-cream-dark/30 to-transparent">
@@ -955,6 +965,213 @@ function YearView({
           </button>
         );
       })}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════
+// MONTH SUMMARY BANNER — KPIs editoriales sobre el grid
+// ═══════════════════════════════════════════════════════════
+
+interface CountdownLite {
+  id: string;
+  titulo: string;
+  fecha: string;
+  color: string;
+  isGrado: boolean;
+}
+
+function MonthSummaryBanner({
+  year,
+  month,
+  actividadMes,
+  events,
+  streak,
+  countdowns,
+}: {
+  year: number;
+  month: number;
+  actividadMes: ActividadMes | null;
+  events: CalendarEvent[];
+  streak: number;
+  countdowns: CountdownLite[];
+}) {
+  const daysInMonth = getDaysInMonth(year, month);
+  const isCurrentMonth =
+    new Date().getFullYear() === year && new Date().getMonth() + 1 === month;
+  const today = new Date();
+
+  // KPIs del mes
+  let totalXpMes = 0;
+  let diasActivos = 0;
+  let mejorDia = { dia: 0, xp: 0 };
+  const porDia = actividadMes?.porDia ?? {};
+  for (const [key, data] of Object.entries(porDia)) {
+    const parts = key.split("-");
+    const m = parseInt(parts[1]);
+    if (m === month) {
+      totalXpMes += data.totalXp;
+      diasActivos += 1;
+      if (data.totalXp > mejorDia.xp) {
+        mejorDia = { dia: parseInt(parts[2]), xp: data.totalXp };
+      }
+    }
+  }
+
+  // Sparkline: últimos 7 días con XP (incluye fuera del mes activo).
+  const sparkData: number[] = [];
+  const sparkBase = isCurrentMonth ? today : new Date(year, month, 0);
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(sparkBase);
+    d.setDate(d.getDate() - i);
+    const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    sparkData.push(porDia[k]?.totalXp ?? 0);
+  }
+  const sparkMax = Math.max(1, ...sparkData);
+
+  // Próximo countdown / evento
+  const ahora = Date.now();
+  const proxCountdown = countdowns
+    .map((c) => ({ ...c, ts: new Date(c.fecha).getTime() }))
+    .filter((c) => c.ts >= ahora)
+    .sort((a, b) => a.ts - b.ts)[0];
+
+  const proxEvento = events
+    .filter((e) => new Date(e.startDate).getTime() >= ahora)
+    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0];
+
+  const eventosDelMes = events.length;
+  const trimRoman = month <= 3 ? "I" : month <= 6 ? "II" : month <= 9 ? "III" : "IV";
+
+  function diasHasta(fecha: string | Date): number {
+    const t = typeof fecha === "string" ? new Date(fecha) : fecha;
+    return Math.ceil((t.getTime() - ahora) / 86400000);
+  }
+
+  return (
+    <div className="mb-5 rounded-[6px] border border-gz-rule bg-gradient-to-br from-white via-white to-gz-cream-dark/30 overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_4px_18px_-12px_rgba(15,15,15,0.18)]">
+      {/* Rail superior con graduación trimestral */}
+      <div className="flex items-stretch">
+        <div className="w-1.5 bg-gradient-to-b from-gz-burgundy via-gz-gold to-gz-navy" />
+
+        <div className="flex-1 px-5 py-4">
+          {/* Línea contextual */}
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+            <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-ink-light">
+              Trimestre <span className="text-gz-burgundy font-semibold">{trimRoman}</span>
+            </p>
+            <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-ink-light">
+              · {daysInMonth} días
+            </p>
+            {isCurrentMonth && (
+              <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-gold">
+                · Mes en curso
+              </p>
+            )}
+            {streak > 0 && isCurrentMonth && (
+              <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-burgundy">
+                · 🔥 racha {streak} {streak === 1 ? "día" : "días"}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-3 items-center">
+            {/* KPI: XP mes */}
+            <div>
+              <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light">
+                XP del mes
+              </p>
+              <p className="font-cormorant text-[26px] font-bold text-gz-gold leading-none">
+                +{totalXpMes}
+              </p>
+            </div>
+
+            {/* KPI: días activos */}
+            <div>
+              <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light">
+                Días activos
+              </p>
+              <p className="font-cormorant text-[26px] font-bold text-gz-ink leading-none">
+                {diasActivos}
+                <span className="font-archivo text-[12px] font-normal text-gz-ink-light">
+                  {" "}/ {daysInMonth}
+                </span>
+              </p>
+            </div>
+
+            {/* KPI: eventos */}
+            <div>
+              <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light">
+                Eventos
+              </p>
+              <p className="font-cormorant text-[26px] font-bold text-gz-ink leading-none">
+                {eventosDelMes}
+              </p>
+            </div>
+
+            {/* Sparkline 7 días */}
+            <div>
+              <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light mb-1">
+                Últ. 7 días
+              </p>
+              <div className="flex items-end gap-[3px] h-7">
+                {sparkData.map((v, i) => {
+                  const h = Math.max(2, Math.round((v / sparkMax) * 28));
+                  const isToday = i === sparkData.length - 1 && isCurrentMonth;
+                  return (
+                    <div
+                      key={i}
+                      className={`w-2 rounded-sm transition-all ${
+                        v > 0
+                          ? isToday
+                            ? "bg-gz-burgundy"
+                            : "bg-gz-gold/70"
+                          : "bg-gz-rule/40"
+                      }`}
+                      style={{ height: `${h}px` }}
+                      title={v > 0 ? `+${v} XP` : "Sin actividad"}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Línea inferior con destacados */}
+          {(mejorDia.xp > 0 || proxEvento || proxCountdown) && (
+            <div className="mt-3 pt-3 border-t border-gz-rule/50 flex flex-wrap items-center gap-x-5 gap-y-1.5 font-ibm-mono text-[10px] text-gz-ink-light">
+              {mejorDia.xp > 0 && (
+                <span>
+                  Mejor día:{" "}
+                  <span className="text-gz-ink font-semibold">
+                    {mejorDia.dia} {MONTHS_ES_SHORT[month - 1].toLowerCase()}.
+                  </span>
+                  <span className="text-gz-gold ml-1">+{mejorDia.xp} XP</span>
+                </span>
+              )}
+              {proxEvento && (
+                <span>
+                  Próximo evento:{" "}
+                  <span className="text-gz-ink font-semibold">
+                    {proxEvento.title}
+                  </span>{" "}
+                  <span className="text-gz-burgundy">
+                    en {Math.max(0, diasHasta(proxEvento.startDate))}d
+                  </span>
+                </span>
+              )}
+              {proxCountdown && (
+                <span className="ml-auto">
+                  <span className="text-gz-ink-light">{proxCountdown.titulo}:</span>{" "}
+                  <span className="font-semibold" style={{ color: proxCountdown.color }}>
+                    −{Math.max(0, diasHasta(proxCountdown.fecha))} días
+                  </span>
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -2663,6 +2663,7 @@ model NoticiaJuridica {
 
   titulo       String
   resumen      String?
+  contenido    String? // Cuerpo completo (cartas al director / columnas / editoriales)
   urlFuente    String  @unique
   fuente       String
   fuenteNombre String
@@ -2685,6 +2686,12 @@ model NoticiaJuridica {
   archivada    Boolean   @default(false)
   fechaArchivo DateTime?
 
+  // ─── Pinning (V4) ───
+  // pinnedUntil: cartas/columnas → 7 días arriba del feed.
+  // pinnedTop:   editoriales → arriba hasta que el admin retire o publique nueva.
+  pinnedUntil DateTime?
+  pinnedTop   Boolean   @default(false)
+
   aprobadaPor String?
   notasAdmin  String?
 
@@ -2704,6 +2711,7 @@ model NoticiaJuridica {
   @@index([estado, archivada, fechaAprobacion])
   @@index([fuente, fechaRecopilacion])
   @@index([destacada, estado])
+  @@index([pinnedTop, pinnedUntil])
 }
 
 model NoticiaComentario {
