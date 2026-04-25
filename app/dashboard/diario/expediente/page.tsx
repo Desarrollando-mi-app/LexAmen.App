@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { ExpedienteList } from "./expediente-list";
+import { ExpedientesV4Client } from "./expedientes-v4-client";
 
 export const metadata = {
   title: "Expediente Abierto — Studio Iuris",
+  description:
+    "Casos reales abiertos para argumentar y debatir con la comunidad jurídica.",
 };
 
 export default async function ExpedientePage() {
@@ -16,13 +17,12 @@ export default async function ExpedientePage() {
 
   if (!authUser) redirect("/login");
 
-  // Fetch expedientes: abiertos first, then cerrados
+  // Trae expedientes aprobados. Orden por defecto: abiertos primero (asc
+  // alfabético sirve: "abierto" < "cerrado"), luego por fecha de cierre
+  // descendente. El cliente vuelve a ordenar según el sort seleccionado.
   const expedientes = await prisma.expediente.findMany({
     where: { aprobado: true },
-    orderBy: [
-      { estado: "asc" }, // "abierto" < "cerrado" alphabetically
-      { fechaCierre: "desc" },
-    ],
+    orderBy: [{ estado: "asc" }, { fechaCierre: "desc" }],
     include: {
       argumentos: {
         where: { parentId: null },
@@ -43,7 +43,8 @@ export default async function ExpedientePage() {
     },
   });
 
-  // Serialize for client
+  // Aplana a forma serializable y precalcula contadores por bando + mejor
+  // alegato. Mantenemos toda la lógica de cómputo en el server thin.
   const serialized = expedientes.map((exp) => {
     const demandanteCount = exp.argumentos.filter(
       (a) => a.bando === exp.bandoDemandante
@@ -52,7 +53,6 @@ export default async function ExpedientePage() {
       (a) => a.bando === exp.bandoDemandado
     ).length;
 
-    // Find best argument (most votes)
     const best = exp.argumentos.reduce<
       (typeof exp.argumentos)[number] | null
     >((top, a) => (!top || a.votos > top.votos ? a : top), null);
@@ -81,49 +81,5 @@ export default async function ExpedientePage() {
     };
   });
 
-  return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: "var(--gz-cream)" }}
-    >
-      <div className="px-4 py-8 sm:px-6">
-        {/* Back link */}
-        <a
-          href="/dashboard/diario"
-          className="mb-6 inline-flex items-center gap-1 font-archivo text-[12px] text-gz-ink-light transition-colors hover:text-gz-ink"
-        >
-          &larr; Volver al Diario
-        </a>
-
-        {/* Header — full bleed */}
-        <header className="gz-section-header mb-8">
-          <p className="mb-2 font-ibm-mono text-[9px] font-semibold uppercase tracking-[2.5px] text-gz-burgundy">
-            Debate Juridico
-          </p>
-          <h1 className="font-cormorant text-[36px] font-bold leading-tight text-gz-ink">
-            Expediente Abierto
-          </h1>
-          <p className="mt-2 font-cormorant text-[17px] italic text-gz-ink-mid">
-            Casos reales para argumentar y debatir con la comunidad.
-          </p>
-          <div className="mt-4 h-[2px] bg-gz-rule-dark" />
-        </header>
-
-        <Suspense
-          fallback={
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-[160px] animate-pulse rounded-[4px] bg-gz-cream-dark"
-                />
-              ))}
-            </div>
-          }
-        >
-          <ExpedienteList expedientes={serialized} />
-        </Suspense>
-      </div>
-    </div>
-  );
+  return <ExpedientesV4Client expedientes={serialized} />;
 }
