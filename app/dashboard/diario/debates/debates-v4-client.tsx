@@ -347,7 +347,7 @@ function DebateTile({ debate, userId }: { debate: Debate; userId: string }) {
               Posición
             </p>
             <p className="font-cormorant italic text-[14px] text-gz-ink-mid leading-[1.4] m-0 line-clamp-2">
-              "{debate.autor1Posicion}"
+              &ldquo;{debate.autor1Posicion}&rdquo;
             </p>
           </div>
         )}
