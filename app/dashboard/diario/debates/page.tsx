@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
-import { DebateList } from "./debate-list";
-import Image from "next/image";
+import { DebatesV4Client } from "./debates-v4-client";
 
 export const metadata = {
-  title: "Debates Juridicos — Studio Iuris",
+  title: "Debates Jurídicos — Studio Iuris",
+  description:
+    "Argumentos, réplicas y votación de la comunidad sobre cuestiones jurídicas abiertas.",
 };
 
 export default async function DebatesPage() {
@@ -40,7 +41,9 @@ export default async function DebatesPage() {
     },
   });
 
-  // Sort: active states first, then cerrado
+  // Estados activos primero, cerrado al final. Dentro de cada bloque se
+  // ordena por fecha desc — el cliente vuelve a ordenar según el sort
+  // seleccionado, esto es solo el orden por defecto.
   const ORDER: Record<string, number> = {
     votacion: 0,
     argumentos: 1,
@@ -48,7 +51,6 @@ export default async function DebatesPage() {
     buscando_oponente: 3,
     cerrado: 4,
   };
-
   debates.sort((a, b) => {
     const oa = ORDER[a.estado] ?? 5;
     const ob = ORDER[b.estado] ?? 5;
@@ -57,33 +59,9 @@ export default async function DebatesPage() {
   });
 
   return (
-    <div className="px-4 pb-16 pt-8 sm:px-6">
-      {/* Header — full bleed */}
-      <div className="gz-section-header mb-6">
-        <p className="mb-1 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
-          Academia
-        </p>
-        <div className="mb-1 flex items-center gap-3">
-          <Image
-            src="/brand/logo-sello.svg"
-            alt="Studio Iuris"
-            width={80}
-            height={80}
-            className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]"
-          />
-          <h1 className="font-cormorant text-[38px] font-bold leading-none text-gz-ink lg:text-[44px]">
-            Debates Juridicos
-          </h1>
-        </div>
-        <div className="mt-3 h-[2px] bg-gz-rule-dark" />
-      </div>
-
-      <div className="mt-6">
-        <DebateList
-          debates={JSON.parse(JSON.stringify(debates))}
-          userId={authUser.id}
-        />
-      </div>
-    </div>
+    <DebatesV4Client
+      debates={JSON.parse(JSON.stringify(debates))}
+      userId={authUser.id}
+    />
   );
 }
