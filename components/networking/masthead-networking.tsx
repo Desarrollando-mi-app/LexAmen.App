@@ -1,30 +1,13 @@
 /** Masthead editorial para Networking V4. Server-safe. */
 export function MastheadNetworking({
-  volume,
-  issue,
-  dateLabel,
   resultCount,
 }: {
-  volume?: string;
-  issue?: string;
-  dateLabel?: string;
   resultCount?: number;
 }) {
-  const now = new Date();
-  const months = [
-    "enero", "febrero", "marzo", "abril", "mayo", "junio",
-    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
-  ];
-  const autoDate =
-    dateLabel ||
-    `${months[now.getMonth()].charAt(0).toUpperCase()}${months[now.getMonth()].slice(1)} ${now.getFullYear()}`;
-  const year2digits = String(now.getFullYear()).slice(-2);
-
   return (
     <header className="max-w-[1400px] mx-auto mt-[14px] px-7 pb-[22px] border-b-2 border-gz-ink">
-      <div className="flex justify-between items-baseline pb-[10px] border-b border-gz-rule font-ibm-mono text-[10px] tracking-[2px] uppercase text-gz-ink-mid">
+      <div className="pb-[10px] border-b border-gz-rule font-ibm-mono text-[10px] tracking-[2px] uppercase text-gz-ink-mid">
         <span>Studio Iuris · Profesión · La Sala</span>
-        <span>{`Vol. ${volume ?? "II"} · Nº ${issue ?? year2digits} · ${autoDate}`}</span>
       </div>
       <div className="pt-[14px] flex justify-between items-end gap-6 flex-wrap">
         <div>
