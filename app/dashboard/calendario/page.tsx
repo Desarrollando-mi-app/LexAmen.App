@@ -4,6 +4,16 @@ import { prisma } from "@/lib/prisma";
 import { CalendarioClient } from "./calendario-client";
 import Image from "next/image";
 
+// Forzar render dinámico para evitar cualquier caché de Vercel/Next.
+// El calendario depende del usuario autenticado y de su actividad reciente.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+// Marcador visible de versión — sirve para diagnosticar qué build está
+// siendo servido por el CDN. Cambiarlo cada vez que se haga un cambio
+// visual significativo en esta página.
+const BUILD_TAG = "v4.6 · masthead+motion";
+
 export default async function CalendarioPage() {
   const supabase = await createClient();
   const {
@@ -154,6 +164,9 @@ export default async function CalendarioPage() {
           </p>
           <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-ink-light hidden sm:block">
             {diaSemana}, {now.getDate()} · Chile
+            <span className="ml-3 px-1.5 py-0.5 rounded-sm bg-gz-gold/15 text-gz-gold text-[8px] tracking-[1.5px]">
+              {BUILD_TAG}
+            </span>
           </p>
         </div>
 
