@@ -19,7 +19,7 @@ const TITLES: Record<string, string> = {
   "/dashboard/sala/pasantias": "Pasantías",
   "/dashboard/sala/ofertas": "Ofertas Laborales",
   "/dashboard/sala/networking": "Networking",
-  "/dashboard/sala/eventos": "Eventos",
+  "/dashboard/academia/eventos": "Eventos",
   "/dashboard/calendario": "Calendario",
   "/dashboard/simulacro": "Simulacro",
   "/dashboard/diario": "Publicaciones",

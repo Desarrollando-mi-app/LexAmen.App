@@ -815,7 +815,7 @@ export function PortadaClient({ data }: { data: PortadaData }) {
             )}
 
             <Link
-              href={isLoggedIn ? "/dashboard/sala/eventos" : "/login"}
+              href={isLoggedIn ? "/dashboard/academia/eventos" : "/login"}
               className="mt-4 inline-block font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-navy transition-colors"
             >
               Ver todos los eventos →

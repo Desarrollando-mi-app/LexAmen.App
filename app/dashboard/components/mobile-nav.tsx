@@ -87,7 +87,7 @@ const NAV_ITEMS: MobileNavItem[] = [
       { href: "/dashboard/diario/expediente", label: "Expediente Abierto" },
       { href: "/dashboard/diario/peer-review", label: "Peer Review" },
       { href: "/dashboard/diario/ranking", label: "Ranking de Autores" },
-      { href: "/dashboard/sala/eventos", label: "Eventos" },
+      { href: "/dashboard/academia/eventos", label: "Eventos" },
     ],
   },
   {
@@ -115,7 +115,7 @@ const STUDY_ROUTES = [
 ];
 const COMPETE_ROUTES = ["/dashboard/la-toga", "/dashboard/vida-del-derecho", "/dashboard/liga", "/dashboard/ranking", "/dashboard/ranking-causas", "/dashboard/causas"];
 const PROFESION_ROUTES = ["/dashboard/sala/ayudantias", "/dashboard/sala/pasantias", "/dashboard/sala/ofertas", "/dashboard/sala/networking"];
-const ACADEMIA_ROUTES = ["/dashboard/diario/debates", "/dashboard/diario/expediente", "/dashboard/diario/peer-review", "/dashboard/diario/ranking", "/dashboard/sala/eventos"];
+const ACADEMIA_ROUTES = ["/dashboard/diario/debates", "/dashboard/diario/expediente", "/dashboard/diario/peer-review", "/dashboard/diario/ranking", "/dashboard/academia/eventos"];
 const PUBLICACIONES_ROUTES = ["/dashboard/diario/analisis", "/dashboard/diario/ensayos", "/dashboard/diario/revista", "/dashboard/diario/columnas", "/dashboard/diario/obiter", "/dashboard/diario/colaboracion"];
 
 function isItemActive(item: MobileNavItem, pathname: string): boolean {

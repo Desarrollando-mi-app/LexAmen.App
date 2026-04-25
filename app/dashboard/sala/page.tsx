@@ -40,16 +40,16 @@ export default async function SalaPage() {
       href: "/dashboard/sala/pasantias",
     },
     {
-      emoji: "\uD83D\uDCC5",
-      nombre: "Eventos",
-      desc: "Seminarios y actividades acad\u00E9micas",
-      href: "/dashboard/sala/eventos",
-    },
-    {
       emoji: "\uD83C\uDFE2",
       nombre: "Ofertas",
       desc: "Bolsa de trabajo jur\u00EDdica",
       href: "/dashboard/sala/ofertas",
+    },
+    {
+      emoji: "\uD83E\uDD1D",
+      nombre: "Networking",
+      desc: "Construye tu red profesional",
+      href: "/dashboard/sala/networking",
     },
   ];
 

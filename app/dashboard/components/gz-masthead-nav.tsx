@@ -77,7 +77,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/dashboard/diario/expediente", label: "Expediente Abierto", icon: "folder-open" },
       { href: "/dashboard/diario/peer-review", label: "Peer Review", icon: "magnifier" },
       { href: "/dashboard/diario/ranking", label: "Ranking de Autores", icon: "chart-bar" },
-      { href: "/dashboard/sala/eventos", label: "Eventos", icon: "calendar" },
+      { href: "/dashboard/academia/eventos", label: "Eventos", icon: "calendar" },
     ],
   },
   {
@@ -137,7 +137,7 @@ const ACADEMIA_ROUTES = [
   "/dashboard/diario/expediente",
   "/dashboard/diario/peer-review",
   "/dashboard/diario/ranking",
-  "/dashboard/sala/eventos",
+  "/dashboard/academia/eventos",
 ];
 
 // Publicaciones: obiter (feed), análisis, ensayos, revista, columnas, obiter/[id]
