@@ -10,8 +10,9 @@ export const metadata = {
 
 /**
  * Listado público V4 editorial de ofertas laborales.
- * Solo lectura. La gestión (crear/editar/eliminar mis propias ofertas)
- * vive en /ofertas/gestion.
+ * Solo lectura. La gestión (editar/eliminar mis propias ofertas) vive
+ * en /mis-publicaciones; la creación se hace inline desde esta misma
+ * vista vía PublishSheet.
  */
 export default async function OfertasPage() {
   const supabase = await createClient();

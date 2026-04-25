@@ -20,43 +20,91 @@ import {
   FormError,
 } from "@/components/sala/publish-sheet";
 
+export interface PasantiaFormInitialValues {
+  type?: "ofrezco" | "busco";
+  empresa?: string;
+  titulo?: string;
+  descripcion?: string;
+  areaPractica?: string;
+  ciudad?: string;
+  formato?: string;
+  jornada?: string | null;
+  duracion?: string | null;
+  remuneracion?: string;
+  montoRemu?: string | null;
+  fechaInicio?: string | Date | null;
+  fechaLimite?: string | Date | null;
+  cupos?: number | null;
+  requisitos?: string | null;
+  postulacionTipo?: "INTERNA" | "EXTERNA" | null;
+  postulacionUrl?: string | null;
+  contactoEmail?: string | null;
+  contactoWhatsapp?: string | null;
+}
+
 interface PasantiaFormProps {
   onCancel: () => void;
   onSuccess: () => void;
+  /** Si está presente, el form opera en modo edición (PATCH al endpoint). */
+  editingId?: string;
+  initialValues?: PasantiaFormInitialValues;
+}
+
+/** Convierte un valor ISO/Date a "YYYY-MM-DD" para <input type="date">. */
+function toDateInput(value: string | Date | null | undefined): string {
+  if (!value) return "";
+  const d = typeof value === "string" ? new Date(value) : value;
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
 }
 
 /**
- * Form V4 editorial para crear una publicación de pasantía. POST
- * /api/sala/pasantias. Soporta los dos tipos: "ofrezco" (un estudio
- * publica una vacante) y "busco" (un estudiante publica que busca
- * pasantía).
+ * Form V4 editorial para crear o editar una pasantía. Modo create:
+ * POST /api/sala/pasantias. Modo edit: PATCH /api/sala/pasantias/[id].
+ * Soporta los dos tipos: "ofrezco" y "busco". En modo edición el tipo
+ * es invariante (no se puede cambiar).
  */
-export function PasantiaForm({ onCancel, onSuccess }: PasantiaFormProps) {
+export function PasantiaForm({
+  onCancel,
+  onSuccess,
+  editingId,
+  initialValues,
+}: PasantiaFormProps) {
   const router = useRouter();
+  const isEdit = Boolean(editingId);
+  const init = initialValues ?? {};
 
-  const [type, setType] = useState<"ofrezco" | "busco">("ofrezco");
-  const [empresa, setEmpresa] = useState("");
-  const [titulo, setTitulo] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [areaPractica, setAreaPractica] = useState("");
-  const [ciudad, setCiudad] = useState("");
-  const [formato, setFormato] = useState("");
-  const [jornada, setJornada] = useState("");
-  const [duracion, setDuracion] = useState("");
-  const [remuneracion, setRemuneracion] = useState("a_convenir");
-  const [montoRemu, setMontoRemu] = useState("");
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [fechaLimite, setFechaLimite] = useState("");
-  const [cupos, setCupos] = useState("");
-  const [requisitos, setRequisitos] = useState("");
+  const [type, setType] = useState<"ofrezco" | "busco">(init.type ?? "ofrezco");
+  const [empresa, setEmpresa] = useState(init.empresa ?? "");
+  const [titulo, setTitulo] = useState(init.titulo ?? "");
+  const [descripcion, setDescripcion] = useState(init.descripcion ?? "");
+  const [areaPractica, setAreaPractica] = useState(init.areaPractica ?? "");
+  const [ciudad, setCiudad] = useState(init.ciudad ?? "");
+  const [formato, setFormato] = useState(init.formato ?? "");
+  const [jornada, setJornada] = useState(init.jornada ?? "");
+  const [duracion, setDuracion] = useState(init.duracion ?? "");
+  const [remuneracion, setRemuneracion] = useState(
+    init.remuneracion ?? "a_convenir",
+  );
+  const [montoRemu, setMontoRemu] = useState(init.montoRemu ?? "");
+  const [fechaInicio, setFechaInicio] = useState(toDateInput(init.fechaInicio));
+  const [fechaLimite, setFechaLimite] = useState(toDateInput(init.fechaLimite));
+  const [cupos, setCupos] = useState(
+    init.cupos != null ? String(init.cupos) : "",
+  );
+  const [requisitos, setRequisitos] = useState(init.requisitos ?? "");
 
   // Solo para "ofrezco":
   const [postulacionTipo, setPostulacionTipo] = useState<"INTERNA" | "EXTERNA">(
-    "INTERNA",
+    init.postulacionTipo ?? "INTERNA",
   );
-  const [postulacionUrl, setPostulacionUrl] = useState("");
-  const [contactoEmail, setContactoEmail] = useState("");
-  const [contactoWhatsapp, setContactoWhatsapp] = useState("");
+  const [postulacionUrl, setPostulacionUrl] = useState(
+    init.postulacionUrl ?? "",
+  );
+  const [contactoEmail, setContactoEmail] = useState(init.contactoEmail ?? "");
+  const [contactoWhatsapp, setContactoWhatsapp] = useState(
+    init.contactoWhatsapp ?? "",
+  );
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,45 +131,63 @@ export function PasantiaForm({ onCancel, onSuccess }: PasantiaFormProps) {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/sala/pasantias", {
-        method: "POST",
+      const url = isEdit
+        ? `/api/sala/pasantias/${editingId}`
+        : "/api/sala/pasantias";
+      // En modo edición no enviamos `type` (es invariante) y serializamos
+      // las fechas como ISO para que el endpoint las parsee.
+      const payload: Record<string, unknown> = {
+        empresa: isOfrezco ? empresa.trim() : "—",
+        titulo: titulo.trim(),
+        descripcion: descripcion.trim(),
+        areaPractica,
+        ciudad: ciudad.trim(),
+        formato,
+        jornada: jornada || null,
+        duracion: duracion.trim() || undefined,
+        remuneracion,
+        montoRemu: montoRemu.trim() || undefined,
+        requisitos: requisitos.trim() || undefined,
+        fechaInicio: fechaInicio || undefined,
+        fechaLimite: fechaLimite || undefined,
+        cupos: cupos ? Number(cupos) : null,
+        ...(isOfrezco
+          ? {
+              postulacionTipo,
+              postulacionUrl:
+                postulacionTipo === "EXTERNA"
+                  ? postulacionUrl.trim()
+                  : null,
+              contactoEmail: contactoEmail.trim() || null,
+              contactoWhatsapp: contactoWhatsapp.trim() || null,
+            }
+          : {}),
+      };
+      if (!isEdit) payload.type = type;
+
+      const res = await fetch(url, {
+        method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type,
-          empresa: isOfrezco ? empresa.trim() : "—",
-          titulo: titulo.trim(),
-          descripcion: descripcion.trim(),
-          areaPractica,
-          ciudad: ciudad.trim(),
-          formato,
-          jornada: jornada || null,
-          duracion: duracion.trim() || undefined,
-          remuneracion,
-          montoRemu: montoRemu.trim() || undefined,
-          requisitos: requisitos.trim() || undefined,
-          fechaInicio: fechaInicio || undefined,
-          fechaLimite: fechaLimite || undefined,
-          cupos: cupos ? Number(cupos) : null,
-          ...(isOfrezco
-            ? {
-                postulacionTipo,
-                postulacionUrl:
-                  postulacionTipo === "EXTERNA"
-                    ? postulacionUrl.trim()
-                    : null,
-                contactoEmail: contactoEmail.trim() || null,
-                contactoWhatsapp: contactoWhatsapp.trim() || null,
-              }
-            : {}),
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "No pudimos publicar la pasantía.");
+        setError(
+          data.error ??
+            (isEdit
+              ? "No pudimos actualizar la pasantía."
+              : "No pudimos publicar la pasantía."),
+        );
         return;
       }
       toast.success(
-        isOfrezco ? "Pasantía publicada" : "Búsqueda publicada",
+        isEdit
+          ? isOfrezco
+            ? "Pasantía actualizada"
+            : "Búsqueda actualizada"
+          : isOfrezco
+            ? "Pasantía publicada"
+            : "Búsqueda publicada",
       );
       router.refresh();
       onSuccess();
@@ -136,23 +202,25 @@ export function PasantiaForm({ onCancel, onSuccess }: PasantiaFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col">
       <FormError message={error} />
 
-      {/* Tipo */}
-      <FormSection title="Tipo de publicación">
-        <div className="grid grid-cols-2 gap-0 border border-gz-rule rounded-[3px] overflow-hidden">
-          <TypeOption
-            active={type === "ofrezco"}
-            onClick={() => setType("ofrezco")}
-            label="Ofrezco"
-            hint="Tengo una vacante de pasantía."
-          />
-          <TypeOption
-            active={type === "busco"}
-            onClick={() => setType("busco")}
-            label="Busco"
-            hint="Soy estudiante y busco pasantía."
-          />
-        </div>
-      </FormSection>
+      {/* Tipo — invariante en modo edición */}
+      {!isEdit && (
+        <FormSection title="Tipo de publicación">
+          <div className="grid grid-cols-2 gap-0 border border-gz-rule rounded-[3px] overflow-hidden">
+            <TypeOption
+              active={type === "ofrezco"}
+              onClick={() => setType("ofrezco")}
+              label="Ofrezco"
+              hint="Tengo una vacante de pasantía."
+            />
+            <TypeOption
+              active={type === "busco"}
+              onClick={() => setType("busco")}
+              label="Busco"
+              hint="Soy estudiante y busco pasantía."
+            />
+          </div>
+        </FormSection>
+      )}
 
       <FormSection title="Encabezado">
         {isOfrezco && (
@@ -379,7 +447,13 @@ export function PasantiaForm({ onCancel, onSuccess }: PasantiaFormProps) {
 
       <Footer
         onCancel={onCancel}
-        submitLabel={isOfrezco ? "Publicar pasantía" : "Publicar búsqueda"}
+        submitLabel={
+          isEdit
+            ? "Guardar cambios"
+            : isOfrezco
+              ? "Publicar pasantía"
+              : "Publicar búsqueda"
+        }
         submitting={submitting}
         canSubmit={Boolean(canSubmit)}
       />

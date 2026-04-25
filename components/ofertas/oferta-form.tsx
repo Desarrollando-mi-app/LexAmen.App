@@ -28,29 +28,59 @@ const METODOS_POSTULACION = [
   { value: "whatsapp", label: "WhatsApp" },
 ] as const;
 
+export interface OfertaFormInitialValues {
+  empresa?: string;
+  cargo?: string;
+  areaPractica?: string;
+  ciudad?: string;
+  formato?: string;
+  tipoContrato?: string;
+  experienciaReq?: string | null;
+  remuneracion?: string | null;
+  descripcion?: string;
+  requisitos?: string | null;
+  metodoPostulacion?: string;
+  contactoPostulacion?: string | null;
+}
+
 interface OfertaFormProps {
   onCancel: () => void;
   onSuccess: () => void;
+  /** Si está presente, el form opera en modo edición (PATCH al endpoint). */
+  editingId?: string;
+  initialValues?: OfertaFormInitialValues;
 }
 
 /**
- * Form V4 editorial para crear una oferta laboral. POST /api/sala/ofertas.
- * Reutiliza las piezas de PublishSheet para mantener consistencia visual.
+ * Form V4 editorial para crear o editar una oferta laboral.
+ * Modo create: POST /api/sala/ofertas. Modo edit: PATCH /api/sala/ofertas/[id].
  */
-export function OfertaForm({ onCancel, onSuccess }: OfertaFormProps) {
+export function OfertaForm({
+  onCancel,
+  onSuccess,
+  editingId,
+  initialValues,
+}: OfertaFormProps) {
   const router = useRouter();
-  const [empresa, setEmpresa] = useState("");
-  const [cargo, setCargo] = useState("");
-  const [areaPractica, setAreaPractica] = useState("");
-  const [ciudad, setCiudad] = useState("");
-  const [formato, setFormato] = useState("");
-  const [tipoContrato, setTipoContrato] = useState("");
-  const [experienciaReq, setExperienciaReq] = useState("");
-  const [remuneracion, setRemuneracion] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [requisitos, setRequisitos] = useState("");
-  const [metodoPostulacion, setMetodoPostulacion] = useState("interno");
-  const [contactoPostulacion, setContactoPostulacion] = useState("");
+  const isEdit = Boolean(editingId);
+  const init = initialValues ?? {};
+
+  const [empresa, setEmpresa] = useState(init.empresa ?? "");
+  const [cargo, setCargo] = useState(init.cargo ?? "");
+  const [areaPractica, setAreaPractica] = useState(init.areaPractica ?? "");
+  const [ciudad, setCiudad] = useState(init.ciudad ?? "");
+  const [formato, setFormato] = useState(init.formato ?? "");
+  const [tipoContrato, setTipoContrato] = useState(init.tipoContrato ?? "");
+  const [experienciaReq, setExperienciaReq] = useState(init.experienciaReq ?? "");
+  const [remuneracion, setRemuneracion] = useState(init.remuneracion ?? "");
+  const [descripcion, setDescripcion] = useState(init.descripcion ?? "");
+  const [requisitos, setRequisitos] = useState(init.requisitos ?? "");
+  const [metodoPostulacion, setMetodoPostulacion] = useState(
+    init.metodoPostulacion ?? "interno",
+  );
+  const [contactoPostulacion, setContactoPostulacion] = useState(
+    init.contactoPostulacion ?? "",
+  );
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,8 +104,11 @@ export function OfertaForm({ onCancel, onSuccess }: OfertaFormProps) {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/sala/ofertas", {
-        method: "POST",
+      const url = isEdit
+        ? `/api/sala/ofertas/${editingId}`
+        : "/api/sala/ofertas";
+      const res = await fetch(url, {
+        method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           empresa: empresa.trim(),
@@ -94,10 +127,15 @@ export function OfertaForm({ onCancel, onSuccess }: OfertaFormProps) {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "No pudimos publicar la oferta.");
+        setError(
+          data.error ??
+            (isEdit
+              ? "No pudimos actualizar la oferta."
+              : "No pudimos publicar la oferta."),
+        );
         return;
       }
-      toast.success("Oferta publicada");
+      toast.success(isEdit ? "Oferta actualizada" : "Oferta publicada");
       router.refresh();
       onSuccess();
     } catch {
@@ -272,7 +310,7 @@ export function OfertaForm({ onCancel, onSuccess }: OfertaFormProps) {
 
       <Footer
         onCancel={onCancel}
-        submitLabel="Publicar oferta"
+        submitLabel={isEdit ? "Guardar cambios" : "Publicar oferta"}
         submitting={submitting}
         canSubmit={Boolean(canSubmit)}
       />

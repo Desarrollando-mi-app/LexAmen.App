@@ -2,12 +2,17 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
   KIND_LABELS,
   type Publication,
   type PublicationKind,
 } from "@/lib/mis-publicaciones-helpers";
 import { PublicacionRow } from "@/components/sala/publicacion-row";
+import { PublishSheet } from "@/components/sala/publish-sheet";
+import { OfertaForm } from "@/components/ofertas/oferta-form";
+import { PasantiaForm } from "@/components/pasantias/pasantia-form";
+import { AyudantiaForm } from "@/components/ayudantias/ayudantia-form";
 
 type FilterKind = "TODAS" | PublicationKind;
 type FilterEstado = "ACTIVAS" | "OCULTAS" | "TODAS";
@@ -25,6 +30,43 @@ export function MisPublicacionesClient({
   const [filterEstado, setFilterEstado] = useState<FilterEstado>("ACTIVAS");
   const [query, setQuery] = useState("");
   const [removed, setRemoved] = useState<Set<string>>(new Set());
+
+  // Editor inline V4: cargamos el registro completo on-demand desde el GET
+  // del endpoint correspondiente y lo pasamos como `initialValues` al form.
+  const [editing, setEditing] = useState<Publication | null>(null);
+  const [editingData, setEditingData] = useState<Record<string, unknown> | null>(
+    null,
+  );
+  const [loadingEdit, setLoadingEdit] = useState(false);
+
+  async function openEditor(pub: Publication) {
+    setEditing(pub);
+    setEditingData(null);
+    setLoadingEdit(true);
+    try {
+      const res = await fetch(pub.apiHref, { cache: "no-store" });
+      if (!res.ok) {
+        toast.error("No pudimos cargar la publicación.");
+        setEditing(null);
+        return;
+      }
+      const data = await res.json();
+      // Ayudantia GET devuelve { ayudantia, stats } — el resto devuelve el
+      // recurso al ras.
+      const record = pub.kind === "ayudantia" ? data.ayudantia : data;
+      setEditingData(record);
+    } catch {
+      toast.error("Error de red al cargar la publicación.");
+      setEditing(null);
+    } finally {
+      setLoadingEdit(false);
+    }
+  }
+
+  function closeEditor() {
+    setEditing(null);
+    setEditingData(null);
+  }
 
   const counts = useMemo(() => {
     return {
@@ -195,13 +237,141 @@ export function MisPublicacionesClient({
                 onDeleted={(id) => {
                   setRemoved((prev) => new Set(prev).add(id));
                 }}
+                onEdit={openEditor}
               />
             ))}
           </div>
         )}
       </main>
+
+      {/* Editor inline V4 — un PublishSheet con el form correspondiente
+          según el kind de la publicación. */}
+      <PublishSheet
+        open={Boolean(editing)}
+        onClose={closeEditor}
+        eyebrow={editing ? sheetEyebrow(editing.kind) : "La Sala"}
+        title={editing ? sheetTitle(editing) : "Editar publicación"}
+        subtitle="Edita los detalles y guarda los cambios."
+      >
+        {loadingEdit || !editingData ? (
+          <div className="px-6 py-12 text-center font-cormorant italic text-[18px] text-gz-ink-mid">
+            Cargando…
+          </div>
+        ) : editing?.kind === "oferta" ? (
+          <OfertaForm
+            editingId={editing.id}
+            initialValues={mapOfertaInitial(editingData)}
+            onCancel={closeEditor}
+            onSuccess={closeEditor}
+          />
+        ) : editing?.kind === "pasantia" ? (
+          <PasantiaForm
+            editingId={editing.id}
+            initialValues={mapPasantiaInitial(editingData)}
+            onCancel={closeEditor}
+            onSuccess={closeEditor}
+          />
+        ) : editing?.kind === "ayudantia" ? (
+          <AyudantiaForm
+            editingId={editing.id}
+            initialValues={mapAyudantiaInitial(editingData)}
+            onCancel={closeEditor}
+            onSuccess={closeEditor}
+          />
+        ) : null}
+      </PublishSheet>
     </div>
   );
+}
+
+// ─── Helpers de mapeo ─────────────────────────────────────────────────────
+
+function sheetEyebrow(kind: PublicationKind): string {
+  if (kind === "oferta") return "La Sala · Ofertas laborales";
+  if (kind === "pasantia") return "La Sala · Pasantías";
+  return "La Sala · Ayudantías";
+}
+
+function sheetTitle(pub: Publication): string {
+  if (pub.kind === "oferta") return "Editar oferta";
+  if (pub.kind === "pasantia") return "Editar pasantía";
+  return "Editar ayudantía";
+}
+
+type AnyRecord = Record<string, unknown>;
+
+function pickString(v: unknown): string | undefined {
+  return typeof v === "string" ? v : undefined;
+}
+function pickNumber(v: unknown): number | undefined {
+  return typeof v === "number" ? v : undefined;
+}
+
+function mapOfertaInitial(r: AnyRecord) {
+  return {
+    empresa: pickString(r.empresa),
+    cargo: pickString(r.cargo),
+    areaPractica: pickString(r.areaPractica),
+    ciudad: pickString(r.ciudad),
+    formato: pickString(r.formato),
+    tipoContrato: pickString(r.tipoContrato),
+    experienciaReq: pickString(r.experienciaReq) ?? null,
+    remuneracion: pickString(r.remuneracion) ?? null,
+    descripcion: pickString(r.descripcion),
+    requisitos: pickString(r.requisitos) ?? null,
+    metodoPostulacion: pickString(r.metodoPostulacion),
+    contactoPostulacion: pickString(r.contactoPostulacion) ?? null,
+  };
+}
+
+function mapPasantiaInitial(r: AnyRecord) {
+  const type = r.type === "busco" ? "busco" : "ofrezco";
+  const postulacionTipo =
+    r.postulacionTipo === "EXTERNA" ? "EXTERNA" : "INTERNA";
+  return {
+    type,
+    empresa: pickString(r.empresa),
+    titulo: pickString(r.titulo),
+    descripcion: pickString(r.descripcion),
+    areaPractica: pickString(r.areaPractica),
+    ciudad: pickString(r.ciudad),
+    formato: pickString(r.formato),
+    jornada: pickString(r.jornada) ?? null,
+    duracion: pickString(r.duracion) ?? null,
+    remuneracion: pickString(r.remuneracion),
+    montoRemu: pickString(r.montoRemu) ?? null,
+    fechaInicio: pickString(r.fechaInicio) ?? null,
+    fechaLimite: pickString(r.fechaLimite) ?? null,
+    cupos: pickNumber(r.cupos) ?? null,
+    requisitos: pickString(r.requisitos) ?? null,
+    postulacionTipo,
+    postulacionUrl: pickString(r.postulacionUrl) ?? null,
+    contactoEmail: pickString(r.contactoEmail) ?? null,
+    contactoWhatsapp: pickString(r.contactoWhatsapp) ?? null,
+  } as const;
+}
+
+function mapAyudantiaInitial(r: AnyRecord) {
+  const type = r.type === "BUSCO" ? "BUSCO" : "OFREZCO";
+  const orientadaA = Array.isArray(r.orientadaA)
+    ? (r.orientadaA as unknown[]).filter(
+        (x): x is string => typeof x === "string",
+      )
+    : [];
+  return {
+    type,
+    titulo: pickString(r.titulo) ?? null,
+    materia: pickString(r.materia),
+    universidad: pickString(r.universidad),
+    format: pickString(r.format),
+    priceType: pickString(r.priceType),
+    priceAmount: pickNumber(r.priceAmount) ?? null,
+    description: pickString(r.description),
+    disponibilidad: pickString(r.disponibilidad) ?? null,
+    contactMethod: pickString(r.contactMethod),
+    contactValue: pickString(r.contactValue),
+    orientadaA,
+  } as const;
 }
 
 function KindTab({

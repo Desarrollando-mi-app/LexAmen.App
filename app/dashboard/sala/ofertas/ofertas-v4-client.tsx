@@ -15,8 +15,8 @@ import { OfertaForm } from "@/components/ofertas/oferta-form";
 /**
  * Cliente V4 editorial para Ofertas laborales.
  * Hospeda estado de filtros + grilla compartida con bordes (mismo lenguaje
- * que PasantiasV4Client). Sólo lectura: la creación/CRUD de mis ofertas
- * vive en /ofertas/gestion.
+ * que PasantiasV4Client). Sólo lectura: la edición y eliminación de
+ * publicaciones propias vive en /mis-publicaciones (editor inline V4).
  */
 export function OfertasV4Client({
   ofertas,

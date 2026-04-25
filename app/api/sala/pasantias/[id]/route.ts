@@ -11,7 +11,7 @@ export async function GET(
   const { id } = await params;
 
   const pasantia = await prisma.pasantia.findUnique({
-    where: { id, isActive: true, isHidden: false },
+    where: { id },
     include: {
       user: {
         select: {
@@ -27,6 +27,17 @@ export async function GET(
 
   if (!pasantia) {
     return NextResponse.json({ error: "Pasantía no encontrada" }, { status: 404 });
+  }
+
+  // Solo el dueño puede ver registros ocultos/inactivos
+  if (!pasantia.isActive || pasantia.isHidden) {
+    const supabase = await createClient();
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+    if (!authUser || authUser.id !== pasantia.userId) {
+      return NextResponse.json({ error: "Pasantía no encontrada" }, { status: 404 });
+    }
   }
 
   return NextResponse.json(pasantia);

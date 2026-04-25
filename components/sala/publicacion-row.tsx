@@ -16,15 +16,18 @@ interface PublicacionRowProps {
   pub: Publication;
   /** Callback opcional para que el padre quite la fila al eliminar. */
   onDeleted?: (id: string) => void;
+  /** Si está presente, "Editar" abre el editor inline en el padre en lugar
+   * de navegar al fallback `editHref`. */
+  onEdit?: (pub: Publication) => void;
 }
 
 /**
  * Fila editorial V4 para una publicación (ayudantía / pasantía / oferta).
  * Diseño minimal, sin cover; el "tipo" se denota con un glifo en cormorant
  * grande a la izquierda. Acciones inline a la derecha: Ver, Ocultar/Mostrar,
- * Editar (legacy), Eliminar (con confirm).
+ * Editar (inline), Eliminar (con confirm).
  */
-export function PublicacionRow({ pub, onDeleted }: PublicacionRowProps) {
+export function PublicacionRow({ pub, onDeleted, onEdit }: PublicacionRowProps) {
   const router = useRouter();
   const [isActive, setIsActive] = useState(pub.isActive);
   const [busy, setBusy] = useState<"toggle" | "delete" | null>(null);
@@ -172,12 +175,22 @@ export function PublicacionRow({ pub, onDeleted }: PublicacionRowProps) {
         >
           {busy === "toggle" ? "…" : isActive ? "Ocultar" : "Mostrar"}
         </button>
-        <Link
-          href={pub.editHref}
-          className="font-ibm-mono text-[10px] tracking-[1.4px] uppercase text-gz-ink-mid hover:text-gz-ink transition-colors"
-        >
-          Editar
-        </Link>
+        {onEdit ? (
+          <button
+            type="button"
+            onClick={() => onEdit(pub)}
+            className="font-ibm-mono text-[10px] tracking-[1.4px] uppercase text-gz-ink-mid hover:text-gz-ink transition-colors cursor-pointer"
+          >
+            Editar
+          </button>
+        ) : (
+          <Link
+            href={pub.editHref}
+            className="font-ibm-mono text-[10px] tracking-[1.4px] uppercase text-gz-ink-mid hover:text-gz-ink transition-colors"
+          >
+            Editar
+          </Link>
+        )}
         {confirming ? (
           <span className="inline-flex items-center gap-2">
             <button

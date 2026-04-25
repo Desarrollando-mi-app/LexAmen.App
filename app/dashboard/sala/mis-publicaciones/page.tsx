@@ -159,7 +159,7 @@ export default async function MisPublicacionesPage({
       createdAt: o.createdAt.toISOString(),
       updatedAt: o.updatedAt.toISOString(),
       detailHref: `/dashboard/sala/ofertas/${o.id}`,
-      editHref: `/dashboard/sala/ofertas/gestion?edit=${o.id}`,
+      editHref: `/dashboard/sala/mis-publicaciones?kind=oferta`,
       apiHref: `/api/sala/ofertas/${o.id}`,
     })),
   ].sort(

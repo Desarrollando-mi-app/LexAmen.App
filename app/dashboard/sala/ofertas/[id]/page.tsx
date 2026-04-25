@@ -148,7 +148,7 @@ export default async function OfertaDetalle({
                 </>
               ) : (
                 <Link
-                  href={`/dashboard/sala/ofertas/gestion`}
+                  href={`/dashboard/sala/mis-publicaciones?kind=oferta`}
                   className="px-5 py-3 bg-gz-ink text-gz-cream font-ibm-mono text-[11px] tracking-[1.8px] uppercase hover:bg-gz-gold hover:text-gz-ink transition"
                 >
                   Editar publicación

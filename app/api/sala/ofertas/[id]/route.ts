@@ -10,8 +10,8 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const oferta = await prisma.ofertaTrabajo.findFirst({
-    where: { id, isActive: true, isHidden: false },
+  const oferta = await prisma.ofertaTrabajo.findUnique({
+    where: { id },
     include: {
       user: {
         select: {
@@ -27,6 +27,17 @@ export async function GET(
 
   if (!oferta) {
     return NextResponse.json({ error: "No encontrada" }, { status: 404 });
+  }
+
+  // Solo el dueño puede ver registros ocultos/inactivos
+  if (!oferta.isActive || oferta.isHidden) {
+    const supabase = await createClient();
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+    if (!authUser || authUser.id !== oferta.userId) {
+      return NextResponse.json({ error: "No encontrada" }, { status: 404 });
+    }
   }
 
   return NextResponse.json(oferta);

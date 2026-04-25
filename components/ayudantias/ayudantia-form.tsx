@@ -43,31 +43,65 @@ const ORIENTADAS_A = [
   "Egreso / examen de grado",
 ];
 
+export interface AyudantiaFormInitialValues {
+  type?: "OFREZCO" | "BUSCO";
+  titulo?: string | null;
+  materia?: string;
+  universidad?: string;
+  format?: string;
+  priceType?: string;
+  priceAmount?: number | null;
+  description?: string;
+  disponibilidad?: string | null;
+  contactMethod?: string;
+  contactValue?: string;
+  orientadaA?: string[] | null;
+}
+
 interface AyudantiaFormProps {
   onCancel: () => void;
   onSuccess: () => void;
+  /** Si está presente, el form opera en modo edición (PATCH al endpoint). */
+  editingId?: string;
+  initialValues?: AyudantiaFormInitialValues;
 }
 
 /**
- * Form V4 editorial para crear una publicación de ayudantía.
- * POST /api/sala/ayudantias. Soporta los dos tipos: OFREZCO (tutor)
- * y BUSCO (estudiante busca tutor).
+ * Form V4 editorial para crear o editar una ayudantía. Modo create:
+ * POST /api/sala/ayudantias. Modo edit: PATCH /api/sala/ayudantias/[id].
+ * Soporta los dos tipos: OFREZCO (tutor) y BUSCO (estudiante busca tutor).
+ * En modo edición el tipo es invariante.
  */
-export function AyudantiaForm({ onCancel, onSuccess }: AyudantiaFormProps) {
+export function AyudantiaForm({
+  onCancel,
+  onSuccess,
+  editingId,
+  initialValues,
+}: AyudantiaFormProps) {
   const router = useRouter();
+  const isEdit = Boolean(editingId);
+  const init = initialValues ?? {};
 
-  const [type, setType] = useState<"OFREZCO" | "BUSCO">("OFREZCO");
-  const [titulo, setTitulo] = useState("");
-  const [materia, setMateria] = useState("");
-  const [universidad, setUniversidad] = useState("");
-  const [format, setFormat] = useState("");
-  const [priceType, setPriceType] = useState("GRATUITO");
-  const [priceAmount, setPriceAmount] = useState("");
-  const [description, setDescription] = useState("");
-  const [disponibilidad, setDisponibilidad] = useState("");
-  const [contactMethod, setContactMethod] = useState("WHATSAPP");
-  const [contactValue, setContactValue] = useState("");
-  const [orientadaA, setOrientadaA] = useState<string[]>([]);
+  const [type, setType] = useState<"OFREZCO" | "BUSCO">(init.type ?? "OFREZCO");
+  const [titulo, setTitulo] = useState(init.titulo ?? "");
+  const [materia, setMateria] = useState(init.materia ?? "");
+  const [universidad, setUniversidad] = useState(init.universidad ?? "");
+  const [format, setFormat] = useState(init.format ?? "");
+  const [priceType, setPriceType] = useState(init.priceType ?? "GRATUITO");
+  const [priceAmount, setPriceAmount] = useState(
+    init.priceAmount != null ? String(init.priceAmount) : "",
+  );
+  const [description, setDescription] = useState(init.description ?? "");
+  const [disponibilidad, setDisponibilidad] = useState(
+    init.disponibilidad ?? "",
+  );
+  const [contactMethod, setContactMethod] = useState(
+    init.contactMethod ?? "WHATSAPP",
+  );
+  const [contactValue, setContactValue] = useState(init.contactValue ?? "");
+  const [orientadaA, setOrientadaA] = useState<string[]>(
+    init.orientadaA ?? [],
+  );
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,32 +141,49 @@ export function AyudantiaForm({ onCancel, onSuccess }: AyudantiaFormProps) {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/sala/ayudantias", {
-        method: "POST",
+      const url = isEdit
+        ? `/api/sala/ayudantias/${editingId}`
+        : "/api/sala/ayudantias";
+      const payload: Record<string, unknown> = {
+        materia,
+        universidad,
+        format,
+        priceType,
+        priceAmount:
+          priceType === "PAGADO" ? Number(priceAmount) || 0 : undefined,
+        description: description.trim(),
+        orientadaA,
+        contactMethod,
+        contactValue: contactValue.trim(),
+        titulo: titulo.trim() || undefined,
+        disponibilidad: disponibilidad.trim() || undefined,
+      };
+      // En modo edición no enviamos `type` (es invariante).
+      if (!isEdit) payload.type = type;
+
+      const res = await fetch(url, {
+        method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type,
-          materia,
-          universidad,
-          format,
-          priceType,
-          priceAmount:
-            priceType === "PAGADO" ? Number(priceAmount) || 0 : undefined,
-          description: description.trim(),
-          orientadaA,
-          contactMethod,
-          contactValue: contactValue.trim(),
-          titulo: titulo.trim() || undefined,
-          disponibilidad: disponibilidad.trim() || undefined,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? "No pudimos publicar la ayudantía.");
+        setError(
+          data.error ??
+            (isEdit
+              ? "No pudimos actualizar la ayudantía."
+              : "No pudimos publicar la ayudantía."),
+        );
         return;
       }
       toast.success(
-        isOfrezco ? "Ayudantía publicada" : "Búsqueda publicada",
+        isEdit
+          ? isOfrezco
+            ? "Ayudantía actualizada"
+            : "Búsqueda actualizada"
+          : isOfrezco
+            ? "Ayudantía publicada"
+            : "Búsqueda publicada",
       );
       router.refresh();
       onSuccess();
@@ -147,22 +198,24 @@ export function AyudantiaForm({ onCancel, onSuccess }: AyudantiaFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col">
       <FormError message={error} />
 
-      <FormSection title="Tipo de publicación">
-        <div className="grid grid-cols-2 gap-0 border border-gz-rule rounded-[3px] overflow-hidden">
-          <TypeOption
-            active={isOfrezco}
-            onClick={() => setType("OFREZCO")}
-            label="Ofrezco"
-            hint="Soy tutor / ayudante."
-          />
-          <TypeOption
-            active={!isOfrezco}
-            onClick={() => setType("BUSCO")}
-            label="Busco"
-            hint="Necesito un ayudante."
-          />
-        </div>
-      </FormSection>
+      {!isEdit && (
+        <FormSection title="Tipo de publicación">
+          <div className="grid grid-cols-2 gap-0 border border-gz-rule rounded-[3px] overflow-hidden">
+            <TypeOption
+              active={isOfrezco}
+              onClick={() => setType("OFREZCO")}
+              label="Ofrezco"
+              hint="Soy tutor / ayudante."
+            />
+            <TypeOption
+              active={!isOfrezco}
+              onClick={() => setType("BUSCO")}
+              label="Busco"
+              hint="Necesito un ayudante."
+            />
+          </div>
+        </FormSection>
+      )}
 
       <FormSection title="Encabezado">
         <FormField
@@ -337,7 +390,13 @@ export function AyudantiaForm({ onCancel, onSuccess }: AyudantiaFormProps) {
 
       <Footer
         onCancel={onCancel}
-        submitLabel={isOfrezco ? "Publicar ayudantía" : "Publicar búsqueda"}
+        submitLabel={
+          isEdit
+            ? "Guardar cambios"
+            : isOfrezco
+              ? "Publicar ayudantía"
+              : "Publicar búsqueda"
+        }
         submitting={submitting}
         canSubmit={Boolean(canSubmit)}
       />
