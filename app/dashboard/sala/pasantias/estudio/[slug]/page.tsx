@@ -13,6 +13,7 @@ import {
   deadlineLabel,
   isDeadlinePassed,
 } from "@/lib/pasantias-helpers";
+import { ReviewCard, ReviewSummary } from "@/components/pasantias/review-card";
 
 /**
  * Perfil público de un estudio jurídico verificado.
@@ -69,6 +70,46 @@ export default async function EstudioPage({
   const socios = estudio.members.filter(
     (m) => m.rol === "socio" || m.rol === "asociado",
   );
+
+  // Reseñas agregadas: todas las reviews públicas de pasantías del estudio.
+  const reviewsRaw = await prisma.pasantiaReview.findMany({
+    where: {
+      hiddenByAdmin: false,
+      postulacion: { pasantia: { estudioId: estudio.id } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    include: {
+      author: { select: { id: true, firstName: true, lastName: true } },
+      postulacion: {
+        select: {
+          pasantia: { select: { titulo: true, areaPractica: true } },
+        },
+      },
+    },
+  });
+
+  const reviews = reviewsRaw.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.comment,
+    authorDisplay: r.authorDisplay,
+    isAnonymous: r.isAnonymous,
+    createdAt: r.createdAt.toISOString(),
+    reported: r.reported,
+    estudioResponse: r.estudioResponse,
+    estudioRespondedAt: r.estudioRespondedAt?.toISOString() ?? null,
+    authorName: r.isAnonymous
+      ? null
+      : `${r.author.firstName} ${r.author.lastName}`.trim(),
+    isOwn: r.author.id === authUser.id,
+    contexto: `${areaLabel(r.postulacion.pasantia.areaPractica)} · ${r.postulacion.pasantia.titulo}`,
+  }));
+
+  const avgRating =
+    reviews.length > 0
+      ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
+      : null;
 
   return (
     <div className="min-h-screen bg-gz-cream text-gz-ink font-archivo">
@@ -148,6 +189,12 @@ export default async function EstudioPage({
                     {areaLabel(a)}
                   </span>
                 ))}
+              </div>
+            )}
+
+            {reviews.length > 0 && (
+              <div className="mt-5 pt-4 border-t border-gz-rule">
+                <ReviewSummary count={reviews.length} avg={avgRating} />
               </div>
             )}
           </div>
@@ -234,6 +281,35 @@ export default async function EstudioPage({
           <section className="py-10 border-b border-gz-rule text-center">
             <p className="font-cormorant italic text-[18px] text-gz-ink-mid">
               Este estudio no tiene pasantías activas en este momento.
+            </p>
+          </section>
+        )}
+
+        {/* Reseñas agregadas */}
+        {reviews.length > 0 && (
+          <section className="py-10 border-b border-gz-rule">
+            <div className="flex justify-between items-baseline mb-5 flex-wrap gap-3">
+              <h2 className="font-cormorant font-semibold text-[26px] tracking-[-0.3px] text-gz-ink m-0">
+                <span className="text-gz-gold italic font-medium mr-1.5">§</span>
+                Voces de ex-pasantes
+              </h2>
+              <ReviewSummary count={reviews.length} avg={avgRating} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {reviews.slice(0, 8).map((r) => (
+                <ReviewCard key={r.id} review={r} contexto={r.contexto} />
+              ))}
+            </div>
+            {reviews.length > 8 && (
+              <p className="mt-4 font-ibm-mono text-[10px] tracking-[1.4px] uppercase text-gz-ink-light text-center">
+                Mostrando 8 de {reviews.length} reseñas más recientes
+              </p>
+            )}
+            <p className="mt-5 font-archivo text-[11.5px] text-gz-ink-light italic leading-[1.55]">
+              Las reseñas las escriben ex-pasantes una vez completada su
+              postulación. El estudio puede responder públicamente una sola
+              vez por reseña. Studio Iuris no edita el contenido; reportar
+              envía el caso a moderación.
             </p>
           </section>
         )}

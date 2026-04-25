@@ -15,6 +15,7 @@ import {
   estudioInitial,
 } from "@/lib/pasantias-helpers";
 import { initials, formatRelative } from "@/lib/ayudantias-v4-helpers";
+import { ReviewCard, ReviewSummary } from "@/components/pasantias/review-card";
 
 /**
  * Detalle de una pasantía ofrecida (type = "ofrezco").
@@ -84,6 +85,40 @@ export default async function OfertaPasantiaPage({
         },
         select: { id: true, estado: true, createdAt: true },
       });
+
+  // Reseñas públicas de esta pasantía (excluyendo las ocultas por admin).
+  const reviewsRaw = await prisma.pasantiaReview.findMany({
+    where: {
+      hiddenByAdmin: false,
+      postulacion: { pasantiaId: pasantia.id },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 30,
+    include: {
+      author: { select: { id: true, firstName: true, lastName: true } },
+    },
+  });
+
+  const reviews = reviewsRaw.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    comment: r.comment,
+    authorDisplay: r.authorDisplay,
+    isAnonymous: r.isAnonymous,
+    createdAt: r.createdAt.toISOString(),
+    reported: r.reported,
+    estudioResponse: r.estudioResponse,
+    estudioRespondedAt: r.estudioRespondedAt?.toISOString() ?? null,
+    authorName: r.isAnonymous
+      ? null
+      : `${r.author.firstName} ${r.author.lastName}`.trim(),
+    isOwn: r.author.id === authUser.id,
+  }));
+
+  const avgRating =
+    reviews.length > 0
+      ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
+      : null;
 
   const headerNombre = pasantia.estudio?.nombre ?? pasantia.empresa;
   const headerInitial = pasantia.estudio
@@ -294,6 +329,30 @@ export default async function OfertaPasantiaPage({
             )}
           </div>
         </section>
+
+        {/* Reseñas */}
+        {reviews.length > 0 && (
+          <section className="py-10 border-b border-gz-rule">
+            <div className="flex justify-between items-baseline mb-5 flex-wrap gap-3">
+              <h2 className="font-cormorant font-semibold text-[28px] tracking-[-0.3px] text-gz-ink m-0">
+                <span className="text-gz-gold italic font-medium mr-1.5">§</span>
+                Reseñas de pasantes
+              </h2>
+              <ReviewSummary count={reviews.length} avg={avgRating} />
+            </div>
+            <div className="flex flex-col gap-3">
+              {reviews.map((r) => (
+                <ReviewCard key={r.id} review={r} />
+              ))}
+            </div>
+            <p className="mt-5 font-archivo text-[11.5px] text-gz-ink-light italic leading-[1.55]">
+              Las reseñas las escriben ex-pasantes una vez completada la
+              postulación. El estudio puede responder públicamente una sola
+              vez. Studio Iuris no edita reseñas; reportarlas envía el caso
+              a moderación.
+            </p>
+          </section>
+        )}
 
         {/* Estudio (si aplica) */}
         {pasantia.estudio && (
