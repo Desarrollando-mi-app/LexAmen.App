@@ -58,6 +58,23 @@ export async function PATCH(
     },
   });
 
+  // Si se acaba de marcar como grado y la fecha cambió, sincronizar
+  // User.examDate para que la auto-migración futura no recree el countdown.
+  if (updated.isGrado) {
+    await prisma.user.update({
+      where: { id: authUser.id },
+      data: { examDate: updated.fecha },
+    });
+  }
+  // Si se desmarcó como grado, limpiar examDate para evitar que la
+  // auto-migración recree un countdown de grado.
+  if (countdown.isGrado && body.isGrado === false) {
+    await prisma.user.update({
+      where: { id: authUser.id },
+      data: { examDate: null },
+    });
+  }
+
   return NextResponse.json(updated);
 }
 
@@ -82,6 +99,16 @@ export async function DELETE(
   }
 
   await prisma.userCountdown.delete({ where: { id } });
+
+  // Si era el countdown del examen de grado, limpiar User.examDate para
+  // evitar que la auto-migración en /dashboard/calendario lo vuelva a crear
+  // en el próximo render.
+  if (countdown.isGrado) {
+    await prisma.user.update({
+      where: { id: authUser.id },
+      data: { examDate: null },
+    });
+  }
 
   return NextResponse.json({ success: true });
 }
