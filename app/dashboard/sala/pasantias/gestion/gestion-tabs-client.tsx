@@ -142,15 +142,25 @@ export function GestionTabsClient({
   const initialTab = mapQueryToTab(searchParams.get("tab"));
   const [tab, setTab] = useState<TabKey>(initialTab);
 
-  // Toast cuando recién enviaste una postulación
+  // Toasts de éxito tras flujos externos al panel.
   useEffect(() => {
-    if (searchParams.get("postulacionEnviada") === "1") {
+    const sp = new URLSearchParams(searchParams.toString());
+    let dirty = false;
+    if (sp.get("postulacionEnviada") === "1") {
       toast.success("Postulación enviada", {
         description: "El publicador recibió una notificación.",
       });
-      // limpiar el flag para que no rebote en navegaciones
-      const sp = new URLSearchParams(searchParams.toString());
       sp.delete("postulacionEnviada");
+      dirty = true;
+    }
+    if (sp.get("resenaPublicada") === "1") {
+      toast.success("Reseña publicada", {
+        description: "Tu reseña queda visible. El estudio podrá responder una vez.",
+      });
+      sp.delete("resenaPublicada");
+      dirty = true;
+    }
+    if (dirty) {
       const qs = sp.toString();
       router.replace(`/dashboard/sala/pasantias/gestion${qs ? `?${qs}` : ""}`);
     }
@@ -573,13 +583,18 @@ function RecibidaCard({
           </div>
         )}
 
-        {item.review && (
+        {item.review && !item.review.estudioResponse && (
           <Link
-            href={`/dashboard/sala/pasantias/postulaciones/${item.id}/resena`}
+            href="/dashboard/sala/pasantias/gestion?tab=reviews"
             className="font-ibm-mono text-[10px] tracking-[1.3px] uppercase text-gz-gold hover:text-gz-ink transition"
           >
-            {item.review.estudioResponse ? "Ver reseña" : "Responder reseña →"}
+            Responder reseña →
           </Link>
+        )}
+        {item.review?.estudioResponse && (
+          <span className="font-ibm-mono text-[10px] tracking-[1.3px] uppercase text-gz-ink-light">
+            Reseña respondida
+          </span>
         )}
       </div>
     </article>
