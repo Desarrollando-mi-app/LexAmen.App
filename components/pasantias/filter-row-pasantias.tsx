@@ -15,6 +15,7 @@ interface FilterRowPasantiasProps {
   onTipoChange: (t: "TODAS" | "ofrezco" | "busco") => void;
   sort: "recientes" | "deadline" | "remuneracion";
   onSortChange: (s: "recientes" | "deadline" | "remuneracion") => void;
+  onPublish?: () => void;
 }
 
 export function FilterRowPasantias({
@@ -28,46 +29,59 @@ export function FilterRowPasantias({
   onTipoChange,
   sort,
   onSortChange,
+  onPublish,
 }: FilterRowPasantiasProps) {
   return (
     <div className="max-w-[1400px] mx-auto px-7 pt-6">
-      {/* Search bar */}
-      <div className="flex items-stretch bg-white border border-gz-rule rounded-[4px] overflow-hidden max-w-4xl mx-auto shadow-sm">
-        <div className="flex-1 flex flex-col justify-center px-5 py-3 border-r border-gz-rule">
-          <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light">
-            Estudio, título o palabra clave
-          </span>
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="ej. Carey, litigios, pasantía verano…"
-            className="font-archivo text-[14px] text-gz-ink bg-transparent border-none outline-none placeholder:text-gz-ink-light/60 py-0.5"
-          />
-        </div>
-        <div className="flex flex-col justify-center px-5 py-3 border-r border-gz-rule min-w-[160px]">
-          <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light">
-            Ciudad
-          </span>
-          <select
-            value={selectedCiudad ?? ""}
-            onChange={(e) => onCiudadChange(e.target.value || null)}
-            className="font-archivo text-[14px] text-gz-ink bg-transparent border-none outline-none py-0.5"
+      {/* Search bar + Publish CTA */}
+      <div className="flex items-stretch gap-3 max-w-4xl mx-auto">
+        <div className="flex-1 flex items-stretch bg-white border border-gz-rule rounded-[4px] overflow-hidden shadow-sm">
+          <div className="flex-1 flex flex-col justify-center px-5 py-3 border-r border-gz-rule">
+            <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light">
+              Estudio, título o palabra clave
+            </span>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => onQueryChange(e.target.value)}
+              placeholder="ej. Carey, litigios, pasantía verano…"
+              className="font-archivo text-[14px] text-gz-ink bg-transparent border-none outline-none placeholder:text-gz-ink-light/60 py-0.5"
+            />
+          </div>
+          <div className="flex flex-col justify-center px-5 py-3 border-r border-gz-rule min-w-[160px]">
+            <span className="font-ibm-mono text-[9px] tracking-[1.5px] uppercase text-gz-ink-light">
+              Ciudad
+            </span>
+            <select
+              value={selectedCiudad ?? ""}
+              onChange={(e) => onCiudadChange(e.target.value || null)}
+              className="font-archivo text-[14px] text-gz-ink bg-transparent border-none outline-none py-0.5"
+            >
+              <option value="">Todas</option>
+              {CIUDADES_CHILE.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="px-6 bg-gz-gold text-gz-cream font-ibm-mono text-[11px] tracking-[1.8px] uppercase hover:bg-gz-ink transition-colors cursor-pointer"
           >
-            <option value="">Todas</option>
-            {CIUDADES_CHILE.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+            Buscar →
+          </button>
         </div>
-        <button
-          type="submit"
-          className="px-6 bg-gz-gold text-gz-cream font-ibm-mono text-[11px] tracking-[1.8px] uppercase hover:bg-gz-ink transition-colors"
-        >
-          Buscar →
-        </button>
+        {onPublish && (
+          <button
+            type="button"
+            onClick={onPublish}
+            className="shrink-0 px-5 bg-gz-ink text-gz-cream font-ibm-mono text-[11px] tracking-[1.8px] uppercase rounded-[4px] hover:bg-gz-gold hover:text-gz-ink transition-colors flex items-center gap-2 cursor-pointer"
+          >
+            <span className="font-cormorant text-[18px] italic leading-none">¶</span>
+            Publicar
+          </button>
+        )}
       </div>
 
       {/* Area rail */}

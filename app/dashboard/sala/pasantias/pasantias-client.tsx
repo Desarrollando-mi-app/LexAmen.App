@@ -5,6 +5,8 @@ import Link from "next/link";
 import { MastheadPasantias } from "@/components/pasantias/masthead-pasantias";
 import { FilterRowPasantias } from "@/components/pasantias/filter-row-pasantias";
 import { PasantiaTile, type PasantiaTileProps } from "@/components/pasantias/pasantia-tile";
+import { PublishSheet } from "@/components/sala/publish-sheet";
+import { PasantiaForm } from "@/components/pasantias/pasantia-form";
 
 type Pasantia = Omit<PasantiaTileProps, "onFav" | "initialFav">;
 
@@ -20,6 +22,7 @@ export function PasantiasV4Client({
   const [sort, setSort] = useState<"recientes" | "deadline" | "remuneracion">(
     "recientes",
   );
+  const [publishOpen, setPublishOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -74,12 +77,6 @@ export function PasantiasV4Client({
           >
             Mis postulaciones
           </Link>
-          <Link
-            href="/dashboard/sala/pasantias/gestion?action=new"
-            className="px-3 py-1.5 bg-gz-ink text-gz-cream rounded-[3px] hover:bg-gz-gold hover:text-gz-ink transition-colors"
-          >
-            Publicar →
-          </Link>
         </nav>
       </div>
 
@@ -96,6 +93,7 @@ export function PasantiasV4Client({
         onTipoChange={setTipo}
         sort={sort}
         onSortChange={setSort}
+        onPublish={() => setPublishOpen(true)}
       />
 
       <main className="max-w-[1400px] mx-auto px-7 py-8">
@@ -114,6 +112,19 @@ export function PasantiasV4Client({
           </div>
         )}
       </main>
+
+      <PublishSheet
+        open={publishOpen}
+        onClose={() => setPublishOpen(false)}
+        eyebrow="La Sala · Pasantías"
+        title="Publicar pasantía"
+        subtitle="Una vacante para estudiantes, o tu propia búsqueda como postulante."
+      >
+        <PasantiaForm
+          onCancel={() => setPublishOpen(false)}
+          onSuccess={() => setPublishOpen(false)}
+        />
+      </PublishSheet>
     </div>
   );
 }

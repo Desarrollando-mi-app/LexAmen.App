@@ -5,6 +5,8 @@ import Link from "next/link";
 import { MastheadV4 } from "@/components/ayudantias/masthead-v4";
 import { FilterRow } from "@/components/ayudantias/filter-row";
 import { TileCard, type TileCardProps } from "@/components/ayudantias/tile-card";
+import { PublishSheet } from "@/components/sala/publish-sheet";
+import { AyudantiaForm } from "@/components/ayudantias/ayudantia-form";
 
 type Ayudantia = Omit<TileCardProps, "onFav" | "initialFav">;
 
@@ -17,6 +19,7 @@ export function AyudantiasV4Client({
   const [materia, setMateria] = useState<string | null>(null);
   const [tipo, setTipo] = useState<"TODAS" | "OFREZCO" | "BUSCO">("TODAS");
   const [sort, setSort] = useState<"recientes" | "rating" | "precio">("recientes");
+  const [publishOpen, setPublishOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -65,12 +68,6 @@ export function AyudantiasV4Client({
           >
             Mis sesiones
           </Link>
-          <Link
-            href="/dashboard/sala/ayudantias/gestion?action=new"
-            className="px-3 py-1.5 bg-gz-ink text-gz-cream rounded-[3px] hover:bg-gz-gold hover:text-gz-ink transition-colors"
-          >
-            Publicar →
-          </Link>
         </nav>
       </div>
 
@@ -85,6 +82,7 @@ export function AyudantiasV4Client({
         onTipoChange={setTipo}
         sort={sort}
         onSortChange={setSort}
+        onPublish={() => setPublishOpen(true)}
       />
 
       <main className="max-w-[1400px] mx-auto px-7 py-8">
@@ -103,6 +101,19 @@ export function AyudantiasV4Client({
           </div>
         )}
       </main>
+
+      <PublishSheet
+        open={publishOpen}
+        onClose={() => setPublishOpen(false)}
+        eyebrow="La Sala · Ayudantías"
+        title="Publicar ayudantía"
+        subtitle="Ofrece tu ayudantía o publica que estás buscando un tutor."
+      >
+        <AyudantiaForm
+          onCancel={() => setPublishOpen(false)}
+          onSuccess={() => setPublishOpen(false)}
+        />
+      </PublishSheet>
     </div>
   );
 }

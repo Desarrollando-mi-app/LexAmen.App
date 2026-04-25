@@ -9,6 +9,8 @@ import {
 } from "@/components/ofertas/filter-row-ofertas";
 import { OfertaTile } from "@/components/ofertas/oferta-tile";
 import type { OfertaTileData } from "@/lib/ofertas-helpers";
+import { PublishSheet } from "@/components/sala/publish-sheet";
+import { OfertaForm } from "@/components/ofertas/oferta-form";
 
 /**
  * Cliente V4 editorial para Ofertas laborales.
@@ -27,6 +29,7 @@ export function OfertasV4Client({
   const [contrato, setContrato] = useState<string | null>(null);
   const [formato, setFormato] = useState<string | null>(null);
   const [sort, setSort] = useState<OfertaSort>("recientes");
+  const [publishOpen, setPublishOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -77,12 +80,6 @@ export function OfertasV4Client({
           >
             Mis ofertas
           </Link>
-          <Link
-            href="/dashboard/sala/ofertas/gestion?action=new"
-            className="px-3 py-1.5 bg-gz-ink text-gz-cream rounded-[3px] hover:bg-gz-gold hover:text-gz-ink transition-colors"
-          >
-            Publicar →
-          </Link>
         </nav>
       </div>
 
@@ -101,6 +98,7 @@ export function OfertasV4Client({
         onFormatoChange={setFormato}
         sort={sort}
         onSortChange={setSort}
+        onPublish={() => setPublishOpen(true)}
       />
 
       <main className="max-w-[1400px] mx-auto px-7 py-8">
@@ -119,6 +117,19 @@ export function OfertasV4Client({
           </div>
         )}
       </main>
+
+      <PublishSheet
+        open={publishOpen}
+        onClose={() => setPublishOpen(false)}
+        eyebrow="La Sala · Ofertas laborales"
+        title="Publicar oferta"
+        subtitle="Cuéntale a la comunidad qué cargo estás buscando llenar."
+      >
+        <OfertaForm
+          onCancel={() => setPublishOpen(false)}
+          onSuccess={() => setPublishOpen(false)}
+        />
+      </PublishSheet>
     </div>
   );
 }
