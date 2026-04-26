@@ -402,28 +402,45 @@ export function ObiterFeed({
 
   // ─── Render ───────────────────────────────────────────────
 
+  // Container estilo X — feed con bordes sutiles, sin shadow, divisores
+  // entre cards. El ancho lo manda la columna padre (no más lg:w-3/5).
   return (
-    <div>
-      {/* ── Tabs ──────────────────────────────────────────── */}
-      <div className="mb-6 flex gap-1 overflow-x-auto border-b border-gz-rule">
-        {TABS.filter((t) => !t.requiresAuth || userId).map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`flex-shrink-0 whitespace-nowrap px-4 py-2.5 font-archivo text-[12px] font-semibold transition-colors ${
-              activeTab === tab.key
-                ? "border-b-2 border-gz-gold text-gz-ink"
-                : "text-gz-ink-light hover:text-gz-ink"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+    <div className="rounded-[4px] border border-gz-rule bg-white overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04)]">
+      {/* ── Sticky tab bar — estilo X "Para ti / Siguiendo" ─── */}
+      <div className="sticky top-0 z-20 backdrop-blur-md bg-white/85 border-b border-gz-rule">
+        <div className="flex overflow-x-auto gz-scrollbar-hide">
+          {TABS.filter((t) => !t.requiresAuth || userId).map((tab) => {
+            const active = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`group relative flex-1 min-w-[110px] flex items-center justify-center px-4 py-3.5 transition-colors cursor-pointer ${
+                  active ? "" : "hover:bg-gz-cream-dark/40"
+                }`}
+              >
+                <span
+                  className={`font-archivo text-[14px] font-semibold transition-colors ${
+                    active ? "text-gz-ink" : "text-gz-ink-light group-hover:text-gz-ink"
+                  }`}
+                >
+                  {tab.label}
+                </span>
+                {/* Indicador inferior estilo X — píldora corta debajo */}
+                <span
+                  className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[3px] rounded-t-full bg-gz-gold transition-all duration-200 ${
+                    active ? "w-[60%] opacity-100" : "w-0 opacity-0"
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* ── Editor (only if authenticated) — 60% width on desktop ── */}
+      {/* ── Editor (solo si autenticado) — full width ── */}
       {userId && userFirstName && (
-        <div className="w-full lg:w-3/5">
+        <div className="border-b border-gz-rule">
           <ObiterEditor
             userId={userId}
             userFirstName={userFirstName}
@@ -436,44 +453,47 @@ export function ObiterFeed({
         </div>
       )}
 
-      {/* ── Loading skeleton ─────────────────────────────── */}
+      {/* ── Loading skeleton ─── */}
       {loading && (
-        <div className="space-y-3">
+        <div>
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-[160px] animate-pulse rounded-[4px] bg-gz-cream-dark"
-            />
+            <div key={i} className="border-b border-gz-rule px-4 sm:px-5 py-4 flex gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-full bg-gz-cream-dark animate-pulse" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-40 rounded bg-gz-cream-dark animate-pulse" />
+                <div className="h-3 w-full rounded bg-gz-cream-dark animate-pulse" />
+                <div className="h-3 w-4/5 rounded bg-gz-cream-dark animate-pulse" />
+              </div>
+            </div>
           ))}
         </div>
       )}
 
-      {/* ── Unified feed (obiters + previews) ─────────── */}
+      {/* ── Unified feed (obiters + previews) ── */}
       {!loading && feedItems.length > 0 && (
-        <>
+        <div>
           {feedItems.map((item) => {
             if (item.type === "obiter") {
               const obiter = item.data as ObiterData;
               return (
-                <div key={`od-${obiter.id}`} className="w-full lg:w-3/5">
-                  <ObiterCard
-                    obiter={obiter}
-                    currentUserId={userId}
-                    onApoyar={handleApoyar}
-                    onGuardar={handleGuardar}
-                    onComuniquese={handleComuniquese}
-                    onCitar={handleCitar}
-                    onThreadClick={handleThreadClick}
-                    onManage={handleManage}
-                    showComuniquesePor={!!obiter.comuniquesePor}
-                  />
-                </div>
+                <ObiterCard
+                  key={`od-${obiter.id}`}
+                  obiter={obiter}
+                  currentUserId={userId}
+                  onApoyar={handleApoyar}
+                  onGuardar={handleGuardar}
+                  onComuniquese={handleComuniquese}
+                  onCitar={handleCitar}
+                  onThreadClick={handleThreadClick}
+                  onManage={handleManage}
+                  showComuniquesePor={!!obiter.comuniquesePor}
+                />
               );
             }
             if (item.type === "analisis_preview") {
               const analisis = item.data as AnalisisPreview;
               return (
-                <div key={`an-${analisis.id}`} className="w-full lg:w-3/5">
+                <div key={`an-${analisis.id}`} className="border-b border-gz-rule px-4 sm:px-5 py-3.5">
                   <AnalisisPreviewCard
                     analisis={analisis}
                     currentUserId={userId}
@@ -487,7 +507,7 @@ export function ObiterFeed({
             if (item.type === "ensayo_preview") {
               const ensayo = item.data as EnsayoPreview;
               return (
-                <div key={`en-${ensayo.id}`} className="w-full lg:w-3/5">
+                <div key={`en-${ensayo.id}`} className="border-b border-gz-rule px-4 sm:px-5 py-3.5">
                   <EnsayoPreviewCard
                     ensayo={ensayo}
                     currentUserId={userId}
@@ -501,66 +521,60 @@ export function ObiterFeed({
             return null;
           })}
 
-          {/* Load more */}
+          {/* Load more — botón inline al final del feed */}
           {nextCursor && (
             <button
               onClick={handleLoadMore}
               disabled={loadingMore}
-              className="mt-4 w-full lg:w-3/5 rounded-[3px] border border-gz-rule py-3 text-center font-archivo text-[13px] text-gz-gold transition-colors hover:border-gz-gold hover:bg-gz-gold/[0.04]"
+              className="w-full px-4 py-4 text-center font-archivo text-[13px] font-semibold text-gz-gold transition-colors hover:bg-gz-gold/[0.06] cursor-pointer disabled:cursor-wait"
             >
               {loadingMore ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg
-                    className="h-3.5 w-3.5 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      className="opacity-25"
-                    />
-                    <path
-                      d="M4 12a8 8 0 018-8"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
+                  <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+                    <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                   </svg>
                   Cargando…
                 </span>
               ) : (
-                "Cargar más"
+                "Cargar más Obiters →"
               )}
             </button>
           )}
-        </>
+        </div>
       )}
 
-      {/* ── Empty state ──────────────────────────────────── */}
+      {/* ── Empty state — centrado editorial ── */}
       {!loading && feedItems.length === 0 && (
-        <div className="py-16 text-center">
-          <p className="mb-4 font-cormorant text-[17px] italic text-gz-ink-light">
+        <div className="py-20 text-center px-6">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gz-cream-dark">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-gz-gold">
+              <path
+                d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+          <p className="mb-5 font-cormorant text-[18px] italic text-gz-ink-mid max-w-[360px] mx-auto leading-snug">
             {activeTab === "guardados"
               ? "Aún no has guardado ningún Obiter."
               : activeTab === "colegas"
-                ? "Tus colegas aún no han publicado."
-                : "Aún no hay publicaciones. ¡Sé el primero en compartir tu reflexión jurídica!"}
+                ? "Tus colegas aún no han publicado nada."
+                : "Aún no hay Obiters. Sé el primero en compartir una reflexión jurídica."}
           </p>
           {userId && activeTab === "recientes" && (
             <button
               onClick={() => {
-                // Focus the editor
                 const el = document.querySelector("textarea");
                 if (el) {
                   el.focus();
                   window.scrollTo({ top: 0, behavior: "smooth" });
                 }
               }}
-              className="rounded-[3px] bg-gz-navy px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
+              className="rounded-full bg-gz-navy px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy cursor-pointer"
             >
               Publicar primer Obiter
             </button>
@@ -568,7 +582,7 @@ export function ObiterFeed({
           {!userId && (
             <a
               href="/register"
-              className="inline-block rounded-[3px] bg-gz-navy px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
+              className="inline-block rounded-full bg-gz-navy px-6 py-2.5 font-archivo text-[13px] font-semibold text-white transition-colors hover:bg-gz-gold hover:text-gz-navy"
             >
               Regístrate para publicar
             </a>
