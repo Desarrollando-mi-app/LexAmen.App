@@ -20,6 +20,9 @@ import { ReportModal } from "@/app/components/report-modal";
 import { AreasRadar } from "./areas-radar";
 import { HitoEditorModal, type HitoData } from "../components/hito-editor-modal";
 import { ObiterEditor } from "@/app/dashboard/diario/components/obiter-editor";
+import { DebateModal } from "../components/debate-modal";
+import { EnsayoModal } from "../components/ensayo-modal";
+import { AnalisisModal } from "../components/analisis-modal";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -179,6 +182,9 @@ export function PerfilModerno({
   const router = useRouter();
   const [hitoModalOpen, setHitoModalOpen] = useState(false);
   const [editingHito, setEditingHito] = useState<HitoData | null>(null);
+  const [analisisOpen, setAnalisisOpen] = useState(false);
+  const [ensayoOpen, setEnsayoOpen] = useState(false);
+  const [debateOpen, setDebateOpen] = useState(false);
   const [pubFilter, setPubFilter] = useState<string>("TODOS");
   const [mutualCount, setMutualCount] = useState(0);
   const [showCvModal, setShowCvModal] = useState(false);
@@ -530,9 +536,9 @@ export function PerfilModerno({
                         ¿Algo más extenso?
                       </p>
                       <div className="flex gap-1.5 flex-wrap">
-                        <ComposeChip href="/dashboard/diario/analisis/nuevo" color="text-gz-navy" glyph="¶" label="Análisis" />
-                        <ComposeChip href="/dashboard/diario/ensayos/nuevo" color="text-gz-sage" glyph="◆" label="Ensayo" />
-                        <ComposeChip href="/dashboard/diario/debates/proponer" color="text-gz-burgundy" glyph="‡" label="Debate" />
+                        <ComposeButton onClick={() => setAnalisisOpen(true)} color="text-gz-navy" glyph="¶" label="Análisis" />
+                        <ComposeButton onClick={() => setEnsayoOpen(true)} color="text-gz-sage" glyph="◆" label="Ensayo" />
+                        <ComposeButton onClick={() => setDebateOpen(true)} color="text-gz-burgundy" glyph="‡" label="Debate" />
                       </div>
                     </div>
                   </div>
@@ -938,13 +944,28 @@ export function PerfilModerno({
         </div>
       )}
 
-      {/* ─── Modal hito personalizado ─── */}
+      {/* ─── Modales ─── */}
       <HitoEditorModal
         open={hitoModalOpen}
         editing={editingHito}
         onClose={() => setHitoModalOpen(false)}
         onSaved={() => router.refresh()}
         onDeleted={() => router.refresh()}
+      />
+      <AnalisisModal
+        open={analisisOpen}
+        onClose={() => setAnalisisOpen(false)}
+        onPublished={() => router.refresh()}
+      />
+      <EnsayoModal
+        open={ensayoOpen}
+        onClose={() => setEnsayoOpen(false)}
+        onPublished={() => router.refresh()}
+      />
+      <DebateModal
+        open={debateOpen}
+        onClose={() => setDebateOpen(false)}
+        onPublished={() => router.refresh()}
       />
     </main>
   );
@@ -1002,11 +1023,15 @@ function FilterPill({ active, label, count, onClick }: { active: boolean; label:
   );
 }
 
-function ComposeChip({ href, color, glyph, label }: { href: string; color: string; glyph: string; label: string }) {
+function ComposeButton({ onClick, color, glyph, label }: { onClick: () => void; color: string; glyph: string; label: string }) {
   return (
-    <Link href={href} className="flex items-center gap-1.5 px-3 py-2 rounded-[3px] hover:bg-gz-cream-dark/40 cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-mid">
-      <span className={color}>{glyph}</span> {label}
-    </Link>
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-gz-rule bg-white hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-mid hover:text-gz-ink"
+    >
+      <span className={`text-[14px] leading-none -mt-px ${color}`}>{glyph}</span> {label}
+    </button>
   );
 }
 

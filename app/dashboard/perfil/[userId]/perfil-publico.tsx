@@ -10,6 +10,9 @@ import { ReportModal } from "@/app/components/report-modal";
 import { AreasRadar } from "./areas-radar";
 import { HitoEditorModal, type HitoData } from "../components/hito-editor-modal";
 import { ObiterEditor } from "@/app/dashboard/diario/components/obiter-editor";
+import { DebateModal } from "../components/debate-modal";
+import { EnsayoModal } from "../components/ensayo-modal";
+import { AnalisisModal } from "../components/analisis-modal";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -204,6 +207,9 @@ export function PerfilPublico({
   const router = useRouter();
   const [hitoModalOpen, setHitoModalOpen] = useState(false);
   const [editingHito, setEditingHito] = useState<HitoData | null>(null);
+  const [analisisOpen, setAnalisisOpen] = useState(false);
+  const [ensayoOpen, setEnsayoOpen] = useState(false);
+  const [debateOpen, setDebateOpen] = useState(false);
   const [pubFilter, setPubFilter] = useState<string>("TODOS");
   const [showCvModal, setShowCvModal] = useState(false);
   const [cvMessage, setCvMessage] = useState("");
@@ -562,33 +568,36 @@ export function PerfilPublico({
                       />
                     </div>
 
-                    {/* Otras publicaciones — abren el form propio del módulo */}
+                    {/* Otras publicaciones — abren modal con form propio */}
                     <div className="rounded-[4px] border border-gz-rule bg-gz-cream/50 p-3">
                       <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light mb-2">
                         ¿Algo más extenso?
                       </p>
                       <div className="flex gap-1.5 flex-wrap">
-                        <Link
-                          href="/dashboard/diario/analisis/nuevo"
+                        <button
+                          type="button"
+                          onClick={() => setAnalisisOpen(true)}
                           className="group inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-gz-rule bg-white hover:border-gz-navy hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-navy"
                         >
                           <span className="text-gz-navy text-[14px] leading-none -mt-px">¶</span>
                           Análisis de Sentencia
-                        </Link>
-                        <Link
-                          href="/dashboard/diario/ensayos/nuevo"
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEnsayoOpen(true)}
                           className="group inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-gz-rule bg-white hover:border-gz-sage hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-sage"
                         >
                           <span className="text-gz-sage text-[14px] leading-none -mt-px">◆</span>
                           Ensayo
-                        </Link>
-                        <Link
-                          href="/dashboard/diario/debates/proponer"
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDebateOpen(true)}
                           className="group inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-gz-rule bg-white hover:border-gz-burgundy hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-burgundy"
                         >
                           <span className="text-gz-burgundy text-[14px] leading-none -mt-px">⚔</span>
                           Debate
-                        </Link>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1027,13 +1036,28 @@ export function PerfilPublico({
         </div>
       )}
 
-      {/* ─── Modal hito personalizado ─── */}
+      {/* ─── Modales ─── */}
       <HitoEditorModal
         open={hitoModalOpen}
         editing={editingHito}
         onClose={() => setHitoModalOpen(false)}
         onSaved={() => router.refresh()}
         onDeleted={() => router.refresh()}
+      />
+      <AnalisisModal
+        open={analisisOpen}
+        onClose={() => setAnalisisOpen(false)}
+        onPublished={() => router.refresh()}
+      />
+      <EnsayoModal
+        open={ensayoOpen}
+        onClose={() => setEnsayoOpen(false)}
+        onPublished={() => router.refresh()}
+      />
+      <DebateModal
+        open={debateOpen}
+        onClose={() => setDebateOpen(false)}
+        onPublished={() => router.refresh()}
       />
     </main>
   );
