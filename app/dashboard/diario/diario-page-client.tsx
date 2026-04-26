@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ObiterFeed } from "./components/obiter-feed";
 import { ObiterTrending } from "./components/obiter-trending";
@@ -22,13 +21,34 @@ type DiarioPageClientProps = {
 
 type MainTab = "feed" | "analisis" | "ensayos" | "expediente" | "debates" | "mis";
 
-const TABS: { key: MainTab; label: string; requiresAuth?: boolean }[] = [
-  { key: "feed", label: "Obiter Dictum" },
-  { key: "analisis", label: "Análisis de Sentencia" },
-  { key: "ensayos", label: "Ensayos" },
-  { key: "expediente", label: "Expediente Abierto" },
-  { key: "debates", label: "Debates \uD83C\uDD9A" },
-  { key: "mis", label: "Mis Publicaciones", requiresAuth: true },
+// Mapa de clases por acento (Tailwind no resuelve strings dinámicos en JIT
+// — cada combinación debe aparecer literalmente).
+const ACCENT_CLASSES = {
+  gold:     { text: "text-gz-gold",     bg: "bg-gz-gold/[0.10]",     border: "border-gz-gold",     rail: "bg-gz-gold" },
+  burgundy: { text: "text-gz-burgundy", bg: "bg-gz-burgundy/[0.08]", border: "border-gz-burgundy", rail: "bg-gz-burgundy" },
+  sage:     { text: "text-gz-sage",     bg: "bg-gz-sage/[0.10]",     border: "border-gz-sage",     rail: "bg-gz-sage" },
+  navy:     { text: "text-gz-navy",     bg: "bg-gz-navy/[0.08]",     border: "border-gz-navy",     rail: "bg-gz-navy" },
+  ink:      { text: "text-gz-ink",      bg: "bg-gz-ink/[0.06]",      border: "border-gz-ink",      rail: "bg-gz-ink" },
+} as const;
+
+type Accent = keyof typeof ACCENT_CLASSES;
+
+// Cada tab lleva un glifo (numeración romana) + acento de color editorial
+// que la distingue. Mantiene la estética periodística.
+const TABS: {
+  key: MainTab;
+  label: string;
+  short: string;
+  glyph: string;
+  accent: Accent;
+  requiresAuth?: boolean;
+}[] = [
+  { key: "feed",       label: "Obiter Dictum",         short: "Obiter",     glyph: "I",   accent: "gold" },
+  { key: "analisis",   label: "Análisis de Sentencia", short: "Análisis",   glyph: "II",  accent: "burgundy" },
+  { key: "ensayos",    label: "Ensayos",               short: "Ensayos",    glyph: "III", accent: "sage" },
+  { key: "expediente", label: "Expediente Abierto",    short: "Expediente", glyph: "IV",  accent: "navy" },
+  { key: "debates",    label: "Debates",               short: "Debates",    glyph: "V",   accent: "burgundy" },
+  { key: "mis",        label: "Mis Publicaciones",     short: "Mías",       glyph: "VI",  accent: "ink", requiresAuth: true },
 ];
 
 // ─── Mis Publicaciones Tab ──────────────────────────────────
@@ -1231,50 +1251,101 @@ export function DiarioPageClient({
     router.replace(url.pathname + url.search, { scroll: false });
   }
 
+  const visibleTabs = TABS.filter((t) => !t.requiresAuth || userId);
+  const activeTab = TABS.find((t) => t.key === activeMainTab) ?? TABS[0];
+
   return (
     <div>
-      {/* ── Header: Title + Tabs + Publish — full bleed ────────── */}
-      <div className="gz-section-header mb-6">
-        <div className="flex items-center gap-0 flex-wrap">
-          {/* Title — hidden on mobile (kicker already identifies the page) */}
-          <div className="mr-1 hidden flex-shrink-0 items-center gap-3 border-r border-gz-rule pr-4 sm:flex">
-            <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
-            <span className="font-cormorant text-[38px] lg:text-[44px] font-bold leading-none text-gz-ink">
-              Publicaciones
+      {/* ════ NAV EDITORIAL — pestañas tipo periódico con glifo + acento ════ */}
+      <div className="mb-6 -mx-2 sm:mx-0">
+        {/* Etiqueta superior con seccion activa */}
+        <div className="hidden sm:flex items-center justify-between mb-2 px-2">
+          <div className="flex items-center gap-2.5">
+            <span className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light">
+              Sección
+            </span>
+            <span className={`font-ibm-mono text-[10px] uppercase tracking-[2.5px] font-semibold ${ACCENT_CLASSES[activeTab.accent].text}`}>
+              {activeTab.glyph}. {activeTab.label}
             </span>
           </div>
 
-          {/* Tabs */}
-          {TABS.filter((t) => !t.requiresAuth || userId).map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => handleTabChange(tab.key)}
-              className={`flex-shrink-0 whitespace-nowrap px-3 py-2 font-archivo text-[13px] font-semibold transition-colors lg:px-4 ${
-                activeMainTab === tab.key
-                  ? "border-b-2 border-gz-gold text-gz-ink"
-                  : "text-gz-ink-light hover:text-gz-ink"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-
-          {/* Collaboration badge + Publish dropdown — pushed to the right */}
           {userId && (
-            <div className="ml-auto flex flex-shrink-0 items-center gap-2">
+            <div className="flex items-center gap-2">
               <ColaboracionBadge />
               <PublishDropdown />
             </div>
           )}
         </div>
-        <div className="mt-1 h-[2px] bg-gz-rule-dark" />
+
+        {/* Mobile: solo publicar a la derecha */}
+        {userId && (
+          <div className="sm:hidden flex items-center justify-end gap-2 mb-3 px-2">
+            <ColaboracionBadge />
+            <PublishDropdown />
+          </div>
+        )}
+
+        {/* Tira de pestañas — scroll horizontal en mobile, fila en desktop */}
+        <div className="relative border-y-2 border-gz-ink/85 bg-white/40">
+          <div className="flex items-stretch overflow-x-auto gz-scrollbar-hide">
+            {visibleTabs.map((tab) => {
+              const active = activeMainTab === tab.key;
+              const palette = ACCENT_CLASSES[tab.accent];
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => handleTabChange(tab.key)}
+                  className={`group relative flex-shrink-0 flex items-center gap-2 px-3.5 sm:px-5 py-2.5 cursor-pointer transition-all duration-200 ease-out border-r border-gz-rule/70 last:border-r-0 ${
+                    active ? "bg-white" : "bg-transparent hover:bg-white/70"
+                  }`}
+                >
+                  {/* Rail superior color cuando activo */}
+                  <span
+                    className={`absolute top-0 left-0 right-0 h-[3px] transition-opacity duration-200 ${
+                      active ? `opacity-100 ${palette.rail}` : "opacity-0"
+                    }`}
+                  />
+
+                  {/* Glifo (numeral romano) */}
+                  <span
+                    className={`font-cormorant text-[15px] sm:text-[16px] !font-bold leading-none transition-colors ${
+                      active ? palette.text : "text-gz-ink-light/70 group-hover:text-gz-ink-mid"
+                    }`}
+                  >
+                    {tab.glyph}.
+                  </span>
+
+                  {/* Label */}
+                  <span
+                    className={`font-archivo text-[12px] sm:text-[13px] font-semibold whitespace-nowrap transition-colors ${
+                      active ? "text-gz-ink" : "text-gz-ink-light group-hover:text-gz-ink"
+                    }`}
+                  >
+                    <span className="hidden md:inline">{tab.label}</span>
+                    <span className="md:hidden">{tab.short}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Subtítulo cursivo descriptivo de la sección activa */}
+        <p className="mt-2 px-2 font-cormorant italic text-[13px] sm:text-[14px] text-gz-ink-mid">
+          {activeTab.key === "feed" && "Reflexiones jurídicas breves — al margen de la doctrina."}
+          {activeTab.key === "analisis" && "Sentencias diseccionadas — fallos comentados por colegas."}
+          {activeTab.key === "ensayos" && "Ensayos académicos — la tribuna larga del estudio."}
+          {activeTab.key === "expediente" && "Casos abiertos — el expediente colectivo del foro."}
+          {activeTab.key === "debates" && "Tesis frente a tesis — la disputa intelectual ordenada."}
+          {activeTab.key === "mis" && "Tu expediente personal — tus contribuciones al diario."}
+        </p>
       </div>
 
       {/* ── Tab content ──────────────────────────────────────── */}
       {activeMainTab === "feed" && (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-[240px_1fr] lg:grid-cols-[240px_1fr_240px]">
+        <div className="grid grid-cols-1 gap-7 md:gap-8 md:grid-cols-[260px_1fr] xl:grid-cols-[260px_1fr_280px]">
           {/* Contingencia sidebar — left, hidden on mobile */}
-          <aside className="hidden md:block">
+          <aside className="hidden md:block min-w-0">
             <div className="sticky top-[72px]">
               <ObiterTrending />
             </div>
@@ -1291,8 +1362,8 @@ export function DiarioPageClient({
           </div>
 
           {/* Right sidebar — hidden on tablet and mobile */}
-          <aside className="hidden lg:block">
-            <div className="sticky top-[72px] space-y-6">
+          <aside className="hidden xl:block min-w-0">
+            <div className="sticky top-[72px] space-y-5">
               {userId && <ContactSuggestions />}
               <RankingSidebar />
             </div>
@@ -1312,8 +1383,8 @@ export function DiarioPageClient({
         <MisPublicaciones userId={userId} />
       )}
 
-      {/* Mobile ranking section (shown below content on small screens, hidden on lg when feed tab has it in sidebar) */}
-      <div className={`mt-6 ${activeMainTab === "feed" ? "lg:hidden" : ""}`}>
+      {/* Mobile ranking section (shown below content on small screens, hidden on xl when feed tab has it in sidebar) */}
+      <div className={`mt-7 ${activeMainTab === "feed" ? "xl:hidden" : ""}`}>
         <MobileRankingSection />
       </div>
     </div>
@@ -1325,20 +1396,36 @@ export function DiarioPageClient({
 function MobileRankingSection() {
   const [open, setOpen] = useState(false);
 
+  if (open) {
+    // Mostrar la tarjeta completa (ya trae rail + kicker propios)
+    return (
+      <div>
+        <RankingSidebar />
+        <button
+          onClick={() => setOpen(false)}
+          className="mt-2 w-full font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light hover:text-gz-ink transition-colors py-1 cursor-pointer"
+        >
+          ▲ Ocultar ranking
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-[3px] border border-gz-rule bg-white p-4">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between"
-      >
+    <button
+      onClick={() => setOpen(true)}
+      className="w-full rounded-[3px] border border-gz-rule bg-white overflow-hidden cursor-pointer transition-colors hover:bg-gz-cream-dark/30 group"
+    >
+      <div className="h-[3px] bg-gz-gold" />
+      <div className="flex w-full items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <span className="text-[13px]">&#9997;&#65039;</span>
-          <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
-            Top Autores del Diario
+          <span className="h-1.5 w-1.5 rounded-full bg-gz-gold" />
+          <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] font-semibold text-gz-gold">
+            Top autores del diario
           </span>
         </div>
         <svg
-          className={`h-4 w-4 text-gz-ink-light transition-transform ${open ? "rotate-180" : ""}`}
+          className="h-4 w-4 text-gz-ink-mid group-hover:text-gz-ink transition-colors"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={2}
@@ -1346,12 +1433,7 @@ function MobileRankingSection() {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>
-      </button>
-      {open && (
-        <div className="mt-3 pt-3 border-t border-gz-rule">
-          <RankingSidebar />
-        </div>
-      )}
-    </div>
+      </div>
+    </button>
   );
 }
