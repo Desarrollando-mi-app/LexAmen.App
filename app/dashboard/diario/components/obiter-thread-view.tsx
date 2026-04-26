@@ -7,6 +7,8 @@ import { parseObiterContent } from "@/lib/legal-reference-parser";
 import { ObiterLegalRef } from "./obiter-legal-ref";
 import { LinkPreviewList } from "./link-preview-card";
 import { ObiterEditor } from "./obiter-editor";
+import { LinkifiedText } from "./linkified-text";
+import { useLinkPreviews } from "./use-link-previews";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -67,7 +69,7 @@ function RenderedContent({ content }: { content: string }) {
     <>
       {parsed.map((segment, i) => {
         if (segment.type === "text") {
-          return <span key={i}>{segment.value}</span>;
+          return <LinkifiedText key={i} text={segment.value} />;
         }
         return (
           <ObiterLegalRef
@@ -179,111 +181,20 @@ export function ObiterThreadView({
         />
 
         <div className="space-y-5">
-          {threadObiters.map((obiter, idx) => {
-            const isOwnObiter = currentUserId === obiter.userId;
-            const isLast = idx === threadObiters.length - 1;
-            return (
-              <article key={obiter.id} className="relative flex gap-4">
-                {/* Numeral marker en lugar de avatar */}
-                <div className="relative z-10 shrink-0">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
-                      idx === 0
-                        ? "border-gz-burgundy bg-gz-burgundy text-white"
-                        : "border-gz-gold bg-white text-gz-gold"
-                    } shadow-sm`}
-                  >
-                    <span className="font-cormorant text-[16px] font-bold leading-none">
-                      {idx + 1}
-                    </span>
-                  </div>
-                  {!isLast && (
-                    <p className="font-ibm-mono text-[8px] text-gz-ink-light/60 text-center mt-1 -mb-1">
-                      /{total}
-                    </p>
-                  )}
-                </div>
-
-                {/* Contenido de la parte */}
-                <div className="min-w-0 flex-1 pt-1">
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light">
-                      Parte {idx + 1} <span className="text-gz-ink-light/50">de {total}</span>
-                    </span>
-                    {idx > 0 && (
-                      <span className="font-ibm-mono text-[9px] text-gz-ink-light/50">
-                        · {timeAgo(obiter.createdAt)}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div
-                    className="font-cormorant text-[16px] leading-[1.7] text-gz-ink lg:text-[17px] mb-3"
-                    style={{ whiteSpace: "pre-wrap" }}
-                  >
-                    <RenderedContent content={obiter.content} />
-                  </div>
-
-                  {/* Link previews */}
-                  {obiter.linkPreviews && obiter.linkPreviews.length > 0 && (
-                    <LinkPreviewList previews={obiter.linkPreviews} compact />
-                  )}
-
-                  {/* Actions (compact) */}
-                  <div className="mt-3 flex items-center gap-3 font-ibm-mono text-[10px] text-gz-ink-light">
-                    <button
-                      onClick={() => !isOwnObiter && onApoyar(obiter.id)}
-                      disabled={isOwnObiter}
-                      className={`inline-flex items-center gap-1 transition-colors ${
-                        obiter.hasApoyado
-                          ? "font-semibold text-gz-burgundy"
-                          : isOwnObiter
-                          ? "cursor-default text-gz-ink-light/50"
-                          : "cursor-pointer hover:text-gz-burgundy"
-                      }`}
-                    >
-                      <span>{obiter.hasApoyado ? "♥" : "♡"}</span>
-                      {obiter.apoyosCount > 0 ? obiter.apoyosCount : ""}
-                    </button>
-                    <span className="text-gz-rule/70">·</span>
-                    <button
-                      onClick={() => onCitar(obiter)}
-                      className="cursor-pointer transition-colors hover:text-gz-gold"
-                    >
-                      Citar{obiter.citasCount > 0 ? ` ${obiter.citasCount}` : ""}
-                    </button>
-                    <span className="text-gz-rule/70">·</span>
-                    <button
-                      onClick={() => onGuardar(obiter.id)}
-                      className={`cursor-pointer transition-colors ${
-                        obiter.hasGuardado
-                          ? "font-semibold text-gz-gold"
-                          : "hover:text-gz-gold"
-                      }`}
-                    >
-                      {obiter.hasGuardado ? "✓ Guardado" : "Guardar"}
-                    </button>
-                    {!isOwnObiter && (
-                      <>
-                        <span className="text-gz-rule/70">·</span>
-                        <button
-                          onClick={() => onComuniquese(obiter.id)}
-                          className={`cursor-pointer transition-colors ${
-                            obiter.hasComunicado
-                              ? "font-semibold text-gz-gold"
-                              : "hover:text-gz-gold"
-                          }`}
-                        >
-                          {obiter.hasComunicado ? "Comunicado" : "Comuníquese"}
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+          {threadObiters.map((obiter, idx) => (
+            <ThreadPart
+              key={obiter.id}
+              obiter={obiter}
+              idx={idx}
+              total={total}
+              isLast={idx === threadObiters.length - 1}
+              currentUserId={currentUserId}
+              onApoyar={onApoyar}
+              onGuardar={onGuardar}
+              onComuniquese={onComuniquese}
+              onCitar={onCitar}
+            />
+          ))}
         </div>
       </div>
 
@@ -349,5 +260,138 @@ export function ObiterThreadView({
         </div>
       )}
     </section>
+  );
+}
+
+// ─── ThreadPart (sub-componente para una parte del hilo) ────
+
+function ThreadPart({
+  obiter,
+  idx,
+  total,
+  isLast,
+  currentUserId,
+  onApoyar,
+  onGuardar,
+  onComuniquese,
+  onCitar,
+}: {
+  obiter: ObiterData;
+  idx: number;
+  total: number;
+  isLast: boolean;
+  currentUserId: string | null;
+  onApoyar: (id: string) => void;
+  onGuardar: (id: string) => void;
+  onComuniquese: (id: string) => void;
+  onCitar: (obiter: ObiterData) => void;
+}) {
+  const isOwnObiter = currentUserId === obiter.userId;
+  const linkPreviews = useLinkPreviews(
+    obiter.id,
+    obiter.content,
+    obiter.linkPreviews,
+  );
+
+  return (
+    <article className="relative flex gap-4">
+      {/* Numeral marker */}
+      <div className="relative z-10 shrink-0">
+        <div
+          className={`flex h-10 w-10 items-center justify-center rounded-full border-2 ${
+            idx === 0
+              ? "border-gz-burgundy bg-gz-burgundy text-white"
+              : "border-gz-gold bg-white text-gz-gold"
+          } shadow-sm`}
+        >
+          <span className="font-cormorant text-[16px] font-bold leading-none">
+            {idx + 1}
+          </span>
+        </div>
+        {!isLast && (
+          <p className="font-ibm-mono text-[8px] text-gz-ink-light/60 text-center mt-1 -mb-1">
+            /{total}
+          </p>
+        )}
+      </div>
+
+      {/* Contenido */}
+      <div className="min-w-0 flex-1 pt-1">
+        <div className="flex items-baseline gap-2 mb-2">
+          <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light">
+            Parte {idx + 1} <span className="text-gz-ink-light/50">de {total}</span>
+          </span>
+          {idx > 0 && (
+            <span className="font-ibm-mono text-[9px] text-gz-ink-light/50">
+              · {timeAgo(obiter.createdAt)}
+            </span>
+          )}
+        </div>
+
+        {/* Content */}
+        <div
+          className="font-cormorant text-[16px] leading-[1.7] text-gz-ink lg:text-[17px] mb-3"
+          style={{ whiteSpace: "pre-wrap" }}
+        >
+          <RenderedContent content={obiter.content} />
+        </div>
+
+        {/* Link previews */}
+        {linkPreviews.length > 0 && (
+          <LinkPreviewList previews={linkPreviews} compact />
+        )}
+
+        {/* Actions */}
+        <div className="mt-3 flex items-center gap-3 font-ibm-mono text-[10px] text-gz-ink-light">
+          <button
+            onClick={() => !isOwnObiter && onApoyar(obiter.id)}
+            disabled={isOwnObiter}
+            className={`inline-flex items-center gap-1 transition-colors ${
+              obiter.hasApoyado
+                ? "font-semibold text-gz-burgundy"
+                : isOwnObiter
+                ? "cursor-default text-gz-ink-light/50"
+                : "cursor-pointer hover:text-gz-burgundy"
+            }`}
+          >
+            <span>{obiter.hasApoyado ? "♥" : "♡"}</span>
+            {obiter.apoyosCount > 0 ? obiter.apoyosCount : ""}
+          </button>
+          <span className="text-gz-rule/70">·</span>
+          <button
+            onClick={() => onCitar(obiter)}
+            className="cursor-pointer transition-colors hover:text-gz-gold"
+          >
+            Citar{obiter.citasCount > 0 ? ` ${obiter.citasCount}` : ""}
+          </button>
+          <span className="text-gz-rule/70">·</span>
+          <button
+            onClick={() => onGuardar(obiter.id)}
+            className={`cursor-pointer transition-colors ${
+              obiter.hasGuardado
+                ? "font-semibold text-gz-gold"
+                : "hover:text-gz-gold"
+            }`}
+          >
+            {obiter.hasGuardado ? "✓ Guardado" : "Guardar"}
+          </button>
+          {!isOwnObiter && (
+            <>
+              <span className="text-gz-rule/70">·</span>
+              <button
+                onClick={() => onComuniquese(obiter.id)}
+                className={`cursor-pointer transition-colors ${
+                  obiter.hasComunicado
+                    ? "font-semibold text-gz-gold"
+                    : "hover:text-gz-gold"
+                }`}
+              >
+                {obiter.hasComunicado ? "Comunicado" : "Comuníquese"}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </article>
   );
 }

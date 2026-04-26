@@ -8,6 +8,8 @@ import { parseObiterContent } from "@/lib/legal-reference-parser";
 import { ObiterLegalRef } from "./obiter-legal-ref";
 import { ReportButton } from "@/app/components/report-button";
 import { LinkPreviewList } from "./link-preview-card";
+import { LinkifiedText } from "./linkified-text";
+import { useLinkPreviews } from "./use-link-previews";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -77,7 +79,7 @@ function RenderedContent({ content }: { content: string }) {
     <>
       {parsed.map((segment, i) => {
         if (segment.type === "text") {
-          return <span key={i}>{segment.value}</span>;
+          return <LinkifiedText key={i} text={segment.value} />;
         }
         return (
           <ObiterLegalRef
@@ -109,6 +111,13 @@ export function ObiterCard({
     (obiter.user.firstName?.[0] ?? "") + (obiter.user.lastName?.[0] ?? "");
 
   const isOwnObiter = currentUserId === obiter.userId;
+
+  // Lazy-fetch de link previews para ODs viejos sin previews guardados.
+  const linkPreviews = useLinkPreviews(
+    obiter.id,
+    obiter.content,
+    obiter.linkPreviews,
+  );
 
   // Meta line pieces
   const metaPieces: string[] = [timeAgo(obiter.createdAt)];
@@ -211,8 +220,8 @@ export function ObiterCard({
       </div>
 
       {/* ── Link previews (URLs detectadas en content) ── */}
-      {obiter.linkPreviews && obiter.linkPreviews.length > 0 && (
-        <LinkPreviewList previews={obiter.linkPreviews} />
+      {linkPreviews.length > 0 && (
+        <LinkPreviewList previews={linkPreviews} />
       )}
 
       {/* ── Cited obiter ─────────────────────────────── */}
