@@ -9,8 +9,6 @@ import type { NivelLiga } from "@/lib/league";
 import { InfoTooltip } from "@/app/components/info-tooltip";
 import { FEATURE_INFO } from "@/lib/feature-info";
 
-/* ─── Types ─── */
-
 interface LigaMember {
   position: number;
   userId: string;
@@ -26,10 +24,8 @@ interface GzLigaResumenProps {
   myPosition: number | null;
   myWeeklyXp: number;
   totalMembers: number;
-  topMembers: LigaMember[]; // top 5 for mini-table
+  topMembers: LigaMember[];
 }
-
-/* ─── Component ─── */
 
 export function GzLigaResumen({
   userGrado,
@@ -44,43 +40,76 @@ export function GzLigaResumen({
   const nivelInfo = NIVELES[gradoInfo.nivel as NivelLiga];
 
   const isPromo = (pos: number) => pos <= PROMOTION_SPOTS;
-  const isReleg = (pos: number) => pos > totalMembers - RELEGATION_SPOTS && totalMembers > RELEGATION_SPOTS;
+  const isReleg = (pos: number) =>
+    pos > totalMembers - RELEGATION_SPOTS && totalMembers > RELEGATION_SPOTS;
 
   return (
     <section
-      className="border border-gz-rule rounded-sm overflow-hidden"
-      style={{
-        backgroundColor: "var(--gz-cream)",
-        animationDelay: "0.35s",
-      }}
+      className="relative bg-white border border-gz-ink/15 rounded-[6px] overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_8px_30px_-18px_rgba(15,15,15,0.30)] animate-gz-slide-up"
+      style={{ animationDelay: "0.4s" }}
     >
+      {/* Rail superior con color del grado */}
+      <div
+        className="h-[3px] w-full"
+        style={{
+          background: `linear-gradient(90deg, ${gradoInfo.color}, ${gradoInfo.color}aa)`,
+        }}
+      />
+
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gz-rule">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">{gradoInfo.emoji}</span>
-          <div>
-            <p className="font-ibm-mono text-[8px] uppercase tracking-[2px] text-gz-ink-light">
-              Grado {userGrado} · {nivelInfo?.label ?? gradoInfo.nivel}
-            </p>
-            <p className="font-cormorant text-lg font-bold italic text-gz-ink leading-tight flex items-center gap-2">
-              {gradoInfo.nombre}
-              <InfoTooltip title={FEATURE_INFO.liga.title} description={FEATURE_INFO.liga.description} />
-            </p>
-          </div>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gz-rule/60 bg-gradient-to-b from-gz-cream-dark/30 to-transparent">
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className="h-1.5 w-1.5 rounded-full shrink-0"
+            style={{ backgroundColor: gradoInfo.color }}
+          />
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light truncate flex items-center gap-2">
+            Liga · Grado {userGrado}
+            <InfoTooltip
+              title={FEATURE_INFO.liga.title}
+              description={FEATURE_INFO.liga.description}
+            />
+          </p>
         </div>
-        <span className="font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-gold bg-gz-gold/10 px-2.5 py-1 rounded-full">
-          {daysRemaining}d restante{daysRemaining !== 1 ? "s" : ""}
+        <span
+          className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] px-2 py-0.5 rounded-full shrink-0"
+          style={{
+            color: gradoInfo.color,
+            backgroundColor: `color-mix(in srgb, ${gradoInfo.color} 12%, transparent)`,
+          }}
+        >
+          T-{daysRemaining}d
         </span>
       </div>
 
-      {/* My position summary */}
+      {/* Grado banner */}
+      <div className="px-4 py-3 flex items-center gap-3 border-b border-gz-rule/40">
+        <span className="text-[28px]">{gradoInfo.emoji}</span>
+        <div className="min-w-0">
+          <p className="font-cormorant text-[18px] font-bold italic text-gz-ink leading-tight">
+            {gradoInfo.nombre}
+          </p>
+          <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light mt-0.5">
+            {nivelInfo?.label ?? gradoInfo.nivel}
+          </p>
+        </div>
+      </div>
+
+      {/* Mi posición */}
       {myPosition && (
         <div
-          className="flex items-center justify-between px-4 py-2.5 border-b border-gz-rule/50"
-          style={{ backgroundColor: "color-mix(in srgb, var(--gz-gold) 6%, var(--gz-cream))" }}
+          className="flex items-center justify-between px-4 py-2.5 border-b border-gz-rule/40"
+          style={{
+            backgroundColor: `color-mix(in srgb, ${gradoInfo.color} 5%, transparent)`,
+          }}
         >
           <div className="flex items-center gap-2">
-            <span className="font-cormorant text-xl font-bold text-gz-gold">#{myPosition}</span>
+            <span
+              className="font-cormorant text-[24px] font-bold leading-none"
+              style={{ color: gradoInfo.color }}
+            >
+              #{myPosition}
+            </span>
             <span className="font-archivo text-[11px] text-gz-ink-mid">
               de {totalMembers}
               {isPromo(myPosition) && (
@@ -91,33 +120,47 @@ export function GzLigaResumen({
               )}
             </span>
           </div>
-          <span className="font-ibm-mono text-[11px] text-gz-ink tabular-nums">
-            {myWeeklyXp.toLocaleString()} XP
+          <span className="font-ibm-mono text-[12px] font-semibold text-gz-ink tabular-nums">
+            {myWeeklyXp.toLocaleString("es-CL")} XP
           </span>
         </div>
       )}
 
       {/* Mini leaderboard */}
-      <div className="px-4 py-2">
+      <div className="px-4 py-2 space-y-0.5">
         {topMembers.map((m) => {
           const me = m.userId === userId;
           return (
             <div
               key={m.userId}
-              className={`flex items-center justify-between py-1.5 ${me ? "text-gz-gold" : "text-gz-ink-mid"}`}
+              className={`flex items-center justify-between py-1.5 ${
+                me ? "text-gz-gold" : "text-gz-ink-mid"
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <span className={`font-ibm-mono text-[10px] w-5 text-right tabular-nums ${
-                  m.position <= 3 ? "font-bold text-gz-gold" : ""
-                }`}>
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  className={`font-ibm-mono text-[10px] w-5 text-right tabular-nums ${
+                    m.position <= 3 ? "font-bold" : ""
+                  }`}
+                  style={
+                    m.position <= 3
+                      ? { color: m.position === 1 ? "var(--gz-gold)" : m.position === 2 ? "var(--gz-ink-mid)" : "#a0673a" }
+                      : undefined
+                  }
+                >
                   {m.position}
                 </span>
-                <span className={`font-archivo text-[12px] truncate ${me ? "font-semibold" : ""}`}>
-                  {m.firstName}{me ? " (tú)" : ""}
+                <span
+                  className={`font-archivo text-[12px] truncate ${
+                    me ? "font-semibold" : ""
+                  }`}
+                >
+                  {m.firstName}
+                  {me ? " (tú)" : ""}
                 </span>
               </div>
-              <span className="font-ibm-mono text-[10px] tabular-nums">
-                {m.weeklyXp.toLocaleString()}
+              <span className="font-ibm-mono text-[11px] tabular-nums">
+                {m.weeklyXp.toLocaleString("es-CL")}
               </span>
             </div>
           );
@@ -125,10 +168,10 @@ export function GzLigaResumen({
       </div>
 
       {/* CTA */}
-      <div className="px-4 pb-3 pt-1">
+      <div className="px-4 pb-3 pt-1 border-t border-gz-rule/40">
         <Link
           href="/dashboard/liga"
-          className="block text-center font-archivo text-[11px] font-semibold uppercase tracking-[1px] text-gz-gold hover:text-gz-gold-bright transition-colors py-2 border border-gz-gold/30 rounded-sm hover:bg-gz-gold/5"
+          className="block text-center font-archivo text-[11px] font-semibold uppercase tracking-[1px] text-gz-gold hover:bg-gz-gold/[0.08] hover:text-gz-burgundy transition-colors py-2 border border-gz-gold/40 rounded-full hover:border-gz-burgundy/40"
         >
           Ver Liga Completa →
         </Link>

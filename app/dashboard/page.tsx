@@ -6,12 +6,11 @@ import { progressKey } from "@/lib/progress-utils";
 import { checkStreakPenalty } from "@/lib/xp-config";
 import { noticiasVigentesWhere } from "@/lib/noticias-ttl";
 import type { ProgressData } from "./components/curriculum-progress";
-import { RAMA_LABELS, CURRICULUM } from "@/lib/curriculum-data";
 // getGradoInfo moved to layout.tsx
 
-import { GzHeadline } from "./components/gz-headline";
+import { GzPanelHero } from "./components/gz-panel-hero";
 import { GzCausasWire } from "./components/gz-causas-wire";
-import { GzStudyColumns } from "./components/gz-study-columns";
+import { GzModulosGrid } from "./components/gz-modulos-grid";
 import { GzCommunity } from "./components/gz-community";
 import { GzObiterSemana } from "./components/gz-obiter-semana";
 import { GzMiExamenResumen } from "./components/gz-mi-examen-resumen";
@@ -57,33 +56,6 @@ function calculateStreak(dates: (Date | null)[]): number {
   return streak;
 }
 
-// ─── Calcular progreso por rama ─────────────────────────────
-
-function getRamaProgress(
-  progressData: ProgressData,
-  ramaKey: string
-): number {
-  const rama = CURRICULUM[ramaKey];
-  if (!rama) return 0;
-
-  let totalFlashcards = 0;
-  let dominatedFlashcards = 0;
-
-  for (const seccion of rama.secciones) {
-    for (const titulo of seccion.titulos) {
-      const key = progressKey(ramaKey, seccion.libro, titulo.id);
-      const p = progressData[key];
-      if (p) {
-        totalFlashcards += p.flashcardTotal;
-        dominatedFlashcards += p.flashcardDominated;
-      }
-    }
-  }
-
-  if (totalFlashcards === 0) return 0;
-  return Math.round((dominatedFlashcards / totalFlashcards) * 100);
-}
-
 // ─── Página principal ────────────────────────────────────
 
 export default async function DashboardPage() {
@@ -124,7 +96,8 @@ export default async function DashboardPage() {
   await checkStreakPenalty(authUser.id, prisma);
 
   // ─── Consultas de estadísticas (en paralelo) ──────────────
-  const THIRTY_DAYS_AGO = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  // Ventana de 42 días (6 semanas) para alimentar el activity strip del hero.
+  const THIRTY_DAYS_AGO = new Date(Date.now() - 42 * 24 * 60 * 60 * 1000);
   const [
     masteredCount,
     reviewDatesRaw,
@@ -452,13 +425,7 @@ export default async function DashboardPage() {
     };
   }
 
-  // ─── Progreso por rama para las barras ─────────────────────
-  const ramaProgressItems = Object.keys(CURRICULUM).map((ramaKey) => ({
-    label: RAMA_LABELS[ramaKey] ?? ramaKey,
-    percent: getRamaProgress(progressData, ramaKey),
-  }));
-
-  // ─── Construir actividad de 30 días ──────────────────────
+  // ─── Construir actividad de 42 días ──────────────────────
   // Ahora considera los 11 módulos: Flashcards + MCQ + V/F + Definiciones +
   // FillBlank + ErrorIdentification + OrderSequence + MatchColumns +
   // CasoPractico + Dictado + Timeline
@@ -481,7 +448,7 @@ export default async function DashboardPage() {
   for (const a of tlAttempts30d) addToMap(a.createdAt);
 
   const activityDays: Array<{ date: string; count: number }> = [];
-  for (let i = 29; i >= 0; i--) {
+  for (let i = 41; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     const key = d.toISOString().slice(0, 10);
@@ -665,21 +632,33 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        <GzHeadline
+        <GzPanelHero
+          userName={user.firstName}
           flashcardsDominated={masteredCount}
           flashcardsTotal={totalFlashcards}
           streak={streak}
+          xp={user.xp}
           activityDays={activityDays}
+          examDays={
+            examenResumen?.fechaExamen
+              ? Math.max(
+                  0,
+                  Math.ceil(
+                    (new Date(examenResumen.fechaExamen).getTime() - Date.now()) /
+                      (1000 * 60 * 60 * 24),
+                  ),
+                )
+              : null
+          }
         />
 
-        <div className="mt-4 mb-2">
+        <div className="mb-6">
           <GzMiExamenResumen config={examenResumen} />
         </div>
 
         <GzCausasWire initialRooms={serializedRooms} />
 
-        <GzStudyColumns
-          ramaProgressItems={ramaProgressItems}
+        <GzModulosGrid
           flashcardsDominated={masteredCount}
           flashcardsTotal={totalFlashcards}
           mcqCorrect={mcqCorrect}
@@ -712,51 +691,63 @@ export default async function DashboardPage() {
 
         {/* ─── Noticias Jurídicas mini-widget ─── */}
         {noticiasJuridicas.length > 0 && (
-          <div className="mt-6">
-            <div className="flex items-center gap-3 mb-4">
-              <p className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light whitespace-nowrap">
-                Noticias Jur&iacute;dicas
-              </p>
-              <div className="flex-1 h-px bg-gz-rule" />
+          <section className="relative mt-7 bg-white border border-gz-ink/15 rounded-[6px] overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_8px_30px_-18px_rgba(15,15,15,0.30)]">
+            <div className="h-[3px] w-full bg-gradient-to-r from-gz-navy via-gz-gold to-gz-burgundy" />
+            <div className="flex items-center justify-between px-5 py-3 border-b border-gz-rule/60 bg-gradient-to-b from-gz-cream-dark/30 to-transparent">
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-gz-navy" />
+                <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light">
+                  La Gaceta · Noticias Jurídicas
+                </p>
+              </div>
+              <Link
+                href="/dashboard/noticias"
+                className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold hover:text-gz-burgundy transition-colors"
+              >
+                Ver todas →
+              </Link>
             </div>
-
-            <div className="divide-y divide-gz-rule">
-              {noticiasJuridicas.map((n) => (
-                <div key={n.id} className="py-3 first:pt-0 flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-cormorant text-[16px] font-bold text-gz-ink leading-snug mb-1 line-clamp-2">
-                      {n.titulo}
-                    </h4>
-                    <div className="flex items-center gap-2">
-                      <span className="font-ibm-mono text-[9px] text-gz-ink-light">
-                        {n.fuenteNombre}
-                      </span>
-                      {n.fechaAprobacion && (
-                        <span className="font-ibm-mono text-[9px] text-gz-ink-light">
-                          &middot; {new Date(n.fechaAprobacion).toLocaleDateString("es-CL", { day: "numeric", month: "short" })}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+            <div className="divide-y divide-gz-rule/40">
+              {noticiasJuridicas.map((n, idx) => {
+                const isInternal = n.fuente === "STUDIO_IURIS";
+                return (
                   <a
-                    href={n.urlFuente}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 font-archivo text-[11px] font-semibold text-gz-gold hover:text-gz-navy transition-colors mt-1"
+                    key={n.id}
+                    href={isInternal ? `/dashboard/noticias/${n.id}` : n.urlFuente}
+                    target={isInternal ? undefined : "_blank"}
+                    rel={isInternal ? undefined : "noopener noreferrer"}
+                    className="group flex items-start gap-4 px-5 py-3.5 hover:bg-gz-cream-dark/20 transition-colors"
                   >
-                    Leer &rarr;
+                    <span className="font-cormorant text-[18px] font-bold text-gz-gold/60 leading-none w-5 shrink-0 group-hover:text-gz-burgundy transition-colors">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-cormorant text-[17px] font-bold text-gz-ink leading-snug mb-1 line-clamp-2 group-hover:text-gz-burgundy transition-colors">
+                        {n.titulo}
+                      </h4>
+                      <div className="flex items-center gap-2 font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-ink-light">
+                        <span>{n.fuenteNombre}</span>
+                        {n.fechaAprobacion && (
+                          <>
+                            <span className="text-gz-rule-dark">·</span>
+                            <span>
+                              {new Date(n.fechaAprobacion).toLocaleDateString("es-CL", {
+                                day: "numeric",
+                                month: "short",
+                              })}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <span className="font-archivo text-[11px] font-semibold text-gz-gold opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0 mt-1">
+                      Leer →
+                    </span>
                   </a>
-                </div>
-              ))}
+                );
+              })}
             </div>
-
-            <Link
-              href="/dashboard/noticias"
-              className="mt-3 inline-block font-archivo text-[12px] font-semibold text-gz-gold hover:text-gz-navy transition-colors"
-            >
-              Ver todas &rarr;
-            </Link>
-          </div>
+          </section>
         )}
       </div>
     </main>
