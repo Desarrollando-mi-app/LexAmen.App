@@ -25,6 +25,12 @@ export type ObiterData = {
   threadId: string | null;
   threadOrder: number | null;
   threadPartsCount?: number | null;
+  // === Respuestas (modelo unificado) ===
+  // Si parentObiterId está presente, este OD es una respuesta a otro.
+  // replyCount es el total de respuestas directas que recibió este OD
+  // (no recursivo).
+  parentObiterId?: string | null;
+  replyCount?: number;
   linkPreviews?: LinkPreview[];
   citedObiterId: string | null;
   citedObiter: {

@@ -28,6 +28,9 @@ type ObiterEditorProps = {
   citingEnsayo?: CitingEnsayo | null;
   threadId?: string;
   threadOrder?: number;
+  // Si está presente, este editor publica una RESPUESTA al OD indicado
+  // (modelo unificado de hilos como cadena de respuestas).
+  parentObiterId?: string;
   onCancelCite?: () => void;
   initialText?: string;
 };
@@ -46,6 +49,7 @@ export function ObiterEditor(props: ObiterEditorProps) {
     citingEnsayo,
     threadId,
     threadOrder,
+    parentObiterId,
     onCancelCite,
     initialText,
   } = props;
@@ -148,6 +152,12 @@ export function ObiterEditor(props: ObiterEditorProps) {
       } else if (threadId && threadOrder) {
         body.threadId = threadId;
         body.threadOrder = threadOrder;
+      }
+      // Modo respuesta: si parentObiterId está presente, este OD será
+      // una respuesta directa al padre (no consume cuota diaria, salta
+      // los chequeos de hilo legacy).
+      if (parentObiterId) {
+        body.parentObiterId = parentObiterId;
       }
 
       const res = await fetch("/api/obiter", {

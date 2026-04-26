@@ -1587,9 +1587,23 @@ model ObiterDictum {
   materia String? // "acto_juridico", "obligaciones", "procesal", etc.
   tipo    String? // "reflexion", "pregunta", "cita_doctrinal", "opinion", "dato"
 
-  // === HILOS ===
+  // === HILOS (legacy: hilos de autor) ===
+  // Conservado para compatibilidad con hilos antiguos creados con
+  // "Continuar hilo". Nuevos hilos usan parentObiterId (cadena de
+  // respuestas, posiblemente de varios autores).
   threadId    String?
   threadOrder Int? // 1 a 10 (máximo 10 partes por hilo)
+
+  // === RESPUESTAS / HILOS UNIFICADOS ===
+  // Si parentObiterId está presente, este OD es una respuesta a otro.
+  // Una conversación es una cadena de respuestas. Los hilos de autor
+  // del legacy threadId migrarán gradualmente a este modelo.
+  parentObiterId String?
+  parentObiter   ObiterDictum?  @relation("ObiterReplies", fields: [parentObiterId], references: [id], onDelete: Cascade)
+  replies        ObiterDictum[] @relation("ObiterReplies")
+
+  // Contador desnormalizado de respuestas directas (no recursivo).
+  replyCount Int @default(0)
 
   // === CITAS ===
   citedObiterId String?
@@ -1629,6 +1643,7 @@ model ObiterDictum {
   @@index([userId])
   @@index([threadId, threadOrder])
   @@index([citedObiterId])
+  @@index([parentObiterId, createdAt])
   @@index([createdAt(sort: Desc)])
   @@index([materia])
   @@index([userId, archived])

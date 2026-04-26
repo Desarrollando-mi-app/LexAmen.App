@@ -26,17 +26,27 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { content, materia, tipo, citedObiterId, citedAnalisisId, citedEnsayoId, threadId, threadOrder } =
-    body as {
-      content: string;
-      materia?: string;
-      tipo?: string;
-      citedObiterId?: string;
-      citedAnalisisId?: string;
-      citedEnsayoId?: string;
-      threadId?: string;
-      threadOrder?: number;
-    };
+  const {
+    content,
+    materia,
+    tipo,
+    citedObiterId,
+    citedAnalisisId,
+    citedEnsayoId,
+    threadId,
+    threadOrder,
+    parentObiterId,
+  } = body as {
+    content: string;
+    materia?: string;
+    tipo?: string;
+    citedObiterId?: string;
+    citedAnalisisId?: string;
+    citedEnsayoId?: string;
+    threadId?: string;
+    threadOrder?: number;
+    parentObiterId?: string;
+  };
 
   // ─── Validación: content ────────────────────────────────
 
@@ -69,8 +79,12 @@ export async function POST(request: NextRequest) {
   // ─── Validación: límite diario (solo free, solo obiters raíz) ──
 
   const isThreadContinuation = threadId && threadOrder && threadOrder > 1;
+  const isReply = !!parentObiterId;
 
-  if (!isThreadContinuation) {
+  // Las respuestas y las continuaciones de hilo no consumen del límite
+  // diario (igual que antes para hilos). Mantienen la conversación viva
+  // sin penalizar al participante.
+  if (!isThreadContinuation && !isReply) {
     const publishCheck = await canPublishObiter(authUser.id);
     if (!publishCheck.allowed) {
       return NextResponse.json(
@@ -83,6 +97,51 @@ export async function POST(request: NextRequest) {
         { status: 429 }
       );
     }
+  }
+
+  // ─── Validación: padre (si es respuesta) ──────────────
+  let parentInfo: {
+    id: string;
+    userId: string;
+    commentsDisabled: boolean;
+  } | null = null;
+  if (parentObiterId) {
+    const parent = await prisma.obiterDictum.findUnique({
+      where: { id: parentObiterId },
+      select: {
+        id: true,
+        userId: true,
+        commentsDisabled: true,
+        archived: true,
+      },
+    });
+
+    if (!parent) {
+      return NextResponse.json(
+        { error: "El Obiter al que respondes no existe" },
+        { status: 400 }
+      );
+    }
+
+    if (parent.archived) {
+      return NextResponse.json(
+        { error: "No se puede responder a un Obiter archivado" },
+        { status: 400 }
+      );
+    }
+
+    if (parent.commentsDisabled && parent.userId !== authUser.id) {
+      return NextResponse.json(
+        { error: "El autor desactivó las respuestas en este Obiter" },
+        { status: 403 }
+      );
+    }
+
+    parentInfo = {
+      id: parent.id,
+      userId: parent.userId,
+      commentsDisabled: parent.commentsDisabled,
+    };
   }
 
   // ─── Validación: hilo ──────────────────────────────────
@@ -220,6 +279,7 @@ export async function POST(request: NextRequest) {
       citedEnsayoId: citedEnsayoId || null,
       threadId: threadId || null,
       threadOrder: threadId ? threadOrder : null,
+      parentObiterId: parentObiterId || null,
       ...(linkPreviewsJson != null && { linkPreviews: linkPreviewsJson }),
     },
     include: {
@@ -233,6 +293,41 @@ export async function POST(request: NextRequest) {
       },
     },
   });
+
+  // ─── Side effect: si es respuesta, incrementar replyCount + notificar ──
+  if (parentInfo) {
+    // Incrementamos contador en el padre (best-effort; si la columna aún
+    // no existe por falta de migración, swallow para no romper el create).
+    try {
+      await prisma.obiterDictum.update({
+        where: { id: parentInfo.id },
+        data: { replyCount: { increment: 1 } },
+      });
+    } catch (err) {
+      console.warn("[obiter] replyCount increment failed:", err);
+    }
+
+    // Notificar al autor del padre (si no es uno mismo)
+    if (parentInfo.userId !== authUser.id) {
+      try {
+        await sendNotification({
+          type: "OBITER_CITA", // reutilizamos tipo existente — mismo handler
+          title: "Nueva respuesta a tu Obiter",
+          body: `${obiter.user.firstName} ${obiter.user.lastName} respondió a tu Obiter`,
+          targetUserId: parentInfo.userId,
+          metadata: {
+            obiterId: obiter.id,
+            parentObiterId: parentInfo.id,
+            actorId: authUser.id,
+            actorName: `${obiter.user.firstName} ${obiter.user.lastName}`,
+            isReply: true,
+          },
+        });
+      } catch (err) {
+        console.warn("[obiter] reply notification failed:", err);
+      }
+    }
+  }
 
   // ─── Side effects ──────────────────────────────────────
 
@@ -326,9 +421,14 @@ export async function GET(request: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let orderBy: any = { createdAt: "desc" };
 
-  // Base: solo obiters raíz (no partes 2+ de hilos)
+  // Base: solo obiters raíz — excluye partes 2+ de hilos legacy y excluye
+  // las respuestas (cualquier OD con parentObiterId no aparece en el feed
+  // principal, solo en la página de detalle del padre).
   const rootFilter = {
-    OR: [{ threadOrder: null }, { threadOrder: 1 }],
+    AND: [
+      { OR: [{ threadOrder: null }, { threadOrder: 1 }] },
+      { parentObiterId: null },
+    ],
   };
 
   switch (feed) {
@@ -652,6 +752,7 @@ export async function GET(request: NextRequest) {
       citasCount: o.citasCount,
       guardadosCount: o.guardadosCount,
       comuniqueseCount: o.comuniqueseCount,
+      replyCount: (o as { replyCount?: number }).replyCount ?? 0,
       linkPreviews: parseLinkPreviews((o as { linkPreviews?: string | null }).linkPreviews ?? null),
       createdAt: o.createdAt.toISOString(),
       user: o.user,
@@ -700,6 +801,7 @@ export async function GET(request: NextRequest) {
       citasCount: o.citasCount,
       guardadosCount: o.guardadosCount,
       comuniqueseCount: o.comuniqueseCount,
+      replyCount: (o as { replyCount?: number }).replyCount ?? 0,
       linkPreviews: parseLinkPreviews((o as { linkPreviews?: string | null }).linkPreviews ?? null),
       createdAt: o.createdAt.toISOString(),
       user: o.user,

@@ -309,7 +309,10 @@ export async function DELETE(
       userId: true,
       threadId: true,
       threadOrder: true,
-    },
+      // parentObiterId puede no existir aún si la migración no se aplicó —
+      // Prisma lo expone como undefined sin romper. Lo manejamos abajo.
+      parentObiterId: true,
+    } as { userId: true; threadId: true; threadOrder: true; parentObiterId: true },
   });
 
   if (!obiter) {
@@ -332,6 +335,8 @@ export async function DELETE(
     );
   }
 
+  const parentId = (obiter as { parentObiterId?: string | null }).parentObiterId;
+
   // Si es inicio de un hilo (threadOrder === 1): eliminar todo el hilo
   if (obiter.threadId && obiter.threadOrder === 1) {
     await prisma.obiterDictum.deleteMany({
@@ -339,6 +344,18 @@ export async function DELETE(
     });
   } else {
     await prisma.obiterDictum.delete({ where: { id } });
+  }
+
+  // Si era una respuesta, decrementamos el contador del padre.
+  if (parentId) {
+    try {
+      await prisma.obiterDictum.update({
+        where: { id: parentId },
+        data: { replyCount: { decrement: 1 } },
+      });
+    } catch (err) {
+      console.warn("[obiter] replyCount decrement failed:", err);
+    }
   }
 
   return NextResponse.json({ deleted: true });

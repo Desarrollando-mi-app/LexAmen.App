@@ -20,6 +20,9 @@ type ObiterCardProps = {
   onGuardar: (id: string) => void;
   onComuniquese: (id: string) => void;
   onCitar: (obiter: ObiterData) => void;
+  // Si se provee, se llama al click. Si NO se provee, navegamos a la
+  // página de detalle del OD donde vive el editor inline de respuestas.
+  onResponder?: (obiter: ObiterData) => void;
   onThreadClick?: (threadId: string) => void;
   onManage?: (id: string, action: string, content?: string) => void;
   showComuniquesePor?: boolean;
@@ -103,10 +106,12 @@ export function ObiterCard({
   onGuardar,
   onComuniquese,
   onCitar,
+  onResponder,
   onThreadClick,
   onManage,
   showComuniquesePor,
 }: ObiterCardProps) {
+  const router = useRouter();
   const initials =
     (obiter.user.firstName?.[0] ?? "") + (obiter.user.lastName?.[0] ?? "");
 
@@ -339,18 +344,47 @@ export function ObiterCard({
           )}
 
           {/* ── Action bar — estilo X con icon-buttons + hover circle ── */}
-          <div className="mt-3 flex items-center justify-between max-w-[440px] -ml-2">
-            {/* Citar / Reply */}
+          <div className="mt-3 flex items-center justify-between max-w-[480px] -ml-2">
+            {/* Responder / Reply — chat bubble (navega al detalle si no hay handler) */}
             <ActionButton
-              label="Citar"
-              count={obiter.citasCount}
+              label="Responder"
+              count={obiter.replyCount ?? 0}
               active={false}
+              disabled={!currentUserId}
               hoverColor="navy"
-              onClick={() => onCitar(obiter)}
+              onClick={() => {
+                if (!currentUserId) return;
+                if (onResponder) {
+                  onResponder(obiter);
+                } else {
+                  // Navega al detalle, hash #reply enfoca el editor
+                  router.push(`/dashboard/diario/obiter/${obiter.id}#reply`);
+                }
+              }}
               icon={
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path
                     d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              }
+            />
+
+            {/* Citar / Quote */}
+            <ActionButton
+              label="Citar"
+              count={obiter.citasCount}
+              active={false}
+              hoverColor="gold"
+              onClick={() => onCitar(obiter)}
+              icon={
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M3 21c0-3.5 2-7 6-7M3 13V8a2 2 0 012-2h4a2 2 0 012 2v5a2 2 0 01-2 2H3zm10 8c0-3.5 2-7 6-7m-6-1V8a2 2 0 012-2h4a2 2 0 012 2v5a2 2 0 01-2 2h-6z"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"

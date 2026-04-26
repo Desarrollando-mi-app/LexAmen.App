@@ -284,6 +284,9 @@ export default async function ObiterDetailPage({
     citasCount: obiter.citasCount,
     guardadosCount: obiter.guardadosCount,
     comuniqueseCount: obiter.comuniqueseCount,
+    // replyCount viene de la columna desnormalizada (default 0 si la
+    // migración no se aplicó).
+    replyCount: (obiter as { replyCount?: number }).replyCount ?? 0,
     hasApoyado,
     hasGuardado,
     hasComunicado,
@@ -301,6 +304,109 @@ export default async function ObiterDetailPage({
     citasCount: c.citasCount,
     user: c.user,
   }));
+
+  // ─── Respuestas (modelo unificado) ─────────────────────────
+  // Carga las respuestas directas del OD ordenadas cronológicamente.
+  // Las respuestas no aparecen en el feed principal; viven solo aquí.
+  // Defensive: la columna parentObiterId puede no existir si la
+  // migración no se aplicó. Si falla, devolvemos lista vacía.
+  type ReplyWithRelations = Awaited<
+    ReturnType<typeof prisma.obiterDictum.findMany>
+  >[number] & {
+    user: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      avatarUrl: string | null;
+      universidad: string | null;
+    };
+  };
+  let rawReplies: ReplyWithRelations[] = [];
+  try {
+    rawReplies = (await prisma.obiterDictum.findMany({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      where: { parentObiterId: id } as any,
+      orderBy: { createdAt: "asc" },
+      take: 100,
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+            universidad: true,
+          },
+        },
+      },
+    })) as ReplyWithRelations[];
+  } catch (err) {
+    console.warn("[obiter detail] replies query failed:", err);
+  }
+
+  // Flags de interacción para cada respuesta (si está autenticado)
+  let replyInteractions: {
+    apoyo: Set<string>;
+    guardado: Set<string>;
+    comunicado: Set<string>;
+  } = {
+    apoyo: new Set(),
+    guardado: new Set(),
+    comunicado: new Set(),
+  };
+  if (authUser && rawReplies.length > 0) {
+    const replyIds = rawReplies.map((r) => r.id);
+    const [a, g, c] = await Promise.all([
+      prisma.obiterApoyo.findMany({
+        where: { obiterId: { in: replyIds }, userId: authUser.id },
+        select: { obiterId: true },
+      }),
+      prisma.obiterGuardado.findMany({
+        where: { obiterId: { in: replyIds }, userId: authUser.id },
+        select: { obiterId: true },
+      }),
+      prisma.obiterComuniquese.findMany({
+        where: { obiterId: { in: replyIds }, userId: authUser.id },
+        select: { obiterId: true },
+      }),
+    ]);
+    replyInteractions = {
+      apoyo: new Set(a.map((x) => x.obiterId)),
+      guardado: new Set(g.map((x) => x.obiterId)),
+      comunicado: new Set(c.map((x) => x.obiterId)),
+    };
+  }
+
+  const serializedReplies = rawReplies.map((r) => ({
+    id: r.id,
+    userId: r.userId,
+    user: r.user,
+    content: r.content,
+    materia: r.materia,
+    tipo: r.tipo,
+    threadId: r.threadId,
+    threadOrder: r.threadOrder,
+    threadPartsCount: null,
+    parentObiterId: id,
+    replyCount: (r as { replyCount?: number }).replyCount ?? 0,
+    citedObiterId: r.citedObiterId,
+    citedObiter: null,
+    citedAnalisisId: r.citedAnalisisId ?? null,
+    citedAnalisis: null,
+    citedEnsayoId: r.citedEnsayoId ?? null,
+    citedEnsayo: null,
+    apoyosCount: r.apoyosCount,
+    citasCount: r.citasCount,
+    guardadosCount: r.guardadosCount,
+    comuniqueseCount: r.comuniqueseCount,
+    hasApoyado: replyInteractions.apoyo.has(r.id),
+    hasGuardado: replyInteractions.guardado.has(r.id),
+    hasComunicado: replyInteractions.comunicado.has(r.id),
+    createdAt: r.createdAt.toISOString(),
+  }));
+
+  const obiterCommentsDisabled =
+    (obiter as { commentsDisabled?: boolean }).commentsDisabled ?? false;
 
   const isThread = threadParts && threadParts.length > 1;
 
@@ -338,6 +444,8 @@ export default async function ObiterDetailPage({
           obiter={serializedObiter}
           threadParts={threadParts}
           citations={serializedCitations}
+          replies={serializedReplies}
+          commentsDisabled={obiterCommentsDisabled}
           currentUserId={authUser?.id ?? null}
           currentUserFirstName={currentUserFirstName}
           currentUserAvatarUrl={currentUserAvatarUrl ?? null}
