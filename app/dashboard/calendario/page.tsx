@@ -9,11 +9,6 @@ import Image from "next/image";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// Marcador visible de versión — sirve para diagnosticar qué build está
-// siendo servido por el CDN. Cambiarlo cada vez que se haga un cambio
-// visual significativo en esta página.
-const BUILD_TAG = "v4.8 · full";
-
 export default async function CalendarioPage() {
   const supabase = await createClient();
   const {
@@ -131,49 +126,9 @@ export default async function CalendarioPage() {
     isGrado: c.isGrado,
   }));
 
-  // Romano del año + mes para el masthead.
-  const yearRoman = toRoman(now.getFullYear());
-  const monthRoman = toRoman(now.getMonth() + 1);
-  const trimRoman = ["I", "I", "I", "II", "II", "II", "III", "III", "III", "IV", "IV", "IV"][now.getMonth()];
-
-  // Día actual en formato editorial
-  const diaSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"][now.getDay()];
-
-  // Cita rotada por mes — colección clásica jurídica.
-  const cita = CITAS_JURIDICAS[now.getMonth() % CITAS_JURIDICAS.length];
-
   return (
     <div>
       <div className="gz-section-header px-4 sm:px-6 pt-6 pb-3 relative overflow-hidden">
-        {/* Ornamento decorativo de fondo */}
-        <div className="absolute top-3 right-4 sm:right-8 font-cormorant text-[140px] leading-none text-gz-ink/[0.035] select-none pointer-events-none rotate-6">
-          ✠
-        </div>
-        <div className="absolute -top-2 -left-2 font-cormorant text-[60px] leading-none text-gz-gold/[0.06] select-none pointer-events-none">
-          ❦
-        </div>
-
-        {/* Pleca superior — running header tipo periódico */}
-        <div className="flex items-center justify-between mb-3 pb-2 border-b border-gz-ink/30">
-          <p className="font-ibm-mono text-[9px] uppercase tracking-[3px] text-gz-ink-light">
-            Tomo <span className="text-gz-burgundy font-semibold">{yearRoman}</span>
-            <span className="mx-2 text-gz-rule-dark">·</span>
-            Entrega <span className="text-gz-burgundy font-semibold">{monthRoman}</span>
-            <span className="mx-2 text-gz-rule-dark">·</span>
-            Trimestre <span className="text-gz-burgundy font-semibold">{trimRoman}</span>
-          </p>
-          <p className="font-ibm-mono text-[9px] uppercase tracking-[2.5px] text-gz-ink-light hidden sm:block">
-            {diaSemana}, {now.getDate()} · Chile
-            <span className="ml-3 px-1.5 py-0.5 rounded-sm bg-gz-gold/15 text-gz-gold text-[8px] tracking-[1.5px]">
-              {BUILD_TAG}
-            </span>
-          </p>
-        </div>
-
-        <p className="font-cormorant italic text-[14px] text-gz-burgundy mb-1 flex items-center gap-2">
-          <span className="font-cormorant text-[16px] text-gz-gold leading-none">❡</span>
-          Cuaderno de Bitácora
-        </p>
         <div className="flex items-end gap-4 mb-3">
           <Image
             src="/brand/logo-sello.svg"
@@ -185,19 +140,6 @@ export default async function CalendarioPage() {
           <h1 className="font-cormorant text-[42px] sm:text-[48px] lg:text-[56px] font-bold text-gz-ink leading-[0.95] tracking-tight">
             Calendario <span className="text-gz-burgundy italic">Personal</span>
           </h1>
-        </div>
-
-        {/* Cita celebre con comillas decorativas */}
-        <div className="relative max-w-[700px] pl-8 sm:pl-12">
-          <span className="absolute -top-2 left-0 font-cormorant text-[64px] leading-[0.5] text-gz-gold/40 select-none">
-            &ldquo;
-          </span>
-          <p className="font-cormorant italic text-[15px] sm:text-[16px] text-gz-ink-mid leading-relaxed">
-            {cita.texto}
-            <span className="ml-2 font-ibm-mono not-italic text-[10px] uppercase tracking-[1.5px] text-gz-ink-light">
-              — {cita.autor}
-            </span>
-          </p>
         </div>
 
         {/* Triple regla editorial: gruesa + delgada + gruesa */}
@@ -218,33 +160,3 @@ export default async function CalendarioPage() {
   );
 }
 
-// ─── Helpers locales ────────────────────────────────────────
-
-function toRoman(num: number): string {
-  const map: [number, string][] = [
-    [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"],
-    [100, "C"], [90, "XC"], [50, "L"], [40, "XL"],
-    [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"],
-  ];
-  let n = num;
-  let out = "";
-  for (const [v, s] of map) {
-    while (n >= v) { out += s; n -= v; }
-  }
-  return out;
-}
-
-const CITAS_JURIDICAS: { texto: string; autor: string }[] = [
-  { texto: "Ubi societas, ibi ius. Donde hay sociedad, hay derecho.", autor: "Aforismo romano" },
-  { texto: "El derecho es la ciencia de lo justo y de lo injusto.", autor: "Ulpiano" },
-  { texto: "La justicia es la constante y perpetua voluntad de dar a cada uno lo suyo.", autor: "Justiniano" },
-  { texto: "Donde la ley no distingue, no debemos distinguir nosotros.", autor: "Aforismo" },
-  { texto: "Sin disciplina cotidiana no hay obra duradera.", autor: "Andrés Bello" },
-  { texto: "Audiatur et altera pars. Óigase también a la otra parte.", autor: "Aforismo procesal" },
-  { texto: "El tiempo es la materia con que está hecha la vida.", autor: "Benjamin Franklin" },
-  { texto: "Dura lex, sed lex. La ley es dura, pero es la ley.", autor: "Aforismo romano" },
-  { texto: "El estudio sin método produce poco fruto, el método sin estudio ninguno.", autor: "Andrés Bello" },
-  { texto: "La constancia vence lo que la dicha no alcanza.", autor: "Bolívar" },
-  { texto: "In claris non fit interpretatio. Lo claro no requiere interpretación.", autor: "Aforismo" },
-  { texto: "El derecho no nace del hecho sino de la razón.", autor: "Hugo Grocio" },
-];
