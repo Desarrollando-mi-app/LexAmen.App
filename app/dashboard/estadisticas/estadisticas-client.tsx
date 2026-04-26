@@ -9,6 +9,9 @@ import { BloqueDistribucion } from "./components/bloque-distribucion";
 import { BloqueActividad } from "./components/bloque-actividad";
 import { BloqueOlvidadas } from "./components/bloque-olvidadas";
 import { PercentilBadge } from "./components/percentil-badge";
+import { BloqueRamasComparado } from "./components/bloque-ramas-comparado";
+import { BloqueXpRing } from "./components/bloque-xp-ring";
+import { BloqueFunnel } from "./components/bloque-funnel";
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -110,37 +113,38 @@ export function EstadisticasClient() {
 
   return (
     <div className="gz-page min-h-screen bg-[var(--gz-cream)]">
-      <div className="max-w-[1280px] mx-auto px-4 lg:px-10 py-8">
-        {/* Page Header — full bleed */}
-        <div className="gz-section-header mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-gold">
-              Panel de análisis
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <Image src="/brand/logo-sello.svg" alt="Studio Iuris" width={80} height={80} className="h-[60px] w-[60px] lg:h-[80px] lg:w-[80px]" />
-                <h1 className="font-cormorant text-[38px] lg:text-[44px] font-bold text-gz-ink leading-none">
-                  Mis Estadísticas
+      <div className="max-w-[1320px] mx-auto px-4 lg:px-10 py-8">
+        {/* ─── Page Header — editorial premium ─── */}
+        <div className="gz-section-header mb-7 relative">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+            <div className="min-w-0">
+              <div className="flex items-end gap-4 mb-2">
+                <Image
+                  src="/brand/logo-sello.svg"
+                  alt="Studio Iuris"
+                  width={80}
+                  height={80}
+                  className="h-[60px] w-[60px] lg:h-[78px] lg:w-[78px] shrink-0"
+                />
+                <h1 className="font-cormorant text-[42px] sm:text-[48px] lg:text-[56px] font-bold text-gz-ink leading-[0.95] tracking-tight">
+                  Mis <span className="text-gz-burgundy italic">Estadísticas</span>
                 </h1>
               </div>
-              <p className="font-cormorant text-[16px] italic text-gz-ink-mid mt-1">
-                Análisis detallado de tu rendimiento académico
+              <p className="font-cormorant italic text-[15px] sm:text-[16px] text-gz-ink-mid pl-1">
+                Tu rendimiento bajo la lupa — datos, gráficos y tendencias.
               </p>
             </div>
 
-            {/* Period selector */}
-            <div className="flex items-center gap-1 bg-white border border-gz-rule rounded-[3px] p-0.5 shrink-0">
+            {/* Period selector — pill toggle editorial */}
+            <div className="inline-flex rounded-full border border-gz-rule overflow-hidden bg-white shrink-0 self-start lg:self-end">
               {PERIODOS.map((p) => (
                 <button
                   key={p.value}
                   onClick={() => setPeriodo(p.value)}
-                  className={`font-ibm-mono text-[10px] uppercase tracking-[1px] px-3 py-1.5 rounded-[2px] transition-colors ${
+                  className={`font-ibm-mono text-[11px] uppercase tracking-[1.5px] px-4 py-1.5 transition-all duration-300 ease-out cursor-pointer active:scale-95 ${
                     periodo === p.value
                       ? "bg-gz-navy text-white"
-                      : "text-gz-ink-mid hover:text-gz-ink hover:bg-gz-cream"
+                      : "text-gz-ink-mid hover:bg-gz-cream-dark/60 hover:text-gz-ink"
                   }`}
                 >
                   {p.label}
@@ -148,7 +152,11 @@ export function EstadisticasClient() {
               ))}
             </div>
           </div>
-          <div className="h-[2px] bg-gz-ink mt-3" />
+
+          {/* Triple regla editorial */}
+          <div className="mt-5 h-[3px] bg-gz-ink/85" />
+          <div className="h-px bg-gz-ink/85 mt-[2px]" />
+          <div className="h-[2px] bg-gz-ink/85 mt-[2px]" />
         </div>
 
         {/* Loading state */}
@@ -179,44 +187,58 @@ export function EstadisticasClient() {
         {/* Data loaded */}
         {data && !loading && (
           <div className="space-y-6 animate-gz-slide-up">
-            {/* Bloque 1: Resumen Ejecutivo */}
-            <BloqueResumen resumen={data.resumen} periodo={periodo} />
+            {/* ═══ FILA 1 — Resumen ejecutivo (KPIs hero + sparklines) ═══ */}
+            <BloqueResumen
+              resumen={data.resumen}
+              periodo={periodo}
+              evolucion={data.evolucion}
+            />
 
-            {/* Percentil (if available) */}
-            {data.percentil && <PercentilBadge percentil={data.percentil} />}
+            {/* ═══ FILA 2 — Percentil + XP ring ═══ */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
+              {data.percentil ? (
+                <PercentilBadge percentil={data.percentil} />
+              ) : (
+                <div className="hidden lg:block" />
+              )}
+              <BloqueXpRing
+                competencias={data.competencias}
+                xpTotal={data.resumen.xp}
+              />
+            </div>
 
-            {/* Bloque 2 + 3: Two column layout */}
+            {/* ═══ FILA 3 — Competencias (radar) + Evolución (line) ═══ */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Bloque 2: Mapa de Competencias */}
               <BloqueCompetencias
                 competencias={data.competencias}
                 percentil={data.percentil}
               />
-
-              {/* Bloque 3: Evolución Temporal */}
               <BloqueEvolucion evolucion={data.evolucion} />
             </div>
 
-            {/* Bloque 4 + 6: Two column layout */}
+            {/* ═══ FILA 4 — Comparativo por rama (full width) ═══ */}
+            <BloqueRamasComparado competencias={data.competencias} />
+
+            {/* ═══ FILA 5 — Funnel + Distribución ═══ */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Bloque 4: Distribución */}
+              <BloqueFunnel competencias={data.competencias} />
               <BloqueDistribucion
                 distribucion={data.distribucion}
                 totalItems={data.totalItems}
               />
-
-              {/* Bloque 6: Materias Olvidadas */}
-              <BloqueOlvidadas
-                olvidadas={data.olvidadas}
-                materiasAlDia={data.actividad.materiasAlDia}
-              />
             </div>
 
-            {/* Bloque 5: Calendario de Actividad (full width) */}
+            {/* ═══ FILA 6 — Calendario de actividad (full width heatmap) ═══ */}
             <BloqueActividad
               dias={data.actividad.dias}
               mejorRacha={data.actividad.mejorRacha}
               diaMasActivo={data.actividad.diaMasActivo}
+            />
+
+            {/* ═══ FILA 7 — Materias olvidadas (full width) ═══ */}
+            <BloqueOlvidadas
+              olvidadas={data.olvidadas}
+              materiasAlDia={data.actividad.materiasAlDia}
             />
           </div>
         )}

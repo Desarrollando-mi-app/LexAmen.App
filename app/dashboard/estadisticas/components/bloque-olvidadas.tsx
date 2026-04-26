@@ -39,19 +39,21 @@ export function BloqueOlvidadas({
   materiasAlDia,
 }: BloqueOlvidadasProps) {
   return (
-    <div className="bg-white border border-gz-rule rounded-[4px] p-5">
-      {/* Header */}
-      <div className="mb-4">
-        <div className="flex items-center gap-3 mb-1">
-          <h3 className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light font-medium">
+    <section className="relative bg-white border border-gz-ink/15 rounded-[6px] overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_8px_30px_-18px_rgba(15,15,15,0.30)]">
+      <div className="h-[3px] w-full bg-gradient-to-r from-gz-burgundy/60 via-gz-gold to-gz-sage/60" />
+      <div className="flex items-center justify-between px-5 py-3 border-b border-gz-rule/60 bg-gradient-to-b from-gz-cream-dark/30 to-transparent">
+        <div className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-gz-burgundy" />
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light">
             Materias olvidadas
-          </h3>
-          <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-burgundy bg-gz-burgundy/10 px-2 py-0.5 rounded-[2px]">
-            +7 días sin practicar
-          </span>
+          </p>
         </div>
-        <div className="h-px bg-gz-rule" />
+        <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-burgundy bg-gz-burgundy/10 px-2 py-0.5 rounded-full">
+          +7 días sin practicar
+        </span>
       </div>
+
+      <div className="p-5">
 
       {/* Summary line */}
       <p className="font-archivo text-[12px] text-gz-ink-mid mb-3">
@@ -114,6 +116,7 @@ export function BloqueOlvidadas({
           ))}
         </div>
       )}
-    </div>
+      </div>
+    </section>
   );
 }

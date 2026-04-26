@@ -38,24 +38,25 @@ export function BloqueCompetencias({
 }: BloqueCompetenciasProps) {
   if (!competencias || competencias.length === 0) {
     return (
-      <div className="bg-white border border-gz-rule rounded-[4px] p-5">
-        <div className="mb-4">
-          <div className="flex items-center gap-3 mb-1">
-            <h3 className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light font-medium flex items-center gap-2">
+      <section className="relative bg-white border border-gz-ink/15 rounded-[6px] overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_8px_30px_-18px_rgba(15,15,15,0.30)]">
+        <div className="h-[3px] w-full bg-gradient-to-r from-gz-gold to-gz-burgundy" />
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gz-rule/60 bg-gradient-to-b from-gz-cream-dark/30 to-transparent">
+          <div className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-gz-gold" />
+            <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light flex items-center gap-2">
               Mapa de competencias
               <InfoTooltip title={FEATURE_INFO.competencias.title} description={FEATURE_INFO.competencias.description} />
-            </h3>
-            <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold bg-gz-gold/10 px-2 py-0.5 rounded-[2px]">
-              Dominio por materia
-            </span>
+            </p>
           </div>
-          <div className="h-px bg-gz-rule" />
+          <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold bg-gz-gold/10 px-2 py-0.5 rounded-full">
+            Dominio por materia
+          </span>
         </div>
-        <p className="italic text-gz-ink-light font-archivo text-[13px] text-center py-8">
-          Aun no hay datos de competencias. Completa actividades en distintas
+        <p className="italic text-gz-ink-light font-archivo text-[13px] text-center py-12 px-5">
+          Aún no hay datos de competencias. Completa actividades en distintas
           materias para ver tu mapa.
         </p>
-      </div>
+      </section>
     );
   }
 
@@ -79,19 +80,21 @@ export function BloqueCompetencias({
   }));
 
   return (
-    <div className="bg-white border border-gz-rule rounded-[4px] p-5">
-      {/* Header */}
-      <div className="mb-4">
-        <div className="flex items-center gap-3 mb-1">
-          <h3 className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light font-medium">
+    <section className="relative bg-white border border-gz-ink/15 rounded-[6px] overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_8px_30px_-18px_rgba(15,15,15,0.30)]">
+      <div className="h-[3px] w-full bg-gradient-to-r from-gz-gold to-gz-burgundy" />
+      <div className="flex items-center justify-between px-5 py-3 border-b border-gz-rule/60 bg-gradient-to-b from-gz-cream-dark/30 to-transparent">
+        <div className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-gz-gold" />
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light">
             Mapa de competencias
-          </h3>
-          <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold bg-gz-gold/10 px-2 py-0.5 rounded-[2px]">
-            Dominio por materia
-          </span>
+          </p>
         </div>
-        <div className="h-px bg-gz-rule" />
+        <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold bg-gz-gold/10 px-2 py-0.5 rounded-full">
+          Dominio por materia
+        </span>
       </div>
+
+      <div className="p-5">
 
       {/* Radar Chart */}
       <ResponsiveContainer width="100%" height={300}>
@@ -151,11 +154,12 @@ export function BloqueCompetencias({
       {/* Percentil badge */}
       {percentil && (
         <div className="mt-4 text-center">
-          <span className="inline-block font-ibm-mono text-[10px] uppercase tracking-[1.5px] bg-gz-navy text-white px-3 py-1 rounded-[2px]">
+          <span className="inline-block font-ibm-mono text-[10px] uppercase tracking-[1.5px] bg-gz-navy text-white px-3 py-1 rounded-full">
             Percentil {percentil.global} en {percentil.universidad}
           </span>
         </div>
       )}
-    </div>
+      </div>
+    </section>
   );
 }

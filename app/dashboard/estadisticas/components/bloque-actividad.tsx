@@ -72,19 +72,21 @@ export function BloqueActividad({
   }, [dias]);
 
   return (
-    <div className="bg-white border border-gz-rule rounded-[4px] p-5">
-      {/* Header */}
-      <div className="mb-4">
-        <div className="flex items-center gap-3 mb-1">
-          <h3 className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light font-medium">
-            Actividad · ultimos 90 dias
-          </h3>
-          <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold bg-gz-gold/10 px-2 py-0.5 rounded-[2px]">
-            Heatmap
-          </span>
+    <section className="relative bg-white border border-gz-ink/15 rounded-[6px] overflow-hidden shadow-[0_1px_0_rgba(15,15,15,0.04),0_8px_30px_-18px_rgba(15,15,15,0.30)]">
+      <div className="h-[3px] w-full bg-gradient-to-r from-gz-gold/40 via-gz-gold to-gz-burgundy" />
+      <div className="flex items-center justify-between px-5 py-3 border-b border-gz-rule/60 bg-gradient-to-b from-gz-cream-dark/30 to-transparent">
+        <div className="flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-gz-gold" />
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-light">
+            Actividad · últimos 90 días
+          </p>
         </div>
-        <div className="h-px bg-gz-rule" />
+        <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-gold bg-gz-gold/10 px-2 py-0.5 rounded-full">
+          Heatmap
+        </span>
       </div>
+
+      <div className="p-5">
 
       {/* Heatmap grid */}
       <div className="overflow-x-auto">
@@ -142,8 +144,9 @@ export function BloqueActividad({
             }}
           />
         ))}
-        <span className="ml-1">Mas</span>
+        <span className="ml-1">Más</span>
       </div>
-    </div>
+      </div>
+    </section>
   );
 }
