@@ -174,7 +174,7 @@ export function PerfilModerno({
   const [colegaStatus, setColegaStatus] = useState(initialStatus);
   const [requestId, setRequestId] = useState(initialRequestId);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"publicaciones" | "trayectoria" | "logros" | "comunidad" | "cv">("publicaciones");
+  const [activeTab, setActiveTab] = useState<"publicaciones" | "logros" | "comunidad" | "cv">("publicaciones");
   const router = useRouter();
   const [hitoModalOpen, setHitoModalOpen] = useState(false);
   const [editingHito, setEditingHito] = useState<HitoData | null>(null);
@@ -500,7 +500,6 @@ export function PerfilModerno({
         >
           <div className="flex items-center gap-0.5 px-2 overflow-x-auto">
             <Tab active={activeTab === "publicaciones"} label="Publicaciones" count={pubCounts.total} onClick={() => setActiveTab("publicaciones")} />
-            <Tab active={activeTab === "trayectoria"} label="Trayectoria" count={trayectoria?.length ?? 0} onClick={() => setActiveTab("trayectoria")} />
             <Tab active={activeTab === "logros"} label="Logros" count={earnedBadges.length} onClick={() => setActiveTab("logros")} />
             <Tab active={activeTab === "comunidad"} label="Comunidad" count={colegaCount} onClick={() => setActiveTab("comunidad")} />
             {user.cvAvailable && <Tab active={activeTab === "cv"} label="CV" onClick={() => setActiveTab("cv")} />}
@@ -574,86 +573,6 @@ export function PerfilModerno({
                   ))
                 )}
               </>
-            )}
-
-            {activeTab === "trayectoria" && (
-              <div className="rounded-[3px] border border-gz-rule bg-gz-cream p-5">
-                <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-                  <h3 className="font-cormorant text-2xl font-semibold">Trayectoria</h3>
-                  {isOwnProfile && (
-                    <button
-                      onClick={() => {
-                        setEditingHito(null);
-                        setHitoModalOpen(true);
-                      }}
-                      className="group inline-flex items-center gap-1.5 rounded-full bg-gz-gold text-white px-3.5 py-1.5 font-archivo text-[12px] font-semibold hover:bg-gz-burgundy hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm"
-                    >
-                      <span className="font-cormorant text-[18px] leading-none -mt-px transition-transform group-hover:rotate-90">+</span>
-                      Agregar hito
-                    </button>
-                  )}
-                </div>
-                {trayectoria && trayectoria.length > 0 ? (
-                  <ol className="relative space-y-5">
-                    {trayectoria.map((t, i) => (
-                      <li key={t.id ?? `auto-${i}`} className="flex gap-4 group/item">
-                        <div className="shrink-0 w-14 text-right">
-                          <div className="font-cormorant text-2xl font-semibold text-gz-gold leading-tight">{t.anio}</div>
-                          {t.esActual && (
-                            <span className="font-ibm-mono text-[8px] uppercase tracking-[1.5px] text-gz-sage">actual</span>
-                          )}
-                        </div>
-                        <div className="flex-1 pb-4 border-b border-gz-rule last:border-0 flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="font-archivo font-semibold text-gz-ink">
-                              {t.isCustom ? t.detalle : trayectoriaLabel(t.tipo)}
-                            </div>
-                            {t.institucion && (
-                              <div className="font-archivo text-sm italic text-gz-ink-mid mt-0.5">{t.institucion}</div>
-                            )}
-                            {!t.isCustom && t.detalle && (
-                              <div className="font-archivo text-sm text-gz-ink-mid mt-0.5">{t.detalle}</div>
-                            )}
-                            {t.descripcion && (
-                              <p className="font-archivo text-[13px] text-gz-ink-mid mt-1 leading-snug">{t.descripcion}</p>
-                            )}
-                            {t.isCustom && (
-                              <span className="inline-block mt-1 font-ibm-mono text-[8px] uppercase tracking-[1.5px] text-gz-ink-light/60">
-                                {trayectoriaLabel(t.tipo)}
-                              </span>
-                            )}
-                          </div>
-                          {isOwnProfile && t.isCustom && t.id && (
-                            <button
-                              onClick={() => {
-                                setEditingHito({
-                                  id: t.id,
-                                  tipo: t.tipo as HitoData["tipo"],
-                                  titulo: t.detalle ?? "",
-                                  institucion: t.institucion ?? null,
-                                  descripcion: t.descripcion ?? null,
-                                  fecha: t.fechaIso ?? `${t.anio}-01-01T12:00:00.000Z`,
-                                  esActual: !!t.esActual,
-                                });
-                                setHitoModalOpen(true);
-                              }}
-                              className="opacity-0 group-hover/item:opacity-100 text-gz-ink-light hover:text-gz-gold transition-all shrink-0 cursor-pointer"
-                              aria-label="Editar hito"
-                              title="Editar hito"
-                            >
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="font-archivo text-sm text-gz-ink-light italic">Sin trayectoria registrada.</p>
-                )}
-              </div>
             )}
 
             {activeTab === "logros" && (
@@ -776,33 +695,23 @@ export function PerfilModerno({
               <div className="rounded-[3px] border border-gz-rule bg-white p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">Trayectoria</h3>
-                  <div className="flex items-center gap-2">
-                    {trayectoria && trayectoria.length > 4 && (
-                      <button
-                        onClick={() => setActiveTab("trayectoria")}
-                        className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-gold hover:underline cursor-pointer"
-                      >
-                        Ver todo
-                      </button>
-                    )}
-                    {isOwnProfile && (
-                      <button
-                        onClick={() => {
-                          setEditingHito(null);
-                          setHitoModalOpen(true);
-                        }}
-                        className="group inline-flex items-center justify-center h-7 w-7 rounded-full border border-gz-gold text-gz-gold hover:bg-gz-gold hover:text-white hover:rotate-90 active:scale-90 transition-all duration-200 cursor-pointer"
-                        aria-label="Agregar hito"
-                        title="Agregar hito"
-                      >
-                        <span className="font-cormorant text-[18px] leading-none -mt-px">+</span>
-                      </button>
-                    )}
-                  </div>
+                  {isOwnProfile && (
+                    <button
+                      onClick={() => {
+                        setEditingHito(null);
+                        setHitoModalOpen(true);
+                      }}
+                      className="group inline-flex items-center justify-center h-7 w-7 rounded-full border border-gz-gold text-gz-gold hover:bg-gz-gold hover:text-white hover:rotate-90 active:scale-90 transition-all duration-200 cursor-pointer"
+                      aria-label="Agregar hito"
+                      title="Agregar hito"
+                    >
+                      <span className="font-cormorant text-[18px] leading-none -mt-px">+</span>
+                    </button>
+                  )}
                 </div>
                 {trayectoria && trayectoria.length > 0 ? (
                   <ol className="relative border-l-2 border-gz-rule pl-4 space-y-3">
-                    {trayectoria.slice(0, 4).map((t, i) => (
+                    {trayectoria.map((t, i) => (
                       <li key={t.id ?? `auto-${i}`} className="relative group/h">
                         <div className="absolute -left-[22px] w-[10px] h-[10px] bg-gz-gold rounded-full border-2 border-white" />
                         <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light flex items-center gap-1.5">

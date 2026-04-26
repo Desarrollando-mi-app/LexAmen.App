@@ -160,7 +160,7 @@ export function PerfilEditorial({
   const [colegaStatus, setColegaStatus] = useState(initialStatus);
   const [requestId, setRequestId] = useState(initialRequestId);
   const [loading, setLoading] = useState(false);
-  const [activeSection, setActiveSection] = useState<"publicaciones" | "trayectoria" | "logros" | "comunidad" | "cv">("publicaciones");
+  const [activeSection, setActiveSection] = useState<"publicaciones" | "logros" | "comunidad" | "cv">("publicaciones");
   const router = useRouter();
   const [hitoModalOpen, setHitoModalOpen] = useState(false);
   const [editingHito, setEditingHito] = useState<HitoData | null>(null);
@@ -459,7 +459,6 @@ export function PerfilEditorial({
         <nav className="border-b border-gz-ink mb-6 overflow-x-auto" aria-label="Secciones del perfil">
           <div className="flex items-stretch" role="tablist">
             <SectionTab label="Publicaciones" count={pubCounts.total} active={activeSection === "publicaciones"} onClick={() => setActiveSection("publicaciones")} />
-            <SectionTab label="Trayectoria" count={trayectoria?.length ?? 0} active={activeSection === "trayectoria"} onClick={() => setActiveSection("trayectoria")} />
             <SectionTab label="Distinciones" count={earnedBadges.length} active={activeSection === "logros"} onClick={() => setActiveSection("logros")} />
             <SectionTab label="Claustro" count={colegaCount} active={activeSection === "comunidad"} onClick={() => setActiveSection("comunidad")} />
             {user.cvAvailable && (
@@ -498,103 +497,6 @@ export function PerfilEditorial({
                   </div>
                 )}
               </>
-            )}
-
-            {activeSection === "trayectoria" && (
-              <article className="py-4">
-                <div className="flex items-center justify-between border-b-[2px] border-gz-ink pb-2 mb-5 gap-3 flex-wrap">
-                  <h2 className="font-cormorant text-3xl font-semibold">Trayectoria</h2>
-                  {isOwnProfile && (
-                    <button
-                      onClick={() => {
-                        setEditingHito(null);
-                        setHitoModalOpen(true);
-                      }}
-                      className="group inline-flex items-center gap-1.5 rounded-full bg-gz-ink text-gz-cream px-3.5 py-1.5 font-archivo text-[12px] font-semibold hover:bg-gz-burgundy hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm"
-                    >
-                      <span className="font-cormorant text-[18px] leading-none -mt-px transition-transform group-hover:rotate-90">+</span>
-                      Agregar hito
-                    </button>
-                  )}
-                </div>
-                {trayectoria && trayectoria.length > 0 ? (
-                  <ol className="space-y-6">
-                    {trayectoria.map((t, i) => (
-                      <li key={t.id ?? `auto-${i}`} className="grid grid-cols-12 gap-4 border-b border-gz-rule pb-5 last:border-0 group/item">
-                        <div className="col-span-3 sm:col-span-2 text-right">
-                          <div className="font-cormorant italic text-3xl text-gz-gold leading-none">{t.anio}</div>
-                          <div className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light mt-1">
-                            {toRoman(i + 1)}
-                            {t.esActual && <span className="ml-1 text-gz-sage">·</span>}
-                          </div>
-                        </div>
-                        <div className="col-span-9 sm:col-span-10 border-l border-gz-rule pl-5 flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-cormorant text-2xl text-gz-ink">
-                              {t.isCustom ? t.detalle : trayectoriaLabel(t.tipo)}
-                            </h3>
-                            {t.institucion && (
-                              <p className="font-cormorant italic text-[15px] text-gz-ink-mid mt-0.5">{t.institucion}</p>
-                            )}
-                            {!t.isCustom && t.detalle && (
-                              <p className="font-archivo text-sm text-gz-ink-mid mt-1">{t.detalle}</p>
-                            )}
-                            {t.descripcion && (
-                              <p className="font-archivo text-sm text-gz-ink-mid mt-1 leading-snug">{t.descripcion}</p>
-                            )}
-                            {t.isCustom && (
-                              <span className="inline-block mt-1.5 font-ibm-mono text-[8px] uppercase tracking-[1.5px] text-gz-ink-light/60">
-                                {trayectoriaLabel(t.tipo)}{t.esActual ? " · actual" : ""}
-                              </span>
-                            )}
-                          </div>
-                          {isOwnProfile && t.isCustom && t.id && (
-                            <button
-                              onClick={() => {
-                                setEditingHito({
-                                  id: t.id,
-                                  tipo: t.tipo as HitoData["tipo"],
-                                  titulo: t.detalle ?? "",
-                                  institucion: t.institucion ?? null,
-                                  descripcion: t.descripcion ?? null,
-                                  fecha: t.fechaIso ?? `${t.anio}-01-01T12:00:00.000Z`,
-                                  esActual: !!t.esActual,
-                                });
-                                setHitoModalOpen(true);
-                              }}
-                              className="opacity-0 group-hover/item:opacity-100 text-gz-ink-light hover:text-gz-gold transition-all shrink-0 mt-1 cursor-pointer"
-                              aria-label="Editar hito"
-                              title="Editar hito"
-                            >
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="font-cormorant italic text-gz-ink-light mb-3">
-                      Sin trayectoria consignada en este ejemplar.
-                    </p>
-                    {isOwnProfile && (
-                      <button
-                        onClick={() => {
-                          setEditingHito(null);
-                          setHitoModalOpen(true);
-                        }}
-                        className="inline-flex items-center gap-1.5 font-archivo text-[12px] font-semibold bg-gz-ink text-gz-cream px-4 py-2.5 rounded-full hover:bg-gz-burgundy transition-colors cursor-pointer"
-                      >
-                        <span className="font-cormorant text-[16px] leading-none -mt-px">+</span>
-                        Agrega tu primer hito
-                      </button>
-                    )}
-                  </div>
-                )}
-              </article>
             )}
 
             {activeSection === "logros" && (
@@ -730,33 +632,23 @@ export function PerfilEditorial({
               <div>
                 <div className="font-ibm-mono text-[10px] uppercase tracking-[3px] text-gz-ink border-b border-gz-ink pb-1 mb-3 flex items-center justify-between gap-2">
                   <span>Trayectoria</span>
-                  <div className="flex items-center gap-2">
-                    {trayectoria && trayectoria.length > 4 && (
-                      <button
-                        onClick={() => setActiveSection("trayectoria")}
-                        className="text-gz-gold hover:underline cursor-pointer"
-                      >
-                        ver todo →
-                      </button>
-                    )}
-                    {isOwnProfile && (
-                      <button
-                        onClick={() => {
-                          setEditingHito(null);
-                          setHitoModalOpen(true);
-                        }}
-                        className="group inline-flex items-center justify-center h-6 w-6 border border-gz-ink text-gz-ink hover:bg-gz-ink hover:text-gz-cream hover:rotate-90 active:scale-90 transition-all duration-200 cursor-pointer"
-                        aria-label="Agregar hito"
-                        title="Agregar hito"
-                      >
-                        <span className="font-cormorant text-[14px] leading-none -mt-px">+</span>
-                      </button>
-                    )}
-                  </div>
+                  {isOwnProfile && (
+                    <button
+                      onClick={() => {
+                        setEditingHito(null);
+                        setHitoModalOpen(true);
+                      }}
+                      className="group inline-flex items-center justify-center h-6 w-6 border border-gz-ink text-gz-ink hover:bg-gz-ink hover:text-gz-cream hover:rotate-90 active:scale-90 transition-all duration-200 cursor-pointer"
+                      aria-label="Agregar hito"
+                      title="Agregar hito"
+                    >
+                      <span className="font-cormorant text-[14px] leading-none -mt-px">+</span>
+                    </button>
+                  )}
                 </div>
                 {trayectoria && trayectoria.length > 0 ? (
                   <ol className="relative border-l border-gz-ink pl-4 space-y-3">
-                    {trayectoria.slice(0, 4).map((t, i) => (
+                    {trayectoria.map((t, i) => (
                       <li key={t.id ?? `auto-${i}`} className="relative group/h">
                         <div className="absolute -left-[19px] top-[6px] w-[7px] h-[7px] bg-gz-ink border border-gz-cream" />
                         <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light flex items-center gap-1.5">
