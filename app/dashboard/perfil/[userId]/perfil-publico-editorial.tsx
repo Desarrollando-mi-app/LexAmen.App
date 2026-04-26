@@ -726,29 +726,93 @@ export function PerfilEditorial({
             </div>
 
             {/* Trayectoria (mini — editorial) */}
-            {trayectoria && trayectoria.length > 0 && (
+            {(trayectoria && trayectoria.length > 0) || isOwnProfile ? (
               <div>
-                <div className="font-ibm-mono text-[10px] uppercase tracking-[3px] text-gz-ink border-b border-gz-ink pb-1 mb-3 flex justify-between">
+                <div className="font-ibm-mono text-[10px] uppercase tracking-[3px] text-gz-ink border-b border-gz-ink pb-1 mb-3 flex items-center justify-between gap-2">
                   <span>Trayectoria</span>
-                  <button
-                    onClick={() => setActiveSection("trayectoria")}
-                    className="text-gz-gold hover:underline cursor-pointer"
-                  >
-                    ver todo →
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {trayectoria && trayectoria.length > 4 && (
+                      <button
+                        onClick={() => setActiveSection("trayectoria")}
+                        className="text-gz-gold hover:underline cursor-pointer"
+                      >
+                        ver todo →
+                      </button>
+                    )}
+                    {isOwnProfile && (
+                      <button
+                        onClick={() => {
+                          setEditingHito(null);
+                          setHitoModalOpen(true);
+                        }}
+                        className="group inline-flex items-center justify-center h-6 w-6 border border-gz-ink text-gz-ink hover:bg-gz-ink hover:text-gz-cream hover:rotate-90 active:scale-90 transition-all duration-200 cursor-pointer"
+                        aria-label="Agregar hito"
+                        title="Agregar hito"
+                      >
+                        <span className="font-cormorant text-[14px] leading-none -mt-px">+</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <ol className="relative border-l border-gz-ink pl-4 space-y-3">
-                  {trayectoria.slice(0, 4).map((t, i) => (
-                    <li key={i} className="relative">
-                      <div className="absolute -left-[19px] top-[6px] w-[7px] h-[7px] bg-gz-ink border border-gz-cream" />
-                      <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">{t.anio}</div>
-                      <div className="font-cormorant text-base text-gz-ink leading-tight">{trayectoriaLabel(t.tipo)}</div>
-                      {t.detalle && <div className="font-archivo text-[12px] text-gz-ink-mid">{t.detalle}</div>}
-                    </li>
-                  ))}
-                </ol>
+                {trayectoria && trayectoria.length > 0 ? (
+                  <ol className="relative border-l border-gz-ink pl-4 space-y-3">
+                    {trayectoria.slice(0, 4).map((t, i) => (
+                      <li key={t.id ?? `auto-${i}`} className="relative group/h">
+                        <div className="absolute -left-[19px] top-[6px] w-[7px] h-[7px] bg-gz-ink border border-gz-cream" />
+                        <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light flex items-center gap-1.5">
+                          <span>{t.anio}</span>
+                          {t.esActual && (
+                            <span className="font-ibm-mono text-[8px] uppercase tracking-[1px] px-1.5 rounded-full bg-gz-sage/15 text-gz-sage">
+                              actual
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-cormorant text-base text-gz-ink leading-tight">
+                              {t.isCustom ? t.detalle : trayectoriaLabel(t.tipo)}
+                            </div>
+                            {t.institucion && (
+                              <div className="font-archivo text-[12px] italic text-gz-ink-mid">{t.institucion}</div>
+                            )}
+                            {!t.isCustom && t.detalle && (
+                              <div className="font-archivo text-[12px] text-gz-ink-mid">{t.detalle}</div>
+                            )}
+                          </div>
+                          {isOwnProfile && t.isCustom && t.id && (
+                            <button
+                              onClick={() => {
+                                setEditingHito({
+                                  id: t.id,
+                                  tipo: t.tipo as HitoData["tipo"],
+                                  titulo: t.detalle ?? "",
+                                  institucion: t.institucion ?? null,
+                                  descripcion: t.descripcion ?? null,
+                                  fecha: t.fechaIso ?? `${t.anio}-01-01T12:00:00.000Z`,
+                                  esActual: !!t.esActual,
+                                });
+                                setHitoModalOpen(true);
+                              }}
+                              className="opacity-0 group-hover/h:opacity-100 text-gz-ink-light hover:text-gz-gold transition-all shrink-0 mt-0.5 cursor-pointer"
+                              aria-label="Editar hito"
+                              title="Editar hito"
+                            >
+                              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                              </svg>
+                            </button>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="font-cormorant italic text-[13px] text-gz-ink-light text-center py-3">
+                    Sin hitos consignados. Agrega el primero con +
+                  </p>
+                )}
               </div>
-            )}
+            ) : null}
 
             {/* Áreas practicadas (auto — radar editorial) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (
