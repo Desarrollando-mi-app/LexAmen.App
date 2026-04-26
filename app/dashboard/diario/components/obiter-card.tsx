@@ -213,8 +213,8 @@ export function ObiterCard({
 
       {/* ── Content ──────────────────────────────────── */}
       <div
-        className="mb-3 font-cormorant text-[16px] leading-[1.7] text-gz-ink lg:text-[17px]"
-        style={{ whiteSpace: "pre-wrap" }}
+        className="mb-3 font-cormorant text-[16px] leading-[1.7] text-gz-ink lg:text-[17px] break-words"
+        style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
       >
         <RenderedContent content={obiter.content} />
       </div>

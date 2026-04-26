@@ -330,8 +330,8 @@ function ThreadPart({
 
         {/* Content */}
         <div
-          className="font-cormorant text-[16px] leading-[1.7] text-gz-ink lg:text-[17px] mb-3"
-          style={{ whiteSpace: "pre-wrap" }}
+          className="font-cormorant text-[16px] leading-[1.7] text-gz-ink lg:text-[17px] mb-3 break-words"
+          style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}
         >
           <RenderedContent content={obiter.content} />
         </div>

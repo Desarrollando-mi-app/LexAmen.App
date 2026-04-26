@@ -88,11 +88,36 @@ export async function POST(request: NextRequest) {
   // ─── Validación: hilo ──────────────────────────────────
 
   if (threadId) {
-    // Verificar que el hilo existe y el usuario es el autor
-    const firstInThread = await prisma.obiterDictum.findFirst({
+    // Caso A: ya existe el hilo (alguna parte con este threadId).
+    let firstInThread = await prisma.obiterDictum.findFirst({
       where: { threadId, threadOrder: 1 },
       select: { userId: true },
     });
+
+    // Caso B: el threadId apunta a un OD standalone (sin threadId aún).
+    // Si es propiedad del usuario, lo upgradeamos a parte 1 del hilo.
+    // Esto permite "convertir un OD ya publicado en hilo" agregando una
+    // parte 2 sin requerir un endpoint separado.
+    if (!firstInThread) {
+      const standaloneCandidate = await prisma.obiterDictum.findUnique({
+        where: { id: threadId },
+        select: { id: true, userId: true, threadId: true, threadOrder: true },
+      });
+
+      if (
+        standaloneCandidate &&
+        standaloneCandidate.userId === authUser.id &&
+        standaloneCandidate.threadId === null &&
+        standaloneCandidate.threadOrder === null
+      ) {
+        // Promovemos el standalone a parte 1 del nuevo hilo.
+        await prisma.obiterDictum.update({
+          where: { id: standaloneCandidate.id },
+          data: { threadId, threadOrder: 1 },
+        });
+        firstInThread = { userId: standaloneCandidate.userId };
+      }
+    }
 
     if (!firstInThread) {
       return NextResponse.json(
@@ -124,7 +149,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar que threadOrder es secuencial (no gaps)
+    // Verificar que threadOrder es secuencial (no gaps).
+    // Si recién promovimos un standalone, lastInThread devolverá la parte 1
+    // y el expectedOrder será 2 — coincidente con lo que pidió el cliente.
     const lastInThread = await prisma.obiterDictum.findFirst({
       where: { threadId },
       orderBy: { threadOrder: "desc" },
