@@ -128,8 +128,31 @@ export function ObiterCard({
     colegasText = `${colegas[0].firstName} ${colegas[0].lastName[0]}. y ${colegas.length - 1} más apoyaron`;
   }
 
+  const isThreadStart =
+    obiter.threadPartsCount && obiter.threadPartsCount > 1;
+
   return (
-    <div className="mb-3 rounded-[4px] border border-gz-rule bg-white p-5 transition-colors hover:border-gz-gold/40">
+    <div
+      className={`mb-3 relative rounded-[4px] border bg-white p-5 transition-colors hover:border-gz-gold/40 ${
+        isThreadStart
+          ? "border-gz-burgundy/30 shadow-[0_1px_0_rgba(15,15,15,0.04),0_4px_16px_-12px_rgba(107,29,42,0.30)]"
+          : "border-gz-rule"
+      }`}
+    >
+      {/* ── Thread badge (top, prominente) ──────────── */}
+      {isThreadStart && (
+        <button
+          onClick={() => onThreadClick?.(obiter.threadId ?? obiter.id)}
+          className="group absolute -top-3 left-4 inline-flex items-center gap-1.5 rounded-full border-2 border-gz-burgundy bg-white px-3 py-1 font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-burgundy hover:bg-gz-burgundy hover:text-white transition-all duration-200 cursor-pointer shadow-sm"
+        >
+          <span className="font-cormorant text-[14px] leading-none">🧵</span>
+          Hilo · {obiter.threadPartsCount} partes
+          <span className="font-cormorant text-[14px] leading-none transition-transform group-hover:translate-x-0.5">
+            →
+          </span>
+        </button>
+      )}
+
       {/* ── Comuníquese header ───────────────────────── */}
       {showComuniquesePor && obiter.comuniquesePor && (
         <div className="mb-3 border-b border-gz-cream-dark pb-3">
@@ -251,18 +274,6 @@ export function ObiterCard({
             {MATERIA_LABELS[obiter.citedEnsayo.materia] ?? obiter.citedEnsayo.materia}
           </p>
         </Link>
-      )}
-
-      {/* ── Thread indicator ─────────────────────────── */}
-      {obiter.threadPartsCount && obiter.threadPartsCount > 1 && (
-        <button
-          onClick={() =>
-            onThreadClick?.(obiter.threadId ?? obiter.id)
-          }
-          className="mb-2 mt-1 font-ibm-mono text-[10px] text-gz-gold transition-colors hover:underline"
-        >
-          Hilo · {obiter.threadPartsCount} partes →
-        </button>
       )}
 
       {/* ── Actions row ──────────────────────────────── */}

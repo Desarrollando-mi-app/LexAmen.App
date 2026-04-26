@@ -122,8 +122,13 @@ export function ObiterEditor(props: ObiterEditorProps) {
     setTimeout(() => textareaRef.current?.focus(), 100);
   }
 
-  async function handlePublish() {
+  // Acepta opcionalmente un override `andContinueThread` para evitar la
+  // race condition con el estado `continueThread` (cuando se llama desde
+  // el botón "+" antes de que React haya commiteado setContinueThread).
+  async function handlePublish(opts?: { andContinueThread?: boolean }) {
     if (!content.trim() || isOverLimit) return;
+
+    const willContinue = opts?.andContinueThread ?? continueThread;
 
     setState("sending");
     setError(null);
@@ -179,10 +184,11 @@ export function ObiterEditor(props: ObiterEditorProps) {
       }
 
       // If "continue thread" is checked, reset editor for next part
-      if (continueThread) {
+      if (willContinue) {
         const newThreadId = activeThreadId ?? newObiter.threadId ?? newObiter.id;
         setActiveThreadId(newThreadId);
         setThreadPartNumber((prev) => prev + 1);
+        setContinueThread(false); // reset para próximas publicaciones
         setContent("");
         setError(null);
         setState("expanded");
@@ -471,7 +477,7 @@ export function ObiterEditor(props: ObiterEditorProps) {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={handlePublish}
+            onClick={() => handlePublish()}
             disabled={
               state === "sending" ||
               !content.trim() ||
@@ -495,17 +501,15 @@ export function ObiterEditor(props: ObiterEditorProps) {
 
           {/* "+" button: publish and continue thread */}
           <button
-            onClick={() => {
-              setContinueThread(true);
-              // Small delay so state is set before handlePublish reads it
-              setTimeout(() => handlePublish(), 10);
-            }}
+            onClick={() => handlePublish({ andContinueThread: true })}
             disabled={state === "sending" || !content.trim() || isOverLimit || remaining === 0}
             title="Publicar y continuar hilo"
             aria-label="Publicar y continuar hilo"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-gz-gold bg-gz-gold/10 text-[18px] font-bold text-gz-gold transition-all hover:bg-gz-gold hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="group flex h-9 w-9 items-center justify-center rounded-full border-2 border-gz-gold bg-white text-[18px] font-bold text-gz-gold transition-all hover:bg-gz-gold hover:text-white hover:rotate-90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            +
+            <span className="font-cormorant text-[20px] leading-none -mt-px transition-transform">
+              +
+            </span>
           </button>
         </div>
       </div>

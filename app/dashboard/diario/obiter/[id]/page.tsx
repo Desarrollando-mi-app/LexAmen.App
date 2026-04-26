@@ -211,7 +211,17 @@ export default async function ObiterDetailPage({
   let hasComunicado = false;
   let colegasQueApoyaron: { firstName: string; lastName: string }[] = [];
 
+  // Datos del usuario autenticado para el editor inline de continuar hilo
+  let currentUserFirstName: string | undefined;
+  let currentUserAvatarUrl: string | null | undefined;
+
   if (authUser) {
+    const me = await prisma.user.findUnique({
+      where: { id: authUser.id },
+      select: { firstName: true, avatarUrl: true },
+    });
+    currentUserFirstName = me?.firstName ?? undefined;
+    currentUserAvatarUrl = me?.avatarUrl ?? null;
     const [apoyo, guardado, comuniquese] = await Promise.all([
       prisma.obiterApoyo.findUnique({
         where: { obiterId_userId: { obiterId: id, userId: authUser.id } },
@@ -292,18 +302,36 @@ export default async function ObiterDetailPage({
     user: c.user,
   }));
 
+  const isThread = threadParts && threadParts.length > 1;
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--gz-cream)" }}>
-      <div className="mx-auto max-w-3xl px-4 py-8 lg:px-0">
-        {/* Page header */}
-        <div className="mb-6">
-          <p className="mb-1 font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
-            Publicaciones · Obiter Dictum
-          </p>
-          <h1 className="font-cormorant text-[28px] !font-bold leading-none text-gz-ink">
-            Obiter Dictum
-          </h1>
-          <div className="mt-3 h-[2px] bg-gz-rule-dark" />
+      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+        {/* ─── Page masthead editorial ─── */}
+        <div className="mb-6 relative">
+          <div className="flex items-end justify-between gap-3 mb-3">
+            <div>
+              <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-burgundy mb-1 flex items-center gap-1.5">
+                <span className="font-cormorant text-[14px] leading-none text-gz-gold">§</span>
+                {isThread ? `Hilo de ${threadParts!.length} partes` : "Obiter Dictum"}
+              </p>
+              <h1 className="font-cormorant text-[36px] sm:text-[44px] font-bold text-gz-ink leading-[0.95] tracking-tight">
+                {isThread ? (
+                  <>
+                    Hilo de <span className="text-gz-burgundy italic">{obiter.user.firstName}</span>
+                  </>
+                ) : (
+                  <>
+                    Obiter de <span className="text-gz-burgundy italic">{obiter.user.firstName}</span>
+                  </>
+                )}
+              </h1>
+            </div>
+          </div>
+          {/* Triple regla editorial */}
+          <div className="h-[3px] bg-gz-ink/85" />
+          <div className="h-px bg-gz-ink/85 mt-[2px]" />
+          <div className="h-[2px] bg-gz-ink/85 mt-[2px]" />
         </div>
 
         <ObiterDetailClient
@@ -311,6 +339,8 @@ export default async function ObiterDetailPage({
           threadParts={threadParts}
           citations={serializedCitations}
           currentUserId={authUser?.id ?? null}
+          currentUserFirstName={currentUserFirstName}
+          currentUserAvatarUrl={currentUserAvatarUrl ?? null}
         />
       </div>
     </div>
