@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getColegaIdsForUser } from "@/lib/obiter-utils";
+import { parseLinkPreviews } from "@/lib/og-preview";
 
 // ─── GET: Obiter individual (con hilo + cadena de citas) ────
 
@@ -180,6 +181,7 @@ export async function GET(
       citasCount: obiter.citasCount,
       guardadosCount: obiter.guardadosCount,
       comuniqueseCount: obiter.comuniqueseCount,
+      linkPreviews: parseLinkPreviews((obiter as { linkPreviews?: string | null }).linkPreviews ?? null),
       createdAt: obiter.createdAt.toISOString(),
       user: obiter.user,
       citadoPor: citadoPorFormatted,
@@ -194,6 +196,7 @@ export async function GET(
       citasCount: p.citasCount,
       guardadosCount: p.guardadosCount,
       comuniqueseCount: p.comuniqueseCount,
+      linkPreviews: parseLinkPreviews((p as { linkPreviews?: string | null }).linkPreviews ?? null),
       createdAt: p.createdAt.toISOString(),
       user: p.user,
     })) ?? null,

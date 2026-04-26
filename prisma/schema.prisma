@@ -1615,6 +1615,12 @@ model ObiterDictum {
   pinned           Boolean @default(false)
   commentsDisabled Boolean @default(false)
 
+  // === LINK PREVIEWS ===
+  // JSON array de previews de URLs detectadas en content. Cada item:
+  //   { url, title, description?, image?, siteName?, kind: "noticia" | "external" }
+  // Se llena server-side al crear/editar el obiter.
+  linkPreviews String?
+
   // Relaciones
   apoyos      ObiterApoyo[]
   guardados   ObiterGuardado[]

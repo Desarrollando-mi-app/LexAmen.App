@@ -1,5 +1,14 @@
 // ─── Obiter Dictum — tipos compartidos ──────────────────────
 
+export type LinkPreview = {
+  url: string;
+  title: string | null;
+  description: string | null;
+  image: string | null;
+  siteName: string | null;
+  kind: "noticia" | "external";
+};
+
 export type ObiterData = {
   id: string;
   userId: string;
@@ -16,6 +25,7 @@ export type ObiterData = {
   threadId: string | null;
   threadOrder: number | null;
   threadPartsCount?: number | null;
+  linkPreviews?: LinkPreview[];
   citedObiterId: string | null;
   citedObiter: {
     id: string;

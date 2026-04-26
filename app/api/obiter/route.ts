@@ -11,6 +11,7 @@ import {
   OBITER_MAX_THREAD_PARTS,
 } from "@/lib/obiter-utils";
 import { awardXp, XP_CITADO_OBITER } from "@/lib/xp-config";
+import { buildPreviewsForContent, serializeLinkPreviews, parseLinkPreviews } from "@/lib/og-preview";
 
 // ─── POST: Crear Obiter ─────────────────────────────────────
 
@@ -167,6 +168,18 @@ export async function POST(request: NextRequest) {
     if (!cited) return NextResponse.json({ error: "El Ensayo citado no existe" }, { status: 400 });
   }
 
+  // ─── Link previews ────────────────────────────────────
+  // Detecta URLs en el contenido y obtiene metadata Open Graph para
+  // mostrarlas como tarjetas en el card. Si la columna linkPreviews aún
+  // no existe (migración pendiente), no falla — se omite el campo.
+  let linkPreviewsJson: string | null = null;
+  try {
+    const previews = await buildPreviewsForContent(content.trim());
+    linkPreviewsJson = serializeLinkPreviews(previews);
+  } catch (err) {
+    console.warn("[obiter] buildPreviewsForContent failed:", err);
+  }
+
   // ─── Crear obiter ─────────────────────────────────────
 
   const obiter = await prisma.obiterDictum.create({
@@ -180,6 +193,7 @@ export async function POST(request: NextRequest) {
       citedEnsayoId: citedEnsayoId || null,
       threadId: threadId || null,
       threadOrder: threadId ? threadOrder : null,
+      ...(linkPreviewsJson != null && { linkPreviews: linkPreviewsJson }),
     },
     include: {
       user: {
@@ -246,7 +260,14 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  return NextResponse.json({ obiter }, { status: 201 });
+  // Devolvemos linkPreviews ya parseado para el cliente.
+  const obiterOut = {
+    ...obiter,
+    linkPreviews: linkPreviewsJson
+      ? JSON.parse(linkPreviewsJson)
+      : [],
+  };
+  return NextResponse.json({ obiter: obiterOut }, { status: 201 });
 }
 
 // ─── GET: Feed de Obiters ───────────────────────────────────
@@ -604,6 +625,7 @@ export async function GET(request: NextRequest) {
       citasCount: o.citasCount,
       guardadosCount: o.guardadosCount,
       comuniqueseCount: o.comuniqueseCount,
+      linkPreviews: parseLinkPreviews((o as { linkPreviews?: string | null }).linkPreviews ?? null),
       createdAt: o.createdAt.toISOString(),
       user: o.user,
       ...(authUser
@@ -651,6 +673,7 @@ export async function GET(request: NextRequest) {
       citasCount: o.citasCount,
       guardadosCount: o.guardadosCount,
       comuniqueseCount: o.comuniqueseCount,
+      linkPreviews: parseLinkPreviews((o as { linkPreviews?: string | null }).linkPreviews ?? null),
       createdAt: o.createdAt.toISOString(),
       user: o.user,
       ...(authUser

@@ -7,6 +7,7 @@ import type { ObiterData } from "../types/obiter";
 import { parseObiterContent } from "@/lib/legal-reference-parser";
 import { ObiterLegalRef } from "./obiter-legal-ref";
 import { ReportButton } from "@/app/components/report-button";
+import { LinkPreviewList } from "./link-preview-card";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -185,6 +186,11 @@ export function ObiterCard({
       >
         <RenderedContent content={obiter.content} />
       </div>
+
+      {/* ── Link previews (URLs detectadas en content) ── */}
+      {obiter.linkPreviews && obiter.linkPreviews.length > 0 && (
+        <LinkPreviewList previews={obiter.linkPreviews} />
+      )}
 
       {/* ── Cited obiter ─────────────────────────────── */}
       {obiter.citedObiterId && (

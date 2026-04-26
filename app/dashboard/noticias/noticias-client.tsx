@@ -792,11 +792,19 @@ function NoticiaActions({
     setOdSending(true);
     setOdError("");
     try {
+      // Adjuntamos el URL canónico interno de la noticia al final del
+      // contenido para que el server-side detecte la URL y construya
+      // el LinkPreview vía DB (rápido y exacto). Internal URL =
+      // /dashboard/noticias/[id] — la API OG la resuelve por DB lookup.
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const noticiaUrl = `${origin}/dashboard/noticias/${noticiaId}`;
+      const finalContent = `${odText.trim()}\n\n${noticiaUrl}`;
+
       const res = await fetch("/api/obiter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          content: odText.trim(),
+          content: finalContent,
           tipo: "opinion",
         }),
       });
