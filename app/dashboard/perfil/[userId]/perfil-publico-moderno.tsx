@@ -12,11 +12,13 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 import { TIER_LABELS, TIER_EMOJIS, getGradoInfo } from "@/lib/league";
 import { ReportModal } from "@/app/components/report-modal";
 import { AreasRadar } from "./areas-radar";
+import { HitoEditorModal, type HitoData } from "../components/hito-editor-modal";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -80,7 +82,17 @@ interface PerfilModernoProps {
   cvRequestStatus?: string | null;
   especialidadesCalculadas?: Array<{ materia: string; porcentaje: number }>;
   especialidadesDeclaradas?: string[];
-  trayectoria?: Array<{ tipo: string; anio: number; detalle?: string }>;
+  trayectoria?: Array<{
+    id?: string;
+    isCustom?: boolean;
+    tipo: string;
+    anio: number;
+    detalle?: string;
+    institucion?: string;
+    descripcion?: string;
+    esActual?: boolean;
+    fechaIso?: string;
+  }>;
   topBadges?: Array<{ slug: string; emoji: string; label: string; tier: string }>;
 }
 
@@ -163,6 +175,9 @@ export function PerfilModerno({
   const [requestId, setRequestId] = useState(initialRequestId);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"publicaciones" | "trayectoria" | "logros" | "comunidad" | "cv">("publicaciones");
+  const router = useRouter();
+  const [hitoModalOpen, setHitoModalOpen] = useState(false);
+  const [editingHito, setEditingHito] = useState<HitoData | null>(null);
   const [pubFilter, setPubFilter] = useState<string>("TODOS");
   const [mutualCount, setMutualCount] = useState(0);
   const [showCvModal, setShowCvModal] = useState(false);
@@ -566,21 +581,71 @@ export function PerfilModerno({
                 <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
                   <h3 className="font-cormorant text-2xl font-semibold">Trayectoria</h3>
                   {isOwnProfile && (
-                    <Link href="/dashboard/perfil/configuracion#trayectoria" className="font-ibm-mono text-[10px] uppercase tracking-[2px] border border-gz-gold text-gz-gold px-3 py-1.5 rounded-[3px] hover:bg-gz-gold/10 cursor-pointer">
-                      + Agregar
-                    </Link>
+                    <button
+                      onClick={() => {
+                        setEditingHito(null);
+                        setHitoModalOpen(true);
+                      }}
+                      className="group inline-flex items-center gap-1.5 rounded-full bg-gz-gold text-white px-3.5 py-1.5 font-archivo text-[12px] font-semibold hover:bg-gz-burgundy hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm"
+                    >
+                      <span className="font-cormorant text-[18px] leading-none -mt-px transition-transform group-hover:rotate-90">+</span>
+                      Agregar hito
+                    </button>
                   )}
                 </div>
                 {trayectoria && trayectoria.length > 0 ? (
                   <ol className="relative space-y-5">
                     {trayectoria.map((t, i) => (
-                      <li key={i} className="flex gap-4">
+                      <li key={t.id ?? `auto-${i}`} className="flex gap-4 group/item">
                         <div className="shrink-0 w-14 text-right">
                           <div className="font-cormorant text-2xl font-semibold text-gz-gold leading-tight">{t.anio}</div>
+                          {t.esActual && (
+                            <span className="font-ibm-mono text-[8px] uppercase tracking-[1.5px] text-gz-sage">actual</span>
+                          )}
                         </div>
-                        <div className="flex-1 pb-4 border-b border-gz-rule last:border-0">
-                          <div className="font-archivo font-semibold text-gz-ink">{trayectoriaLabel(t.tipo)}</div>
-                          {t.detalle && <div className="font-archivo text-sm text-gz-ink-mid mt-0.5">{t.detalle}</div>}
+                        <div className="flex-1 pb-4 border-b border-gz-rule last:border-0 flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-archivo font-semibold text-gz-ink">
+                              {t.isCustom ? t.detalle : trayectoriaLabel(t.tipo)}
+                            </div>
+                            {t.institucion && (
+                              <div className="font-archivo text-sm italic text-gz-ink-mid mt-0.5">{t.institucion}</div>
+                            )}
+                            {!t.isCustom && t.detalle && (
+                              <div className="font-archivo text-sm text-gz-ink-mid mt-0.5">{t.detalle}</div>
+                            )}
+                            {t.descripcion && (
+                              <p className="font-archivo text-[13px] text-gz-ink-mid mt-1 leading-snug">{t.descripcion}</p>
+                            )}
+                            {t.isCustom && (
+                              <span className="inline-block mt-1 font-ibm-mono text-[8px] uppercase tracking-[1.5px] text-gz-ink-light/60">
+                                {trayectoriaLabel(t.tipo)}
+                              </span>
+                            )}
+                          </div>
+                          {isOwnProfile && t.isCustom && t.id && (
+                            <button
+                              onClick={() => {
+                                setEditingHito({
+                                  id: t.id,
+                                  tipo: t.tipo as HitoData["tipo"],
+                                  titulo: t.detalle ?? "",
+                                  institucion: t.institucion ?? null,
+                                  descripcion: t.descripcion ?? null,
+                                  fecha: t.fechaIso ?? `${t.anio}-01-01T12:00:00.000Z`,
+                                  esActual: !!t.esActual,
+                                });
+                                setHitoModalOpen(true);
+                              }}
+                              className="opacity-0 group-hover/item:opacity-100 text-gz-ink-light hover:text-gz-gold transition-all shrink-0 cursor-pointer"
+                              aria-label="Editar hito"
+                              title="Editar hito"
+                            >
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       </li>
                     ))}
@@ -894,6 +959,15 @@ export function PerfilModerno({
           </div>
         </div>
       )}
+
+      {/* ─── Modal hito personalizado ─── */}
+      <HitoEditorModal
+        open={hitoModalOpen}
+        editing={editingHito}
+        onClose={() => setHitoModalOpen(false)}
+        onSaved={() => router.refresh()}
+        onDeleted={() => router.refresh()}
+      />
     </main>
   );
 }
@@ -1071,6 +1145,10 @@ function trayectoriaLabel(tipo: string): string {
   if (tipo === "egreso") return "Egreso";
   if (tipo === "jura") return "Juramento como abogado/a";
   if (tipo === "empleo") return "Empleo actual";
+  if (tipo === "estudiantil") return "Estudiantil";
+  if (tipo === "academico") return "Académico";
+  if (tipo === "profesional") return "Profesional";
+  if (tipo === "personal") return "Personal";
   return tipo;
 }
 

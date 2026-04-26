@@ -470,6 +470,9 @@ model User {
   // XP Log (desglose por categoría)
   xpLogs XpLog[] @relation("XpLogs")
 
+  // Hitos personalizados de trayectoria
+  hitos UserHito[] @relation("UserHitos")
+
   @@index([grado])
 }
 
@@ -2978,4 +2981,33 @@ model InstitucionJuridica {
   timelines            Timeline[]
 
   createdAt DateTime @default(now())
+}
+
+// ─── User Hito — Hitos personalizados de trayectoria ────────
+//
+// Permite a los usuarios registrar hitos arbitrarios en su trayectoria
+// académica/profesional (más allá de los 4 fijos: ingreso, egreso,
+// jura, empleo). Ejemplos: práctica profesional, magíster, certificación,
+// publicación destacada, ascenso laboral, premio, etc.
+//
+// Los hitos auto-derivados (anioIngreso, anioEgreso, anioJura,
+// empleoActual del User) siguen apareciendo en el timeline. Los UserHito
+// se mezclan con ellos ordenados por fecha desc.
+
+model UserHito {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("UserHitos", fields: [userId], references: [id], onDelete: Cascade)
+
+  tipo        String // "estudiantil" | "profesional" | "academico" | "personal"
+  titulo      String
+  descripcion String? // Detalle opcional
+  institucion String? // Universidad, empresa, organización, etc.
+  fecha       DateTime // Fecha del hito (puede usarse solo el año)
+  esActual    Boolean  @default(false) // Para "trabajo actual", "cursando", etc.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, fecha(sort: Desc)])
 }

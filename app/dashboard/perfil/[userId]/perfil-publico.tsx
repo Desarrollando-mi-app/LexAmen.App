@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { BADGE_RULES } from "@/lib/badge-constants";
 import { getGradoInfo, NIVELES, getNivel } from "@/lib/league";
 import { ReportModal } from "@/app/components/report-modal";
 import { AreasRadar } from "./areas-radar";
+import { HitoEditorModal, type HitoData } from "../components/hito-editor-modal";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -105,7 +107,17 @@ interface PerfilPublicoProps {
   recentEvaluations?: RecentEvaluation[];
   especialidadesCalculadas?: Array<{ materia: string; porcentaje: number }>;
   especialidadesDeclaradas?: string[];
-  trayectoria?: Array<{ tipo: string; anio: number; detalle?: string }>;
+  trayectoria?: Array<{
+    id?: string;
+    isCustom?: boolean;
+    tipo: string;
+    anio: number;
+    detalle?: string;
+    institucion?: string;
+    descripcion?: string;
+    esActual?: boolean;
+    fechaIso?: string;
+  }>;
   topBadges?: Array<{ slug: string; emoji: string; label: string; tier: string }>;
 }
 
@@ -188,6 +200,9 @@ export function PerfilPublico({
   const [requestId, setRequestId] = useState(initialRequestId);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"publicaciones" | "trayectoria" | "logros" | "comunidad" | "cv">("publicaciones");
+  const router = useRouter();
+  const [hitoModalOpen, setHitoModalOpen] = useState(false);
+  const [editingHito, setEditingHito] = useState<HitoData | null>(null);
   const [pubFilter, setPubFilter] = useState<string>("TODOS");
   const [showCvModal, setShowCvModal] = useState(false);
   const [cvMessage, setCvMessage] = useState("");
@@ -606,35 +621,104 @@ export function PerfilPublico({
                 <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
                   <h3 className="font-cormorant text-2xl font-semibold">Trayectoria académica y profesional</h3>
                   {isOwnProfile && (
-                    <Link
-                      href="/dashboard/perfil/configuracion#trayectoria"
-                      className="font-ibm-mono text-[10px] uppercase tracking-[2px] border border-gz-gold text-gz-gold px-3 py-2 rounded-[3px] hover:bg-gz-gold/10 transition-colors cursor-pointer"
+                    <button
+                      onClick={() => {
+                        setEditingHito(null);
+                        setHitoModalOpen(true);
+                      }}
+                      className="group inline-flex items-center gap-1.5 rounded-full border border-gz-gold bg-gz-gold text-white px-3.5 py-1.5 font-archivo text-[12px] font-semibold hover:bg-gz-burgundy hover:border-gz-burgundy hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm"
                     >
-                      + Agregar hito
-                    </Link>
+                      <span className="font-cormorant text-[18px] leading-none -mt-px transition-transform group-hover:rotate-90">+</span>
+                      Agregar hito
+                    </button>
                   )}
                 </div>
                 {trayectoria && trayectoria.length > 0 ? (
                   <ol className="relative border-l-2 border-gz-rule pl-5 space-y-5">
-                    {trayectoria.map((t, i) => (
-                      <li key={i} className="relative">
-                        <div className="absolute -left-[27px] w-[14px] h-[14px] bg-gz-gold rounded-full border-2 border-gz-cream" />
-                        <div className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">{t.anio}</div>
-                        <div className="font-cormorant text-xl text-gz-ink">{trayectoriaLabel(t.tipo)}</div>
-                        {t.detalle && <div className="text-sm text-gz-ink-mid mt-0.5">{t.detalle}</div>}
-                      </li>
-                    ))}
+                    {trayectoria.map((t, i) => {
+                      const dotColor = trayectoriaColor(t.tipo);
+                      return (
+                        <li key={t.id ?? `auto-${i}`} className="relative group/item">
+                          <div
+                            className="absolute -left-[27px] w-[14px] h-[14px] rounded-full border-2 border-gz-cream"
+                            style={{ backgroundColor: dotColor }}
+                          />
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            <span className="font-ibm-mono text-[10px] uppercase tracking-[2px] text-gz-ink-light">
+                              {t.anio}
+                            </span>
+                            {t.esActual && (
+                              <span className="font-ibm-mono text-[8px] uppercase tracking-[1.5px] px-1.5 py-0.5 rounded-full bg-gz-sage/15 text-gz-sage">
+                                Actual
+                              </span>
+                            )}
+                            {t.isCustom && (
+                              <span className="font-ibm-mono text-[8px] uppercase tracking-[1.5px] text-gz-ink-light/60">
+                                · {trayectoriaLabel(t.tipo)}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-cormorant text-xl text-gz-ink">
+                                {t.isCustom ? t.detalle : trayectoriaLabel(t.tipo)}
+                              </div>
+                              {t.institucion && (
+                                <div className="font-archivo text-[13px] text-gz-ink-mid italic">
+                                  {t.institucion}
+                                </div>
+                              )}
+                              {!t.isCustom && t.detalle && (
+                                <div className="text-sm text-gz-ink-mid mt-0.5">{t.detalle}</div>
+                              )}
+                              {t.descripcion && (
+                                <p className="mt-1 font-archivo text-[13px] text-gz-ink-mid leading-snug">
+                                  {t.descripcion}
+                                </p>
+                              )}
+                            </div>
+                            {isOwnProfile && t.isCustom && t.id && (
+                              <button
+                                onClick={() => {
+                                  setEditingHito({
+                                    id: t.id,
+                                    tipo: t.tipo as HitoData["tipo"],
+                                    titulo: t.detalle ?? "",
+                                    institucion: t.institucion ?? null,
+                                    descripcion: t.descripcion ?? null,
+                                    fecha: t.fechaIso ?? `${t.anio}-01-01T12:00:00.000Z`,
+                                    esActual: !!t.esActual,
+                                  });
+                                  setHitoModalOpen(true);
+                                }}
+                                className="opacity-0 group-hover/item:opacity-100 text-gz-ink-light hover:text-gz-gold transition-all shrink-0 cursor-pointer"
+                                aria-label="Editar hito"
+                                title="Editar hito"
+                              >
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ol>
                 ) : (
                   <div className="text-center py-6">
                     <p className="font-archivo text-sm text-gz-ink-light italic mb-3">Sin información de trayectoria todavía.</p>
                     {isOwnProfile && (
-                      <Link
-                        href="/dashboard/perfil/configuracion#trayectoria"
-                        className="inline-block font-ibm-mono text-[10px] uppercase tracking-[2px] bg-gz-ink text-gz-cream px-4 py-2.5 rounded-[3px] hover:bg-gz-ink-mid transition-colors"
+                      <button
+                        onClick={() => {
+                          setEditingHito(null);
+                          setHitoModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1.5 font-archivo text-[12px] font-semibold bg-gz-ink text-gz-cream px-4 py-2.5 rounded-full hover:bg-gz-burgundy transition-colors cursor-pointer"
                       >
-                        Completa tu trayectoria
-                      </Link>
+                        <span className="font-cormorant text-[16px] leading-none -mt-px">+</span>
+                        Agrega tu primer hito
+                      </button>
                     )}
                   </div>
                 )}
@@ -971,6 +1055,14 @@ export function PerfilPublico({
         </div>
       )}
 
+      {/* ─── Modal hito personalizado ─── */}
+      <HitoEditorModal
+        open={hitoModalOpen}
+        editing={editingHito}
+        onClose={() => setHitoModalOpen(false)}
+        onSaved={() => router.refresh()}
+        onDeleted={() => router.refresh()}
+      />
     </main>
   );
 }
@@ -1297,7 +1389,23 @@ function trayectoriaLabel(tipo: string): string {
   if (tipo === "egreso") return "Egreso";
   if (tipo === "jura") return "Juramento como abogado/a";
   if (tipo === "empleo") return "Empleo actual";
+  if (tipo === "estudiantil") return "Estudiantil";
+  if (tipo === "academico") return "Académico";
+  if (tipo === "profesional") return "Profesional";
+  if (tipo === "personal") return "Personal";
   return tipo;
+}
+
+function trayectoriaColor(tipo: string): string {
+  if (tipo === "ingreso") return "var(--gz-gold)";
+  if (tipo === "egreso") return "var(--gz-gold)";
+  if (tipo === "jura") return "var(--gz-burgundy)";
+  if (tipo === "empleo") return "var(--gz-burgundy)";
+  if (tipo === "estudiantil") return "var(--gz-gold)";
+  if (tipo === "academico") return "var(--gz-navy)";
+  if (tipo === "profesional") return "var(--gz-burgundy)";
+  if (tipo === "personal") return "var(--gz-sage)";
+  return "var(--gz-gold)";
 }
 
 function badgeTierClass(tier: string): string {

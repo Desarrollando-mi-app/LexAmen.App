@@ -334,8 +334,42 @@ export default async function PerfilPage({ params, searchParams }: Props) {
     }
   }
 
-  // Trayectoria timeline
-  const trayectoria: Array<{ tipo: string; anio: number; detalle?: string }> = [];
+  // ─── Trayectoria timeline ───────────────────────────────────
+  // Combina hitos auto-derivados (anioIngreso/anioEgreso/anioJura/empleo)
+  // del modelo User con hitos personalizados de UserHito.
+  // Defensivo: si la tabla aún no existe en la DB (migración pendiente),
+  // simplemente seguimos sin custom hitos en lugar de crashear el perfil.
+  let customHitos: Array<{
+    id: string;
+    tipo: string;
+    titulo: string;
+    descripcion: string | null;
+    institucion: string | null;
+    fecha: Date;
+    esActual: boolean;
+  }> = [];
+  try {
+    customHitos = await prisma.userHito.findMany({
+      where: { userId: params.userId },
+      orderBy: { fecha: "desc" },
+    });
+  } catch (err) {
+    console.warn("[perfil] UserHito query failed (migración pendiente?):", err);
+  }
+
+  const trayectoria: Array<{
+    id?: string;
+    isCustom?: boolean;
+    tipo: string;
+    anio: number;
+    detalle?: string;
+    institucion?: string;
+    descripcion?: string;
+    esActual?: boolean;
+    fechaIso?: string;
+  }> = [];
+
+  // Auto-derivados (no editables inline; el usuario los edita en /perfil/configuracion).
   if (targetUser.anioIngreso) {
     trayectoria.push({ tipo: "ingreso", anio: targetUser.anioIngreso, detalle: targetUser.universidad ?? undefined });
   }
@@ -352,6 +386,29 @@ export default async function PerfilPage({ params, searchParams }: Props) {
       detalle: `${targetUser.empleoActual}${targetUser.cargoActual ? ` — ${targetUser.cargoActual}` : ""}`,
     });
   }
+
+  // Hitos personalizados — editables/eliminables.
+  for (const h of customHitos) {
+    trayectoria.push({
+      id: h.id,
+      isCustom: true,
+      tipo: h.tipo,
+      anio: h.fecha.getFullYear(),
+      detalle: h.titulo,
+      institucion: h.institucion ?? undefined,
+      descripcion: h.descripcion ?? undefined,
+      esActual: h.esActual,
+      fechaIso: h.fecha.toISOString(),
+    });
+  }
+
+  // Ordenar por año desc (los hitos esActual van primero dentro del mismo año).
+  trayectoria.sort((a, b) => {
+    if (a.anio !== b.anio) return b.anio - a.anio;
+    if (a.esActual && !b.esActual) return -1;
+    if (!a.esActual && b.esActual) return 1;
+    return 0;
+  });
 
   // Top badges: earned, sorted by tier priority
   const TIER_PRIORITY: Record<string, number> = { unique: 0, special: 1, gold: 2, silver: 3, bronze: 4 };
