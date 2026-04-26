@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "lsof -ti:3000 | xargs kill -9 2>/dev/null; next dev",
-    "build": "(prisma migrate deploy || echo 'WARN: prisma migrate deploy failed, building anyway') && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate"
