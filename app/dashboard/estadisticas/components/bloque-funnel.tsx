@@ -14,6 +14,16 @@ interface BloqueFunnelProps {
     vfCorrect: number;
     vfTotal: number;
   }>;
+  /**
+   * Si la API entrega `contenidoGlobal` (totales del Studio completo),
+   * lo usamos. Si no, fallback a los totales de competencias (sólo
+   * libros del CC/CPC, no incluye Definiciones/FillBlank/etc.).
+   */
+  contenidoGlobal?: {
+    total: number;
+    practicado: number;
+    dominado: number;
+  };
 }
 
 interface FunnelStage {
@@ -24,29 +34,34 @@ interface FunnelStage {
   pctDelAnterior: number | null;
 }
 
-export function BloqueFunnel({ competencias }: BloqueFunnelProps) {
-  // Agregar globales — el funnel es: contenido total → intentado → correcto.
-  let totalContenido = 0; // FC + MCQ + VF totales
-  let totalIntentado = 0; // FC con repeticiones + MCQ intentos + VF intentos
-  let totalCorrecto = 0; // FC dominadas (≥3 reps) + MCQ correctos + VF correctos
+export function BloqueFunnel({ competencias, contenidoGlobal }: BloqueFunnelProps) {
+  // Si la API trae contenidoGlobal, lo usamos directo (Studio completo —
+  // FC + MCQ + V/F + Definiciones + FillBlank + ErrorId + OrderSeq +
+  // MatchCols + CasoPractico + Dictado + Timeline).
+  // Fallback a competencias (sólo libros CC/CPC) si contenidoGlobal no
+  // está disponible.
+  let totalContenido: number;
+  let totalIntentado: number;
+  let totalCorrecto: number;
 
-  for (const c of competencias) {
-    totalContenido += c.fcTotal + c.mcqTotal + c.vfTotal;
-    totalIntentado += c.fcTotal + c.mcqTotal + c.vfTotal; // mismo set
-    // OJO: lo "intentado" real son las preguntas que tocó. Para funnel, mejor:
-    //   Capa 1: contenido disponible (FC totales + MCQ totales + VF totales)
-    //   Capa 2: contenido practicado (FC dominadas o repetidas + MCQ + VF)
-    //   Capa 3: contenido dominado (FC ≥3 reps + MCQ correctos + VF correctos)
-    totalCorrecto += c.fcDom + c.mcqCorrect + c.vfCorrect;
+  if (contenidoGlobal) {
+    totalContenido = contenidoGlobal.total;
+    totalIntentado = contenidoGlobal.practicado;
+    totalCorrecto = contenidoGlobal.dominado;
+  } else {
+    totalContenido = competencias.reduce(
+      (s, c) => s + c.fcTotal + c.mcqTotal + c.vfTotal,
+      0,
+    );
+    totalIntentado = competencias.reduce(
+      (s, c) => s + c.mcqTotal + c.vfTotal + c.fcDom,
+      0,
+    );
+    totalCorrecto = competencias.reduce(
+      (s, c) => s + c.fcDom + c.mcqCorrect + c.vfCorrect,
+      0,
+    );
   }
-
-  // Reemplazo capa 2: "practicadas/intentadas" = MCQ totales + VF totales + FC con al menos 1 review
-  // Como no tenemos fcReviewed por libro acá, aproximamos: intentado = mcqTotal + vfTotal (intentos reales) + fcDom (proxy)
-  // Esto es una aproximación — el dato exacto requeriría una nueva query en la API.
-  totalIntentado = competencias.reduce(
-    (s, c) => s + c.mcqTotal + c.vfTotal + c.fcDom,
-    0,
-  );
 
   const stages: FunnelStage[] = [
     {

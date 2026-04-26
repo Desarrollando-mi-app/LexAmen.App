@@ -239,6 +239,93 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
   }
 
+  // ─── Módulos extendidos del Studio (8 tipos adicionales) ─────
+  // Se ejecutan en paralelo en una segunda Promise.all para no romper
+  // el destructuring grande de arriba.
+  const [
+    defInPeriod, defAct90,
+    fbInPeriod, fbAct90,
+    eidInPeriod, eidAct90,
+    osInPeriod, osAct90,
+    mcInPeriod, mcAct90,
+    cpInPeriod, cpAct90,
+    dictInPeriod, dictAct90,
+    tlInPeriod, tlAct90,
+  ] = await Promise.all([
+    // Definiciones
+    prisma.definicionIntento.findMany({
+      where: { userId, createdAt: { gte: dateFrom } },
+      select: { correcta: true, createdAt: true },
+    }),
+    prisma.definicionIntento.findMany({
+      where: { userId, createdAt: { gte: date90d } },
+      select: { createdAt: true },
+    }),
+    // FillBlank
+    prisma.fillBlankAttempt.findMany({
+      where: { userId, createdAt: { gte: dateFrom } },
+      select: { todosCorrectos: true, createdAt: true },
+    }),
+    prisma.fillBlankAttempt.findMany({
+      where: { userId, createdAt: { gte: date90d } },
+      select: { createdAt: true },
+    }),
+    // ErrorIdentification
+    prisma.errorIdentificationAttempt.findMany({
+      where: { userId, createdAt: { gte: dateFrom } },
+      select: { createdAt: true },
+    }),
+    prisma.errorIdentificationAttempt.findMany({
+      where: { userId, createdAt: { gte: date90d } },
+      select: { createdAt: true },
+    }),
+    // OrderSequence
+    prisma.orderSequenceAttempt.findMany({
+      where: { userId, createdAt: { gte: dateFrom } },
+      select: { perfecto: true, createdAt: true },
+    }),
+    prisma.orderSequenceAttempt.findMany({
+      where: { userId, createdAt: { gte: date90d } },
+      select: { createdAt: true },
+    }),
+    // MatchColumns
+    prisma.matchColumnsAttempt.findMany({
+      where: { userId, createdAt: { gte: dateFrom } },
+      select: { perfecto: true, createdAt: true },
+    }),
+    prisma.matchColumnsAttempt.findMany({
+      where: { userId, createdAt: { gte: date90d } },
+      select: { createdAt: true },
+    }),
+    // CasoPractico
+    prisma.casoPracticoAttempt.findMany({
+      where: { userId, createdAt: { gte: dateFrom } },
+      select: { createdAt: true },
+    }),
+    prisma.casoPracticoAttempt.findMany({
+      where: { userId, createdAt: { gte: date90d } },
+      select: { createdAt: true },
+    }),
+    // Dictado
+    prisma.dictadoAttempt.findMany({
+      where: { userId, createdAt: { gte: dateFrom } },
+      select: { createdAt: true },
+    }),
+    prisma.dictadoAttempt.findMany({
+      where: { userId, createdAt: { gte: date90d } },
+      select: { createdAt: true },
+    }),
+    // Timeline
+    prisma.timelineAttempt.findMany({
+      where: { userId, createdAt: { gte: dateFrom } },
+      select: { perfecto: true, createdAt: true },
+    }),
+    prisma.timelineAttempt.findMany({
+      where: { userId, createdAt: { gte: date90d } },
+      select: { createdAt: true },
+    }),
+  ]);
+
   // ═══ BLOQUE 1: RESUMEN EJECUTIVO ═══
 
   const streak = calculateStreak(allFcReviews.map((r) => r.lastReviewedAt));
@@ -262,13 +349,21 @@ export async function GET(request: Request) {
 
   const tasaCambio = totalAttemptsPrev > 0 ? tasaAcierto - tasaPrev : 0;
 
-  // Active days in period
+  // Active days in period — incluye TODOS los módulos del Studio
   const activeDaysSet = new Set<string>();
   for (const r of fcReviewsInPeriod) {
     if (r.lastReviewedAt) activeDaysSet.add(r.lastReviewedAt.toISOString().slice(0, 10));
   }
   for (const a of mcqInPeriod) activeDaysSet.add(a.attemptedAt.toISOString().slice(0, 10));
   for (const a of vfInPeriod) activeDaysSet.add(a.attemptedAt.toISOString().slice(0, 10));
+  for (const a of defInPeriod) activeDaysSet.add(a.createdAt.toISOString().slice(0, 10));
+  for (const a of fbInPeriod) activeDaysSet.add(a.createdAt.toISOString().slice(0, 10));
+  for (const a of eidInPeriod) activeDaysSet.add(a.createdAt.toISOString().slice(0, 10));
+  for (const a of osInPeriod) activeDaysSet.add(a.createdAt.toISOString().slice(0, 10));
+  for (const a of mcInPeriod) activeDaysSet.add(a.createdAt.toISOString().slice(0, 10));
+  for (const a of cpInPeriod) activeDaysSet.add(a.createdAt.toISOString().slice(0, 10));
+  for (const a of dictInPeriod) activeDaysSet.add(a.createdAt.toISOString().slice(0, 10));
+  for (const a of tlInPeriod) activeDaysSet.add(a.createdAt.toISOString().slice(0, 10));
   const diasActivos = activeDaysSet.size;
 
   // ═══ BLOQUE 2: COMPETENCIAS POR LIBRO ═══
@@ -362,42 +457,81 @@ export async function GET(request: Request) {
     flashcards: number;
   }> = [];
 
+  function inWeek(d: Date, ws: Date, we: Date): boolean {
+    return d >= ws && d < we;
+  }
+
   for (let i = numWeeks - 1; i >= 0; i--) {
     const weekEnd = new Date(now.getTime() - i * weekSize);
     const weekStart = new Date(weekEnd.getTime() - weekSize);
 
-    const mcqWeek = mcqInPeriod.filter(
-      (a) => a.attemptedAt >= weekStart && a.attemptedAt < weekEnd
-    );
-    const vfWeek = vfInPeriod.filter(
-      (a) => a.attemptedAt >= weekStart && a.attemptedAt < weekEnd
-    );
+    const mcqWeek = mcqInPeriod.filter((a) => inWeek(a.attemptedAt, weekStart, weekEnd));
+    const vfWeek = vfInPeriod.filter((a) => inWeek(a.attemptedAt, weekStart, weekEnd));
     const fcWeek = fcReviewsInPeriod.filter(
-      (r) => r.lastReviewedAt && r.lastReviewedAt >= weekStart && r.lastReviewedAt < weekEnd
+      (r) => r.lastReviewedAt && inWeek(r.lastReviewedAt, weekStart, weekEnd)
     );
 
-    const weekCorrect = mcqWeek.filter((a) => a.isCorrect).length + vfWeek.filter((a) => a.isCorrect).length;
-    const weekTotal = mcqWeek.length + vfWeek.length;
+    // tasa de acierto: solo MCQ + V/F (decisiones discretas, fiables).
+    const weekCorrect =
+      mcqWeek.filter((a) => a.isCorrect).length +
+      vfWeek.filter((a) => a.isCorrect).length;
+    const weekDecisivos = mcqWeek.length + vfWeek.length;
+
+    // intentos totales de la semana — incluye TODOS los módulos del Studio
+    // para que el chart refleje la actividad real (no solo MCQ+VF).
+    const weekIntentos =
+      weekDecisivos +
+      defInPeriod.filter((a) => inWeek(a.createdAt, weekStart, weekEnd)).length +
+      fbInPeriod.filter((a) => inWeek(a.createdAt, weekStart, weekEnd)).length +
+      eidInPeriod.filter((a) => inWeek(a.createdAt, weekStart, weekEnd)).length +
+      osInPeriod.filter((a) => inWeek(a.createdAt, weekStart, weekEnd)).length +
+      mcInPeriod.filter((a) => inWeek(a.createdAt, weekStart, weekEnd)).length +
+      cpInPeriod.filter((a) => inWeek(a.createdAt, weekStart, weekEnd)).length +
+      dictInPeriod.filter((a) => inWeek(a.createdAt, weekStart, weekEnd)).length +
+      tlInPeriod.filter((a) => inWeek(a.createdAt, weekStart, weekEnd)).length;
 
     evolucion.push({
       semana: weekLabel(weekStart),
-      tasa: weekTotal > 0 ? Math.round((weekCorrect / weekTotal) * 100) : 0,
-      intentos: weekTotal,
+      tasa: weekDecisivos > 0 ? Math.round((weekCorrect / weekDecisivos) * 100) : 0,
+      intentos: weekIntentos,
       flashcards: fcWeek.length,
     });
   }
 
   // ═══ BLOQUE 4: DISTRIBUCIÓN ═══
 
-  const totalItems = fcReviewsInPeriod.length + mcqInPeriod.length + vfInPeriod.length
-    + simulacroInPeriod.length + causasInPeriod.length;
-  const distribucion = [
+  const totalItems =
+    fcReviewsInPeriod.length +
+    mcqInPeriod.length +
+    vfInPeriod.length +
+    simulacroInPeriod.length +
+    causasInPeriod.length +
+    defInPeriod.length +
+    fbInPeriod.length +
+    eidInPeriod.length +
+    osInPeriod.length +
+    mcInPeriod.length +
+    cpInPeriod.length +
+    dictInPeriod.length +
+    tlInPeriod.length;
+
+  const distribucionRaw = [
     { modulo: "Flashcards", cantidad: fcReviewsInPeriod.length, porcentaje: 0 },
     { modulo: "MCQ", cantidad: mcqInPeriod.length, porcentaje: 0 },
     { modulo: "V/F", cantidad: vfInPeriod.length, porcentaje: 0 },
+    { modulo: "Definiciones", cantidad: defInPeriod.length, porcentaje: 0 },
+    { modulo: "Completar Espacios", cantidad: fbInPeriod.length, porcentaje: 0 },
+    { modulo: "Identificar Errores", cantidad: eidInPeriod.length, porcentaje: 0 },
+    { modulo: "Ordenar Secuencias", cantidad: osInPeriod.length, porcentaje: 0 },
+    { modulo: "Relacionar Columnas", cantidad: mcInPeriod.length, porcentaje: 0 },
+    { modulo: "Casos Prácticos", cantidad: cpInPeriod.length, porcentaje: 0 },
+    { modulo: "Dictado", cantidad: dictInPeriod.length, porcentaje: 0 },
+    { modulo: "Timeline", cantidad: tlInPeriod.length, porcentaje: 0 },
     { modulo: "Simulacro", cantidad: simulacroInPeriod.length, porcentaje: 0 },
     { modulo: "Causas", cantidad: causasInPeriod.length, porcentaje: 0 },
   ];
+  // Filtrar módulos sin actividad (más limpio en el chart) y calcular %.
+  const distribucion = distribucionRaw.filter((d) => d.cantidad > 0);
   for (const d of distribucion) {
     d.porcentaje = totalItems > 0 ? Math.round((d.cantidad / totalItems) * 100) : 0;
   }
@@ -406,28 +540,28 @@ export async function GET(request: Request) {
 
   const activityMap: Record<string, { fc: number; mcq: number; vf: number; sim: number }> = {};
 
+  function bumpDay(k: string, key: "fc" | "mcq" | "vf" | "sim") {
+    if (!activityMap[k]) activityMap[k] = { fc: 0, mcq: 0, vf: 0, sim: 0 };
+    activityMap[k][key]++;
+  }
+
   for (const r of fcActivity90) {
-    if (r.lastReviewedAt) {
-      const k = r.lastReviewedAt.toISOString().slice(0, 10);
-      if (!activityMap[k]) activityMap[k] = { fc: 0, mcq: 0, vf: 0, sim: 0 };
-      activityMap[k].fc++;
-    }
+    if (r.lastReviewedAt) bumpDay(r.lastReviewedAt.toISOString().slice(0, 10), "fc");
   }
-  for (const a of mcqActivity90) {
-    const k = a.attemptedAt.toISOString().slice(0, 10);
-    if (!activityMap[k]) activityMap[k] = { fc: 0, mcq: 0, vf: 0, sim: 0 };
-    activityMap[k].mcq++;
-  }
-  for (const a of vfActivity90) {
-    const k = a.attemptedAt.toISOString().slice(0, 10);
-    if (!activityMap[k]) activityMap[k] = { fc: 0, mcq: 0, vf: 0, sim: 0 };
-    activityMap[k].vf++;
-  }
-  for (const s of simulacroActivity90) {
-    const k = s.createdAt.toISOString().slice(0, 10);
-    if (!activityMap[k]) activityMap[k] = { fc: 0, mcq: 0, vf: 0, sim: 0 };
-    activityMap[k].sim++;
-  }
+  for (const a of mcqActivity90) bumpDay(a.attemptedAt.toISOString().slice(0, 10), "mcq");
+  for (const a of vfActivity90) bumpDay(a.attemptedAt.toISOString().slice(0, 10), "vf");
+  for (const s of simulacroActivity90) bumpDay(s.createdAt.toISOString().slice(0, 10), "sim");
+
+  // Módulos extendidos: se cuentan como "mcq" para el bucket genérico
+  // de "preguntas/intentos" (la UI no los desglosa más allá).
+  for (const a of defAct90) bumpDay(a.createdAt.toISOString().slice(0, 10), "mcq");
+  for (const a of fbAct90) bumpDay(a.createdAt.toISOString().slice(0, 10), "mcq");
+  for (const a of eidAct90) bumpDay(a.createdAt.toISOString().slice(0, 10), "mcq");
+  for (const a of osAct90) bumpDay(a.createdAt.toISOString().slice(0, 10), "mcq");
+  for (const a of mcAct90) bumpDay(a.createdAt.toISOString().slice(0, 10), "mcq");
+  for (const a of cpAct90) bumpDay(a.createdAt.toISOString().slice(0, 10), "mcq");
+  for (const a of dictAct90) bumpDay(a.createdAt.toISOString().slice(0, 10), "mcq");
+  for (const a of tlAct90) bumpDay(a.createdAt.toISOString().slice(0, 10), "mcq");
 
   const dias: Array<{
     date: string;
@@ -623,6 +757,80 @@ export async function GET(request: Request) {
     }
   }
 
+  // ═══ CONTENIDO GLOBAL DEL STUDIO (para el funnel) ═══
+
+  // Totales de contenido disponibles en toda la plataforma (independiente
+  // del usuario). Se cachean por 60s a nivel de DB; aquí los traemos con
+  // findMany.count() para simplicidad.
+  const [
+    totalFlashcards, totalMCQ, totalVF, totalDef, totalFB, totalEID,
+    totalOS, totalMC, totalCP, totalDict, totalTL,
+  ] = await Promise.all([
+    prisma.flashcard.count(),
+    prisma.mCQ.count(),
+    prisma.trueFalse.count(),
+    prisma.definicion.count(),
+    prisma.fillBlank.count({ where: { activo: true } }),
+    prisma.errorIdentification.count({ where: { activo: true } }),
+    prisma.orderSequence.count({ where: { activo: true } }),
+    prisma.matchColumns.count({ where: { activo: true } }),
+    prisma.casoPractico.count({ where: { activo: true } }),
+    prisma.dictadoJuridico.count({ where: { activo: true } }),
+    prisma.timeline.count({ where: { activo: true } }),
+  ]);
+
+  const contenidoGlobalTotal =
+    totalFlashcards + totalMCQ + totalVF + totalDef + totalFB + totalEID +
+    totalOS + totalMC + totalCP + totalDict + totalTL;
+
+  // "Practicado" = ítems únicos del Studio que el usuario tocó al menos
+  // una vez (FC con repetitions ≥ 1 + cualquier intento en cada módulo).
+  // Para los módulos sin "intento único" usamos el count de intentos como
+  // proxy (puede sobre-contar si el usuario hizo el mismo ítem varias
+  // veces — es una aproximación razonable).
+  const fcReviewedAll = allFcProgress.filter((p) => p.repetitions >= 1).length;
+
+  // Para evitar over-counting, agregamos: FC reviewed + sum(otros intentos)
+  // capped al total de cada categoría.
+  const allTimeMcq = await prisma.userMCQAttempt.groupBy({ by: ["mcqId"], where: { userId } });
+  const allTimeVf = await prisma.userTrueFalseAttempt.groupBy({ by: ["trueFalseId"], where: { userId } });
+  const uniqueMcq = allTimeMcq.length;
+  const uniqueVf = allTimeVf.length;
+
+  const contenidoPracticado =
+    fcReviewedAll +
+    uniqueMcq +
+    uniqueVf +
+    Math.min(totalDef, defAct90.length + defInPeriod.length) +
+    Math.min(totalFB, fbAct90.length + fbInPeriod.length) +
+    Math.min(totalEID, eidAct90.length + eidInPeriod.length) +
+    Math.min(totalOS, osAct90.length + osInPeriod.length) +
+    Math.min(totalMC, mcAct90.length + mcInPeriod.length) +
+    Math.min(totalCP, cpAct90.length + cpInPeriod.length) +
+    Math.min(totalDict, dictAct90.length + dictInPeriod.length) +
+    Math.min(totalTL, tlAct90.length + tlInPeriod.length);
+
+  // "Dominado" = FC ≥3 reps + intentos correctos/perfectos
+  const fcDomTotal = allFcProgress.filter((p) => p.repetitions >= 3).length;
+  const mcqCorrectAll = mcqByLibro.filter((a) => a.isCorrect).length;
+  const vfCorrectAll = vfByLibro.filter((a) => a.isCorrect).length;
+  const contenidoDominado =
+    fcDomTotal +
+    mcqCorrectAll +
+    vfCorrectAll +
+    defInPeriod.filter((a) => a.correcta).length +
+    fbInPeriod.filter((a) => a.todosCorrectos).length +
+    osInPeriod.filter((a) => a.perfecto).length +
+    mcInPeriod.filter((a) => a.perfecto).length +
+    tlInPeriod.filter((a) => a.perfecto).length;
+
+  // Cap defensivo: practicado/dominado nunca > total
+  const contenidoGlobal = {
+    total: contenidoGlobalTotal,
+    practicado: Math.min(contenidoPracticado, contenidoGlobalTotal),
+    dominado: Math.min(contenidoDominado, contenidoGlobalTotal),
+  };
+
   // ═══ RESPONSE ═══
 
   return NextResponse.json({
@@ -659,5 +867,6 @@ export async function GET(request: Request) {
     },
     olvidadas,
     percentil,
+    contenidoGlobal,
   });
 }

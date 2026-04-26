@@ -73,6 +73,11 @@ interface EstadisticasData {
     totalUsuarios: number;
     universidad: string;
   } | null;
+  contenidoGlobal?: {
+    total: number;
+    practicado: number;
+    dominado: number;
+  };
 }
 
 // ─── Period selector ────────────────────────────────────
@@ -221,7 +226,10 @@ export function EstadisticasClient() {
 
             {/* ═══ FILA 5 — Funnel + Distribución ═══ */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <BloqueFunnel competencias={data.competencias} />
+              <BloqueFunnel
+                competencias={data.competencias}
+                contenidoGlobal={data.contenidoGlobal}
+              />
               <BloqueDistribucion
                 distribucion={data.distribucion}
                 totalItems={data.totalItems}
