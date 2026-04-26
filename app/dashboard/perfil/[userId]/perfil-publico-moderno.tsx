@@ -19,6 +19,7 @@ import { TIER_LABELS, TIER_EMOJIS, getGradoInfo } from "@/lib/league";
 import { ReportModal } from "@/app/components/report-modal";
 import { AreasRadar } from "./areas-radar";
 import { HitoEditorModal, type HitoData } from "../components/hito-editor-modal";
+import { ObiterEditor } from "@/app/dashboard/diario/components/obiter-editor";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -513,28 +514,26 @@ export function PerfilModerno({
           <section className="lg:col-span-8 space-y-3">
             {activeTab === "publicaciones" && (
               <>
-                {/* Compose */}
+                {/* Compose — OD inline + links a forms reales */}
                 {isOwnProfile && (
-                  <div className="rounded-[3px] border border-gz-rule bg-gz-cream p-4">
-                    <div className="flex gap-3 items-center">
-                      {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt="" className="w-11 h-11 rounded-[3px] object-cover shrink-0" />
-                      ) : (
-                        <div className="w-11 h-11 rounded-[3px] bg-gz-navy text-gz-cream flex items-center justify-center text-xs font-semibold shrink-0">{initials}</div>
-                      )}
-                      <Link
-                        href="/dashboard/diario"
-                        className="flex-1 px-4 py-3 rounded-[3px] border border-gz-rule text-gz-ink-light hover:bg-gz-cream-dark/40 cursor-pointer text-sm font-archivo"
-                      >
-                        Comparte un dictamen, {user.firstName}…
-                      </Link>
+                  <div className="space-y-3">
+                    <div className="rounded-[3px] border border-gz-rule bg-gz-cream p-4">
+                      <ObiterEditor
+                        userId={user.id}
+                        userFirstName={user.firstName}
+                        userAvatarUrl={user.avatarUrl}
+                        onPublished={() => router.refresh()}
+                      />
                     </div>
-                    <div className="flex gap-1 mt-3 flex-wrap">
-                      <ComposeChip href="/dashboard/diario?tipo=obiter" color="text-gz-gold" glyph="§" label="Obiter" />
-                      <ComposeChip href="/dashboard/diario?tipo=analisis" color="text-gz-navy" glyph="¶" label="Análisis" />
-                      <ComposeChip href="/dashboard/diario/ensayos" color="text-gz-sage" glyph="◆" label="Ensayo" />
-                      <ComposeChip href="/dashboard/diario/debates" color="text-gz-burgundy" glyph="‡" label="Debate" />
-                      <ComposeChip href="/dashboard/diario/columnas" color="text-gz-ink-mid" glyph="◇" label="Columna" />
+                    <div className="rounded-[3px] border border-gz-rule bg-gz-cream/50 p-3">
+                      <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light mb-2">
+                        ¿Algo más extenso?
+                      </p>
+                      <div className="flex gap-1.5 flex-wrap">
+                        <ComposeChip href="/dashboard/diario/analisis/nuevo" color="text-gz-navy" glyph="¶" label="Análisis" />
+                        <ComposeChip href="/dashboard/diario/ensayos/nuevo" color="text-gz-sage" glyph="◆" label="Ensayo" />
+                        <ComposeChip href="/dashboard/diario/debates/proponer" color="text-gz-burgundy" glyph="‡" label="Debate" />
+                      </div>
                     </div>
                   </div>
                 )}

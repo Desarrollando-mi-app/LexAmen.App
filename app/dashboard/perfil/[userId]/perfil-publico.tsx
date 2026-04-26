@@ -9,6 +9,7 @@ import { getGradoInfo, NIVELES, getNivel } from "@/lib/league";
 import { ReportModal } from "@/app/components/report-modal";
 import { AreasRadar } from "./areas-radar";
 import { HitoEditorModal, type HitoData } from "../components/hito-editor-modal";
+import { ObiterEditor } from "@/app/dashboard/diario/components/obiter-editor";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -548,27 +549,47 @@ export function PerfilPublico({
 
             {activeTab === "publicaciones" && (
               <>
-                {/* Compose box (own profile only) */}
+                {/* Compose box (own profile only) — OD inline + links a forms reales */}
                 {isOwnProfile && (
-                  <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-4">
-                    <div className="flex gap-3 items-start">
-                      {user.avatarUrl ? (
-                        <img src={user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gz-navy text-gz-cream flex items-center justify-center text-xs font-semibold shrink-0">{initials}</div>
-                      )}
-                      <Link
-                        href="/dashboard/diario"
-                        className="flex-1 text-left px-4 py-2.5 border border-gz-rule rounded-[3px] text-gz-ink-light hover:bg-gz-cream-dark/40 cursor-pointer text-sm"
-                      >
-                        ¿Qué dictamen quieres compartir hoy, {user.firstName}?
-                      </Link>
+                  <div className="space-y-3">
+                    {/* OD: editor inline (escribe acá mismo, sincroniza con el Diario) */}
+                    <div className="rounded-[4px] border border-gz-rule bg-gz-cream p-4">
+                      <ObiterEditor
+                        userId={user.id}
+                        userFirstName={user.firstName}
+                        userAvatarUrl={user.avatarUrl}
+                        onPublished={() => router.refresh()}
+                      />
                     </div>
-                    <div className="flex gap-1 mt-3 pt-3 border-t border-gz-rule flex-wrap">
-                      <Link href="/dashboard/diario?tipo=obiter" className="font-ibm-mono text-[10px] uppercase tracking-[2px] flex items-center gap-1.5 px-3 py-2 rounded-[3px] hover:bg-gz-cream-dark/40 text-gz-ink-mid cursor-pointer"><span className="text-gz-gold">§</span> Obiter Dictum</Link>
-                      <Link href="/dashboard/diario?tipo=analisis" className="font-ibm-mono text-[10px] uppercase tracking-[2px] flex items-center gap-1.5 px-3 py-2 rounded-[3px] hover:bg-gz-cream-dark/40 text-gz-ink-mid cursor-pointer"><span className="text-gz-navy">⚖</span> Análisis</Link>
-                      <Link href="/dashboard/diario/ensayos" className="font-ibm-mono text-[10px] uppercase tracking-[2px] flex items-center gap-1.5 px-3 py-2 rounded-[3px] hover:bg-gz-cream-dark/40 text-gz-ink-mid cursor-pointer"><span className="text-gz-sage">◆</span> Ensayo</Link>
-                      <Link href="/dashboard/diario/debates" className="font-ibm-mono text-[10px] uppercase tracking-[2px] flex items-center gap-1.5 px-3 py-2 rounded-[3px] hover:bg-gz-cream-dark/40 text-gz-ink-mid cursor-pointer"><span className="text-gz-burgundy">⚔</span> Debate</Link>
+
+                    {/* Otras publicaciones — abren el form propio del módulo */}
+                    <div className="rounded-[4px] border border-gz-rule bg-gz-cream/50 p-3">
+                      <p className="font-ibm-mono text-[9px] uppercase tracking-[2px] text-gz-ink-light mb-2">
+                        ¿Algo más extenso?
+                      </p>
+                      <div className="flex gap-1.5 flex-wrap">
+                        <Link
+                          href="/dashboard/diario/analisis/nuevo"
+                          className="group inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-gz-rule bg-white hover:border-gz-navy hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-navy"
+                        >
+                          <span className="text-gz-navy text-[14px] leading-none -mt-px">¶</span>
+                          Análisis de Sentencia
+                        </Link>
+                        <Link
+                          href="/dashboard/diario/ensayos/nuevo"
+                          className="group inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-gz-rule bg-white hover:border-gz-sage hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-sage"
+                        >
+                          <span className="text-gz-sage text-[14px] leading-none -mt-px">◆</span>
+                          Ensayo
+                        </Link>
+                        <Link
+                          href="/dashboard/diario/debates/proponer"
+                          className="group inline-flex items-center gap-1.5 px-3 py-2 rounded-full border border-gz-rule bg-white hover:border-gz-burgundy hover:-translate-y-0.5 active:scale-95 transition-all duration-200 cursor-pointer font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-mid hover:text-gz-burgundy"
+                        >
+                          <span className="text-gz-burgundy text-[14px] leading-none -mt-px">⚔</span>
+                          Debate
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 )}
