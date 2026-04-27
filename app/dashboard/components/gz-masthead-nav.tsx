@@ -88,6 +88,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: "/dashboard/diario", label: "Obiter Dictum", icon: "newspaper" },
       { href: "/dashboard/diario/analisis", label: "Análisis de Fallos", icon: "clipboard-doc" },
       { href: "/dashboard/diario/ensayos", label: "Ensayos", icon: "scroll" },
+      { href: "/dashboard/diario/investigaciones", label: "Investigaciones", icon: "book-open" },
       { href: "/dashboard/diario/revista", label: "Revista", icon: "book-stack" },
     ],
   },
@@ -142,10 +143,12 @@ const ACADEMIA_ROUTES = [
   "/dashboard/academia/eventos",
 ];
 
-// Publicaciones: obiter (feed), análisis, ensayos, revista, columnas, obiter/[id]
+// Publicaciones: obiter (feed), análisis, ensayos, investigaciones,
+// revista, columnas, obiter/[id]
 const PUBLICACIONES_ROUTES = [
   "/dashboard/diario/analisis",
   "/dashboard/diario/ensayos",
+  "/dashboard/diario/investigaciones",
   "/dashboard/diario/revista",
   "/dashboard/diario/columnas",
   "/dashboard/diario/obiter",

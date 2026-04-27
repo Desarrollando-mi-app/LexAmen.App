@@ -99,6 +99,7 @@ const NAV_ITEMS: MobileNavItem[] = [
       { href: "/dashboard/diario", label: "Obiter Dictum" },
       { href: "/dashboard/diario/analisis", label: "Análisis de Fallos" },
       { href: "/dashboard/diario/ensayos", label: "Ensayos" },
+      { href: "/dashboard/diario/investigaciones", label: "Investigaciones" },
       { href: "/dashboard/diario/revista", label: "Revista" },
     ],
   },
@@ -117,7 +118,7 @@ const STUDY_ROUTES = [
 const COMPETE_ROUTES = ["/dashboard/la-toga", "/dashboard/vida-del-derecho", "/dashboard/liga", "/dashboard/ranking", "/dashboard/ranking-causas", "/dashboard/causas"];
 const PROFESION_ROUTES = ["/dashboard/sala/ayudantias", "/dashboard/sala/pasantias", "/dashboard/sala/ofertas", "/dashboard/sala/networking"];
 const ACADEMIA_ROUTES = ["/dashboard/academia", "/dashboard/diario/debates", "/dashboard/diario/expediente", "/dashboard/diario/peer-review", "/dashboard/diario/ranking", "/dashboard/academia/eventos"];
-const PUBLICACIONES_ROUTES = ["/dashboard/diario/analisis", "/dashboard/diario/ensayos", "/dashboard/diario/revista", "/dashboard/diario/columnas", "/dashboard/diario/obiter", "/dashboard/diario/colaboracion"];
+const PUBLICACIONES_ROUTES = ["/dashboard/diario/analisis", "/dashboard/diario/ensayos", "/dashboard/diario/investigaciones", "/dashboard/diario/revista", "/dashboard/diario/columnas", "/dashboard/diario/obiter", "/dashboard/diario/colaboracion"];
 
 function isItemActive(item: MobileNavItem, pathname: string): boolean {
   if (item.href === "/dashboard/noticias") {

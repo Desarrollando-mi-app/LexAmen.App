@@ -19,7 +19,7 @@ type DiarioPageClientProps = {
   prefillText?: string;
 };
 
-type MainTab = "feed" | "analisis" | "ensayos" | "investigaciones" | "expediente" | "debates" | "mis";
+type MainTab = "feed" | "analisis" | "ensayos" | "expediente" | "debates" | "mis";
 
 // Mapa de clases por acento (Tailwind no resuelve strings dinámicos en JIT
 // — cada combinación debe aparecer literalmente).
@@ -47,13 +47,12 @@ const TABS: {
   // /dashboard/diario/investigaciones.
   href?: string;
 }[] = [
-  { key: "feed",            label: "Obiter Dictum",         short: "Obiter",         glyph: "I",    accent: "gold" },
-  { key: "analisis",        label: "Análisis de Sentencia", short: "Análisis",       glyph: "II",   accent: "burgundy" },
-  { key: "ensayos",         label: "Ensayos",               short: "Ensayos",        glyph: "III",  accent: "sage" },
-  { key: "investigaciones", label: "Investigaciones",       short: "Investig.",      glyph: "IV",   accent: "burgundy", href: "/dashboard/diario/investigaciones" },
-  { key: "expediente",      label: "Expediente Abierto",    short: "Expediente",     glyph: "V",    accent: "navy" },
-  { key: "debates",         label: "Debates",               short: "Debates",        glyph: "VI",   accent: "burgundy" },
-  { key: "mis",             label: "Mis Publicaciones",     short: "Mías",           glyph: "VII",  accent: "ink", requiresAuth: true },
+  { key: "feed",       label: "Obiter Dictum",         short: "Obiter",     glyph: "I",   accent: "gold" },
+  { key: "analisis",   label: "Análisis de Sentencia", short: "Análisis",   glyph: "II",  accent: "burgundy" },
+  { key: "ensayos",    label: "Ensayos",               short: "Ensayos",    glyph: "III", accent: "sage" },
+  { key: "expediente", label: "Expediente Abierto",    short: "Expediente", glyph: "IV",  accent: "navy" },
+  { key: "debates",    label: "Debates",               short: "Debates",    glyph: "V",   accent: "burgundy" },
+  { key: "mis",        label: "Mis Publicaciones",     short: "Mías",       glyph: "VI",  accent: "ink", requiresAuth: true },
 ];
 
 // ─── Mis Publicaciones Tab ──────────────────────────────────
@@ -1369,7 +1368,6 @@ export function DiarioPageClient({
           {activeTab.key === "feed" && "Reflexiones jurídicas breves — al margen de la doctrina."}
           {activeTab.key === "analisis" && "Sentencias diseccionadas — fallos comentados por colegas."}
           {activeTab.key === "ensayos" && "Ensayos académicos — la tribuna larga del estudio."}
-          {activeTab.key === "investigaciones" && "Memorias y artículos doctrinales — con sistema de citación y métricas reputacionales."}
           {activeTab.key === "expediente" && "Casos abiertos — el expediente colectivo del foro."}
           {activeTab.key === "debates" && "Tesis frente a tesis — la disputa intelectual ordenada."}
           {activeTab.key === "mis" && "Tu expediente personal — tus contribuciones al diario."}
