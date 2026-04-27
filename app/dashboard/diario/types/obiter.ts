@@ -31,6 +31,10 @@ export type ObiterData = {
   // (no recursivo).
   parentObiterId?: string | null;
   replyCount?: number;
+  // Hashtags extraídos del content (lowercase, sin '#')
+  hashtags?: string[];
+  // userIds de menciones resueltas (para enriquecer UI a futuro)
+  mentionedUserIds?: string[];
   linkPreviews?: LinkPreview[];
   citedObiterId: string | null;
   citedObiter: {

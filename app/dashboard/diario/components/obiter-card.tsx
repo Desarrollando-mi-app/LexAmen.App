@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { ObiterData } from "../types/obiter";
 import { parseObiterContent } from "@/lib/legal-reference-parser";
 import { ObiterLegalRef } from "./obiter-legal-ref";
@@ -344,7 +345,7 @@ export function ObiterCard({
           )}
 
           {/* ── Action bar — estilo X con icon-buttons + hover circle ── */}
-          <div className="mt-3 flex items-center justify-between max-w-[480px] -ml-2">
+          <div className="mt-3 flex items-center justify-between max-w-[540px] -ml-2">
             {/* Responder / Reply — chat bubble (navega al detalle si no hay handler) */}
             <ActionButton
               label="Responder"
@@ -456,6 +457,49 @@ export function ObiterCard({
                 >
                   <path
                     d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              }
+            />
+
+            {/* Compartir / Share */}
+            <ActionButton
+              label="Compartir"
+              hoverColor="navy"
+              onClick={async () => {
+                const url = `${window.location.origin}/dashboard/diario/obiter/${obiter.id}`;
+                const text = obiter.content.length > 100 ? obiter.content.slice(0, 100) + "…" : obiter.content;
+                // Web Share API en mobile (donde existe)
+                if (typeof navigator !== "undefined" && "share" in navigator) {
+                  try {
+                    await (navigator as Navigator & { share: (data: ShareData) => Promise<void> }).share({
+                      title: `Obiter de ${obiter.user.firstName}`,
+                      text,
+                      url,
+                    });
+                    return;
+                  } catch (err) {
+                    // Si el usuario canceló, no hacemos fallback
+                    if ((err as { name?: string })?.name === "AbortError") return;
+                    // Si falla, caemos al clipboard
+                  }
+                }
+                // Fallback: clipboard
+                try {
+                  await navigator.clipboard.writeText(url);
+                  toast.success("Link copiado al portapapeles");
+                } catch {
+                  toast.error("No se pudo copiar el link");
+                }
+              }}
+              icon={
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"
                     stroke="currentColor"
                     strokeWidth="2"
                     strokeLinecap="round"

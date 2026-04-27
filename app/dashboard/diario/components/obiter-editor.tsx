@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { ObiterData } from "../types/obiter";
 import { MATERIAS, TIPOS } from "../types/obiter";
+import { useMentionAutocomplete } from "./use-mention-autocomplete";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -70,6 +71,86 @@ export function ObiterEditor(props: ObiterEditorProps) {
   const [activeThreadId, setActiveThreadId] = useState<string | undefined>(threadId);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Hook de autocompletado de @menciones — abre dropdown cuando se
+  // detecta "@palabra" en curso.
+  const mention = useMentionAutocomplete(textareaRef, content, setContent);
+
+  // ─── Borradores en localStorage ───────────────────────────
+  // Key separada por contexto: respuesta a OD, continuación de hilo,
+  // o composición libre. Evita que el borrador de "responder a X" se
+  // confunda con el OD que estás escribiendo en otra tab.
+  const draftKey =
+    parentObiterId
+      ? `obiter-draft-reply-${parentObiterId}`
+      : threadId
+        ? `obiter-draft-thread-${threadId}`
+        : "obiter-draft-root";
+
+  // Cargar borrador al montar (solo si no hay initialText/citing)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (initialText) return; // initialText tiene prioridad
+    if (citingObiter || citingAnalisis || citingEnsayo) return;
+    if (content) return; // ya hay contenido
+    try {
+      const draft = localStorage.getItem(draftKey);
+      if (draft) {
+        const parsed = JSON.parse(draft) as {
+          content?: string;
+          materia?: string;
+          tipo?: string;
+          ts?: number;
+        };
+        // Solo restaurar si tiene <7 días
+        const age = parsed.ts ? Date.now() - parsed.ts : Infinity;
+        if (parsed.content && age < 7 * 86400000) {
+          setContent(parsed.content);
+          if (parsed.materia) setMateria(parsed.materia);
+          if (parsed.tipo) setTipo(parsed.tipo);
+          if (state === "collapsed") setState("expanded");
+        }
+      }
+    } catch {
+      /* silent */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // solo en mount
+
+  // Guardar borrador (debounced) al cambiar content/materia/tipo
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (state === "sending" || state === "published") return;
+    const t = setTimeout(() => {
+      try {
+        if (content.trim().length === 0) {
+          localStorage.removeItem(draftKey);
+        } else {
+          localStorage.setItem(
+            draftKey,
+            JSON.stringify({
+              content,
+              materia,
+              tipo,
+              ts: Date.now(),
+            }),
+          );
+        }
+      } catch {
+        /* localStorage may be unavailable */
+      }
+    }, 500);
+    return () => clearTimeout(t);
+  }, [content, materia, tipo, draftKey, state]);
+
+  // Limpiar borrador
+  function clearDraft() {
+    try {
+      localStorage.removeItem(draftKey);
+    } catch {
+      /* silent */
+    }
+  }
 
   // Word count
   const words = content.trim()
@@ -200,10 +281,12 @@ export function ObiterEditor(props: ObiterEditorProps) {
         setThreadPartNumber((prev) => prev + 1);
         setContinueThread(false); // reset para próximas publicaciones
         setContent("");
+        clearDraft();
         setError(null);
         setState("expanded");
         setTimeout(() => textareaRef.current?.focus(), 100);
       } else {
+        clearDraft();
         setState("published");
       }
     } catch {
@@ -370,19 +453,80 @@ export function ObiterEditor(props: ObiterEditorProps) {
         </div>
       )}
 
-      {/* Textarea */}
-      <textarea
-        ref={textareaRef}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        placeholder="Comparte tu reflexión jurídica..."
-        disabled={state === "sending"}
-        className="w-full resize-none border-none font-cormorant text-[16px] leading-[1.7] text-gz-ink placeholder:text-gz-ink-light/40 focus:outline-none focus:ring-0 lg:text-[17px]"
-        style={{
-          minHeight: "80px",
-          backgroundColor: "transparent",
-        }}
-      />
+      {/* Textarea + dropdown de menciones */}
+      <div className="relative">
+        <textarea
+          ref={textareaRef}
+          value={content}
+          onChange={(e) => {
+            setContent(e.target.value);
+            // Detección de @ tras cada cambio
+            requestAnimationFrame(() => mention.handleSelectionChange());
+          }}
+          onKeyDown={(e) => {
+            // El dropdown intercepta arrows/enter/escape
+            mention.handleKeyDown(e);
+          }}
+          onSelect={() => mention.handleSelectionChange()}
+          placeholder="Comparte tu reflexión jurídica... usa #etiquetas y @menciones"
+          disabled={state === "sending"}
+          className="w-full resize-none border-none font-cormorant text-[16px] leading-[1.7] text-gz-ink placeholder:text-gz-ink-light/40 focus:outline-none focus:ring-0 lg:text-[17px]"
+          style={{
+            minHeight: "80px",
+            backgroundColor: "transparent",
+          }}
+        />
+
+        {/* Dropdown de menciones — flotante sobre el textarea */}
+        {mention.open && (
+          <div className="absolute left-0 right-0 top-full z-30 mt-1 max-h-[280px] overflow-y-auto rounded-[4px] border border-gz-rule bg-white shadow-lg">
+            {mention.users.map((u, idx) => {
+              const isSelected = idx === mention.selectedIndex;
+              const initials = `${u.firstName[0] ?? ""}${u.lastName[0] ?? ""}`.toUpperCase();
+              return (
+                <button
+                  key={u.id}
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    mention.insertMention(u);
+                  }}
+                  className={`flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors cursor-pointer ${
+                    isSelected ? "bg-gz-gold/[0.10]" : "hover:bg-gz-cream-dark/50"
+                  }`}
+                >
+                  {u.avatarUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={u.avatarUrl}
+                      alt=""
+                      className="h-8 w-8 rounded-full object-cover ring-1 ring-gz-rule/50"
+                    />
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gz-navy font-archivo text-[10px] font-bold text-gz-gold-bright ring-1 ring-gz-rule/50">
+                      {initials}
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="font-archivo text-[13px] font-semibold text-gz-ink truncate leading-tight">
+                      {u.firstName} {u.lastName}
+                    </p>
+                    <p className="font-ibm-mono text-[10px] text-gz-ink-light truncate">
+                      @{u.handle ?? u.firstName.toLowerCase()}
+                      {u.universidad && (
+                        <>
+                          <span className="mx-1 text-gz-ink-light/40">·</span>
+                          {u.universidad}
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Details toggle + selects */}
       {!showDetails ? (
@@ -420,17 +564,24 @@ export function ObiterEditor(props: ObiterEditorProps) {
             ))}
           </select>
 
-          {/* Word counter */}
-          <span
-            className={`ml-auto font-ibm-mono text-[10px] ${
-              isOverLimit
-                ? "font-bold text-gz-burgundy"
-                : isNearLimit
-                  ? "text-gz-gold"
-                  : "text-gz-ink-light"
-            }`}
-          >
-            {words}/200 palabras
+          {/* Borrador + word counter */}
+          <span className="ml-auto flex items-center gap-2">
+            {content.trim().length > 0 && state !== "sending" && (
+              <span className="font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-sage">
+                ✓ Guardado
+              </span>
+            )}
+            <span
+              className={`font-ibm-mono text-[10px] ${
+                isOverLimit
+                  ? "font-bold text-gz-burgundy"
+                  : isNearLimit
+                    ? "text-gz-gold"
+                    : "text-gz-ink-light"
+              }`}
+            >
+              {words}/200 palabras
+            </span>
           </span>
         </div>
       )}

@@ -20,6 +20,9 @@ type ObiterFeedProps = {
   userFirstName?: string;
   userAvatarUrl?: string | null;
   prefillText?: string;
+  // Filtro por hashtag — viene de la URL (?hashtag=X) y se propaga al
+  // backend para que el feed muestre solo OD con esa etiqueta.
+  hashtag?: string | null;
 };
 
 type Tab = "recientes" | "destacados" | "colegas" | "guardados";
@@ -38,6 +41,7 @@ export function ObiterFeed({
   userFirstName,
   userAvatarUrl,
   prefillText,
+  hashtag,
 }: ObiterFeedProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("recientes");
@@ -56,6 +60,7 @@ export function ObiterFeed({
       params.set("feed", tab);
       params.set("limit", "20");
       if (cursor) params.set("cursor", cursor);
+      if (hashtag) params.set("hashtag", hashtag);
 
       try {
         const res = await fetch(`/api/obiter?${params.toString()}`, {
@@ -80,7 +85,7 @@ export function ObiterFeed({
         return { obiters: [], feedItems: [], nextCursor: null, hasMore: false };
       }
     },
-    []
+    [hashtag]
   );
 
   // Initial load + tab change

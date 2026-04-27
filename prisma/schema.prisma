@@ -210,6 +210,7 @@ enum NotificationType {
   OBITER_CITA
   OBITER_COMUNIQUESE
   OBITER_REPLY
+  OBITER_MENTION
   ANALISIS_APOYO
   ANALISIS_COMUNIQUESE
   ENSAYO_APOYO
@@ -301,6 +302,9 @@ model User {
   email               String    @unique
   firstName           String
   lastName            String
+  // Handle único para menciones (@handle). Backfilled desde firstName
+  // al aplicar la migración. El usuario podrá personalizarlo en perfil.
+  handle              String?   @unique
   rut                 String?   @unique // RUT chileno normalizado (ej: 12345678-K)
   phone               String?
   dateOfBirth         DateTime?
@@ -1605,6 +1609,14 @@ model ObiterDictum {
 
   // Contador desnormalizado de respuestas directas (no recursivo).
   replyCount Int @default(0)
+
+  // === HASHTAGS Y MENCIONES ===
+  // hashtags: array de strings (lowercase, sin '#') extraídos al crear.
+  // Filtran el feed con ?hashtag=X y alimentan la sección Contingencia.
+  hashtags         String[] @default([])
+  // mentionedUserIds: array de userIds resueltos a partir de @handle
+  // en el content. Dispara notificaciones al crear el OD.
+  mentionedUserIds String[] @default([])
 
   // === CITAS ===
   citedObiterId String?

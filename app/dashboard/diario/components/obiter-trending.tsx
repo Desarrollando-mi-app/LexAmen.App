@@ -5,68 +5,62 @@ import Link from "next/link";
 
 // ─── Types ──────────────────────────────────────────────────
 
-type TrendingMateria = {
-  materia: string;
-  count: number;
+type TrendingHashtag = {
+  tag: string;
+  uses: number;
   apoyos: number;
+  replies: number;
+  score: number;
+  delta: number; // % growth vs ventana anterior
 };
 
-type TrendingObiter = {
+type SpotlightOd = {
   id: string;
   content: string;
-  citasCount: number;
   apoyosCount: number;
+  citasCount: number;
+  replyCount: number;
+  hashtags: string[];
   userName: string;
 };
 
 type TrendingData = {
-  materias: TrendingMateria[];
-  mostCited: TrendingObiter | null;
-  unansweredQuestion: TrendingObiter | null;
+  trendingHashtags: TrendingHashtag[];
+  spotlight: SpotlightOd | null;
+  unansweredQuestion: SpotlightOd | null;
+  windowDays: number;
 };
 
-const MATERIA_LABELS: Record<string, string> = {
-  acto_juridico: "Acto Jurídico",
-  obligaciones: "Obligaciones",
-  contratos: "Contratos",
-  procesal_civil: "Procesal Civil",
-  bienes: "Bienes",
-  familia: "Familia",
-  sucesiones: "Sucesiones",
-  otro: "Otro",
-};
+// ─── Helpers ────────────────────────────────────────────────
 
-// Tarjeta editorial reutilizable — rail superior + dot-kicker + sombra
-// "paper-stack" simulando hojas apiladas.
+// Tarjeta editorial premium reutilizable — rail superior + dot-kicker +
+// sombra paper-stack simulando hojas apiladas.
 function EditorialCard({
   railColor,
   kicker,
   kickerColor = "text-gz-gold",
+  trailing,
   children,
 }: {
-  railColor: string; // ej: "bg-gz-gold"
+  railColor: string;
   kicker: string;
   kickerColor?: string;
+  trailing?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div className="relative">
-      {/* Sombras paper-stack — capas apiladas decorativas */}
       <div className="absolute inset-0 translate-x-[3px] translate-y-[3px] rounded-[3px] border border-gz-rule/40 bg-white/40" aria-hidden />
       <div className="absolute inset-0 translate-x-[1.5px] translate-y-[1.5px] rounded-[3px] border border-gz-rule/60 bg-white/60" aria-hidden />
-
-      {/* Tarjeta principal */}
       <div className="relative rounded-[3px] border border-gz-rule bg-white overflow-hidden">
-        {/* Rail superior color */}
         <div className={`h-[3px] ${railColor}`} />
-
         <div className="p-4">
-          {/* Kicker con dot */}
           <div className="flex items-center gap-2 mb-3">
             <span className={`h-1.5 w-1.5 rounded-full ${railColor}`} />
             <span className={`font-ibm-mono text-[9px] uppercase tracking-[2px] font-semibold ${kickerColor}`}>
               {kicker}
             </span>
+            {trailing && <span className="ml-auto">{trailing}</span>}
           </div>
           {children}
         </div>
@@ -77,11 +71,7 @@ function EditorialCard({
 
 // ─── Component ──────────────────────────────────────────────
 
-export function ObiterTrending({
-  onFilterMateria,
-}: {
-  onFilterMateria?: (materia: string) => void;
-}) {
+export function ObiterTrending() {
   const [data, setData] = useState<TrendingData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -96,7 +86,7 @@ export function ObiterTrending({
           setData(json);
         }
       } catch {
-        // Silent — trending is non-critical
+        // Silent — trending no es crítico
       } finally {
         setLoading(false);
       }
@@ -125,17 +115,16 @@ export function ObiterTrending({
 
   if (!data) return null;
 
-  const hasMaterias = data.materias.length > 0;
-  const hasMostCited = !!data.mostCited;
+  const hasTrending = data.trendingHashtags.length > 0;
+  const hasSpotlight = !!data.spotlight;
   const hasUnanswered = !!data.unansweredQuestion;
 
-  // If there's nothing trending at all, show a minimal placeholder
-  if (!hasMaterias && !hasMostCited && !hasUnanswered) {
+  if (!hasTrending && !hasSpotlight && !hasUnanswered) {
     return (
       <EditorialCard railColor="bg-gz-gold" kicker="Contingencia">
         <p className="font-cormorant text-[14px] italic text-gz-ink-light leading-relaxed">
-          Aún no hay suficiente actividad para mostrar contingencias. Publica un
-          Obiter para empezar.
+          Aún no hay suficiente actividad. Publica un Obiter con
+          #etiquetas para empezar la conversación.
         </p>
       </EditorialCard>
     );
@@ -143,69 +132,125 @@ export function ObiterTrending({
 
   return (
     <div className="space-y-4">
-      {/* ─── Materias populares ─── */}
-      {hasMaterias && (
-        <EditorialCard railColor="bg-gz-gold" kicker="Contingencia · Materias">
-          <div className="-mx-1">
-            {data.materias.map((m, idx) => {
-              const max = data.materias[0]?.count ?? 1;
-              const pct = Math.round((m.count / max) * 100);
+      {/* ─── Hashtags trending ─── */}
+      {hasTrending && (
+        <EditorialCard
+          railColor="bg-gz-gold"
+          kicker="Contingencia · Tendencias"
+          trailing={
+            <span className="font-ibm-mono text-[9px] tracking-[1px] text-gz-ink-light">
+              {data.windowDays}d
+            </span>
+          }
+        >
+          <ul className="-mx-1">
+            {data.trendingHashtags.map((h, idx) => {
+              const max = data.trendingHashtags[0]?.score ?? 1;
+              const pct = Math.max(8, Math.round((h.score / max) * 100));
+              const isHot = h.delta >= 50;
               return (
-                <button
-                  key={m.materia}
-                  onClick={() => onFilterMateria?.(m.materia)}
-                  className="group relative flex w-full items-start gap-2.5 px-1 py-2 text-left transition-colors hover:bg-gz-cream-dark/30 cursor-pointer"
-                >
-                  <span className="w-5 font-cormorant text-[15px] !font-bold text-gz-burgundy/80 shrink-0 mt-0.5">
-                    {idx + 1}.
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-archivo text-[13px] font-semibold text-gz-ink leading-tight">
-                      {MATERIA_LABELS[m.materia] ?? m.materia}
-                    </p>
-                    {/* Mini-barra de proporción */}
-                    <div className="mt-1.5 h-[3px] w-full bg-gz-cream-dark/60 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gz-gold transition-all duration-500 ease-out"
-                        style={{ width: `${pct}%` }}
-                      />
+                <li key={h.tag}>
+                  <Link
+                    href={`/dashboard/diario?hashtag=${encodeURIComponent(h.tag)}`}
+                    className="group flex items-start gap-2.5 px-1 py-2 transition-colors hover:bg-gz-cream-dark/30 cursor-pointer rounded-[2px]"
+                  >
+                    {/* Numeral romano editorial — top 3 doradas, resto sutiles */}
+                    <span
+                      className={`w-5 font-cormorant text-[15px] !font-bold leading-none mt-1 shrink-0 text-right ${
+                        idx === 0
+                          ? "text-gz-burgundy"
+                          : idx === 1
+                          ? "text-gz-gold"
+                          : idx === 2
+                          ? "text-[#b87333]"
+                          : "text-gz-ink-light"
+                      }`}
+                    >
+                      {idx + 1}
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      {/* Hashtag + delta */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-archivo text-[14px] font-bold text-gz-ink leading-tight group-hover:text-gz-burgundy transition-colors break-all">
+                          #{h.tag}
+                        </span>
+                        {isHot && (
+                          <span className="font-ibm-mono text-[8px] uppercase tracking-[1px] text-gz-burgundy bg-gz-burgundy/10 px-1.5 py-0.5 rounded-full font-bold leading-none">
+                            ▲ {h.delta}%
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Mini-barra de proporción */}
+                      <div className="mt-1.5 h-[3px] w-full bg-gz-cream-dark/60 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gz-gold transition-all duration-700 ease-out"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+
+                      {/* Stats compactas */}
+                      <p className="mt-1 font-ibm-mono text-[10px] tracking-[0.5px] text-gz-ink-light">
+                        {h.uses} {h.uses === 1 ? "obiter" : "obiters"}
+                        {h.replies > 0 && (
+                          <>
+                            <span className="text-gz-ink-light/40 mx-1">·</span>
+                            {h.replies} {h.replies === 1 ? "respuesta" : "respuestas"}
+                          </>
+                        )}
+                        {h.apoyos > 0 && (
+                          <>
+                            <span className="text-gz-ink-light/40 mx-1">·</span>
+                            {h.apoyos} {h.apoyos === 1 ? "apoyo" : "apoyos"}
+                          </>
+                        )}
+                      </p>
                     </div>
-                    <p className="mt-1 font-ibm-mono text-[10px] tracking-[0.5px] text-gz-ink-light">
-                      {m.count} {m.count === 1 ? "obiter" : "obiters"} ·{" "}
-                      {m.apoyos} {m.apoyos === 1 ? "apoyo" : "apoyos"}
-                    </p>
-                  </div>
-                </button>
+                  </Link>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </EditorialCard>
       )}
 
-      {/* ─── Obiter más citado ─── */}
-      {hasMostCited && data.mostCited && (
+      {/* ─── Spotlight: OD con más engagement reciente ─── */}
+      {hasSpotlight && data.spotlight && (
         <EditorialCard
           railColor="bg-gz-burgundy"
-          kicker="Más citado"
+          kicker="En el centro del foro"
           kickerColor="text-gz-burgundy"
         >
           <Link
-            href={`/dashboard/diario/obiter/${data.mostCited.id}`}
-            className="block group cursor-pointer"
+            href={`/dashboard/diario/obiter/${data.spotlight.id}`}
+            className="block group cursor-pointer relative"
           >
-            <span className="absolute -top-1.5 left-3 font-cormorant text-[44px] !font-bold text-gz-burgundy/15 select-none leading-none">
+            <span
+              className="absolute -top-1.5 left-3 font-cormorant text-[44px] !font-bold text-gz-burgundy/15 select-none leading-none pointer-events-none"
+              aria-hidden
+            >
               &ldquo;
             </span>
             <p className="relative mb-2 line-clamp-3 font-cormorant text-[15px] leading-snug text-gz-ink italic group-hover:text-gz-burgundy transition-colors">
-              {data.mostCited.content}
+              {data.spotlight.content}
             </p>
-            <div className="flex items-center justify-between pt-2 border-t border-gz-rule/60">
+            <div className="flex items-center justify-between pt-2 border-t border-gz-rule/60 gap-2">
               <span className="font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light truncate">
-                — {data.mostCited.userName}
+                — {data.spotlight.userName}
               </span>
-              <span className="font-ibm-mono text-[10px] font-semibold text-gz-burgundy shrink-0">
-                {data.mostCited.citasCount} {data.mostCited.citasCount === 1 ? "cita" : "citas"}
-              </span>
+              <div className="flex items-center gap-2 shrink-0 font-ibm-mono text-[10px]">
+                {data.spotlight.replyCount > 0 && (
+                  <span className="text-gz-navy font-semibold">
+                    ↩ {data.spotlight.replyCount}
+                  </span>
+                )}
+                {data.spotlight.apoyosCount > 0 && (
+                  <span className="text-gz-burgundy font-semibold">
+                    ♥ {data.spotlight.apoyosCount}
+                  </span>
+                )}
+              </div>
             </div>
           </Link>
         </EditorialCard>
@@ -225,11 +270,11 @@ export function ObiterTrending({
             <p className="mb-3 line-clamp-3 font-cormorant text-[15px] leading-snug text-gz-ink group-hover:text-gz-sage transition-colors">
               {data.unansweredQuestion.content}
             </p>
-            <div className="flex items-center justify-between pt-2 border-t border-gz-rule/60">
+            <div className="flex items-center justify-between pt-2 border-t border-gz-rule/60 gap-2">
               <span className="font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light truncate">
                 — {data.unansweredQuestion.userName}
               </span>
-              <span className="font-archivo text-[10px] font-bold uppercase tracking-[1.5px] text-gz-sage hover:text-gz-ink transition-colors shrink-0 ml-2">
+              <span className="font-archivo text-[10px] font-bold uppercase tracking-[1.5px] text-gz-sage hover:text-gz-ink transition-colors shrink-0">
                 Responde →
               </span>
             </div>

@@ -12,6 +12,11 @@ import {
 } from "@/lib/obiter-utils";
 import { awardXp, XP_CITADO_OBITER } from "@/lib/xp-config";
 import { buildPreviewsForContent, serializeLinkPreviews, parseLinkPreviews } from "@/lib/og-preview";
+import {
+  extractHashtags,
+  extractMentions,
+  resolveMentions,
+} from "@/lib/obiter-parsing";
 
 // ─── POST: Crear Obiter ─────────────────────────────────────
 
@@ -266,6 +271,18 @@ export async function POST(request: NextRequest) {
     console.warn("[obiter] buildPreviewsForContent failed:", err);
   }
 
+  // ─── Hashtags y menciones ─────────────────────────────
+  // Extraemos #tags y @handles del content. Los hashtags son strings
+  // libres (lowercase). Las menciones se resuelven a userIds reales
+  // contra la tabla User (handle único). Solo los handles que existen
+  // se notifican.
+  const hashtags = extractHashtags(content);
+  const mentionHandles = extractMentions(content);
+  const handleToUserId = await resolveMentions(mentionHandles, prisma);
+  const mentionedUserIds = Array.from(handleToUserId.values()).filter(
+    (uid) => uid !== authUser.id, // no se notifica a uno mismo
+  );
+
   // ─── Crear obiter ─────────────────────────────────────
 
   const obiter = await prisma.obiterDictum.create({
@@ -280,6 +297,8 @@ export async function POST(request: NextRequest) {
       threadId: threadId || null,
       threadOrder: threadId ? threadOrder : null,
       parentObiterId: parentObiterId || null,
+      hashtags,
+      mentionedUserIds,
       ...(linkPreviewsJson != null && { linkPreviews: linkPreviewsJson }),
     },
     include: {
@@ -373,6 +392,37 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Notificación a cada mención (excluyendo el padre — si está mencionado
+  // y a la vez es el autor del padre, recibe solo OBITER_REPLY, no doble
+  // notif. Y excluyendo a uno mismo, ya filtrado arriba).
+  if (mentionedUserIds.length > 0) {
+    const excluded = new Set<string>();
+    if (parentInfo) excluded.add(parentInfo.userId);
+
+    for (const uid of mentionedUserIds) {
+      if (excluded.has(uid)) continue;
+      try {
+        const snippet =
+          obiter.content.length > 80
+            ? obiter.content.slice(0, 80) + "…"
+            : obiter.content;
+        await sendNotification({
+          type: "OBITER_MENTION",
+          title: `${obiter.user.firstName} te mencionó`,
+          body: snippet,
+          targetUserId: uid,
+          metadata: {
+            obiterId: obiter.id,
+            actorId: authUser.id,
+            actorName: `${obiter.user.firstName} ${obiter.user.lastName}`,
+          },
+        });
+      } catch (err) {
+        console.warn("[obiter] mention notification failed:", err);
+      }
+    }
+  }
+
   if (citedAnalisisId) {
     await prisma.analisisSentencia.update({
       where: { id: citedAnalisisId },
@@ -408,6 +458,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const feed = searchParams.get("feed") || "recientes";
   const materia = searchParams.get("materia");
+  const hashtag = searchParams.get("hashtag")?.toLowerCase().trim() || null;
   const userId = searchParams.get("userId");
   const cursor = searchParams.get("cursor");
   const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
@@ -506,6 +557,11 @@ export async function GET(request: NextRequest) {
 
   if (materia) {
     where.materia = materia;
+  }
+
+  if (hashtag) {
+    // Postgres array contains: where hashtags @> [hashtag]
+    where.hashtags = { has: hashtag };
   }
 
   if (userId) {
@@ -768,6 +824,7 @@ export async function GET(request: NextRequest) {
       guardadosCount: o.guardadosCount,
       comuniqueseCount: o.comuniqueseCount,
       replyCount: (o as { replyCount?: number }).replyCount ?? 0,
+      hashtags: (o as { hashtags?: string[] }).hashtags ?? [],
       linkPreviews: parseLinkPreviews((o as { linkPreviews?: string | null }).linkPreviews ?? null),
       createdAt: o.createdAt.toISOString(),
       user: o.user,
@@ -817,6 +874,7 @@ export async function GET(request: NextRequest) {
       guardadosCount: o.guardadosCount,
       comuniqueseCount: o.comuniqueseCount,
       replyCount: (o as { replyCount?: number }).replyCount ?? 0,
+      hashtags: (o as { hashtags?: string[] }).hashtags ?? [],
       linkPreviews: parseLinkPreviews((o as { linkPreviews?: string | null }).linkPreviews ?? null),
       createdAt: o.createdAt.toISOString(),
       user: o.user,

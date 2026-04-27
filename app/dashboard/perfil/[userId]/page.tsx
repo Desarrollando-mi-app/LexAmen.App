@@ -24,6 +24,18 @@ export default async function PerfilPage({ params, searchParams }: Props) {
     redirect("/login");
   }
 
+  // Resolver handle a userId si el param empieza con '@' (ruta /perfil/@handle)
+  const rawParam = decodeURIComponent(params.userId);
+  if (rawParam.startsWith("@")) {
+    const handle = rawParam.slice(1).toLowerCase();
+    const user = await prisma.user.findUnique({
+      where: { handle },
+      select: { id: true },
+    });
+    if (!user) notFound();
+    redirect(`/dashboard/perfil/${user.id}`);
+  }
+
   const isOwnProfile = params.userId === authUser.id;
 
   // Buscar usuario

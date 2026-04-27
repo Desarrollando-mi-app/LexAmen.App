@@ -1237,6 +1237,7 @@ export function DiarioPageClient({
   const searchParams = useSearchParams();
   const router = useRouter();
   const tabParam = searchParams.get("tab");
+  const hashtagParam = searchParams.get("hashtag")?.toLowerCase().trim() || null;
 
   const [activeMainTab, setActiveMainTab] = useState<MainTab>(() => {
     if (tabParam === "analisis") return "analisis";
@@ -1371,11 +1372,40 @@ export function DiarioPageClient({
 
           {/* Feed column */}
           <div className="min-w-0">
+            {/* Banner de filtro activo por #hashtag */}
+            {hashtagParam && (
+              <div className="mb-4 flex items-center justify-between rounded-[4px] border border-gz-burgundy/30 bg-gz-burgundy/[0.04] px-4 py-3">
+                <div>
+                  <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-burgundy mb-0.5 flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gz-burgundy" />
+                    Filtrando por etiqueta
+                  </p>
+                  <p className="font-cormorant text-[22px] font-bold text-gz-ink leading-none">
+                    #{hashtagParam}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete("hashtag");
+                    router.replace(url.pathname + url.search, { scroll: false });
+                  }}
+                  className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-burgundy hover:text-gz-ink transition-colors cursor-pointer flex items-center gap-1"
+                  aria-label="Limpiar filtro"
+                >
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.4} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Limpiar
+                </button>
+              </div>
+            )}
             <ObiterFeed
               userId={userId}
               userFirstName={userFirstName}
               userAvatarUrl={userAvatarUrl}
               prefillText={prefillText}
+              hashtag={hashtagParam}
             />
           </div>
 

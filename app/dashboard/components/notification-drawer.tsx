@@ -31,6 +31,7 @@ const TYPE_ICONS: Record<string, string> = {
   OBITER_CITA: "❝",
   OBITER_COMUNIQUESE: "↻",
   OBITER_REPLY: "↩",
+  OBITER_MENTION: "@",
   ANALISIS_APOYO: "♥",
   ANALISIS_COMUNIQUESE: "↻",
   ENSAYO_APOYO: "♥",
@@ -58,7 +59,8 @@ function getNotificationHref(
       return null;
     }
     case "OBITER_APOYO":
-    case "OBITER_COMUNIQUESE": {
+    case "OBITER_COMUNIQUESE":
+    case "OBITER_MENTION": {
       const obiterId = metadata.obiterId as string | undefined;
       return obiterId ? `/dashboard/diario/obiter/${obiterId}` : null;
     }

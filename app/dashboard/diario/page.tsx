@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { HeroCarrusel } from "../components/hero-carrusel";
 import { DiarioPageClient } from "./diario-page-client";
+import { DiarioSearch } from "./components/diario-search";
 
 export const metadata = {
   title: "Publicaciones — Studio Iuris",
@@ -46,11 +47,16 @@ export default async function DiarioPage({
           {/* Línea editorial superior fina */}
           <div className="h-px bg-gz-ink/35 mb-3" />
 
-          {/* Fila superior: fecha + edición + número */}
-          <div className="hidden sm:flex items-center justify-between font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-mid mb-3">
-            <span className="capitalize">{fechaHoy}</span>
-            <span className="text-gz-gold">— Diario de Studio Iuris —</span>
-            <span>Edición digital · Vol. I</span>
+          {/* Fila superior: fecha + edición + buscador */}
+          <div className="hidden sm:flex items-center justify-between font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-mid mb-3 gap-3">
+            <span className="capitalize shrink-0">{fechaHoy}</span>
+            <span className="text-gz-gold shrink-0">— Diario de Studio Iuris —</span>
+            <DiarioSearch />
+          </div>
+
+          {/* Mobile: buscador solo */}
+          <div className="sm:hidden flex items-center justify-end mb-3">
+            <DiarioSearch />
           </div>
 
           {/* Bloque principal: sello + título grande */}
