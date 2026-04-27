@@ -17,8 +17,6 @@ import {
   getAutoresTopHIndex,
   getCifras,
 } from "@/lib/investigaciones";
-import { InvTopBar } from "./components/inv-top-bar";
-import { InvImprentaSubNav } from "./components/inv-imprenta-subnav";
 import { InvCover } from "./components/inv-cover";
 import { InvCifras } from "./components/inv-cifras";
 import { InvDestacado } from "./components/inv-destacado";
@@ -85,10 +83,7 @@ export default async function PliegoPage({
 
   return (
     <main className="inv-paper-grain min-h-screen bg-inv-paper font-crimson-pro text-inv-ink">
-      <InvTopBar />
-      <InvImprentaSubNav active="investigaciones" />
-
-      <div className="max-w-[1240px] mx-auto px-5 sm:px-8 lg:px-10 pt-12 pb-12">
+      <div className="max-w-[1480px] mx-auto px-5 sm:px-8 lg:px-10 pt-8 pb-12">
         <InvCover />
         <InvCifras data={cifras} />
 

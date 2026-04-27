@@ -11,8 +11,6 @@ import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getInvestigacionDetalle } from "@/lib/investigaciones";
 import { getTipoLabel } from "@/lib/investigaciones-constants";
-import { InvTopBar } from "../components/inv-top-bar";
-import { InvImprentaSubNav } from "../components/inv-imprenta-subnav";
 import { InvArticulo, InvBibliografia } from "../components/inv-articulo";
 import { InvAside } from "../components/inv-aside";
 import { InvContraportada } from "../components/inv-contraportada";
@@ -56,10 +54,7 @@ export default async function DetalleInvestigacionPage({
 
   return (
     <main className="inv-paper-grain min-h-screen bg-inv-paper font-crimson-pro text-inv-ink">
-      <InvTopBar />
-      <InvImprentaSubNav active="investigaciones" />
-
-      <div className="max-w-[1240px] mx-auto px-5 sm:px-8 lg:px-10 pt-9 pb-8 inv-anim-cover">
+      <div className="max-w-[1480px] mx-auto px-5 sm:px-8 lg:px-10 pt-7 pb-8 inv-anim-cover">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-7 pb-3.5 border-b border-inv-rule-2 font-crimson-pro italic text-[13px] text-inv-ink-3">
           <Link
