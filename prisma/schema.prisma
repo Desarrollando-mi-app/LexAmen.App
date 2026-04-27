@@ -356,6 +356,12 @@ model User {
   progresoCacheAt     DateTime?
   createdAt           DateTime  @default(now())
 
+  // === Investigaciones (Imprenta · III) ===
+  investigaciones         Investigacion[]
+  totalCitationsReceived  Int @default(0)
+  hIndex                  Int @default(0)
+  hIndexUpdatedAt         DateTime?
+
   flashcardProgress       UserFlashcardProgress[]
   flashcardFavorites      FlashcardFavorite[]
   mcqAttempts             UserMCQAttempt[]
@@ -3029,6 +3035,8 @@ model InstitucionJuridica {
   casoPracticos        CasoPractico[]
   dictados             DictadoJuridico[]
   timelines            Timeline[]
+  // Investigaciones que estudian esta institución (M:N)
+  investigaciones      InvestigacionInstitucion[]
 
   createdAt DateTime @default(now())
 }
@@ -3060,4 +3068,145 @@ model UserHito {
   updatedAt DateTime @updatedAt
 
   @@index([userId, fecha(sort: Desc)])
+}
+
+// ════════════════════════════════════════════════════════════
+// INVESTIGACIONES (Imprenta · III)
+// Sistema de publicación académica con citas internas/externas
+// y métricas reputacionales (h-index, citas recibidas).
+// ════════════════════════════════════════════════════════════
+
+model Investigacion {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  titulo              String
+  deck                String? // bajada periodística (1 línea, opcional)
+  abstract            String  @db.Text
+  contenido           String  @db.Text  // HTML del editor TipTap
+  bibliografiaExterna Json?              // bibliografía no-Studio IURIS
+
+  tipo             String   // TipoInvestigacion (memoria_tesis | articulo_doctrinal | …)
+  area             String   // AreaDerecho principal
+  areasSecundarias String[] @default([])
+
+  wordCount         Int @default(0)
+  abstractWordCount Int @default(0)
+
+  // Curaduría editorial
+  isFeatured              Boolean   @default(false)
+  featuredAt              DateTime?
+  featuredQuoteCitationId String?   @unique
+
+  // Contadores denormalizados (recalculados por hooks/cron)
+  citationsInternal Int @default(0)
+  citationsExternal Int @default(0)
+  selfCitations     Int @default(0)
+  views             Int @default(0)
+
+  // Estado y timestamps
+  status      String   @default("published") // published | draft | retracted
+  publishedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  // Relaciones
+  instituciones         InvestigacionInstitucion[]
+  citasEmitidas         Citacion[] @relation("citingInv")
+  citasRecibidas        Citacion[] @relation("citedInv")
+  citasExternas         CitacionExterna[]
+  featuredQuoteCitation Citacion? @relation("featuredQuote", fields: [featuredQuoteCitationId], references: [id])
+
+  @@index([tipo])
+  @@index([area])
+  @@index([userId])
+  @@index([publishedAt])
+  @@index([citationsInternal])
+  @@map("investigaciones")
+}
+
+model InvestigacionInstitucion {
+  investigacionId String
+  institucionId   Int
+
+  investigacion Investigacion       @relation(fields: [investigacionId], references: [id], onDelete: Cascade)
+  institucion   InstitucionJuridica @relation(fields: [institucionId], references: [id])
+
+  @@id([investigacionId, institucionId])
+  @@index([institucionId])
+  @@map("investigacion_instituciones")
+}
+
+model Citacion {
+  id String @id @default(cuid())
+
+  citingInvId String
+  citingInv   Investigacion @relation("citingInv", fields: [citingInvId], references: [id], onDelete: Cascade)
+
+  citedInvId String
+  citedInv   Investigacion @relation("citedInv", fields: [citedInvId], references: [id], onDelete: Cascade)
+
+  citingAuthorId String
+  citedAuthorId  String
+
+  contextSnippet String? @db.Text
+  locationInText String? // ancla DOM para scroll
+
+  isSelfCitation Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  reportes    CitacionReporte[]
+  // 1:1 inverso de Investigacion.featuredQuoteCitationId
+  featuredFor Investigacion? @relation("featuredQuote")
+
+  @@index([citedInvId])
+  @@index([citingInvId])
+  @@index([citedAuthorId])
+  @@map("citaciones")
+}
+
+model CitacionExterna {
+  id              String        @id @default(cuid())
+  investigacionId String
+  investigacion   Investigacion @relation(fields: [investigacionId], references: [id], onDelete: Cascade)
+
+  declaredById String
+
+  citingTitle  String
+  citingAuthor String
+  citingYear   Int?
+  citingSource String? // "Memoria de magíster", "RChDP", etc.
+  citingUrl    String?
+  citingPdfUrl String? // Supabase Storage path
+
+  status       String    @default("pendiente") // pendiente | verificada | rechazada
+  reviewedById String?
+  reviewedAt   DateTime?
+  reviewNotes  String?   @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([investigacionId])
+  @@index([status])
+  @@map("citaciones_externas")
+}
+
+model CitacionReporte {
+  id         String   @id @default(cuid())
+  citacionId String
+  citacion   Citacion @relation(fields: [citacionId], references: [id], onDelete: Cascade)
+
+  reportedById String
+  reason       String  // outlier_detected | inflado | irrelevante | plagio | otro
+  details      String? @db.Text
+
+  status String @default("abierto") // abierto | resuelto | descartado
+
+  createdAt DateTime @default(now())
+
+  @@index([citacionId])
+  @@index([status])
+  @@map("citacion_reportes")
 }

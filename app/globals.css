@@ -546,3 +546,159 @@ textarea:focus {
 /* Ornament dingbat */
 .cal-ornament::before { content: "❦"; }
 .cal-ornament-asterism::before { content: "⁂"; }
+
+/* ════════════════════════════════════════════════════ */
+/* INVESTIGACIONES — Paleta editorial-imprenta          */
+/* ════════════════════════════════════════════════════ */
+
+:root {
+  --inv-paper:        #f7f3ea;
+  --inv-paper-2:      #efe9da;
+  --inv-paper-3:      #e6dfca;
+  --inv-ink:          #1a1612;
+  --inv-ink-2:        #3a342c;
+  --inv-ink-3:        #6b6356;
+  --inv-ink-4:        #968b7a;
+  --inv-ocre:         #8b6914;
+  --inv-ocre-2:       #a98635;
+  --inv-ocre-3:       #c9a85c;
+  --inv-tinta-roja:   #5a1a1a;
+  --inv-tinta-verde:  #2d4a2d;
+  --inv-rule:         #b5a98e;
+  --inv-rule-2:       #d6cab0;
+  --inv-rule-3:       #8a7e62;
+}
+
+/* DARK MODE — el proyecto usa [data-theme="dark"] */
+[data-theme="dark"] {
+  --inv-paper:        #14110d;
+  --inv-paper-2:      #1f1a14;
+  --inv-paper-3:      #2a241c;
+  --inv-ink:          #f0e8d5;
+  --inv-ink-2:        #d4cab8;
+  --inv-ink-3:        #968b7a;
+  --inv-ink-4:        #6b6356;
+  --inv-ocre:         #c9a85c;
+  --inv-ocre-2:       #d4b46a;
+  --inv-ocre-3:       #e8c870;
+  --inv-rule:         #3a3325;
+  --inv-rule-2:       #2a241c;
+  --inv-rule-3:       #4a4032;
+}
+
+/* Grano de papel — overlay decorativo (apply con clase) */
+.inv-paper-grain::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: multiply;
+}
+[data-theme="dark"] .inv-paper-grain::after { opacity: 0.6; mix-blend-mode: screen; }
+
+/* Animaciones escalonadas */
+@keyframes inv-pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.inv-anim-cover    { animation: inv-pageIn 0.5s ease both; }
+.inv-anim-cifras   { animation: inv-pageIn 0.5s ease both 0.1s; }
+.inv-anim-destacado{ animation: inv-pageIn 0.5s ease both 0.15s; }
+.inv-anim-dual     { animation: inv-pageIn 0.5s ease both 0.25s; }
+.inv-anim-areas    { animation: inv-pageIn 0.5s ease both 0.3s; }
+.inv-anim-autores  { animation: inv-pageIn 0.5s ease both 0.35s; }
+
+/* Sello con doble círculo (usado en byline + autores) */
+.inv-sello {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--inv-ink);
+  border-radius: 50%;
+  background: var(--inv-paper);
+  position: relative;
+  font-family: var(--font-cormorant), 'Cormorant Garamond', serif;
+  font-weight: 500;
+  color: var(--inv-ink);
+}
+.inv-sello::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--inv-ink);
+  border-radius: 50%;
+}
+
+/* Capitulares (drop caps) — primer párrafo del cuerpo del artículo */
+.inv-articulo .art-body { counter-reset: seccion; }
+.inv-articulo .art-body p:first-of-type::first-letter {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', serif;
+  font-size: 64px;
+  font-weight: 500;
+  float: left;
+  line-height: 0.85;
+  margin: 8px 10px 0 0;
+  color: var(--inv-ink);
+}
+.inv-articulo .art-body h2 {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 500;
+  margin: 36px 0 16px;
+  letter-spacing: -0.3px;
+  position: relative;
+  padding-left: 32px;
+}
+.inv-articulo .art-body h2::before {
+  content: counter(seccion, upper-roman);
+  counter-increment: seccion;
+  position: absolute;
+  left: 0;
+  font-style: italic;
+  color: var(--inv-ocre);
+  font-size: 22px;
+}
+.inv-articulo .art-body h3 {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 21px;
+  font-weight: 500;
+  margin: 24px 0 10px;
+}
+.inv-articulo .art-body p { margin-bottom: 18px; }
+.inv-articulo .art-body blockquote {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--inv-ink-2);
+  border-left: 3px solid var(--inv-ocre);
+  padding: 6px 22px;
+  margin: 22px 0;
+}
+.inv-articulo .art-body .cite-inline {
+  color: var(--inv-ocre);
+  font-style: italic;
+  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--inv-ocre);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.inv-articulo .art-body .cite-inline:hover {
+  background: rgba(139, 105, 20, 0.1);
+  color: var(--inv-ink);
+}
+
+/* Capitular del abstract destacado */
+.inv-dest-abstract::first-letter {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', serif;
+  font-size: 56px;
+  font-weight: 600;
+  float: left;
+  line-height: 0.9;
+  margin: 6px 8px 0 0;
+  color: var(--inv-ocre);
+}

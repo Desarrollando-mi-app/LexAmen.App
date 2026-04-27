@@ -19,7 +19,7 @@ type DiarioPageClientProps = {
   prefillText?: string;
 };
 
-type MainTab = "feed" | "analisis" | "ensayos" | "expediente" | "debates" | "mis";
+type MainTab = "feed" | "analisis" | "ensayos" | "investigaciones" | "expediente" | "debates" | "mis";
 
 // Mapa de clases por acento (Tailwind no resuelve strings dinámicos en JIT
 // — cada combinación debe aparecer literalmente).
@@ -42,13 +42,18 @@ const TABS: {
   glyph: string;
   accent: Accent;
   requiresAuth?: boolean;
+  // Si la tab apunta a otra ruta (no se renderiza inline), usar href en vez
+  // de cambiar activeMainTab. Útil para Investigaciones que vive en
+  // /dashboard/diario/investigaciones.
+  href?: string;
 }[] = [
-  { key: "feed",       label: "Obiter Dictum",         short: "Obiter",     glyph: "I",   accent: "gold" },
-  { key: "analisis",   label: "Análisis de Sentencia", short: "Análisis",   glyph: "II",  accent: "burgundy" },
-  { key: "ensayos",    label: "Ensayos",               short: "Ensayos",    glyph: "III", accent: "sage" },
-  { key: "expediente", label: "Expediente Abierto",    short: "Expediente", glyph: "IV",  accent: "navy" },
-  { key: "debates",    label: "Debates",               short: "Debates",    glyph: "V",   accent: "burgundy" },
-  { key: "mis",        label: "Mis Publicaciones",     short: "Mías",       glyph: "VI",  accent: "ink", requiresAuth: true },
+  { key: "feed",            label: "Obiter Dictum",         short: "Obiter",         glyph: "I",    accent: "gold" },
+  { key: "analisis",        label: "Análisis de Sentencia", short: "Análisis",       glyph: "II",   accent: "burgundy" },
+  { key: "ensayos",         label: "Ensayos",               short: "Ensayos",        glyph: "III",  accent: "sage" },
+  { key: "investigaciones", label: "Investigaciones",       short: "Investig.",      glyph: "IV",   accent: "burgundy", href: "/dashboard/diario/investigaciones" },
+  { key: "expediente",      label: "Expediente Abierto",    short: "Expediente",     glyph: "V",    accent: "navy" },
+  { key: "debates",         label: "Debates",               short: "Debates",        glyph: "VI",   accent: "burgundy" },
+  { key: "mis",             label: "Mis Publicaciones",     short: "Mías",           glyph: "VII",  accent: "ink", requiresAuth: true },
 ];
 
 // ─── Mis Publicaciones Tab ──────────────────────────────────
@@ -1310,22 +1315,13 @@ export function DiarioPageClient({
             {visibleTabs.map((tab) => {
               const active = activeMainTab === tab.key;
               const palette = ACCENT_CLASSES[tab.accent];
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => handleTabChange(tab.key)}
-                  className={`group relative flex-shrink-0 flex items-center gap-2 px-3.5 sm:px-5 py-2.5 cursor-pointer transition-all duration-200 ease-out border-r border-gz-rule/70 last:border-r-0 ${
-                    active ? "bg-white" : "bg-transparent hover:bg-white/70"
-                  }`}
-                >
-                  {/* Rail superior color cuando activo */}
+              const inner = (
+                <>
                   <span
                     className={`absolute top-0 left-0 right-0 h-[3px] transition-opacity duration-200 ${
                       active ? `opacity-100 ${palette.rail}` : "opacity-0"
                     }`}
                   />
-
-                  {/* Glifo (numeral romano) */}
                   <span
                     className={`font-cormorant text-[15px] sm:text-[16px] !font-bold leading-none transition-colors ${
                       active ? palette.text : "text-gz-ink-light/70 group-hover:text-gz-ink-mid"
@@ -1333,8 +1329,6 @@ export function DiarioPageClient({
                   >
                     {tab.glyph}.
                   </span>
-
-                  {/* Label */}
                   <span
                     className={`font-archivo text-[12px] sm:text-[13px] font-semibold whitespace-nowrap transition-colors ${
                       active ? "text-gz-ink" : "text-gz-ink-light group-hover:text-gz-ink"
@@ -1343,6 +1337,27 @@ export function DiarioPageClient({
                     <span className="hidden md:inline">{tab.label}</span>
                     <span className="md:hidden">{tab.short}</span>
                   </span>
+                </>
+              );
+              const className = `group relative flex-shrink-0 flex items-center gap-2 px-3.5 sm:px-5 py-2.5 cursor-pointer transition-all duration-200 ease-out border-r border-gz-rule/70 last:border-r-0 ${
+                active ? "bg-white" : "bg-transparent hover:bg-white/70"
+              }`;
+
+              // Tabs con href navegan a otra ruta (Investigaciones)
+              if (tab.href) {
+                return (
+                  <Link key={tab.key} href={tab.href} className={className}>
+                    {inner}
+                  </Link>
+                );
+              }
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => handleTabChange(tab.key)}
+                  className={className}
+                >
+                  {inner}
                 </button>
               );
             })}
@@ -1354,6 +1369,7 @@ export function DiarioPageClient({
           {activeTab.key === "feed" && "Reflexiones jurídicas breves — al margen de la doctrina."}
           {activeTab.key === "analisis" && "Sentencias diseccionadas — fallos comentados por colegas."}
           {activeTab.key === "ensayos" && "Ensayos académicos — la tribuna larga del estudio."}
+          {activeTab.key === "investigaciones" && "Memorias y artículos doctrinales — con sistema de citación y métricas reputacionales."}
           {activeTab.key === "expediente" && "Casos abiertos — el expediente colectivo del foro."}
           {activeTab.key === "debates" && "Tesis frente a tesis — la disputa intelectual ordenada."}
           {activeTab.key === "mis" && "Tu expediente personal — tus contribuciones al diario."}

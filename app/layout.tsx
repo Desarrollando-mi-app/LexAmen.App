@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import {
   Cormorant_Garamond,
+  Crimson_Pro,
   Playfair_Display,
   Outfit,
   DM_Sans,
@@ -11,9 +12,17 @@ import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
-  weight: ["300", "400", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
+  display: "swap",
+});
+
+const crimsonPro = Crimson_Pro({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-crimson-pro",
   display: "swap",
 });
 
@@ -105,7 +114,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${cormorant.variable} ${playfair.variable} ${outfit.variable} ${dmSans.variable} ${ibmPlexMono.variable} ${archivo.variable} antialiased`}
+        className={`${cormorant.variable} ${crimsonPro.variable} ${playfair.variable} ${outfit.variable} ${dmSans.variable} ${ibmPlexMono.variable} ${archivo.variable} antialiased`}
       >
         {children}
       </body>
