@@ -310,17 +310,22 @@ export async function POST(request: NextRequest) {
     // Notificar al autor del padre (si no es uno mismo)
     if (parentInfo.userId !== authUser.id) {
       try {
+        // Snippet del contenido de la respuesta para el body
+        const snippet =
+          obiter.content.length > 80
+            ? obiter.content.slice(0, 80) + "…"
+            : obiter.content;
+
         await sendNotification({
-          type: "OBITER_CITA", // reutilizamos tipo existente — mismo handler
-          title: "Nueva respuesta a tu Obiter",
-          body: `${obiter.user.firstName} ${obiter.user.lastName} respondió a tu Obiter`,
+          type: "OBITER_REPLY",
+          title: `${obiter.user.firstName} respondió a tu Obiter`,
+          body: snippet,
           targetUserId: parentInfo.userId,
           metadata: {
-            obiterId: obiter.id,
-            parentObiterId: parentInfo.id,
+            obiterId: obiter.id, // id del nuevo OD-respuesta
+            parentObiterId: parentInfo.id, // id del padre (a dónde navegar)
             actorId: authUser.id,
             actorName: `${obiter.user.firstName} ${obiter.user.lastName}`,
-            isReply: true,
           },
         });
       } catch (err) {
@@ -406,6 +411,10 @@ export async function GET(request: NextRequest) {
   const userId = searchParams.get("userId");
   const cursor = searchParams.get("cursor");
   const limit = Math.min(Number(searchParams.get("limit")) || 20, 50);
+  // Cuando includeReplies=true, las respuestas SÍ aparecen en el feed.
+  // Se usa para el perfil del usuario y para "Mis Publicaciones" donde
+  // queremos ver TODA la actividad del autor, no solo sus OD raíz.
+  const includeReplies = searchParams.get("includeReplies") === "true";
 
   // ─── Colega IDs (para feeds que lo requieren) ─────────
 
@@ -424,12 +433,18 @@ export async function GET(request: NextRequest) {
   // Base: solo obiters raíz — excluye partes 2+ de hilos legacy y excluye
   // las respuestas (cualquier OD con parentObiterId no aparece en el feed
   // principal, solo en la página de detalle del padre).
-  const rootFilter = {
-    AND: [
-      { OR: [{ threadOrder: null }, { threadOrder: 1 }] },
-      { parentObiterId: null },
-    ],
-  };
+  // Si includeReplies=true (perfil/Mis Publicaciones), no aplicamos el
+  // filtro de parentObiterId — queremos ver TODA la actividad.
+  const rootFilter = includeReplies
+    ? {
+        OR: [{ threadOrder: null }, { threadOrder: 1 }],
+      }
+    : {
+        AND: [
+          { OR: [{ threadOrder: null }, { threadOrder: 1 }] },
+          { parentObiterId: null },
+        ],
+      };
 
   switch (feed) {
     case "recientes":

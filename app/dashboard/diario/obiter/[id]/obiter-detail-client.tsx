@@ -29,10 +29,18 @@ type ObiterDetailClientProps = {
   threadParts: ObiterData[] | null;
   citations: CitationItem[];
   replies?: ObiterData[];
+  parentContext?: ParentContext | null;
+  colegaIds?: string[];
   commentsDisabled?: boolean;
   currentUserId: string | null;
   currentUserFirstName?: string;
   currentUserAvatarUrl?: string | null;
+};
+
+type ParentContext = {
+  id: string;
+  content: string;
+  user: { id: string; firstName: string; lastName: string };
 };
 
 // ─── Component ──────────────────────────────────────────────
@@ -42,6 +50,8 @@ export function ObiterDetailClient({
   threadParts: initialThreadParts,
   citations,
   replies: initialReplies,
+  parentContext,
+  colegaIds,
   commentsDisabled,
   currentUserId,
   currentUserFirstName,
@@ -231,6 +241,36 @@ export function ObiterDetailClient({
         </Link>
       </div>
 
+      {/* "Respondiendo a @handle" — si este OD es una respuesta */}
+      {parentContext && (
+        <Link
+          href={`/dashboard/diario/obiter/${parentContext.id}`}
+          className="group block mb-3 rounded-[4px] border border-gz-rule bg-white px-4 py-3 transition-all hover:border-gz-gold/50 hover:bg-gz-cream-dark/30 cursor-pointer"
+        >
+          <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light mb-1 flex items-center gap-1.5">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-gz-burgundy">
+              <path
+                d="M9 14L4 9l5-5M4 9h11a4 4 0 014 4v6"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Respondiendo a{" "}
+            <span className="font-semibold text-gz-burgundy">
+              @{(parentContext.user.firstName ?? "").toLowerCase().replace(/[^a-z0-9]/g, "")}
+            </span>
+            <span className="text-gz-ink-light/60 ml-auto group-hover:text-gz-gold transition-colors">
+              Ver hilo →
+            </span>
+          </p>
+          <p className="font-cormorant italic text-[14px] text-gz-ink-mid leading-snug line-clamp-2">
+            {parentContext.content}
+          </p>
+        </Link>
+      )}
+
       {/* Thread view or single card */}
       {isThread ? (
         <ObiterThreadView
@@ -269,8 +309,9 @@ export function ObiterDetailClient({
       {/* ═══ RESPUESTAS — sección inline ═══════════════════════ */}
       <RepliesSection
         ref={replyEditorRef}
-        parentObiter={obiter}
+        rootObiter={obiter}
         replies={replies}
+        colegaIds={colegaIds ?? []}
         currentUserId={currentUserId}
         currentUserFirstName={currentUserFirstName}
         currentUserAvatarUrl={currentUserAvatarUrl ?? null}
@@ -279,13 +320,24 @@ export function ObiterDetailClient({
         onGuardar={handleGuardar}
         onComuniquese={handleComuniquese}
         onCitar={handleCitar}
-        onReplyPublished={(newReply) => {
+        onReplyPublished={(newReply, parentId) => {
           setReplies((prev) => [...prev, newReply]);
-          // Incrementar replyCount del padre optimisticamente
-          setObiter((prev) => ({
-            ...prev,
-            replyCount: (prev.replyCount ?? 0) + 1,
-          }));
+          // Si la respuesta es al OD raiz, incrementamos el replyCount
+          // del padre. Si es a una respuesta hija, incrementamos en esa.
+          if (parentId === obiter.id) {
+            setObiter((prev) => ({
+              ...prev,
+              replyCount: (prev.replyCount ?? 0) + 1,
+            }));
+          } else {
+            setReplies((prev) =>
+              prev.map((r) =>
+                r.id === parentId
+                  ? { ...r, replyCount: (r.replyCount ?? 0) + 1 }
+                  : r,
+              ),
+            );
+          }
         }}
       />
 
@@ -301,11 +353,19 @@ export function ObiterDetailClient({
   );
 }
 
-// ─── RepliesSection — listado + editor inline ──────────────────
+// ─── RepliesSection — Reddit-style nested + sort + reply-to-reply ──
+
+type SortKey = "recientes" | "apoyadas" | "colegas" | "todas";
+
+type ReplyNode = {
+  obiter: ObiterData;
+  children: ReplyNode[];
+};
 
 type RepliesSectionProps = {
-  parentObiter: ObiterData;
+  rootObiter: ObiterData;
   replies: ObiterData[];
+  colegaIds: string[];
   currentUserId: string | null;
   currentUserFirstName?: string;
   currentUserAvatarUrl?: string | null;
@@ -314,14 +374,38 @@ type RepliesSectionProps = {
   onGuardar: (id: string) => void;
   onComuniquese: (id: string) => void;
   onCitar: (obiter: ObiterData) => void;
-  onReplyPublished: (newReply: ObiterData) => void;
+  // parentId puede ser el root o cualquier respuesta hija (reply-to-reply)
+  onReplyPublished: (newReply: ObiterData, parentId: string) => void;
 };
+
+// Construye un mapa parentId → hijos[] y arma el bosque desde el root.
+function buildReplyTree(
+  replies: ObiterData[],
+  rootId: string,
+): ReplyNode[] {
+  const byParent = new Map<string, ObiterData[]>();
+  for (const r of replies) {
+    const pid = r.parentObiterId ?? rootId;
+    const arr = byParent.get(pid) ?? [];
+    arr.push(r);
+    byParent.set(pid, arr);
+  }
+  function build(parentId: string): ReplyNode[] {
+    const children = byParent.get(parentId) ?? [];
+    return children.map((c) => ({
+      obiter: c,
+      children: build(c.id),
+    }));
+  }
+  return build(rootId);
+}
 
 const RepliesSection = forwardRef<HTMLDivElement, RepliesSectionProps>(
   function RepliesSection(
     {
-      parentObiter,
+      rootObiter,
       replies,
+      colegaIds,
       currentUserId,
       currentUserFirstName,
       currentUserAvatarUrl,
@@ -334,15 +418,48 @@ const RepliesSection = forwardRef<HTMLDivElement, RepliesSectionProps>(
     },
     ref,
   ) {
+    const [sort, setSort] = useState<SortKey>("recientes");
     const replyCount = replies.length;
-    const handle = (parentObiter.user.firstName ?? "")
+    const colegaSet = new Set(colegaIds);
+    const handle = (rootObiter.user.firstName ?? "")
       .toLowerCase()
       .replace(/[^a-z0-9]/g, "");
 
+    // Construye el árbol y ordena las raíces (top-level) según el sort.
+    const tree = buildReplyTree(replies, rootObiter.id);
+
+    const sortedTopLevel = [...tree].sort((a, b) => {
+      switch (sort) {
+        case "apoyadas":
+          return b.obiter.apoyosCount - a.obiter.apoyosCount;
+        case "recientes":
+          return (
+            new Date(b.obiter.createdAt).getTime() -
+            new Date(a.obiter.createdAt).getTime()
+          );
+        case "colegas": {
+          // Colegas primero, luego cronológico
+          const aIsColega = colegaSet.has(a.obiter.userId) ? 0 : 1;
+          const bIsColega = colegaSet.has(b.obiter.userId) ? 0 : 1;
+          if (aIsColega !== bIsColega) return aIsColega - bIsColega;
+          return (
+            new Date(a.obiter.createdAt).getTime() -
+            new Date(b.obiter.createdAt).getTime()
+          );
+        }
+        case "todas":
+        default:
+          return (
+            new Date(a.obiter.createdAt).getTime() -
+            new Date(b.obiter.createdAt).getTime()
+          );
+      }
+    });
+
     return (
       <section ref={ref} id="reply" className="mt-8 scroll-mt-24">
-        {/* Header editorial */}
-        <div className="mb-4 flex items-end justify-between gap-3 border-b-2 border-gz-ink/85 pb-2">
+        {/* Header editorial + sort */}
+        <div className="mb-4 flex items-end justify-between gap-3 border-b-2 border-gz-ink/85 pb-2 flex-wrap">
           <div>
             <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-burgundy mb-0.5 flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-gz-burgundy" />
@@ -358,11 +475,36 @@ const RepliesSection = forwardRef<HTMLDivElement, RepliesSectionProps>(
               )}
             </h2>
           </div>
+
+          {/* Sort toggle — pill editorial */}
+          {replyCount > 1 && (
+            <div className="inline-flex rounded-full border border-gz-rule overflow-hidden bg-white">
+              {([
+                ["recientes", "Recientes"],
+                ["apoyadas", "Apoyadas"],
+                ["colegas", "Colegas"],
+                ["todas", "Todas"],
+              ] as [SortKey, string][]).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setSort(key)}
+                  className={`font-ibm-mono text-[10px] uppercase tracking-[1.5px] px-3 py-1.5 transition-all duration-200 cursor-pointer ${
+                    sort === key
+                      ? "bg-gz-navy text-white"
+                      : "text-gz-ink-mid hover:bg-gz-cream-dark/60 hover:text-gz-ink"
+                  }`}
+                  disabled={key === "colegas" && colegaIds.length === 0}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Editor inline (si autenticado y comentarios habilitados) */}
+        {/* Editor principal — responder al OD raíz */}
         {currentUserId && currentUserFirstName && !commentsDisabled && (
-          <div className="mb-4 rounded-[4px] border border-gz-rule bg-white overflow-hidden">
+          <div className="mb-5 rounded-[4px] border border-gz-rule bg-white overflow-hidden">
             <div className="px-4 pt-3 pb-1 border-b border-gz-rule/60">
               <p className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] text-gz-ink-light flex items-center gap-1.5">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="text-gz-burgundy">
@@ -381,8 +523,8 @@ const RepliesSection = forwardRef<HTMLDivElement, RepliesSectionProps>(
               userId={currentUserId}
               userFirstName={currentUserFirstName}
               userAvatarUrl={currentUserAvatarUrl ?? null}
-              onPublished={onReplyPublished}
-              parentObiterId={parentObiter.id}
+              onPublished={(newReply) => onReplyPublished(newReply, rootObiter.id)}
+              parentObiterId={rootObiter.id}
             />
           </div>
         )}
@@ -396,7 +538,7 @@ const RepliesSection = forwardRef<HTMLDivElement, RepliesSectionProps>(
           </div>
         )}
 
-        {/* Login CTA si no autenticado */}
+        {/* Login CTA */}
         {!currentUserId && (
           <div className="mb-4 rounded-[4px] border border-gz-rule bg-white px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
             <p className="font-cormorant italic text-[15px] text-gz-ink-mid">
@@ -411,29 +553,29 @@ const RepliesSection = forwardRef<HTMLDivElement, RepliesSectionProps>(
           </div>
         )}
 
-        {/* Lista de respuestas — estilo X con línea vertical conectando */}
-        {replies.length > 0 ? (
+        {/* Lista de respuestas — árbol nested */}
+        {tree.length > 0 ? (
           <div className="rounded-[4px] border border-gz-rule bg-white overflow-hidden">
-            {replies.map((r) => (
-              <div key={r.id} className="relative">
-                {/* Línea vertical conectora a la izquierda del avatar */}
-                <span
-                  className="absolute left-[42px] top-0 h-[14px] w-px bg-gz-rule"
-                  aria-hidden
-                />
-                <ObiterCard
-                  obiter={r}
-                  currentUserId={currentUserId}
-                  onApoyar={onApoyar}
-                  onGuardar={onGuardar}
-                  onComuniquese={onComuniquese}
-                  onCitar={onCitar}
-                />
-              </div>
+            {sortedTopLevel.map((node, idx) => (
+              <ReplyNodeView
+                key={node.obiter.id}
+                node={node}
+                depth={0}
+                isLast={idx === sortedTopLevel.length - 1}
+                isColega={colegaSet.has(node.obiter.userId)}
+                colegaSet={colegaSet}
+                currentUserId={currentUserId}
+                currentUserFirstName={currentUserFirstName}
+                currentUserAvatarUrl={currentUserAvatarUrl ?? null}
+                onApoyar={onApoyar}
+                onGuardar={onGuardar}
+                onComuniquese={onComuniquese}
+                onCitar={onCitar}
+                onReplyPublished={onReplyPublished}
+              />
             ))}
           </div>
         ) : (
-          // Empty state cuando no hay respuestas
           currentUserId && !commentsDisabled && (
             <p className="font-cormorant italic text-[15px] text-gz-ink-light text-center py-6">
               Sé el primero en responder.
@@ -444,6 +586,161 @@ const RepliesSection = forwardRef<HTMLDivElement, RepliesSectionProps>(
     );
   },
 );
+
+// ─── ReplyNodeView — render recursivo de una rama del árbol ────
+
+const MAX_VISUAL_DEPTH = 5; // a partir de aquí se aplana
+const INDENT_PX = 20;
+
+type ReplyNodeViewProps = {
+  node: ReplyNode;
+  depth: number;
+  isLast: boolean;
+  isColega: boolean;
+  colegaSet: Set<string>;
+  currentUserId: string | null;
+  currentUserFirstName?: string;
+  currentUserAvatarUrl?: string | null;
+  onApoyar: (id: string) => void;
+  onGuardar: (id: string) => void;
+  onComuniquese: (id: string) => void;
+  onCitar: (obiter: ObiterData) => void;
+  onReplyPublished: (newReply: ObiterData, parentId: string) => void;
+};
+
+function ReplyNodeView({
+  node,
+  depth,
+  isColega,
+  colegaSet,
+  currentUserId,
+  currentUserFirstName,
+  currentUserAvatarUrl,
+  onApoyar,
+  onGuardar,
+  onComuniquese,
+  onCitar,
+  onReplyPublished,
+}: ReplyNodeViewProps) {
+  const [composing, setComposing] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const visualDepth = Math.min(depth, MAX_VISUAL_DEPTH);
+  const indent = depth > 0 ? visualDepth * INDENT_PX : 0;
+
+  // Cuando publicamos respuesta a esta rama, cerramos el editor.
+  function handleReplyPublished(newReply: ObiterData) {
+    onReplyPublished(newReply, node.obiter.id);
+    setComposing(false);
+  }
+
+  return (
+    <div
+      className="relative border-t border-gz-rule first:border-t-0"
+      style={{ paddingLeft: indent ? `${indent}px` : undefined }}
+    >
+      {/* Línea vertical guía cuando está nested (estilo Reddit) */}
+      {depth > 0 && (
+        <span
+          className={`absolute left-[${indent - 12}px] top-0 bottom-0 w-px ${
+            isColega ? "bg-gz-burgundy/30" : "bg-gz-rule"
+          }`}
+          style={{
+            left: `${Math.max(0, indent - 12)}px`,
+          }}
+          aria-hidden
+        />
+      )}
+
+      {/* Banner sutil "de tu colega" */}
+      {isColega && depth === 0 && (
+        <div className="px-4 sm:px-5 pt-2 -mb-1">
+          <span className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-burgundy font-semibold">
+            ✦ De tu colega
+          </span>
+        </div>
+      )}
+
+      {/* La card */}
+      <ObiterCard
+        obiter={node.obiter}
+        currentUserId={currentUserId}
+        onApoyar={onApoyar}
+        onGuardar={onGuardar}
+        onComuniquese={onComuniquese}
+        onCitar={onCitar}
+        onResponder={() => {
+          // Reply inline — abre composer aquí mismo
+          setComposing((v) => !v);
+        }}
+      />
+
+      {/* Toggle "ocultar hilo" si tiene hijos */}
+      {node.children.length > 0 && (
+        <button
+          onClick={() => setCollapsed((v) => !v)}
+          className="ml-12 mb-2 -mt-2 inline-flex items-center gap-1 font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-ink-light hover:text-gz-burgundy transition-colors cursor-pointer"
+        >
+          {collapsed ? (
+            <>+ Mostrar {node.children.length} {node.children.length === 1 ? "respuesta" : "respuestas"}</>
+          ) : (
+            <>− Ocultar hilo</>
+          )}
+        </button>
+      )}
+
+      {/* Editor inline reply-to-reply */}
+      {composing && currentUserId && currentUserFirstName && (
+        <div className="ml-12 mb-3 rounded-[4px] border border-gz-rule bg-white overflow-hidden">
+          <div className="px-3 pt-2 pb-1 border-b border-gz-rule/60 flex items-center justify-between">
+            <p className="font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-ink-light">
+              Respondiendo a{" "}
+              <span className="font-semibold text-gz-ink">
+                @{(node.obiter.user.firstName ?? "").toLowerCase().replace(/[^a-z0-9]/g, "")}
+              </span>
+            </p>
+            <button
+              onClick={() => setComposing(false)}
+              className="text-gz-ink-light hover:text-gz-ink transition-colors cursor-pointer"
+              aria-label="Cancelar"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <ObiterEditor
+            userId={currentUserId}
+            userFirstName={currentUserFirstName}
+            userAvatarUrl={currentUserAvatarUrl ?? null}
+            onPublished={handleReplyPublished}
+            parentObiterId={node.obiter.id}
+          />
+        </div>
+      )}
+
+      {/* Hijos recursivos (si no está collapsed) */}
+      {!collapsed &&
+        node.children.map((child, idx) => (
+          <ReplyNodeView
+            key={child.obiter.id}
+            node={child}
+            depth={depth + 1}
+            isLast={idx === node.children.length - 1}
+            isColega={colegaSet.has(child.obiter.userId)}
+            colegaSet={colegaSet}
+            currentUserId={currentUserId}
+            currentUserFirstName={currentUserFirstName}
+            currentUserAvatarUrl={currentUserAvatarUrl}
+            onApoyar={onApoyar}
+            onGuardar={onGuardar}
+            onComuniquese={onComuniquese}
+            onCitar={onCitar}
+            onReplyPublished={onReplyPublished}
+          />
+        ))}
+    </div>
+  );
+}
 
 // ─── Start Thread Callout (para OD propio sin hilo) ─────────
 

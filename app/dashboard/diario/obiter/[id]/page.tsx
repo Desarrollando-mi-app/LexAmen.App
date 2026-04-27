@@ -106,6 +106,21 @@ export default async function ObiterDetailPage({
           },
         },
       },
+      // Padre (si este OD es una respuesta, lo necesitamos para el
+      // indicador "Respondiendo a @handle" en el detalle).
+      parentObiter: {
+        select: {
+          id: true,
+          content: true,
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -305,44 +320,92 @@ export default async function ObiterDetailPage({
     user: c.user,
   }));
 
-  // ─── Respuestas (modelo unificado) ─────────────────────────
-  // Carga las respuestas directas del OD ordenadas cronológicamente.
-  // Las respuestas no aparecen en el feed principal; viven solo aquí.
-  // Defensive: la columna parentObiterId puede no existir si la
-  // migración no se aplicó. Si falla, devolvemos lista vacía.
-  type ReplyWithRelations = Awaited<
-    ReturnType<typeof prisma.obiterDictum.findMany>
-  >[number] & {
-    user: {
-      id: string;
-      firstName: string;
-      lastName: string;
-      avatarUrl: string | null;
-      universidad: string | null;
-    };
+  // ─── Respuestas (modelo unificado, recursivo) ─────────────
+  // Carga TODOS los descendientes del OD (respuestas + sub-respuestas)
+  // mediante un CTE recursivo. El cliente arma el árbol y renderiza
+  // estilo Reddit con indentación. Cap de 300 para no explotar la página.
+  // Defensive: si la migración no está aplicada, devolvemos lista vacía.
+  type ReplyRow = {
+    id: string;
+    userId: string;
+    content: string;
+    materia: string | null;
+    tipo: string | null;
+    threadId: string | null;
+    threadOrder: number | null;
+    parentObiterId: string | null;
+    citedObiterId: string | null;
+    citedAnalisisId: string | null;
+    citedEnsayoId: string | null;
+    apoyosCount: number;
+    citasCount: number;
+    guardadosCount: number;
+    comuniqueseCount: number;
+    replyCount: number;
+    createdAt: Date;
+    user_id: string;
+    user_firstName: string;
+    user_lastName: string;
+    user_avatarUrl: string | null;
+    user_universidad: string | null;
   };
-  let rawReplies: ReplyWithRelations[] = [];
+
+  let descendantRows: ReplyRow[] = [];
   try {
-    rawReplies = (await prisma.obiterDictum.findMany({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      where: { parentObiterId: id } as any,
-      orderBy: { createdAt: "asc" },
-      take: 100,
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
-            universidad: true,
-          },
-        },
-      },
-    })) as ReplyWithRelations[];
+    descendantRows = await prisma.$queryRaw<ReplyRow[]>`
+      WITH RECURSIVE descendants AS (
+        SELECT o.* FROM "ObiterDictum" o
+        WHERE o."parentObiterId" = ${id}
+        UNION ALL
+        SELECT o.* FROM "ObiterDictum" o
+        INNER JOIN descendants d ON o."parentObiterId" = d.id
+      )
+      SELECT
+        d.id, d."userId", d.content, d.materia, d.tipo,
+        d."threadId", d."threadOrder", d."parentObiterId",
+        d."citedObiterId", d."citedAnalisisId", d."citedEnsayoId",
+        d."apoyosCount", d."citasCount",
+        d."guardadosCount", d."comuniqueseCount",
+        COALESCE(d."replyCount", 0) AS "replyCount",
+        d."createdAt",
+        u.id AS user_id, u."firstName" AS "user_firstName",
+        u."lastName" AS "user_lastName", u."avatarUrl" AS "user_avatarUrl",
+        u.universidad AS "user_universidad"
+      FROM descendants d
+      INNER JOIN "User" u ON u.id = d."userId"
+      ORDER BY d."createdAt" ASC
+      LIMIT 300
+    `;
   } catch (err) {
-    console.warn("[obiter detail] replies query failed:", err);
+    console.warn("[obiter detail] recursive descendants query failed:", err);
   }
+
+  const rawReplies = descendantRows.map((r) => ({
+    id: r.id,
+    userId: r.userId,
+    content: r.content,
+    materia: r.materia,
+    tipo: r.tipo,
+    threadId: r.threadId,
+    threadOrder: r.threadOrder,
+    parentObiterId: r.parentObiterId,
+    citedObiterId: r.citedObiterId,
+    citedAnalisisId: r.citedAnalisisId,
+    citedEnsayoId: r.citedEnsayoId,
+    apoyosCount: r.apoyosCount,
+    citasCount: r.citasCount,
+    guardadosCount: r.guardadosCount,
+    comuniqueseCount: r.comuniqueseCount,
+    replyCount: r.replyCount,
+    createdAt: r.createdAt,
+    user: {
+      id: r.user_id,
+      firstName: r.user_firstName,
+      lastName: r.user_lastName,
+      avatarUrl: r.user_avatarUrl,
+      universidad: r.user_universidad,
+    },
+  }));
 
   // Flags de interacción para cada respuesta (si está autenticado)
   let replyInteractions: {
@@ -387,8 +450,9 @@ export default async function ObiterDetailPage({
     threadId: r.threadId,
     threadOrder: r.threadOrder,
     threadPartsCount: null,
-    parentObiterId: id,
-    replyCount: (r as { replyCount?: number }).replyCount ?? 0,
+    // El parentObiterId real (no siempre el root — puede ser otra reply)
+    parentObiterId: r.parentObiterId,
+    replyCount: r.replyCount ?? 0,
     citedObiterId: r.citedObiterId,
     citedObiter: null,
     citedAnalisisId: r.citedAnalisisId ?? null,
@@ -407,6 +471,25 @@ export default async function ObiterDetailPage({
 
   const obiterCommentsDisabled =
     (obiter as { commentsDisabled?: boolean }).commentsDisabled ?? false;
+
+  // Padre del OD actual (si es respuesta) — para "Respondiendo a @"
+  const parentContext = (obiter as {
+    parentObiter?: {
+      id: string;
+      content: string;
+      user: { id: string; firstName: string; lastName: string };
+    } | null;
+  }).parentObiter;
+  const serializedParentContext = parentContext
+    ? {
+        id: parentContext.id,
+        content:
+          parentContext.content.length > 140
+            ? parentContext.content.slice(0, 140) + "…"
+            : parentContext.content,
+        user: parentContext.user,
+      }
+    : null;
 
   const isThread = threadParts && threadParts.length > 1;
 
@@ -445,6 +528,10 @@ export default async function ObiterDetailPage({
           threadParts={threadParts}
           citations={serializedCitations}
           replies={serializedReplies}
+          parentContext={serializedParentContext}
+          colegaIds={
+            authUser ? await getColegaIdsForUser(authUser.id) : []
+          }
           commentsDisabled={obiterCommentsDisabled}
           currentUserId={authUser?.id ?? null}
           currentUserFirstName={currentUserFirstName}

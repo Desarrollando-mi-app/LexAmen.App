@@ -74,7 +74,9 @@ function MisPublicaciones({ userId }: { userId: string }) {
       try {
         let url = "";
         if (subTab === "obiters") {
-          url = `/api/obiter?feed=recientes&userId=${userId}&limit=20`;
+          // includeReplies=true: en "Mis Publicaciones" mostramos toda la
+          // actividad del usuario (raíz + respuestas), no solo OD raíz.
+          url = `/api/obiter?feed=recientes&userId=${userId}&limit=20&includeReplies=true`;
         } else if (subTab === "analisis") {
           url = `/api/diario/analisis?userId=${userId}&limit=10`;
         } else {
@@ -110,7 +112,7 @@ function MisPublicaciones({ userId }: { userId: string }) {
     try {
       let url = "";
       if (subTab === "obiters") {
-        url = `/api/obiter?feed=recientes&userId=${userId}&limit=20&cursor=${nextCursor}`;
+        url = `/api/obiter?feed=recientes&userId=${userId}&limit=20&includeReplies=true&cursor=${nextCursor}`;
       } else if (subTab === "analisis") {
         url = `/api/diario/analisis?userId=${userId}&limit=10&cursor=${nextCursor}`;
       } else {
@@ -188,11 +190,21 @@ function MisPublicaciones({ userId }: { userId: string }) {
         <div className="space-y-3">
           {items.map((item) => {
             if (subTab === "obiters") {
+              const isReply = !!item.parentObiterId;
               return (
-                <div
+                <Link
                   key={item.id}
-                  className="rounded-[4px] border border-gz-rule bg-white p-4 transition-colors hover:border-gz-gold/40"
+                  href={`/dashboard/diario/obiter/${item.id}`}
+                  className="block rounded-[4px] border border-gz-rule bg-white p-4 transition-colors hover:border-gz-gold/40 cursor-pointer"
                 >
+                  {isReply && (
+                    <p className="mb-1.5 font-ibm-mono text-[9px] uppercase tracking-[1.5px] text-gz-burgundy font-semibold flex items-center gap-1">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" className="shrink-0">
+                        <path d="M9 14L4 9l5-5M4 9h11a4 4 0 014 4v6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Respuesta
+                    </p>
+                  )}
                   <p
                     className="mb-2 line-clamp-3 font-cormorant text-[16px] leading-[1.7] text-gz-ink"
                     style={{ whiteSpace: "pre-wrap" }}
@@ -205,8 +217,14 @@ function MisPublicaciones({ userId }: { userId: string }) {
                     <span>Apoyar {item.apoyosCount ?? 0}</span>
                     <span className="text-gz-ink-light/30">·</span>
                     <span>Citar {item.citasCount ?? 0}</span>
+                    {item.replyCount > 0 && (
+                      <>
+                        <span className="text-gz-ink-light/30">·</span>
+                        <span>{item.replyCount} {item.replyCount === 1 ? "respuesta" : "respuestas"}</span>
+                      </>
+                    )}
                   </div>
-                </div>
+                </Link>
               );
             }
             if (subTab === "analisis") {

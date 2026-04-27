@@ -112,6 +112,8 @@ export default async function PerfilPage({ params, searchParams }: Props) {
         },
       }),
       // Publicaciones: los 4 tipos (ObiterDictum legacy, AnalisisSentencia, Ensayo, DebateJuridico)
+      // Incluye respuestas (no filtramos parentObiterId) — mostramos toda
+      // la actividad del autor con indicador "↩ a @handle" cuando aplica.
       prisma.obiterDictum.findMany({
         where: { userId: params.userId, archived: false },
         orderBy: { createdAt: "desc" },
@@ -125,6 +127,14 @@ export default async function PerfilPage({ params, searchParams }: Props) {
           apoyosCount: true,
           citasCount: true,
           guardadosCount: true,
+          parentObiterId: true,
+          replyCount: true,
+          parentObiter: {
+            select: {
+              id: true,
+              user: { select: { firstName: true } },
+            },
+          },
         },
       }),
       prisma.analisisSentencia.findMany({
@@ -422,21 +432,28 @@ export default async function PerfilPage({ params, searchParams }: Props) {
 
   // Unificar publicaciones de los 4 modelos y ordenar por fecha descendente
   const publications = [
-    ...obitersRaw.map((p) => ({
-      id: p.id,
-      kind: "obiter" as const,
-      titulo: null as string | null,
-      contenido: p.content,
-      materia: p.materia,
-      tipo: p.tipo,
-      tribunal: null as string | null,
-      resumen: null as string | null,
-      apoyosCount: p.apoyosCount,
-      citasCount: p.citasCount,
-      guardadosCount: p.guardadosCount,
-      viewsCount: 0,
-      createdAt: p.createdAt.toISOString(),
-    })),
+    ...obitersRaw.map((p) => {
+      // Si es respuesta, mostramos "↩ a @handle" en el lugar del titulo
+      // (compactando al estilo X). Si no, queda null.
+      const replyTo = p.parentObiter
+        ? `↩ a @${(p.parentObiter.user.firstName ?? "").toLowerCase().replace(/[^a-z0-9]/g, "")}`
+        : null;
+      return {
+        id: p.id,
+        kind: "obiter" as const,
+        titulo: replyTo,
+        contenido: p.content,
+        materia: p.materia,
+        tipo: p.tipo,
+        tribunal: null as string | null,
+        resumen: null as string | null,
+        apoyosCount: p.apoyosCount,
+        citasCount: p.citasCount,
+        guardadosCount: p.guardadosCount,
+        viewsCount: 0,
+        createdAt: p.createdAt.toISOString(),
+      };
+    }),
     ...analisisRaw.map((p) => ({
       id: p.id,
       kind: "analisis" as const,

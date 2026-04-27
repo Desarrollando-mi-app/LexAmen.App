@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface NotificationItem {
@@ -26,7 +27,74 @@ const TYPE_ICONS: Record<string, string> = {
   CV_REQUEST_ACCEPTED: "✅",
   COLEGA_REQUEST: "🤝",
   COLEGA_ACCEPTED: "🤝",
+  OBITER_APOYO: "♥",
+  OBITER_CITA: "❝",
+  OBITER_COMUNIQUESE: "↻",
+  OBITER_REPLY: "↩",
+  ANALISIS_APOYO: "♥",
+  ANALISIS_COMUNIQUESE: "↻",
+  ENSAYO_APOYO: "♥",
+  ENSAYO_COMUNIQUESE: "↻",
+  EVENTO_INTERES: "📅",
 };
+
+// Resuelve la URL de destino al hacer click en una notificación. Devuelve
+// null si la notificación no tiene un destino navegable (system broadcast,
+// CV request inline, etc).
+function getNotificationHref(
+  type: string,
+  metadata: Record<string, unknown> | null,
+): string | null {
+  if (!metadata) return null;
+
+  switch (type) {
+    case "OBITER_REPLY": {
+      // Navega al OD respuesta directamente (su detalle muestra el padre
+      // arriba mediante "in reply to @").
+      const replyId = metadata.obiterId as string | undefined;
+      if (replyId) return `/dashboard/diario/obiter/${replyId}`;
+      const parentId = metadata.parentObiterId as string | undefined;
+      if (parentId) return `/dashboard/diario/obiter/${parentId}`;
+      return null;
+    }
+    case "OBITER_APOYO":
+    case "OBITER_COMUNIQUESE": {
+      const obiterId = metadata.obiterId as string | undefined;
+      return obiterId ? `/dashboard/diario/obiter/${obiterId}` : null;
+    }
+    case "OBITER_CITA": {
+      // El que cita publica un nuevo OD; navegamos al OD que cita
+      // (showcasing) en vez del citado.
+      const obiterId = metadata.obiterId as string | undefined;
+      return obiterId ? `/dashboard/diario/obiter/${obiterId}` : null;
+    }
+    case "ANALISIS_APOYO":
+    case "ANALISIS_COMUNIQUESE": {
+      const analisisId = metadata.analisisId as string | undefined;
+      return analisisId ? `/dashboard/diario/analisis/${analisisId}` : null;
+    }
+    case "ENSAYO_APOYO":
+    case "ENSAYO_COMUNIQUESE": {
+      const ensayoId = metadata.ensayoId as string | undefined;
+      return ensayoId ? `/dashboard/diario/ensayos/${ensayoId}` : null;
+    }
+    case "BADGE_EARNED":
+      return "/dashboard/perfil";
+    case "COLEGA_REQUEST":
+    case "COLEGA_ACCEPTED":
+      return "/dashboard/perfil/colegas";
+    case "LEAGUE_RESULT":
+      return "/dashboard/ranking";
+    case "EVENTO_INTERES": {
+      const eventoId = metadata.eventoId as string | undefined;
+      return eventoId
+        ? `/dashboard/sala/eventos?evento=${eventoId}`
+        : "/dashboard/sala/eventos";
+    }
+    default:
+      return null;
+  }
+}
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -44,6 +112,7 @@ function timeAgo(dateStr: string): string {
 }
 
 export function NotificationDrawer({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -176,13 +245,25 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
             </div>
           ) : (
             <ul className="divide-y divide-gz-rule">
-              {items.map((item) => (
+              {items.map((item) => {
+                const href = getNotificationHref(item.type, item.metadata);
+                return (
                 <li
                   key={item.id}
-                  onClick={() => !item.readAt && markOneRead(item.notificationId)}
+                  onClick={() => {
+                    // Marcar como leida (no espera)
+                    if (!item.readAt) {
+                      markOneRead(item.notificationId);
+                    }
+                    // Navegar si tiene destino y no es CV request inline
+                    if (href && item.type !== "CV_REQUEST") {
+                      onClose();
+                      router.push(href);
+                    }
+                  }}
                   className={`flex gap-3 px-5 py-4 cursor-pointer transition-colors hover:bg-gz-cream-dark/50 ${
                     !item.readAt ? "bg-gold/5" : ""
-                  }`}
+                  } ${href && item.type !== "CV_REQUEST" ? "" : ""}`}
                 >
                   {/* Icon */}
                   <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-navy/5 text-base">
@@ -232,7 +313,8 @@ export function NotificationDrawer({ onClose }: { onClose: () => void }) {
                     </p>
                   </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>
