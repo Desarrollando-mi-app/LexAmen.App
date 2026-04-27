@@ -9,6 +9,7 @@ import { LinkPreviewList } from "./link-preview-card";
 import { ObiterEditor } from "./obiter-editor";
 import { LinkifiedText } from "./linkified-text";
 import { useLinkPreviews } from "./use-link-previews";
+import { getRamaLabel } from "@/lib/ramas-derecho";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -41,17 +42,6 @@ function timeAgo(dateStr: string): string {
     month: "short",
   });
 }
-
-const MATERIA_LABELS: Record<string, string> = {
-  acto_juridico: "Acto Jurídico",
-  obligaciones: "Obligaciones",
-  contratos: "Contratos",
-  procesal_civil: "Procesal Civil",
-  bienes: "Bienes",
-  familia: "Familia",
-  sucesiones: "Sucesiones",
-  otro: "Otro",
-};
 
 const TIPO_LABELS: Record<string, string> = {
   reflexion: "Reflexión",
@@ -150,8 +140,8 @@ export function ObiterThreadView({
             </Link>
             <p className="font-ibm-mono text-[10px] text-gz-ink-light mt-0.5">
               {timeAgo(firstObiter.createdAt)}
-              {firstObiter.materia && MATERIA_LABELS[firstObiter.materia] && (
-                <> · {MATERIA_LABELS[firstObiter.materia]}</>
+              {firstObiter.materia && getRamaLabel(firstObiter.materia) && (
+                <> · {getRamaLabel(firstObiter.materia)}</>
               )}
               {firstObiter.tipo && TIPO_LABELS[firstObiter.tipo] && (
                 <> · {TIPO_LABELS[firstObiter.tipo]}</>

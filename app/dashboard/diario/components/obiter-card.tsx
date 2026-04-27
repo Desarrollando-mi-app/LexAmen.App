@@ -11,6 +11,7 @@ import { ReportButton } from "@/app/components/report-button";
 import { LinkPreviewList } from "./link-preview-card";
 import { LinkifiedText } from "./linkified-text";
 import { useLinkPreviews } from "./use-link-previews";
+import { getRamaLabel } from "@/lib/ramas-derecho";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -45,17 +46,6 @@ function timeAgo(dateStr: string): string {
     month: "short",
   });
 }
-
-const MATERIA_LABELS: Record<string, string> = {
-  acto_juridico: "Acto Jurídico",
-  obligaciones: "Obligaciones",
-  contratos: "Contratos",
-  procesal_civil: "Procesal Civil",
-  bienes: "Bienes",
-  familia: "Familia",
-  sucesiones: "Sucesiones",
-  otro: "Otro",
-};
 
 const TIPO_LABELS: Record<string, string> = {
   reflexion: "Reflexión",
@@ -161,8 +151,8 @@ export function ObiterCard({
 
   // Meta line pieces
   const metaPieces: string[] = [timeAgo(obiter.createdAt)];
-  if (obiter.materia && MATERIA_LABELS[obiter.materia]) {
-    metaPieces.push(MATERIA_LABELS[obiter.materia]);
+  if (obiter.materia && getRamaLabel(obiter.materia)) {
+    metaPieces.push(getRamaLabel(obiter.materia));
   }
   if (obiter.tipo && TIPO_LABELS[obiter.tipo]) {
     metaPieces.push(TIPO_LABELS[obiter.tipo]);
@@ -317,9 +307,9 @@ export function ObiterCard({
                   <span className="transition-transform group-hover/thread:translate-x-0.5">→</span>
                 </button>
               )}
-              {obiter.materia && MATERIA_LABELS[obiter.materia] && (
+              {obiter.materia && getRamaLabel(obiter.materia) && (
                 <span className="font-ibm-mono text-[9px] uppercase tracking-[1px] text-gz-ink-light">
-                  · {MATERIA_LABELS[obiter.materia]}
+                  · {getRamaLabel(obiter.materia)}
                 </span>
               )}
               {obiter.tipo && TIPO_LABELS[obiter.tipo] && (
@@ -380,7 +370,7 @@ export function ObiterCard({
                 {obiter.citedAnalisis.titulo}
               </p>
               <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light">
-                {obiter.citedAnalisis.tribunal} · {MATERIA_LABELS[obiter.citedAnalisis.materia] ?? obiter.citedAnalisis.materia}
+                {obiter.citedAnalisis.tribunal} · {getRamaLabel(obiter.citedAnalisis.materia)}
               </p>
             </Link>
           )}
@@ -398,7 +388,7 @@ export function ObiterCard({
                 {obiter.citedEnsayo.titulo}
               </p>
               <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light">
-                {MATERIA_LABELS[obiter.citedEnsayo.materia] ?? obiter.citedEnsayo.materia}
+                {getRamaLabel(obiter.citedEnsayo.materia)}
               </p>
             </Link>
           )}
@@ -417,7 +407,7 @@ export function ObiterCard({
                 {obiter.citedDebate.titulo}
               </p>
               <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light flex items-center justify-between gap-2">
-                <span>{MATERIA_LABELS[obiter.citedDebate.rama] ?? obiter.citedDebate.rama}</span>
+                <span>{getRamaLabel(obiter.citedDebate.rama)}</span>
                 <span className="font-archivo text-[10px] font-bold uppercase tracking-[1.5px] text-gz-burgundy">
                   Ver debate →
                 </span>
@@ -442,7 +432,7 @@ export function ObiterCard({
                 {obiter.citedExpediente.titulo}
               </p>
               <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light flex items-center justify-between gap-2">
-                <span>{MATERIA_LABELS[obiter.citedExpediente.rama] ?? obiter.citedExpediente.rama}</span>
+                <span>{getRamaLabel(obiter.citedExpediente.rama)}</span>
                 <span className="font-archivo text-[10px] font-bold uppercase tracking-[1.5px] text-gz-navy">
                   Argumentar →
                 </span>

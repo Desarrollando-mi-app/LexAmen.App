@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect, type FormEvent } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MATERIAS } from "@/app/dashboard/diario/types/obiter";
 import { TRIBUNALES, ANALISIS_LIMITS, XP_FALLO_SEMANA_PARTICIPAR, type AnalisisFormato } from "@/lib/diario-config";
+import { TagsInput } from "@/app/dashboard/diario/components/tags-input";
 
 // ─── Helpers ────────────────────────────────────────────────
 
@@ -27,15 +30,6 @@ function progressColor(current: number, max: number): string {
   if (ratio > 0.7) return "bg-orange-400";
   return "bg-green-500";
 }
-
-// ─── Tags disponibles ───────────────────────────────────────
-
-const AVAILABLE_TAGS = [
-  "nulidad", "buena_fe", "responsabilidad", "contrato",
-  "procedimiento", "familia", "laboral", "penal",
-  "constitucional", "administrativo", "tributario", "ambiental",
-  "propiedad", "recurso", "casacion", "apelacion",
-];
 
 // ─── Component ──────────────────────────────────────────────
 
@@ -345,93 +339,88 @@ export default function NuevoAnalisisPage() {
     );
   }
 
-  // ─── STEP 1: Format selector ─────────────────────────────
+  // ─── STEP 1: Format selector — premium editorial ─────────
 
   if (!formato) {
     return (
-      <div className="min-h-screen bg-gz-cream">
-        <div className="max-w-3xl mx-auto px-4 py-10">
-          <header className="mb-8">
-            <p className="font-ibm-mono uppercase tracking-wider text-[11px] text-gz-ink-light">
-              Analisis de Sentencia · Nuevo
-            </p>
-            <div className="border-t-2 border-gz-rule mt-2" />
-          </header>
-
-          <h2 className="font-cormorant text-[28px] font-bold text-gz-ink mb-2">
-            Elige el formato de tu analisis
-          </h2>
-          <p className="font-archivo text-[14px] text-gz-ink-mid mb-8">
-            Selecciona el tipo de analisis que quieres publicar.
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Mini-Analisis */}
-            <button
-              type="button"
-              onClick={() => setFormato("mini")}
-              className="text-left rounded-[4px] border-2 border-gz-rule bg-white p-6 transition-all hover:border-gz-gold hover:shadow-md"
+      <div className="gz-page min-h-screen bg-[var(--gz-cream)]">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-10 pt-7 pb-16">
+          {/* Top bar */}
+          <div className="flex items-center justify-between mb-5">
+            <Link
+              href="/dashboard/diario?tab=analisis"
+              className="group inline-flex items-center gap-1.5 font-archivo text-[12px] text-gz-ink-light hover:text-gz-burgundy transition-colors cursor-pointer"
             >
-              <div className="flex items-center gap-2 mb-3">
-                <span className="rounded-full bg-gz-gold/15 px-3 py-1 font-ibm-mono text-[10px] font-semibold uppercase tracking-[1px] text-gz-gold">
-                  Mini
-                </span>
-                <span className="font-ibm-mono text-[10px] text-gz-ink-light">
-                  +{ANALISIS_LIMITS.mini.xp} XP
-                </span>
-              </div>
-              <h3 className="font-cormorant text-[22px] font-bold text-gz-ink mb-2">
-                {ANALISIS_LIMITS.mini.label}
-              </h3>
-              <p className="font-archivo text-[13px] text-gz-ink-mid mb-3">
-                {ANALISIS_LIMITS.mini.descripcion}
-              </p>
-              <div className="font-ibm-mono text-[10px] text-gz-ink-light space-y-1">
-                <p>Hechos: max {ANALISIS_LIMITS.mini.maxHechos} car.</p>
-                <p>Ratio: max {ANALISIS_LIMITS.mini.maxRatio} car.</p>
-                <p>Opinion: max {ANALISIS_LIMITS.mini.maxOpinion} car.</p>
-                <p>Tiempo estimado: {ANALISIS_LIMITS.mini.tiempoEstimado}</p>
-              </div>
-            </button>
-
-            {/* Analisis Completo */}
-            <button
-              type="button"
-              onClick={() => setFormato("completo")}
-              className="text-left rounded-[4px] border-2 border-gz-rule bg-white p-6 transition-all hover:border-gz-navy hover:shadow-md"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <span className="rounded-full bg-gz-navy/15 px-3 py-1 font-ibm-mono text-[10px] font-semibold uppercase tracking-[1px] text-gz-navy">
-                  Completo
-                </span>
-                <span className="font-ibm-mono text-[10px] text-gz-ink-light">
-                  +{ANALISIS_LIMITS.completo.xp} XP
-                </span>
-              </div>
-              <h3 className="font-cormorant text-[22px] font-bold text-gz-ink mb-2">
-                {ANALISIS_LIMITS.completo.label}
-              </h3>
-              <p className="font-archivo text-[13px] text-gz-ink-mid mb-3">
-                {ANALISIS_LIMITS.completo.descripcion}
-              </p>
-              <div className="font-ibm-mono text-[10px] text-gz-ink-light space-y-1">
-                <p>Hechos: max {ANALISIS_LIMITS.completo.maxHechos} car.</p>
-                <p>Ratio: max {ANALISIS_LIMITS.completo.maxRatio} car.</p>
-                <p>Opinion: sin limite</p>
-                <p>Tiempo estimado: {ANALISIS_LIMITS.completo.tiempoEstimado}</p>
-              </div>
-            </button>
+              <span className="font-cormorant text-[16px] leading-none -mt-px transition-transform group-hover:-translate-x-1">←</span>
+              Volver a los análisis
+            </Link>
           </div>
 
-          {/* Back */}
-          <div className="mt-8">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-5 py-2.5 font-archivo text-sm border border-gz-rule text-gz-ink-light rounded-[4px] hover:border-gz-gold transition-colors"
-            >
-              Cancelar
-            </button>
+          {/* ═══ Masthead editorial ═══════════════════════════════ */}
+          <div className="gz-section-header relative mb-9">
+            <div className="h-px bg-gz-ink/35 mb-3" />
+
+            <div className="hidden sm:flex items-center justify-between font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-ink-mid mb-3 gap-3">
+              <span className="capitalize shrink-0">Sección II · Análisis de Sentencia · Nuevo</span>
+              <span className="text-gz-burgundy shrink-0">— Estudio jurídico —</span>
+            </div>
+
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="flex items-center justify-center gap-4">
+                <Image
+                  src="/brand/logo-sello.svg"
+                  alt="Studio Iuris"
+                  width={80}
+                  height={80}
+                  className="h-[56px] w-[56px] sm:h-[68px] sm:w-[68px] shrink-0"
+                />
+                <h1 className="font-cormorant text-[36px] sm:text-[52px] lg:text-[60px] font-bold text-gz-ink leading-[0.92] tracking-tight">
+                  Nuevo <span className="text-gz-burgundy italic">Análisis</span>
+                </h1>
+              </div>
+              <p className="font-cormorant italic text-[15px] sm:text-[17px] text-gz-ink-mid max-w-[640px]">
+                Elige el formato. Un mini-análisis se publica rápido; uno completo se sostiene como pieza doctrinal.
+              </p>
+            </div>
+
+            <div className="mt-5 h-[3px] bg-gz-ink/85" />
+            <div className="h-px bg-gz-ink/85 mt-[2px]" />
+            <div className="h-[2px] bg-gz-ink/85 mt-[2px]" />
+          </div>
+
+          {/* ═══ Format cards — paper-stack ═══════════════════════ */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Mini */}
+            <FormatCard
+              accent="gold"
+              kicker="✦ Mini-análisis"
+              xp={ANALISIS_LIMITS.mini.xp}
+              titulo={ANALISIS_LIMITS.mini.label}
+              descripcion={ANALISIS_LIMITS.mini.descripcion}
+              specs={[
+                ["Hechos", `máx. ${ANALISIS_LIMITS.mini.maxHechos} caracteres`],
+                ["Ratio decidendi", `máx. ${ANALISIS_LIMITS.mini.maxRatio} car.`],
+                ["Opinión", `máx. ${ANALISIS_LIMITS.mini.maxOpinion} car.`],
+                ["Tiempo estimado", ANALISIS_LIMITS.mini.tiempoEstimado],
+              ]}
+              onClick={() => setFormato("mini")}
+            />
+
+            {/* Completo */}
+            <FormatCard
+              accent="burgundy"
+              kicker="⚖ Análisis completo"
+              xp={ANALISIS_LIMITS.completo.xp}
+              titulo={ANALISIS_LIMITS.completo.label}
+              descripcion={ANALISIS_LIMITS.completo.descripcion}
+              specs={[
+                ["Hechos", `máx. ${ANALISIS_LIMITS.completo.maxHechos} car.`],
+                ["Ratio decidendi", `máx. ${ANALISIS_LIMITS.completo.maxRatio} car.`],
+                ["Opinión", "sin límite"],
+                ["Tiempo estimado", ANALISIS_LIMITS.completo.tiempoEstimado],
+              ]}
+              onClick={() => setFormato("completo")}
+            />
           </div>
         </div>
       </div>
@@ -441,32 +430,64 @@ export default function NuevoAnalisisPage() {
   // ─── STEP 2: Structured Editor ────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gz-cream">
-      <div className="max-w-3xl mx-auto px-4 py-10">
-        {/* Header */}
-        <header className="mb-8">
-          <div className="flex items-center gap-3">
-            <p className="font-ibm-mono uppercase tracking-wider text-[11px] text-gz-ink-light">
-              Analisis de Sentencia · Nuevo
+    <div className="gz-page min-h-screen bg-[var(--gz-cream)]">
+      <div className="max-w-[860px] mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-16">
+        {/* Top bar */}
+        <div className="flex items-center justify-between mb-5">
+          <Link
+            href="/dashboard/diario?tab=analisis"
+            className="group inline-flex items-center gap-1.5 font-archivo text-[12px] text-gz-ink-light hover:text-gz-burgundy transition-colors cursor-pointer"
+          >
+            <span className="font-cormorant text-[16px] leading-none -mt-px transition-transform group-hover:-translate-x-1">←</span>
+            Volver a los análisis
+          </Link>
+          <button
+            type="button"
+            onClick={() => setFormato(null)}
+            className="font-ibm-mono text-[10px] uppercase tracking-[1.5px] font-semibold text-gz-ink-light hover:text-gz-burgundy transition-colors cursor-pointer border-b border-gz-ink-light/40 hover:border-gz-burgundy pb-0.5"
+          >
+            Cambiar formato
+          </button>
+        </div>
+
+        {/* ═══ Hero editorial compacto ════════════════════════════ */}
+        <header className="gz-section-header relative mb-7">
+          <div className="h-px bg-gz-ink/35 mb-3" />
+
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <Image
+              src="/brand/logo-sello.svg"
+              alt="Studio Iuris"
+              width={44}
+              height={44}
+              className="h-9 w-9 shrink-0"
+            />
+            <p className="font-ibm-mono text-[10px] uppercase tracking-[2.5px] text-gz-burgundy font-semibold flex items-center gap-1.5">
+              <span aria-hidden>⚖</span>
+              Análisis de Sentencia · Nuevo
             </p>
             <span
-              className={`rounded-full px-3 py-0.5 font-ibm-mono text-[10px] font-semibold uppercase tracking-[1px] ${
+              className={`rounded-full px-3 py-0.5 font-ibm-mono text-[9px] font-semibold uppercase tracking-[1.5px] ${
                 formato === "mini"
                   ? "bg-gz-gold/15 text-gz-gold"
-                  : "bg-gz-navy/15 text-gz-navy"
+                  : "bg-gz-burgundy/15 text-gz-burgundy"
               }`}
             >
               {limits!.label}
             </span>
-            <button
-              type="button"
-              onClick={() => setFormato(null)}
-              className="font-archivo text-[11px] text-gz-ink-light hover:text-gz-ink underline ml-auto"
-            >
-              Cambiar formato
-            </button>
           </div>
-          <div className="border-t-2 border-gz-rule mt-2" />
+
+          <h1 className="font-cormorant text-[30px] sm:text-[40px] !font-bold leading-[1.05] tracking-tight text-gz-ink mb-2">
+            Redacta tu <span className="text-gz-burgundy italic">análisis</span>
+          </h1>
+          <p className="font-cormorant italic text-[15px] sm:text-[16px] text-gz-ink-mid">
+            Identifica el fallo, ordena los hechos, fija la ratio decidendi y comparte tu opinión jurídica.
+          </p>
+
+          {/* Triple regla */}
+          <div className="mt-4 h-[3px] bg-gz-ink/85" />
+          <div className="h-px bg-gz-ink/85 mt-[2px]" />
+          <div className="h-[2px] bg-gz-ink/85 mt-[2px]" />
         </header>
 
         {/* Fallo de la Semana banner */}
@@ -692,34 +713,20 @@ export default function NuevoAnalisisPage() {
             />
           </div>
 
-          {/* ═══ TAGS ═══ */}
+          {/* ═══ TAGS — free-form ═══ */}
           <div className="border-t-2 border-gz-rule mt-8 pt-8">
             {renderLabel("Tags")}
-            {renderHint("Selecciona los tags relevantes para tu analisis.")}
-            <div className="flex flex-wrap gap-2 mt-3">
-              {AVAILABLE_TAGS.map((tag) => {
-                const isSelected = selectedTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => {
-                      if (isSelected) {
-                        setSelectedTags((prev) => prev.filter((t) => t !== tag));
-                      } else {
-                        setSelectedTags((prev) => [...prev, tag]);
-                      }
-                    }}
-                    className={`rounded-full px-3 py-1 font-ibm-mono text-[10px] font-medium transition-colors ${
-                      isSelected
-                        ? "bg-gz-gold/20 text-gz-gold border border-gz-gold"
-                        : "bg-white text-gz-ink-light border border-gz-rule hover:border-gz-gold/40"
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+            {renderHint("Escribe tus propios #tags. Espacio, enter o coma para confirmar cada uno.")}
+            <div className="mt-3">
+              <TagsInput
+                value={selectedTags.join(",")}
+                onChange={(csv) => {
+                  setSelectedTags(csv ? csv.split(",").filter(Boolean) : []);
+                }}
+                placeholder="ej: nulidad, contrato, error_esencial..."
+                accent="burgundy"
+                max={8}
+              />
             </div>
           </div>
 
@@ -1158,5 +1165,79 @@ export default function NuevoAnalisisPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+
+// ─── FormatCard — selector premium ────────────────────────
+
+function FormatCard({
+  accent,
+  kicker,
+  xp,
+  titulo,
+  descripcion,
+  specs,
+  onClick,
+}: {
+  accent: "gold" | "burgundy";
+  kicker: string;
+  xp: number;
+  titulo: string;
+  descripcion: string;
+  specs: [string, string][];
+  onClick: () => void;
+}) {
+  const isGold = accent === "gold";
+  const railColor = isGold ? "bg-gz-gold" : "bg-gz-burgundy";
+  const accentText = isGold ? "text-gz-gold" : "text-gz-burgundy";
+  const dotColor = isGold ? "bg-gz-gold" : "bg-gz-burgundy";
+  const hoverBorder = isGold ? "hover:border-gz-gold" : "hover:border-gz-burgundy";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="group relative text-left cursor-pointer"
+    >
+      {/* paper-stack shadow */}
+      <span className="absolute inset-0 translate-x-[3px] translate-y-[3px] rounded-[3px] border border-gz-rule/40 bg-white/40 pointer-events-none" aria-hidden />
+      <span className="absolute inset-0 translate-x-[1.5px] translate-y-[1.5px] rounded-[3px] border border-gz-rule/60 bg-white/60 pointer-events-none" aria-hidden />
+
+      <div className={`relative rounded-[3px] border border-gz-rule bg-white overflow-hidden transition-colors ${hoverBorder}`}>
+        <div className={`h-[3px] ${railColor}`} />
+        <div className="p-6">
+          <div className="flex items-center gap-2 mb-3">
+            <span className={`h-1.5 w-1.5 rounded-full ${dotColor}`} />
+            <span className={`font-ibm-mono text-[9px] uppercase tracking-[2px] font-semibold ${accentText}`}>
+              {kicker}
+            </span>
+            <span className="ml-auto font-ibm-mono text-[10px] font-semibold uppercase tracking-[1.5px] text-gz-ink-light">
+              +{xp} XP
+            </span>
+          </div>
+
+          <h3 className="font-cormorant text-[26px] !font-bold text-gz-ink leading-tight mb-2">
+            {titulo}
+          </h3>
+          <p className="font-cormorant italic text-[15px] text-gz-ink-mid leading-snug mb-4">
+            {descripcion}
+          </p>
+
+          <dl className="space-y-1.5 border-t border-gz-rule/60 pt-3">
+            {specs.map(([label, value]) => (
+              <div key={label} className="flex items-baseline justify-between gap-3 text-[12px]">
+                <dt className="font-ibm-mono uppercase tracking-[1px] text-gz-ink-light text-[10px]">{label}</dt>
+                <dd className="font-archivo text-gz-ink font-medium">{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className={`mt-5 inline-flex items-center gap-1 font-archivo text-[12px] font-semibold ${accentText} border-b ${isGold ? "border-gz-gold/40" : "border-gz-burgundy/40"} pb-0.5 transition-all group-hover:gap-2`}>
+            Elegir este formato →
+          </div>
+        </div>
+      </div>
+    </button>
   );
 }

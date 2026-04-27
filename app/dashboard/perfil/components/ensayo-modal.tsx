@@ -1,17 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-
-const MATERIAS = [
-  { value: "acto_juridico", label: "Acto Jurídico" },
-  { value: "obligaciones", label: "Obligaciones" },
-  { value: "contratos", label: "Contratos" },
-  { value: "procesal_civil", label: "Procesal Civil" },
-  { value: "bienes", label: "Bienes" },
-  { value: "familia", label: "Familia" },
-  { value: "sucesiones", label: "Sucesiones" },
-  { value: "otro", label: "Otro" },
-];
+import { RAMAS as MATERIAS } from "@/lib/ramas-derecho";
 
 const TIPOS = [
   { value: "opinion", label: "Opinión" },

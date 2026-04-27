@@ -2,19 +2,9 @@
 
 import Link from "next/link";
 import type { AnalisisPreview } from "../types/obiter";
+import { getRamaLabel } from "@/lib/ramas-derecho";
 
 // ─── Helpers ────────────────────────────────────────────────
-
-const MATERIA_LABELS: Record<string, string> = {
-  acto_juridico: "Acto Jurídico",
-  obligaciones: "Obligaciones",
-  contratos: "Contratos",
-  procesal_civil: "Procesal Civil",
-  bienes: "Bienes",
-  familia: "Familia",
-  sucesiones: "Sucesiones",
-  otro: "Otro",
-};
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -110,9 +100,9 @@ export function AnalisisPreviewCard({
         </p>
 
         {/* ── Materia badge ──────────────────────────── */}
-        {analisis.materia && MATERIA_LABELS[analisis.materia] && (
+        {analisis.materia && getRamaLabel(analisis.materia) && (
           <span className="mr-2 inline-block rounded-[2px] bg-gz-cream-dark px-2 py-0.5 font-ibm-mono text-[9px] text-gz-ink-mid">
-            {MATERIA_LABELS[analisis.materia]}
+            {getRamaLabel(analisis.materia)}
           </span>
         )}
 

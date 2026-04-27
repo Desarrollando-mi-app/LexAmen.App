@@ -3,19 +3,9 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { getRamaLabel, RAMAS } from "@/lib/ramas-derecho";
 
 // ─── Constants ────────────────────────────────────────────
-
-const MATERIA_LABELS: Record<string, string> = {
-  acto_juridico: "Acto Jurídico",
-  obligaciones: "Obligaciones",
-  contratos: "Contratos",
-  procesal_civil: "Procesal Civil",
-  bienes: "Bienes",
-  familia: "Familia",
-  sucesiones: "Sucesiones",
-  otro: "Otro",
-};
 
 const TIPO_LABELS: Record<string, string> = {
   opinion: "Opinión",
@@ -325,11 +315,11 @@ function FilterBar({
           className="h-10 rounded-full border border-gz-rule bg-white px-4 font-archivo text-[13px] text-gz-ink focus:border-gz-sage focus:outline-none focus:ring-1 focus:ring-gz-sage/20 transition-colors cursor-pointer"
         >
           <option value="">Todas las materias</option>
-          {Object.entries(MATERIA_LABELS).map(([key, label]) => (
-            <option key={key} value={key}>
-              {label}
-            </option>
-          ))}
+          {RAMAS.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
+            ))}
         </select>
 
         <select
@@ -387,7 +377,7 @@ function FeaturedCard({ item }: { item: EnsayoPreview }) {
             {item.materia && (
               <>
                 <span className="text-gz-rule-dark">·</span>
-                <span className="text-gz-gold font-semibold">{MATERIA_LABELS[item.materia] ?? item.materia}</span>
+                <span className="text-gz-gold font-semibold">{getRamaLabel(item.materia)}</span>
               </>
             )}
             {item.archivoFormato && (
@@ -467,7 +457,7 @@ function EnsayoCard({ item }: { item: EnsayoPreview }) {
 
           {item.materia && (
             <p className="font-ibm-mono text-[10px] uppercase tracking-[1px] text-gz-gold font-semibold mb-1.5">
-              {MATERIA_LABELS[item.materia] ?? item.materia}
+              {getRamaLabel(item.materia)}
             </p>
           )}
 
@@ -635,17 +625,17 @@ function SidebarMaterias({
           >
             Todas
           </button>
-          {Object.entries(MATERIA_LABELS).map(([key, label]) => (
+          {RAMAS.map((r) => (
             <button
-              key={key}
-              onClick={() => setMateria(key)}
+              key={r.value}
+              onClick={() => setMateria(r.value)}
               className={`font-archivo text-[11px] font-semibold rounded-full px-2.5 py-1 transition-colors cursor-pointer ${
-                materia === key
+                materia === r.value
                   ? "bg-gz-gold text-white"
                   : "bg-gz-cream-dark/40 text-gz-ink-mid hover:bg-gz-gold/20 hover:text-gz-ink"
               }`}
             >
-              {label}
+              {r.label}
             </button>
           ))}
         </div>

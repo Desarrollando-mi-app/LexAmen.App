@@ -4,6 +4,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { EnsayoActions } from "./ensayo-actions";
+import { getRamaLabel } from "@/lib/ramas-derecho";
 
 export const metadata = {
   title: "Ensayo — Studio Iuris",
@@ -17,17 +18,6 @@ const TIPO_LABELS: Record<string, string> = {
   comentario_reforma: "Comentario de reforma",
   analisis_comparado: "Análisis comparado",
   tesis: "Tesis / Memoria",
-  otro: "Otro",
-};
-
-const MATERIA_LABELS: Record<string, string> = {
-  acto_juridico: "Acto Jurídico",
-  obligaciones: "Obligaciones",
-  contratos: "Contratos",
-  procesal_civil: "Procesal Civil",
-  bienes: "Bienes",
-  familia: "Familia",
-  sucesiones: "Sucesiones",
   otro: "Otro",
 };
 
@@ -458,7 +448,7 @@ export default async function EnsayoPage({
 
               {/* Ficha rápida */}
               <SidebarFicha
-                materia={MATERIA_LABELS[ensayo.materia] ?? ensayo.materia}
+                materia={getRamaLabel(ensayo.materia)}
                 tipo={TIPO_LABELS[ensayo.tipo] ?? ensayo.tipo}
                 formato={ensayo.archivoFormato.toUpperCase()}
                 tamano={formatBytes(ensayo.archivoTamano)}
@@ -471,7 +461,7 @@ export default async function EnsayoPage({
                   items={masDelAutor.map((m) => ({
                     id: m.id,
                     titulo: m.titulo,
-                    materia: MATERIA_LABELS[m.materia] ?? m.materia,
+                    materia: getRamaLabel(m.materia),
                     tipo: TIPO_LABELS[m.tipo] ?? m.tipo,
                     apoyos: m.apoyosCount,
                   }))}

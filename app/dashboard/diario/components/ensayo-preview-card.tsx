@@ -2,19 +2,9 @@
 
 import Link from "next/link";
 import type { EnsayoPreview } from "../types/obiter";
+import { getRamaLabel } from "@/lib/ramas-derecho";
 
 // ─── Helpers ────────────────────────────────────────────────
-
-const MATERIA_LABELS: Record<string, string> = {
-  acto_juridico: "Acto Jurídico",
-  obligaciones: "Obligaciones",
-  contratos: "Contratos",
-  procesal_civil: "Procesal Civil",
-  bienes: "Bienes",
-  familia: "Familia",
-  sucesiones: "Sucesiones",
-  otro: "Otro",
-};
 
 const TIPO_LABELS: Record<string, string> = {
   opinion: "Opinión",
@@ -119,9 +109,9 @@ export function EnsayoPreviewCard({
 
         {/* ── Badges ─────────────────────────────────── */}
         <div className="flex flex-wrap gap-2">
-          {ensayo.materia && MATERIA_LABELS[ensayo.materia] && (
+          {ensayo.materia && getRamaLabel(ensayo.materia) && (
             <span className="inline-block rounded-[2px] bg-gz-cream-dark px-2 py-0.5 font-ibm-mono text-[9px] text-gz-ink-mid">
-              {MATERIA_LABELS[ensayo.materia]}
+              {getRamaLabel(ensayo.materia)}
             </span>
           )}
           {ensayo.downloadsCount > 0 && (

@@ -3,6 +3,7 @@
 import { useState, useRef, type FormEvent, type DragEvent } from "react";
 import { useRouter } from "next/navigation";
 import { MATERIAS } from "@/app/dashboard/diario/types/obiter";
+import { TagsInput } from "@/app/dashboard/diario/components/tags-input";
 
 // ─── Constants ──────────────────────────────────────────────
 
@@ -298,15 +299,18 @@ export default function NuevoEnsayoPage() {
                 </select>
               </div>
 
-              {/* Tags */}
+              {/* Tags — free-form */}
               <div className="md:col-span-2">
-                {renderLabel("Tags (opcional, separados por coma)")}
-                <input
-                  type="text"
+                {renderLabel("Tags")}
+                <p className="text-gz-ink-light font-archivo text-[13px] italic mt-1.5 mb-2">
+                  Escribe tus propios #tags. Espacio, enter o coma para confirmar.
+                </p>
+                <TagsInput
                   value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  placeholder="derecho comparado, reforma procesal"
-                  className="w-full font-archivo text-sm bg-white border border-gz-rule rounded-[4px] px-3 py-2.5 text-gz-ink placeholder:text-gz-ink-light/50 focus:outline-none focus:border-gz-gold transition-colors"
+                  onChange={setTags}
+                  placeholder="ej: derecho_comparado, reforma_procesal..."
+                  accent="sage"
+                  max={8}
                 />
               </div>
             </div>

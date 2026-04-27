@@ -163,16 +163,9 @@ export type PublishResult = {
   isPremium: boolean;
 };
 
-export const MATERIAS = [
-  { value: "acto_juridico", label: "Acto Jurídico" },
-  { value: "obligaciones", label: "Obligaciones" },
-  { value: "contratos", label: "Contratos" },
-  { value: "procesal_civil", label: "Procesal Civil" },
-  { value: "bienes", label: "Bienes" },
-  { value: "familia", label: "Familia" },
-  { value: "sucesiones", label: "Sucesiones" },
-  { value: "otro", label: "Otro" },
-] as const;
+// MATERIAS = Ramas del derecho. Re-exportado desde lib/ramas-derecho
+// (single source of truth) para que toda la app use la misma taxonomía.
+export { RAMAS as MATERIAS, getRamaLabel } from "@/lib/ramas-derecho";
 
 export const TIPOS = [
   { value: "reflexion", label: "Reflexión" },

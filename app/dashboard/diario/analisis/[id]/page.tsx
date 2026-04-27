@@ -6,22 +6,12 @@ import { prisma } from "@/lib/prisma";
 import { parseObiterContent } from "@/lib/legal-reference-parser";
 import { ObiterLegalRef } from "../../components/obiter-legal-ref";
 import { AnalisisActions } from "./analisis-actions";
+import { getRamaLabel } from "@/lib/ramas-derecho";
 
 // ─── Metadata ────────────────────────────────────────────────
 
 export const metadata = {
   title: "Análisis de Sentencia — Studio Iuris",
-};
-
-const MATERIA_LABELS: Record<string, string> = {
-  acto_juridico: "Acto Jurídico",
-  obligaciones: "Obligaciones",
-  contratos: "Contratos",
-  procesal_civil: "Procesal Civil",
-  bienes: "Bienes",
-  familia: "Familia",
-  sucesiones: "Sucesiones",
-  otro: "Otro",
 };
 
 // ─── Rendered Content (with legal reference parsing) ─────────
@@ -384,7 +374,7 @@ export default async function AnalisisSentenciaPage({
               numeroRol={analisis.numeroRol}
               fechaFallo={fechaFallo}
               partes={analisis.partes}
-              materia={MATERIA_LABELS[analisis.materia] ?? analisis.materia}
+              materia={getRamaLabel(analisis.materia)}
               falloUrl={analisis.falloUrl}
               falloPdfUrl={analisis.falloPdfUrl}
             />
@@ -514,7 +504,7 @@ export default async function AnalisisSentenciaPage({
                   items={masDelAutor.map((m) => ({
                     id: m.id,
                     titulo: m.titulo,
-                    materia: MATERIA_LABELS[m.materia] ?? m.materia,
+                    materia: getRamaLabel(m.materia),
                     apoyos: m.apoyosCount,
                     fecha: m.createdAt.toLocaleDateString("es-CL", { day: "numeric", month: "short" }),
                   }))}
