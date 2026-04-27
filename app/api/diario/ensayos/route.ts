@@ -306,5 +306,18 @@ export async function POST(request: NextRequest) {
   const { evaluateBadges } = await import("@/lib/badges");
   evaluateBadges(authUser.id, "diario").catch(() => {});
 
+  // ─── Auto-OD-resumen en el feed principal ──────────────
+  if (showInFeed) {
+    const { createSummaryObiter } = await import("@/lib/obiter-auto-summary");
+    await createSummaryObiter(prisma, {
+      kind: "ensayo_summary",
+      userId: authUser.id,
+      citedEnsayoId: ensayo.id,
+      titulo: ensayo.titulo,
+      excerpt: ensayo.resumen,
+      hashtagSeed: [ensayo.materia, "Ensayo"],
+    });
+  }
+
   return NextResponse.json({ ensayo }, { status: 201 });
 }

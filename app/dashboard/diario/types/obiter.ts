@@ -56,6 +56,25 @@ export type ObiterData = {
     tipo: string;
     materia: string;
   } | null;
+  // Debate y Expediente — usados por OD-resumen auto-generados
+  citedDebateId: string | null;
+  citedDebate: {
+    id: string;
+    titulo: string;
+    rama: string;
+    estado: string;
+  } | null;
+  citedExpedienteId: string | null;
+  citedExpediente: {
+    id: string;
+    numero: number;
+    titulo: string;
+    rama: string;
+    estado: string;
+  } | null;
+  // Tipo de OD: 'regular' por default. Los *_summary se renderizan con
+  // un header editorial distintivo (publicación auto-anunciada).
+  kind?: "regular" | "analisis_summary" | "ensayo_summary" | "debate_summary" | "expediente_summary";
   apoyosCount: number;
   citasCount: number;
   guardadosCount: number;

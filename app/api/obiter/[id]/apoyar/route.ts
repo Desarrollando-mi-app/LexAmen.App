@@ -19,10 +19,18 @@ export async function POST(
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
-  // Verificar que el obiter existe
+  // Verificar que el obiter existe + traer info de auto-summary
   const obiter = await prisma.obiterDictum.findUnique({
     where: { id: obiterId },
-    select: { id: true, userId: true },
+    select: {
+      id: true,
+      userId: true,
+      kind: true,
+      citedAnalisisId: true,
+      citedEnsayoId: true,
+      // citedDebate y citedExpediente no tienen apoyosCount (modelo
+      // distinto), no propagamos.
+    },
   });
 
   if (!obiter) {
@@ -53,6 +61,23 @@ export async function POST(
       data: { apoyosCount: { decrement: 1 } },
     });
 
+    // Sync con el original si es OD-resumen auto-generado
+    if (obiter.kind === "analisis_summary" && obiter.citedAnalisisId) {
+      await prisma.analisisSentencia
+        .update({
+          where: { id: obiter.citedAnalisisId },
+          data: { apoyosCount: { decrement: 1 } },
+        })
+        .catch(() => {});
+    } else if (obiter.kind === "ensayo_summary" && obiter.citedEnsayoId) {
+      await prisma.ensayo
+        .update({
+          where: { id: obiter.citedEnsayoId },
+          data: { apoyosCount: { decrement: 1 } },
+        })
+        .catch(() => {});
+    }
+
     return NextResponse.json({ apoyado: false });
   } else {
     // Apoyar
@@ -63,6 +88,23 @@ export async function POST(
       where: { id: obiterId },
       data: { apoyosCount: { increment: 1 } },
     });
+
+    // Sync con el original si es OD-resumen auto-generado
+    if (obiter.kind === "analisis_summary" && obiter.citedAnalisisId) {
+      await prisma.analisisSentencia
+        .update({
+          where: { id: obiter.citedAnalisisId },
+          data: { apoyosCount: { increment: 1 } },
+        })
+        .catch(() => {});
+    } else if (obiter.kind === "ensayo_summary" && obiter.citedEnsayoId) {
+      await prisma.ensayo
+        .update({
+          where: { id: obiter.citedEnsayoId },
+          data: { apoyosCount: { increment: 1 } },
+        })
+        .catch(() => {});
+    }
 
     // Notificación al autor (con agrupación de apoyos recientes)
     const actor = await prisma.user.findUnique({

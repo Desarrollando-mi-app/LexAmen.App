@@ -385,5 +385,18 @@ export async function POST(request: NextRequest) {
   const { evaluateBadges } = await import("@/lib/badges");
   evaluateBadges(authUser.id, "diario").catch(() => {});
 
+  // ─── Auto-OD-resumen en el feed principal ──────────────
+  // Genera un OD que vive en el feed del Diario y enlaza al análisis,
+  // para que la conversación pública pase ahí. Best-effort.
+  const { createSummaryObiter } = await import("@/lib/obiter-auto-summary");
+  await createSummaryObiter(prisma, {
+    kind: "analisis_summary",
+    userId: authUser.id,
+    citedAnalisisId: analisis.id,
+    titulo: analisis.titulo,
+    excerpt: analisis.resumen,
+    hashtagSeed: [analisis.materia, "AnalisisDeSentencia"],
+  });
+
   return NextResponse.json({ analisis }, { status: 201 });
 }

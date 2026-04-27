@@ -130,6 +130,17 @@ export async function POST(request: NextRequest) {
     // Evaluate badges
     await evaluateBadges(userId, "diario");
 
+    // ─── Auto-OD-resumen en el feed principal ──────────────
+    const { createSummaryObiter } = await import("@/lib/obiter-auto-summary");
+    await createSummaryObiter(prisma, {
+      kind: "debate_summary",
+      userId,
+      citedDebateId: debate.id,
+      titulo: debate.titulo,
+      excerpt: debate.descripcion,
+      hashtagSeed: [debate.rama, "Debate"],
+    });
+
     return NextResponse.json({ debate }, { status: 201 });
   } catch (error) {
     console.error("Error creating debate:", error);

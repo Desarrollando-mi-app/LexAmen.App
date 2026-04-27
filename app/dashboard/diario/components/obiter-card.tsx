@@ -65,6 +65,40 @@ const TIPO_LABELS: Record<string, string> = {
   dato: "Dato",
 };
 
+// ─── Auto-OD-resumen: meta por kind ─────────────────────────
+// Cuando un OD viene de la auto-generación al publicar Análisis/Ensayo/
+// Debate/Expediente, lo distinguimos visualmente con un header editorial
+// pequeño que muestra el tipo + acento de color.
+const SUMMARY_KIND_META: Record<
+  string,
+  { label: string; color: string; bg: string; icon: string }
+> = {
+  analisis_summary: {
+    label: "Análisis publicado",
+    color: "text-gz-burgundy",
+    bg: "bg-gz-burgundy",
+    icon: "⚖",
+  },
+  ensayo_summary: {
+    label: "Ensayo publicado",
+    color: "text-gz-sage",
+    bg: "bg-gz-sage",
+    icon: "📜",
+  },
+  debate_summary: {
+    label: "Debate abierto",
+    color: "text-gz-burgundy",
+    bg: "bg-gz-burgundy",
+    icon: "⚔",
+  },
+  expediente_summary: {
+    label: "Expediente abierto",
+    color: "text-gz-navy",
+    bg: "bg-gz-navy",
+    icon: "📂",
+  },
+};
+
 const ENSAYO_TIPO_LABELS: Record<string, string> = {
   opinion: "Opinión",
   nota_doctrinaria: "Nota doctrinaria",
@@ -148,6 +182,11 @@ export function ObiterCard({
 
   const isPinned = !!(obiter as unknown as { pinned?: boolean }).pinned;
 
+  // ─── Auto-OD-resumen: kind y meta visual ────────────────────
+  const kind = obiter.kind ?? "regular";
+  const summaryMeta = SUMMARY_KIND_META[kind];
+  const isSummary = !!summaryMeta;
+
   // Handle generado a partir del firstName en minúsculas (estilo @usuario X).
   const handle = (obiter.user.firstName ?? "")
     .toLowerCase()
@@ -159,8 +198,28 @@ export function ObiterCard({
     <article
       className={`group relative bg-white transition-colors duration-150 hover:bg-gz-cream-dark/[0.18] border-b border-gz-rule ${
         isPinned ? "bg-gz-gold/[0.04]" : ""
-      }`}
+      } ${isSummary ? "is-summary" : ""}`}
     >
+      {/* Rail vertical izquierdo de color cuando es OD-resumen */}
+      {isSummary && summaryMeta && (
+        <span
+          className={`absolute left-0 top-0 bottom-0 w-[3px] ${summaryMeta.bg}`}
+          aria-hidden
+        />
+      )}
+
+      {/* ── Header de OD-resumen (estilo "X publicó un Análisis") ── */}
+      {isSummary && summaryMeta && (
+        <div className="px-4 sm:px-5 pt-3 pb-1 flex items-center gap-2">
+          <span className={`font-cormorant text-[14px] leading-none ${summaryMeta.color}`} aria-hidden>
+            {summaryMeta.icon}
+          </span>
+          <span className={`font-ibm-mono text-[10px] uppercase tracking-[1.5px] font-semibold ${summaryMeta.color}`}>
+            {summaryMeta.label}
+          </span>
+        </div>
+      )}
+
       {/* ── Indicador de Comuníquese (header tipo "X reposted") ── */}
       {showComuniquesePor && obiter.comuniquesePor && (
         <div className="px-4 sm:px-5 pt-3 pb-1 flex items-center gap-2 text-gz-ink-light">
@@ -340,6 +399,53 @@ export function ObiterCard({
               </p>
               <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light">
                 {MATERIA_LABELS[obiter.citedEnsayo.materia] ?? obiter.citedEnsayo.materia}
+              </p>
+            </Link>
+          )}
+
+          {/* Cited Debate — bloque con CTA "Tomar la contraria" */}
+          {obiter.citedDebateId && obiter.citedDebate && (
+            <Link
+              href={`/dashboard/diario/debates/${obiter.citedDebate.id}`}
+              className="mt-3 block rounded-[10px] border border-gz-burgundy/25 p-3 transition-all hover:border-gz-burgundy/60 hover:bg-gz-burgundy/[0.04]"
+            >
+              <p className="mb-1 font-ibm-mono text-[9px] font-semibold uppercase tracking-[1.5px] text-gz-burgundy flex items-center gap-1.5">
+                <span aria-hidden>⚔</span>
+                Debate · {obiter.citedDebate.estado === "buscando_oponente" ? "Buscando oponente" : obiter.citedDebate.estado}
+              </p>
+              <p className="font-cormorant text-[15px] font-bold text-gz-ink leading-snug">
+                {obiter.citedDebate.titulo}
+              </p>
+              <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light flex items-center justify-between gap-2">
+                <span>{MATERIA_LABELS[obiter.citedDebate.rama] ?? obiter.citedDebate.rama}</span>
+                <span className="font-archivo text-[10px] font-bold uppercase tracking-[1.5px] text-gz-burgundy">
+                  Ver debate →
+                </span>
+              </p>
+            </Link>
+          )}
+
+          {/* Cited Expediente — bloque con número + CTA argumentar */}
+          {obiter.citedExpedienteId && obiter.citedExpediente && (
+            <Link
+              href={`/dashboard/expediente-abierto/${obiter.citedExpediente.id}`}
+              className="mt-3 block rounded-[10px] border border-gz-navy/25 p-3 transition-all hover:border-gz-navy/60 hover:bg-gz-navy/[0.04]"
+            >
+              <p className="mb-1 font-ibm-mono text-[9px] font-semibold uppercase tracking-[1.5px] text-gz-navy flex items-center gap-1.5">
+                <span aria-hidden>📂</span>
+                Expediente N° {obiter.citedExpediente.numero}
+                {obiter.citedExpediente.estado !== "abierto" && (
+                  <span className="ml-1 text-gz-ink-light">· {obiter.citedExpediente.estado}</span>
+                )}
+              </p>
+              <p className="font-cormorant text-[15px] font-bold text-gz-ink leading-snug">
+                {obiter.citedExpediente.titulo}
+              </p>
+              <p className="mt-1 font-ibm-mono text-[10px] text-gz-ink-light flex items-center justify-between gap-2">
+                <span>{MATERIA_LABELS[obiter.citedExpediente.rama] ?? obiter.citedExpediente.rama}</span>
+                <span className="font-archivo text-[10px] font-bold uppercase tracking-[1.5px] text-gz-navy">
+                  Argumentar →
+                </span>
               </p>
             </Link>
           )}

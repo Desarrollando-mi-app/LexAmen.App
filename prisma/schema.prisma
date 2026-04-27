@@ -1627,6 +1627,17 @@ model ObiterDictum {
   citedAnalisis   AnalisisSentencia? @relation("CitaAnalisis", fields: [citedAnalisisId], references: [id], onDelete: SetNull)
   citedEnsayoId   String?
   citedEnsayo     Ensayo?            @relation("CitaEnsayo", fields: [citedEnsayoId], references: [id], onDelete: SetNull)
+  citedDebateId      String?
+  citedDebate        DebateJuridico? @relation("CitaDebate", fields: [citedDebateId], references: [id], onDelete: SetNull)
+  citedExpedienteId  String?
+  citedExpediente    Expediente?     @relation("CitaExpediente", fields: [citedExpedienteId], references: [id], onDelete: SetNull)
+
+  // === KIND: tipo de OD ===
+  // 'regular' (default) | 'analisis_summary' | 'ensayo_summary' |
+  // 'debate_summary' | 'expediente_summary'.
+  // Los *_summary son auto-generados al publicar contenido largo y
+  // sirven como "tarjeta de presentación" en el feed principal.
+  kind String @default("regular")
 
   // === CONTADORES DESNORMALIZADOS ===
   apoyosCount      Int @default(0)
@@ -1656,11 +1667,14 @@ model ObiterDictum {
   @@index([userId])
   @@index([threadId, threadOrder])
   @@index([citedObiterId])
+  @@index([citedDebateId])
+  @@index([citedExpedienteId])
   @@index([parentObiterId, createdAt])
   @@index([createdAt(sort: Desc)])
   @@index([materia])
   @@index([userId, archived])
   @@index([pinned])
+  @@index([kind])
 }
 
 model ObiterApoyo {
@@ -2631,6 +2645,7 @@ model Expediente {
   updatedAt DateTime @updatedAt
 
   argumentos ExpedienteArgumento[]
+  citadoPorObiters ObiterDictum[] @relation("CitaExpediente")
 
   @@index([estado, fechaCierre])
   @@index([fechaApertura])
@@ -2839,6 +2854,7 @@ model DebateJuridico {
   updatedAt DateTime @updatedAt
 
   votos DebateVoto[]
+  citadoPorObiters ObiterDictum[] @relation("CitaDebate")
 
   @@index([estado])
   @@index([createdAt])

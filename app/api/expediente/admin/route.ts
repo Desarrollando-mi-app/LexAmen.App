@@ -74,7 +74,15 @@ export async function PATCH(request: Request) {
 
     const expediente = await prisma.expediente.findUnique({
       where: { id },
-      select: { id: true, aprobado: true, propuestaPor: true, titulo: true },
+      select: {
+        id: true,
+        aprobado: true,
+        propuestaPor: true,
+        titulo: true,
+        hechos: true,
+        pregunta: true,
+        rama: true,
+      },
     });
 
     if (!expediente) {
@@ -105,6 +113,18 @@ export async function PATCH(request: Request) {
           title: "Propuesta aprobada",
           body: `Tu propuesta "${expediente.titulo}" fue aprobada y ya está abierta.`,
           targetUserId: expediente.propuestaPor,
+        });
+
+        // Auto-OD-resumen al aprobar — anuncia la apertura del expediente
+        // en el feed principal a nombre del autor de la propuesta.
+        const { createSummaryObiter } = await import("@/lib/obiter-auto-summary");
+        await createSummaryObiter(prisma, {
+          kind: "expediente_summary",
+          userId: expediente.propuestaPor,
+          citedExpedienteId: expediente.id,
+          titulo: expediente.titulo,
+          excerpt: expediente.pregunta || expediente.hechos,
+          hashtagSeed: [expediente.rama, "ExpedienteAbierto"],
         });
       }
 

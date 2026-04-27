@@ -610,6 +610,23 @@ export async function GET(request: NextRequest) {
           materia: true,
         },
       },
+      citedDebate: {
+        select: {
+          id: true,
+          titulo: true,
+          rama: true,
+          estado: true,
+        },
+      },
+      citedExpediente: {
+        select: {
+          id: true,
+          numero: true,
+          titulo: true,
+          rama: true,
+          estado: true,
+        },
+      },
       _count: {
         select: {
           citadoPor: true,
@@ -819,6 +836,11 @@ export async function GET(request: NextRequest) {
       citedAnalisis: o.citedAnalisis,
       citedEnsayoId: o.citedEnsayoId,
       citedEnsayo: o.citedEnsayo,
+      citedDebateId: (o as { citedDebateId?: string | null }).citedDebateId ?? null,
+      citedDebate: (o as { citedDebate?: unknown }).citedDebate ?? null,
+      citedExpedienteId: (o as { citedExpedienteId?: string | null }).citedExpedienteId ?? null,
+      citedExpediente: (o as { citedExpediente?: unknown }).citedExpediente ?? null,
+      kind: (o as { kind?: string }).kind ?? "regular",
       apoyosCount: o.apoyosCount,
       citasCount: o.citasCount,
       guardadosCount: o.guardadosCount,
@@ -869,6 +891,11 @@ export async function GET(request: NextRequest) {
       citedAnalisis: o.citedAnalisis,
       citedEnsayoId: o.citedEnsayoId,
       citedEnsayo: o.citedEnsayo,
+      citedDebateId: (o as { citedDebateId?: string | null }).citedDebateId ?? null,
+      citedDebate: (o as { citedDebate?: unknown }).citedDebate ?? null,
+      citedExpedienteId: (o as { citedExpedienteId?: string | null }).citedExpedienteId ?? null,
+      citedExpediente: (o as { citedExpediente?: unknown }).citedExpediente ?? null,
+      kind: (o as { kind?: string }).kind ?? "regular",
       apoyosCount: o.apoyosCount,
       citasCount: o.citasCount,
       guardadosCount: o.guardadosCount,

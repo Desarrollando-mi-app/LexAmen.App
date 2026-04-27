@@ -127,6 +127,17 @@ export async function POST(request: Request) {
       },
     });
 
+    // Auto-OD-resumen en el feed principal (admin-created, ya aprobado)
+    const { createSummaryObiter } = await import("@/lib/obiter-auto-summary");
+    await createSummaryObiter(prisma, {
+      kind: "expediente_summary",
+      userId: authUser.id,
+      citedExpedienteId: expediente.id,
+      titulo: expediente.titulo,
+      excerpt: expediente.pregunta || expediente.hechos,
+      hashtagSeed: [expediente.rama, "ExpedienteAbierto"],
+    });
+
     return NextResponse.json({ expediente }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/expediente]", error);
