@@ -12,6 +12,7 @@ import {
   toRomanLower,
 } from "@/lib/investigaciones-constants";
 import type { InvSerialized } from "@/lib/investigaciones";
+import { formatEtapa } from "@/lib/etapa";
 
 export function InvPliegoItem({
   item,
@@ -78,6 +79,11 @@ export function InvPliegoItem({
             {item.user.universidad && (
               <span className="font-cormorant italic text-inv-ink-3">
                 {item.user.universidad}
+              </span>
+            )}
+            {item.user.etapaActual && (
+              <span className="font-cormorant italic text-inv-ink-3">
+                {formatEtapa(item.user.etapaActual, item.user.gender)}
               </span>
             )}
             <span>{item.wordCount.toLocaleString("es-CL")} palabras</span>

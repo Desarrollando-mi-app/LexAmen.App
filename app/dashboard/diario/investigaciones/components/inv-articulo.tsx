@@ -11,6 +11,7 @@ import {
   TIPOS_INVESTIGACION_LABELS,
   AREAS_DERECHO_LABELS_CORTOS,
 } from "@/lib/investigaciones-constants";
+import { formatEtapa } from "@/lib/etapa";
 import type { InvSerializedFull } from "@/lib/investigaciones";
 
 export function InvArticulo({
@@ -93,7 +94,7 @@ export function InvArticulo({
             {user.etapaActual && (
               <>
                 {user.universidad && " · "}
-                <em>{capitalize(user.etapaActual)}</em>
+                <em>{formatEtapa(user.etapaActual, user.gender, { capitalize: false })}</em>
               </>
             )}
           </div>
@@ -156,11 +157,6 @@ export function InvArticulo({
       />
     </article>
   );
-}
-
-function capitalize(s: string): string {
-  if (!s) return s;
-  return s[0].toUpperCase() + s.slice(1).toLowerCase();
 }
 
 // ─── InvBibliografia (placeholder Sprint 1) ─────────────────

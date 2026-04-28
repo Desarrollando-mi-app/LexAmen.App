@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import type { InvSerializedFull } from "@/lib/investigaciones";
+import { formatEtapa } from "@/lib/etapa";
 
 export function InvAside({
   investigacion,
@@ -85,7 +86,7 @@ export function InvAside({
         )}
         {user.etapaActual && (
           <div className="font-crimson-pro text-[10px] text-inv-ocre tracking-[1.5px] uppercase mb-3.5">
-            <em>{capitalize(user.etapaActual)}</em>
+            <em>{formatEtapa(user.etapaActual, user.gender)}</em>
           </div>
         )}
 
@@ -168,7 +169,3 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function capitalize(s: string): string {
-  if (!s) return s;
-  return s[0].toUpperCase() + s.slice(1).toLowerCase();
-}

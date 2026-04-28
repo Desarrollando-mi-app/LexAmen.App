@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { GENEROS, isGenero } from "@/lib/genero";
 
 export async function PATCH(request: Request) {
   const supabase = await createClient();
@@ -18,6 +19,7 @@ export async function PATCH(request: Request) {
     region, ciudad, corte, visibleEnRanking, visibleEnLiga,
     etapaActual, anioIngreso, anioEgreso, anioJura,
     empleoActual, cargoActual, especialidades, intereses, linkedinUrl,
+    gender,
   } = body;
 
   // Build update data (only provided fields)
@@ -70,6 +72,23 @@ export async function PATCH(request: Request) {
     (linkedinUrl.startsWith("https://linkedin.com/") || linkedinUrl.startsWith("https://www.linkedin.com/"))
   ) data.linkedinUrl = linkedinUrl;
 
+  // Gender — opcional, alimenta concordancia gramatical en publicaciones.
+  // Acepta null/"" para limpiar, o uno de los valores canónicos GENEROS.
+  if (gender === null || gender === "") {
+    data.gender = null;
+  } else if (typeof gender === "string") {
+    if (!isGenero(gender)) {
+      return NextResponse.json(
+        {
+          error:
+            "Género inválido. Valores aceptados: " + GENEROS.join(", "),
+        },
+        { status: 400 },
+      );
+    }
+    data.gender = gender;
+  }
+
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "No hay campos para actualizar" }, { status: 400 });
   }
@@ -101,6 +120,7 @@ export async function PATCH(request: Request) {
       intereses: true,
       linkedinUrl: true,
       avatarUrl: true,
+      gender: true,
     },
   });
 

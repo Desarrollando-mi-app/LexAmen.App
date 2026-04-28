@@ -16,6 +16,7 @@ export type InvAuthorMini = {
   avatarUrl: string | null;
   universidad: string | null;
   etapaActual: string | null; // "estudiante" | "egresado" | "abogado"
+  gender: string | null; // alimenta concordancia gramatical en publicaciones
   hIndex: number;
   totalCitationsReceived: number;
 };
@@ -62,6 +63,7 @@ const userMiniSelect = {
   avatarUrl: true,
   universidad: true,
   etapaActual: true,
+  gender: true,
   hIndex: true,
   totalCitationsReceived: true,
 } as const;
@@ -85,6 +87,7 @@ type InvWithRelations = NonNullable<
     avatarUrl: string | null;
     universidad: string | null;
     etapaActual: string | null;
+    gender: string | null;
     hIndex: number;
     totalCitationsReceived: number;
   };
@@ -302,6 +305,7 @@ export async function getAutoresTopHIndex(limit = 5): Promise<
     lastName: string;
     universidad: string | null;
     etapaActual: string | null;
+    gender: string | null;
     avatarUrl: string | null;
     hIndex: number;
     totalCitationsReceived: number;
@@ -314,6 +318,7 @@ export async function getAutoresTopHIndex(limit = 5): Promise<
     lastName: string;
     universidad: string | null;
     etapaActual: string | null;
+    gender: string | null;
     avatarUrl: string | null;
     hIndex: number;
     totalCitationsReceived: number;
@@ -322,7 +327,7 @@ export async function getAutoresTopHIndex(limit = 5): Promise<
   const rows = await prisma.$queryRaw<Row[]>`
     SELECT
       u."id", u."firstName", u."lastName", u."universidad",
-      u."etapaActual", u."avatarUrl",
+      u."etapaActual", u."gender", u."avatarUrl",
       u."hIndex", u."totalCitationsReceived",
       COUNT(i."id")::bigint AS "trabajos"
     FROM "User" u

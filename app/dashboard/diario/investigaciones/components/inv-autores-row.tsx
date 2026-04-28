@@ -5,6 +5,7 @@
 
 import Link from "next/link";
 import { toRoman } from "@/lib/investigaciones-constants";
+import { formatEtapa } from "@/lib/etapa";
 
 type Autor = {
   id: string;
@@ -12,6 +13,7 @@ type Autor = {
   lastName: string;
   universidad: string | null;
   etapaActual: string | null;
+  gender: string | null;
   avatarUrl: string | null;
   hIndex: number;
   totalCitationsReceived: number;
@@ -58,7 +60,7 @@ export function InvAutoresRow({ autores }: { autores: Autor[] }) {
               {autor.etapaActual && (
                 <>
                   {" · "}
-                  <em>{capitalize(autor.etapaActual)}</em>
+                  <em>{formatEtapa(autor.etapaActual, autor.gender)}</em>
                 </>
               )}
             </div>
@@ -96,7 +98,3 @@ export function InvAutoresRow({ autores }: { autores: Autor[] }) {
   );
 }
 
-function capitalize(s: string): string {
-  if (!s) return s;
-  return s[0].toUpperCase() + s.slice(1).toLowerCase();
-}

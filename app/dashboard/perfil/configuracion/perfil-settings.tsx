@@ -21,6 +21,7 @@ import {
   validatePassword,
   PASSWORD_ERROR_MESSAGE,
 } from "@/lib/password-validation";
+import { GENEROS, GENERO_LABELS } from "@/lib/genero";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -50,6 +51,7 @@ interface UserData {
   especialidades: string | null;
   intereses: string | null;
   linkedin: string | null;
+  gender: string | null;
 }
 
 interface PerfilSettingsProps {
@@ -216,6 +218,7 @@ function TabPerfil({
   );
   const [cvAvailable, setCvAvailable] = useState(user.cvAvailable);
   const [etapa, setEtapa] = useState(user.etapa ?? "");
+  const [gender, setGender] = useState(user.gender ?? "");
   const [anoIngreso, setAnoIngreso] = useState<number | null>(user.anoIngreso ?? null);
   const [anoEgreso, setAnoEgreso] = useState<number | null>(user.anoEgreso ?? null);
   const [anoJura, setAnoJura] = useState<number | null>(user.anoJura ?? null);
@@ -559,6 +562,7 @@ function TabPerfil({
           ciudad: ciudad || null,
           corte: corte || null,
           etapa: etapa || null,
+          gender: gender || null,
           anoIngreso: anoIngreso,
           anoEgreso: anoEgreso,
           anoJura: anoJura,
@@ -588,6 +592,7 @@ function TabPerfil({
         ciudad: ciudad || null,
         corte: corte || null,
         etapa: etapa || null,
+        gender: gender || null,
         anoIngreso,
         anoEgreso,
         anoJura,
@@ -1027,6 +1032,31 @@ function TabPerfil({
           <option value="titulado">Titulado/a (Licenciado/a)</option>
           <option value="abogado">Abogado/a</option>
         </select>
+      </div>
+
+      {/* Género — opcional, alimenta concordancia gramatical en publicaciones */}
+      <div>
+        <label className={LABEL}>
+          ¿Cómo prefieres que nos refiramos a ti en publicaciones?
+        </label>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          className={INPUT}
+        >
+          <option value="">— No completar —</option>
+          {GENEROS.map((g) => (
+            <option key={g} value={g}>
+              {GENERO_LABELS[g]}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1 font-archivo text-[12px] italic text-gz-ink-light leading-snug">
+          Esta preferencia se aplica al lenguaje de tu perfil y tus
+          investigaciones (ej: &ldquo;Egresada&rdquo; / &ldquo;Egresado&rdquo; /
+          &ldquo;Egresade&rdquo;). Es opcional. Si no la completas, usaremos el
+          masculino genérico estándar.
+        </p>
       </div>
 
       {/* Año de ingreso */}

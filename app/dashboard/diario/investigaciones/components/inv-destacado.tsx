@@ -13,6 +13,7 @@ import {
   toRoman,
 } from "@/lib/investigaciones-constants";
 import type { InvSerialized } from "@/lib/investigaciones";
+import { formatEtapa } from "@/lib/etapa";
 
 export function InvDestacado({
   investigacion,
@@ -66,7 +67,7 @@ export function InvDestacado({
                 {" "}
                 ·{" "}
                 <em>
-                  {capitalize(user.etapaActual)}
+                  {formatEtapa(user.etapaActual, user.gender)}
                 </em>
               </>
             )}
@@ -186,7 +187,3 @@ export function InvDestacado({
   );
 }
 
-function capitalize(s: string): string {
-  if (!s) return s;
-  return s[0].toUpperCase() + s.slice(1).toLowerCase();
-}
