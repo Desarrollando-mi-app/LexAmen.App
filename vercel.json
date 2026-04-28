@@ -15,6 +15,10 @@
     {
       "path": "/api/diario/fallo-semana/cron",
       "schedule": "59 2 * * 1"
+    },
+    {
+      "path": "/api/cron/recalculate-metrics",
+      "schedule": "0 3 * * *"
     }
   ]
 }
