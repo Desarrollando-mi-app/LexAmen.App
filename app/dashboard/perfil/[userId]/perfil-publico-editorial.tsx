@@ -18,6 +18,8 @@ import { TIER_LABELS, TIER_EMOJIS, getGradoInfo } from "@/lib/league";
 import { ReportModal } from "@/app/components/report-modal";
 import { AreasRadar } from "./areas-radar";
 import { HitoEditorModal, type HitoData } from "../components/hito-editor-modal";
+import { PerfilImprenta } from "../components/perfil-imprenta";
+import type { PerfilImprentaData } from "@/lib/perfil-imprenta";
 
 // ─── Types (shared shape with perfil-publico.tsx) ────────
 
@@ -93,6 +95,7 @@ interface PerfilEditorialProps {
     fechaIso?: string;
   }>;
   topBadges?: Array<{ slug: string; emoji: string; label: string; tier: string }>;
+  imprentaData?: PerfilImprentaData;
 }
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -156,6 +159,7 @@ export function PerfilEditorial({
   especialidadesDeclaradas,
   trayectoria,
   topBadges,
+  imprentaData,
 }: PerfilEditorialProps) {
   const [colegaStatus, setColegaStatus] = useState(initialStatus);
   const [requestId, setRequestId] = useState(initialRequestId);
@@ -705,6 +709,16 @@ export function PerfilEditorial({
                 )}
               </div>
             ) : null}
+
+            {/* Imprenta del autor — bloque hermano de Trayectoria */}
+            {imprentaData && (
+              <PerfilImprenta
+                userId={user.id}
+                isOwner={isOwnProfile}
+                data={imprentaData}
+                variant="editorial"
+              />
+            )}
 
             {/* Áreas practicadas (auto — radar editorial) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (

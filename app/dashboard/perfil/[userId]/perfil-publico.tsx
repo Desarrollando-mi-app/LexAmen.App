@@ -13,6 +13,8 @@ import { ObiterEditor } from "@/app/dashboard/diario/components/obiter-editor";
 import { DebateModal } from "../components/debate-modal";
 import { EnsayoModal } from "../components/ensayo-modal";
 import { AnalisisModal } from "../components/analisis-modal";
+import { PerfilImprenta } from "../components/perfil-imprenta";
+import type { PerfilImprentaData } from "@/lib/perfil-imprenta";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -123,6 +125,7 @@ interface PerfilPublicoProps {
     fechaIso?: string;
   }>;
   topBadges?: Array<{ slug: string; emoji: string; label: string; tier: string }>;
+  imprentaData?: PerfilImprentaData;
 }
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -199,6 +202,7 @@ export function PerfilPublico({
   especialidadesDeclaradas,
   trayectoria,
   topBadges,
+  imprentaData,
 }: PerfilPublicoProps) {
   const [colegaStatus, setColegaStatus] = useState(initialStatus);
   const [requestId, setRequestId] = useState(initialRequestId);
@@ -864,6 +868,16 @@ export function PerfilPublico({
                 )}
               </div>
             ) : null}
+
+            {/* Imprenta del autor — bloque hermano de Trayectoria */}
+            {imprentaData && (
+              <PerfilImprenta
+                userId={user.id}
+                isOwner={isOwnProfile}
+                data={imprentaData}
+                variant="default"
+              />
+            )}
 
             {/* Áreas practicadas (auto — radar) */}
             {especialidadesCalculadas && especialidadesCalculadas.length > 0 && (

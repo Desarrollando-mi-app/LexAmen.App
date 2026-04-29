@@ -5,6 +5,7 @@ import { getColegaStatus, getColegas, getColegaCount } from "@/lib/colegas";
 import { getUserTutorStats } from "@/lib/sala-utils";
 import { getCurrentWeekBounds } from "@/lib/league";
 import { computePercentile, getTogaTierByPercentile } from "@/lib/la-toga";
+import { getPerfilImprentaData } from "@/lib/perfil-imprenta";
 import { PerfilPublico } from "./perfil-publico";
 import { PerfilEditorial } from "./perfil-publico-editorial";
 import { PerfilModerno } from "./perfil-publico-moderno";
@@ -221,6 +222,10 @@ export default async function PerfilPage({ params, searchParams }: Props) {
   if (!targetUser) {
     notFound();
   }
+
+  // Imprenta del autor (Sprint 3) — coexiste con la Trayectoria.
+  // Se calcula aparte: depende de targetUser.id ya resuelto.
+  const imprentaData = await getPerfilImprentaData(params.userId);
 
   const tier = targetUser.leagueMembers[0]?.league.tier ?? null;
 
@@ -590,6 +595,7 @@ export default async function PerfilPage({ params, searchParams }: Props) {
         especialidadesDeclaradas={especialidadesDeclaradas}
         trayectoria={trayectoria}
         topBadges={topBadges}
+        imprentaData={imprentaData}
       />
     );
   }
@@ -613,6 +619,7 @@ export default async function PerfilPage({ params, searchParams }: Props) {
         especialidadesDeclaradas={especialidadesDeclaradas}
         trayectoria={trayectoria}
         topBadges={topBadges}
+        imprentaData={imprentaData}
       />
     );
   }
@@ -642,6 +649,7 @@ export default async function PerfilPage({ params, searchParams }: Props) {
       especialidadesDeclaradas={especialidadesDeclaradas}
       trayectoria={trayectoria}
       topBadges={topBadges}
+      imprentaData={imprentaData}
     />
   );
 }

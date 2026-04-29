@@ -39,6 +39,7 @@ type SearchParams = {
   tipo?: string;
   area?: string;
   institucionId?: string;
+  authorId?: string;
   search?: string;
   sort?: string;
   page?: string;
@@ -63,6 +64,7 @@ export default async function PliegoPage({
         tipo: sp.tipo,
         area: sp.area,
         institucionId: sp.institucionId ? Number(sp.institucionId) : null,
+        authorId: sp.authorId ?? null,
         search: sp.search,
         sort: (sp.sort as "recent" | "mostCited") || "recent",
         page: sp.page ? Number(sp.page) : 1,
