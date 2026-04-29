@@ -16,6 +16,8 @@ import { InvArticulo, InvBibliografia } from "../components/inv-articulo";
 import { InvAside } from "../components/inv-aside";
 import { InvCitadoPor } from "../components/inv-citado-por";
 import { InvExternas } from "../components/inv-externas";
+import { InvCitaExternaForm } from "../components/inv-cita-externa-form";
+import { InvMisDeclaraciones } from "../components/inv-mis-declaraciones";
 import { InvContraportada } from "../components/inv-contraportada";
 
 export async function generateMetadata({
@@ -96,6 +98,14 @@ export default async function DetalleInvestigacionPage({
 
             {/* Citas externas verificadas por el comité */}
             <InvExternas invId={investigacion.id} />
+
+            {/* Form de declaración + lista — solo el autor las ve */}
+            {authUser.id === investigacion.user.id && (
+              <>
+                <InvCitaExternaForm invId={investigacion.id} />
+                <InvMisDeclaraciones invId={investigacion.id} />
+              </>
+            )}
           </div>
 
           <InvAside

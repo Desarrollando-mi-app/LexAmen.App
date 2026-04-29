@@ -47,6 +47,11 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/expedientes", label: "Expedientes", icon: "📂" },
       { href: "/admin/fallo-semana", label: "Fallo de la Semana", icon: "🔥" },
       { href: "/admin/peer-review", label: "Peer Review", icon: "✠" },
+      {
+        href: "/admin/investigaciones-externas",
+        label: "Citas Externas",
+        icon: "§",
+      },
     ],
   },
   {
