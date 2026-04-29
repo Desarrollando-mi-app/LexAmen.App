@@ -52,6 +52,11 @@ const NAV_GROUPS: NavGroup[] = [
         label: "Citas Externas",
         icon: "§",
       },
+      {
+        href: "/admin/citaciones-reportes",
+        label: "Reportes de Citas",
+        icon: "⚠",
+      },
     ],
   },
   {

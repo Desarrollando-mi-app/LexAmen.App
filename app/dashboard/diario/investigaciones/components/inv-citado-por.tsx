@@ -8,6 +8,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatEtapa } from "@/lib/etapa";
+import { InvReportarCita } from "./inv-reportar-cita";
 
 const MAX_ITEMS = 12;
 
@@ -131,6 +132,9 @@ export async function InvCitadoPor({ invId }: { invId: string }) {
                     “{cit.contextSnippet}”
                   </blockquote>
                 )}
+                <div className="mt-1.5">
+                  <InvReportarCita citacionId={cit.id} />
+                </div>
               </div>
             </li>
           );
