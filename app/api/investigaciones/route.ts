@@ -15,6 +15,11 @@ import {
   type TipoInvestigacion,
   type AreaDerecho,
 } from "@/lib/investigaciones-constants";
+import { recalculateUserMetrics } from "@/lib/citations";
+
+const COOLDOWN_MS = 48 * 60 * 60 * 1000; // 48h
+const RATE_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h
+const RATE_LIMIT_MAX = 3;
 
 // ─── GET — Listar (Pliego + paginación) ────────────────────────
 
@@ -35,14 +40,23 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(data);
 }
 
-// ─── POST — Crear (Sprint 1: validaciones básicas, sin citas) ──
+// ─── POST — Crear con citas internas ───────────────────────────
 //
-// Sprint 1 acepta `citasInsertadas` y `bibliografiaExterna` en el body
-// pero NO crea aún las relaciones Citacion (eso queda para sprint 2 con
-// el editor TipTap completo y el modal de búsqueda).
-// La API actualiza wordCount, abstractWordCount y crea las filas
-// InvestigacionInstitucion. Validaciones: campos requeridos, abstract
-// 150-250 palabras, mínimo 3 instituciones, body con words ≥ MIN_WORDS_BY_TYPE.
+// Procesa el body completo del editor TipTap:
+//  - Validaciones de campos (título, abstract, tipo, área, instituciones,
+//    body wordcount mínimo según tipo)
+//  - Rate limit: máximo 3 publicaciones en 24h por usuario
+//  - Para cada cita en `citasInsertadas`:
+//      · valida 48h de cooldown desde citedInv.publishedAt
+//      · detecta auto-cita (citedInv.userId === session.user.id) y la
+//        marca con isSelfCitation=true
+//  - Crea Investigacion + InvestigacionInstitucion + Citacion[] dentro
+//    de una sola transacción.
+//  - Incrementa contadores denormalizados: citationsInternal en citas
+//    no-auto, selfCitations en auto-citas. (citationsInternal del
+//    citedInv NO incluye auto-citas, igual que h-index.)
+//  - Tras el commit, fuera de la transacción, recalcula h-index/total
+//    de cada autor citado en background.
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -64,6 +78,11 @@ export async function POST(request: NextRequest) {
     areasSecundarias?: string[];
     institucionIds?: number[];
     bibliografiaExterna?: unknown;
+    citasInsertadas?: Array<{
+      citedInvId?: string;
+      contextSnippet?: string | null;
+      locationInText?: string | null;
+    }>;
   };
   try {
     body = await request.json();
@@ -71,7 +90,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Body inválido" }, { status: 400 });
   }
 
-  // ─── Validaciones ──
+  // ─── Rate limit: 3 publicaciones / 24h ──
+  const sinceWindow = new Date(Date.now() - RATE_LIMIT_WINDOW_MS);
+  const recentCount = await prisma.investigacion.count({
+    where: {
+      userId: authUser.id,
+      createdAt: { gte: sinceWindow },
+    },
+  });
+  if (recentCount >= RATE_LIMIT_MAX) {
+    return NextResponse.json(
+      {
+        errors: [
+          `Has alcanzado el límite de ${RATE_LIMIT_MAX} publicaciones en 24h. Intenta más tarde.`,
+        ],
+      },
+      { status: 429 },
+    );
+  }
+
+  // ─── Validaciones de campos ──
   const errors: string[] = [];
 
   const titulo = body.titulo?.trim();
@@ -109,9 +147,7 @@ export async function POST(request: NextRequest) {
     (n) => Number.isFinite(n) && n > 0,
   );
   if (institucionIds.length < 3 || institucionIds.length > 7) {
-    errors.push(
-      "Debes seleccionar entre 3 y 7 instituciones jurídicas.",
-    );
+    errors.push("Debes seleccionar entre 3 y 7 instituciones jurídicas.");
   }
 
   const wordCount = countWordsFromHtml(contenido);
@@ -128,7 +164,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ errors }, { status: 400 });
   }
 
-  // Verificar que las instituciones existen
+  // ─── Verificar instituciones ──
   const existing = await prisma.institucionJuridica.findMany({
     where: { id: { in: institucionIds } },
     select: { id: true },
@@ -140,29 +176,180 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // ─── Crear ──
-  const inv = await prisma.investigacion.create({
-    data: {
-      userId: authUser.id,
-      titulo: titulo!,
-      deck: body.deck?.trim() || null,
-      abstract,
-      contenido,
-      bibliografiaExterna:
-        body.bibliografiaExterna != null
-          ? (body.bibliografiaExterna as never)
-          : undefined,
-      tipo: tipo!,
-      area: area!,
-      areasSecundarias: body.areasSecundarias ?? [],
-      wordCount,
-      abstractWordCount: abstractWords,
-      instituciones: {
-        create: institucionIds.map((id) => ({ institucionId: id })),
+  // ─── Procesar citas internas (validar + detectar auto-citas) ──
+  type CitaValida = {
+    citedInvId: string;
+    citedAuthorId: string;
+    contextSnippet: string | null;
+    locationInText: string | null;
+    isSelfCitation: boolean;
+  };
+  const citasValidas: CitaValida[] = [];
+  const citasRaw = (body.citasInsertadas ?? []).filter(
+    (c) => typeof c?.citedInvId === "string" && c.citedInvId.length > 0,
+  );
+
+  if (citasRaw.length > 0) {
+    // Deduplicar por citedInvId
+    const seen = new Set<string>();
+    const uniqueCitedIds = citasRaw
+      .map((c) => c.citedInvId!)
+      .filter((id) => {
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return true;
+      });
+
+    const cited = await prisma.investigacion.findMany({
+      where: { id: { in: uniqueCitedIds } },
+      select: {
+        id: true,
+        userId: true,
+        publishedAt: true,
+        status: true,
       },
-    },
-    select: { id: true },
+    });
+    const citedById = new Map(cited.map((c) => [c.id, c]));
+
+    const now = Date.now();
+    for (const raw of citasRaw) {
+      const cInv = citedById.get(raw.citedInvId!);
+      if (!cInv) {
+        return NextResponse.json(
+          {
+            errors: [
+              `La investigación citada (${raw.citedInvId}) no existe.`,
+            ],
+          },
+          { status: 400 },
+        );
+      }
+      if (cInv.status !== "published") {
+        return NextResponse.json(
+          {
+            errors: [
+              `La investigación citada (${raw.citedInvId}) no está publicada.`,
+            ],
+          },
+          { status: 400 },
+        );
+      }
+      const elapsed = now - new Date(cInv.publishedAt).getTime();
+      if (elapsed < COOLDOWN_MS) {
+        const citableSince = new Date(
+          new Date(cInv.publishedAt).getTime() + COOLDOWN_MS,
+        );
+        return NextResponse.json(
+          {
+            errors: [
+              `Una investigación citada todavía está en ventana de 48h (citable desde ${citableSince.toISOString()}).`,
+            ],
+          },
+          { status: 400 },
+        );
+      }
+
+      // Evitar duplicado en el mismo body
+      if (citasValidas.some((c) => c.citedInvId === cInv.id)) continue;
+
+      citasValidas.push({
+        citedInvId: cInv.id,
+        citedAuthorId: cInv.userId,
+        contextSnippet: raw.contextSnippet?.toString().trim() || null,
+        locationInText: raw.locationInText?.toString().trim() || null,
+        isSelfCitation: cInv.userId === authUser.id,
+      });
+    }
+  }
+
+  // ─── Transacción: crear investigación + relaciones + citaciones ──
+  const created = await prisma.$transaction(async (tx) => {
+    const inv = await tx.investigacion.create({
+      data: {
+        userId: authUser.id,
+        titulo: titulo!,
+        deck: body.deck?.trim() || null,
+        abstract,
+        contenido,
+        bibliografiaExterna:
+          body.bibliografiaExterna != null
+            ? (body.bibliografiaExterna as never)
+            : undefined,
+        tipo: tipo!,
+        area: area!,
+        areasSecundarias: body.areasSecundarias ?? [],
+        wordCount,
+        abstractWordCount: abstractWords,
+        instituciones: {
+          create: institucionIds.map((id) => ({ institucionId: id })),
+        },
+      },
+      select: { id: true },
+    });
+
+    if (citasValidas.length > 0) {
+      await tx.citacion.createMany({
+        data: citasValidas.map((c) => ({
+          citingInvId: inv.id,
+          citedInvId: c.citedInvId,
+          citingAuthorId: authUser.id,
+          citedAuthorId: c.citedAuthorId,
+          contextSnippet: c.contextSnippet,
+          locationInText: c.locationInText,
+          isSelfCitation: c.isSelfCitation,
+        })),
+      });
+
+      // Incrementar contadores: citationsInternal solo en no-auto-citas;
+      // selfCitations en auto-citas
+      const realCites = citasValidas.filter((c) => !c.isSelfCitation);
+      const selfCites = citasValidas.filter((c) => c.isSelfCitation);
+
+      if (realCites.length > 0) {
+        // Una update por citedInvId (no se puede increment con groupBy)
+        const grouped = new Map<string, number>();
+        for (const c of realCites) {
+          grouped.set(c.citedInvId, (grouped.get(c.citedInvId) ?? 0) + 1);
+        }
+        for (const [citedInvId, count] of grouped) {
+          await tx.investigacion.update({
+            where: { id: citedInvId },
+            data: { citationsInternal: { increment: count } },
+          });
+        }
+      }
+      if (selfCites.length > 0) {
+        const grouped = new Map<string, number>();
+        for (const c of selfCites) {
+          grouped.set(c.citedInvId, (grouped.get(c.citedInvId) ?? 0) + 1);
+        }
+        for (const [citedInvId, count] of grouped) {
+          await tx.investigacion.update({
+            where: { id: citedInvId },
+            data: { selfCitations: { increment: count } },
+          });
+        }
+      }
+    }
+
+    return inv;
   });
 
-  return NextResponse.json({ id: inv.id }, { status: 201 });
+  // ─── Recalcular métricas de los autores citados (fuera de la TX) ──
+  // Solo autores no-self (auto-citas no impactan h-index ni totalCitationsReceived)
+  const autoresUnicos = new Set(
+    citasValidas
+      .filter((c) => !c.isSelfCitation)
+      .map((c) => c.citedAuthorId),
+  );
+  if (autoresUnicos.size > 0) {
+    // Best effort: si falla un recálculo, no revertir la publicación.
+    await Promise.allSettled(
+      Array.from(autoresUnicos).map((userId) =>
+        recalculateUserMetrics(userId),
+      ),
+    );
+  }
+
+  return NextResponse.json({ id: created.id }, { status: 201 });
 }

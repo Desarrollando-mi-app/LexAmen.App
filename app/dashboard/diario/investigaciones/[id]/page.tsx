@@ -10,9 +10,12 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { getInvestigacionDetalle } from "@/lib/investigaciones";
+import { getSparklineData } from "@/lib/citations";
 import { getTipoLabel } from "@/lib/investigaciones-constants";
 import { InvArticulo, InvBibliografia } from "../components/inv-articulo";
 import { InvAside } from "../components/inv-aside";
+import { InvCitadoPor } from "../components/inv-citado-por";
+import { InvExternas } from "../components/inv-externas";
 import { InvContraportada } from "../components/inv-contraportada";
 
 export async function generateMetadata({
@@ -48,9 +51,13 @@ export default async function DetalleInvestigacionPage({
   if (!investigacion) notFound();
 
   // Cuántos trabajos publicados tiene el autor (para el aside)
-  const trabajosDelAutor = await prisma.investigacion.count({
-    where: { userId: investigacion.user.id, status: "published" },
-  });
+  // + sparkline 12m de citas recibidas (excluye auto-citas)
+  const [trabajosDelAutor, sparkline] = await Promise.all([
+    prisma.investigacion.count({
+      where: { userId: investigacion.user.id, status: "published" },
+    }),
+    getSparklineData(investigacion.id),
+  ]);
 
   return (
     <main className="inv-paper-grain min-h-screen bg-inv-paper font-crimson-pro text-inv-ink">
@@ -84,13 +91,17 @@ export default async function DetalleInvestigacionPage({
             {/* Bibliografía externa (si existe) */}
             <InvBibliografia data={investigacion.bibliografiaExterna} />
 
-            {/* "Citado por" se renderiza en Sprint 2 cuando exista el sistema de citas internas */}
-            {/* "Externas verificadas" se renderiza también en Sprint 2 + 3 */}
+            {/* Citas internas recibidas (no-auto) */}
+            <InvCitadoPor invId={investigacion.id} />
+
+            {/* Citas externas verificadas por el comité */}
+            <InvExternas invId={investigacion.id} />
           </div>
 
           <InvAside
             investigacion={investigacion}
             trabajosDelAutor={trabajosDelAutor}
+            sparkline={sparkline}
           />
         </div>
       </div>

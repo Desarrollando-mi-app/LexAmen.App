@@ -1,19 +1,22 @@
 // ─── InvAside — sidebar del detalle ──────────────────────────
 //
-// Sprint 1: 3 tarjetas apiladas — métricas, mini-autor, acciones.
-// El sparkline (citas por mes) se añade en Sprint 2 cuando el sistema
-// de citas internas esté operativo (requiere `getSparklineData`).
+// 3 tarjetas apiladas — métricas (con sparkline 12m), mini-autor y
+// acciones. El sparkline ignora auto-citas (lo construye
+// `getSparklineData` con SQL crudo).
 
 import Link from "next/link";
 import type { InvSerializedFull } from "@/lib/investigaciones";
 import { formatEtapa } from "@/lib/etapa";
+import { InvSparkline } from "./inv-sparkline";
 
 export function InvAside({
   investigacion,
   trabajosDelAutor,
+  sparkline,
 }: {
   investigacion: InvSerializedFull;
   trabajosDelAutor: number;
+  sparkline?: { month: string; count: number }[];
 }) {
   const { user } = investigacion;
   const initials = `${user.firstName[0] ?? ""}${user.lastName[0] ?? ""}`.toUpperCase();
@@ -41,8 +44,8 @@ export function InvAside({
             </div>
           </div>
 
-          {/* Sparkline placeholder — Sprint 2 */}
-          {/* Por ahora dejamos el espacio para cuando se enchufe getSparklineData */}
+          {/* Sparkline 12 meses (citas externas + internas no-auto) */}
+          {sparkline && <InvSparkline data={sparkline} />}
 
           {/* Filas de métricas */}
           <Metric label="Internas" value={investigacion.citationsInternal} />
